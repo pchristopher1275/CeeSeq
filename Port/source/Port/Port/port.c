@@ -17,7 +17,6 @@
 #define PORT_BUILD_NUMBER 0
 #endif
 
-
 static t_class *Port_class = NULL;
 
 void *Port_new(t_symbol *s, long argc, t_atom *argv);
@@ -42,6 +41,7 @@ void ext_main(void *r)
     Error_maypost(err);
     Port_class = c;
 }
+
 
 void *Port_new(t_symbol *s, long argc, t_atom *argv)
 {

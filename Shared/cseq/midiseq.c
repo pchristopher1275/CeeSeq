@@ -235,6 +235,7 @@ MidiseqArr MidiseqArr_free(MidiseqArr arr)
     return arr;
 }
 
+
 //
 // P A T C H E R    F I N D
 //

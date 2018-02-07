@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use strict;
 my $gVerbose = 1;
-my $gPackages = "$ENV{HOME}/Documents/Max 7/Packages";
+my $gPackages = "$ENV{HOME}/CeeSeq";
 my $gBcppCfg  = "Shared/bcpp.cfg";
 my $gBinary   = "Shared/bcpp-20150811/code/bcpp";
 sub run {

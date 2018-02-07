@@ -22,6 +22,7 @@ sds stripBaseName(const char *path)
     return stripBaseNameString;
 }
 
+
 //
 // T I M E
 //
@@ -30,6 +31,7 @@ Ticks cseqHub_now()
 {
     return (Ticks)itm_getticks(itm_getglobal());
 }
+
 
 //
 // E R R O R    C L A S S
@@ -150,10 +152,12 @@ void DBLog_init(const char *tag, Error *err)
     }
 }
 
+
 //
 // P O R T
 //
-enum {
+enum
+{
     Port_vstType = 1,
     Port_noType = 2,
 };
@@ -165,7 +169,8 @@ typedef struct
     void *outlet1;
 } Port;
 
-static const char *Port_typeString(Port *port) {
+static const char *Port_typeString(Port *port)
+{
     switch(port->porttype) {
         case Port_vstType:
             return "Port_vstType";
@@ -176,20 +181,28 @@ static const char *Port_typeString(Port *port) {
     }
 }
 
-static int Port_isVstType(Port *port) {
+
+static int Port_isVstType(Port *port)
+{
     return port->porttype == Port_vstType;
 }
 
-void Port_sendnote(Port *port, int pitch, int velocity, Ticks duration, Error *err) {
+
+void Port_sendnote(Port *port, int pitch, int velocity, Ticks duration, Error *err)
+{
     if (Port_isVstType(port)) {
         const short ac = 3;
-        t_atom av[ac] = {{0}}; 
+        t_atom av[ac] = {
+            {
+                0
+            }
+        };
         atom_setlong(av+0, pitch);
         atom_setlong(av+1, velocity);
         atom_setfloat(av+2, (float)duration);
-        outlet_anything(port->outlet1, gensym("note"), ac, av); 
-    } else {
+        outlet_anything(port->outlet1, gensym("note"), ac, av);
+    }
+    else {
         Error_format(err, "Port_sendnote called on porttype = %s", Port_typeString(port));
     }
 }
-

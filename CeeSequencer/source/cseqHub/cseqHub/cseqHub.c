@@ -128,7 +128,8 @@ void *CseqHub_new(t_symbol *s, long argc, t_atom *argv)
     t_object *pack = PatcherFind_find(pf, gensym("vstPort"));
     if (pack == NULL) {
         post("vstPort was NOT found");
-    } else {
+    }
+    else {
         x->vstDestination = (Port*)pack;
     }
 
@@ -211,7 +212,7 @@ void CseqHub_playnotes(CseqHub *x)
                 Port *port = x->vstDestination;
                 if (port != NULL) {
                     Port_sendnote(port, MidiseqCell_notePitch(cell), MidiseqCell_noteVelocity(cell), msDuration, err);
-                    Error_maypost(err);                    
+                    Error_maypost(err);
                 }
             }
         }
