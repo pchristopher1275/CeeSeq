@@ -1,0 +1,258 @@
+/**
+    @file
+    CseqHub - an ITM-based delay
+
+    @ingroup	examples
+*/
+
+#include "ext.h"
+#include "ext_common.h"
+#include "ext_obex.h"
+#include "ext_time.h"
+#include "ext_itm.h"
+#include "../../../../Shared/cseq/midiseq.c"
+
+typedef struct _CseqHub
+{
+    t_object d_obj;
+
+    void *d_proxy;
+    long d_inletnum;
+
+    void *pitch_outlet;
+    void *velocity_outlet;
+    void *duration_outlet;
+
+    t_timeobject *schedular;
+
+    // Midiseq *midi;
+    // Destination *dst;
+
+    LiveList *llst;
+
+    Port *vstDestination;
+
+} CseqHub;
+
+void *CseqHub_new(t_symbol *s, long argc, t_atom *argv);
+void CseqHub_free(CseqHub *x);
+void CseqHub_assist(CseqHub *x, void *b, long m, long a, char *s);
+void CseqHub_int(CseqHub *x, long n);
+void CseqHub_playnotes(CseqHub *x);
+
+static t_class *CseqHub_class = NULL;
+
+#ifndef CSEQ_BUILD_NUMBER
+#define CSEQ_BUILD_NUMBER 0
+#endif
+
+void ext_main(void *r)
+{
+    // NOTE: If class_new makes a copy of className, than className has essentially leaked.
+    sds className = NULL;
+    if (CSEQ_BUILD_NUMBER == 0) {
+        className = sdsnew("cseqHub");
+    }
+    else {
+        className = sdscatprintf(sdsempty(), "cseqHub%d", CSEQ_BUILD_NUMBER);
+    }
+    Error_declare(err);
+    DBLog_init("hub", err);
+    Midiseq_setMidicsvExecPath();
+
+    t_class *c = class_new(className, (method)CseqHub_new, (method)CseqHub_free,
+        sizeof(CseqHub), (method)0L, A_GIMME, 0);
+    class_addmethod(c, (method)CseqHub_assist, "assist", A_CANT, 0);
+    class_addmethod(c, (method)CseqHub_int, "int", A_LONG, 0);
+    class_register(CLASS_BOX, c);
+    if (Error_iserror(err)) {
+        post("DBLog failed: %s", Error_message(err));
+        Error_clear(err);
+    }
+
+    Error_clear(err);
+    CseqHub_class = c;
+}
+
+
+// initial optional arg is delay time
+
+void *CseqHub_new(t_symbol *s, long argc, t_atom *argv)
+{
+    CseqHub *x = (CseqHub *)object_alloc(CseqHub_class);
+    x->d_inletnum = 0;
+    x->d_proxy = proxy_new(x, 1, &x->d_inletnum);
+    x->duration_outlet = intout(x);
+    x->velocity_outlet = intout(x);
+    x->pitch_outlet    = intout(x);
+    x->schedular = (t_object *)time_new((t_object *)x, gensym("schedular"), (method)CseqHub_playnotes,
+        TIME_FLAGS_TICKSONLY | TIME_FLAGS_USECLOCK);
+
+    t_atom a = {0};
+    atom_setfloat(&a, 0.0);
+    time_setvalue(x->schedular, NULL, 1, &a);
+
+    Error_declare(err);
+    const char *HOME = getenv("HOME");
+    if (HOME == NULL) {
+        post("Failed to find HOME");
+        HOME = "foobar";
+    }
+
+    t_symbol *cg = gensym("cg");
+    const int npads = 128;
+    x->llst = LiveList_new(npads);
+    for (int i = 0; i < LiveList_padsLength(x->llst); i++) {
+        int index = i % 8;
+        Pad *pad = LiveList_pad(x->llst, i, err);
+        Pad_setChokeGroup(pad, cg);
+        if (index != 7) {
+            sds midifile = sdscatprintf(sdsempty(), "%s/Desktop/test%d.mid", HOME, index);
+            Pad *pad = LiveList_pad(x->llst, i, err);
+            if (Error_maypost(err)) {
+                sdsfree(midifile);
+                continue;
+            }
+
+            Midiseq *midi = Midiseq_fromfile(midifile, err);
+            Error_maypost(err);
+            sdsfree(midifile);
+            if (midi != NULL) {
+                Pad_setSequence(pad, midi);
+            }
+        }
+    }
+    // START TRANSPORT
+    itm_resume(time_getitm(x->schedular));
+
+    PatcherFind_declare(pf);
+    PatcherFind_discover(pf, (t_object*)x, err);
+    Error_maypost(err);
+    t_object *pack = PatcherFind_find(pf, gensym("vstPort"));
+    if (pack == NULL) {
+        post("vstPort was NOT found");
+    } else {
+        x->vstDestination = (Port*)pack;
+    }
+
+    PatcherFind_clear(pf);
+
+    /*
+    x->dst = (Destination*)MakenoteDestination_new(pack, err);
+    if (Error_iserror(err)) {
+        post("Failed MakenoteDestination_new: %s", Error_message(err));
+        return x;
+    }
+    */
+
+    // Midiseq_dblog(x->midi);
+    Error_clear(err);
+    CseqHub_int(x, 60);
+    return x;
+}
+
+
+void CseqHub_free(CseqHub *x)
+{
+    object_free((t_object *) x->d_proxy);
+    object_free(x->schedular);
+    LiveList_free(x->llst);
+}
+
+
+void CseqHub_assist(CseqHub *x, void *b, long m, long a, char *s)
+{
+    if (m == ASSIST_INLET) {                      // Inlets
+        switch (a) {
+            case 0: sprintf(s, "bang Gets Delayed, stop Cancels"); break;
+            case 1: sprintf(s, "Set Delay Time"); break;
+        }
+    }
+    else {                                        // Outlets
+        switch (a) {
+            case 0: sprintf(s, "Delayed bang"); break;
+            case 1: sprintf(s, "Another Delayed bang"); break;
+        }
+    }
+}
+
+
+static int lastVelocity = 0;
+void CseqHub_int(CseqHub *x, long val)
+{
+    if (proxy_getinlet((t_object *)x) == 1) {
+        lastVelocity = val;
+        return;
+    }
+    if (lastVelocity == 0) {
+        return;
+    }
+    long pitch = val;
+    Error_declare(err);
+    Ticks now = cseqHub_now();
+    LiveList_play(x->llst, (int)pitch, now, now, false, err);
+    if (Error_iserror(err)) {
+        post("Unexpected fail during midiseq_start: %s", Error_message(err));
+    }
+    time_stop(x->schedular);
+    time_now(x->schedular, NULL);
+    Error_clear(err);
+    dblog("CseqHub_int %lld", now);
+}
+
+
+void CseqHub_playnotes(CseqHub *x)
+{
+    Error_declare(err);
+    Ticks now = cseqHub_now();
+    MidiseqCell cell = {0};
+    int status = 0;
+    Ticks smallestDelta = -1;
+    for (int p = 0; p < LiveList_runningLength(x->llst); p++) {
+        Pad *pad      = LiveList_runningPad(x->llst, p, err);
+        if (Error_maypost(err)) {
+            continue;
+        }
+        Midiseq *midi = Pad_sequence(pad);
+        while ( (status = Midiseq_nextevent(midi, now, &cell, err)) == Midiseq_nextEventContinue) {
+            if (MidiseqCell_type(cell) == Midiseq_notetype) {
+                dblog("Play note %lld", now);
+                double msDuration = itm_tickstoms(itm_getglobal(), MidiseqCell_noteDuration(cell));
+                outlet_int(x->duration_outlet, (long)msDuration);
+                outlet_int(x->velocity_outlet, MidiseqCell_noteVelocity(cell));
+                outlet_int(x->pitch_outlet, MidiseqCell_notePitch(cell));
+                Port *port = x->vstDestination;
+                if (port != NULL) {
+                    Port_sendnote(port, MidiseqCell_notePitch(cell), MidiseqCell_noteVelocity(cell), msDuration, err);
+                    Error_maypost(err);                    
+                }
+                /*
+                Destination_send(x->dst, cell, err);
+                if (Error_iserror(err)) {
+                    post("Failed Destination_call: %s", Error_message(err));
+                }
+                */
+            }
+        }
+        if (Error_maypost(err)) {
+            continue;
+        }
+        if (status == Midiseq_nextEventBreak) {
+            Ticks delta = cell.t-now;
+            if (smallestDelta < 0) {
+                smallestDelta = delta;
+            }
+            else if (delta < smallestDelta) {
+                smallestDelta = delta;
+            }
+        }
+
+    }
+    if (smallestDelta >= 0) {
+        t_atom callbackInterval = {0};
+        atom_setfloat(&callbackInterval, smallestDelta);
+        time_setvalue(x->schedular, NULL, 1, &callbackInterval);
+        time_schedule(x->schedular, NULL);
+    }
+    Error_clear(err);
+}

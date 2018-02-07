@@ -1,0 +1,5 @@
+source/bcpp-20150811/code/*
+*.o
+source/cseqHub/cseqHub/build/
+cseqHub.xcodeproj
+

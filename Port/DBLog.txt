@@ -1,0 +1,772 @@
+[midiseq.c: 189] DBLog starting at Sun Jan 28 21:25:45 2018
+
+[midiseq.c: 472] Enter iterator
+[midiseq.c: 472] Enter iterator
+[midiseq.c: 472] Enter iterator
+[midiseq.c: 472] Enter iterator
+[midiseq.c: 472] Enter iterator
+[midiseq.c: 472] Enter iterator
+[midiseq.c: 472] Enter iterator
+[midiseq.c: 472] Enter iterator
+[midiseq.c: 472] Enter iterator
+[midiseq.c: 472] Enter iterator
+[midiseq.c: 472] Enter iterator
+[midiseq.c: 472] Enter iterator
+[midiseq.c: 472] Enter iterator
+[midiseq.c: 512] Trying to find 'packTarget': seeing ''
+[midiseq.c: 512] Trying to find 'packTarget': seeing ''
+[midiseq.c: 512] Trying to find 'packTarget': seeing 'packTarget'
+[midiseq.c: 1016] FOO 77290 77290 77290
+[cseqHub.c: 196] CseqHub_int 77290
+[cseqHub.c: 217] Play note 77290
+[cseqHub.c: 217] Play note 77410
+[midiseq.c: 1016] FOO 77503 77503 77503
+[cseqHub.c: 196] CseqHub_int 77503
+[cseqHub.c: 217] Play note 77503
+[cseqHub.c: 217] Play note 77623
+[cseqHub.c: 217] Play note 77743
+[midiseq.c: 1016] FOO 77854 77854 77854
+[cseqHub.c: 196] CseqHub_int 77854
+[cseqHub.c: 217] Play note 77854
+[cseqHub.c: 217] Play note 77974
+[cseqHub.c: 217] Play note 78094
+[cseqHub.c: 217] Play note 78214
+[midiseq.c: 1016] FOO 78332 78332 78332
+[cseqHub.c: 196] CseqHub_int 78332
+[cseqHub.c: 217] Play note 78332
+[cseqHub.c: 217] Play note 78452
+[cseqHub.c: 217] Play note 78572
+[cseqHub.c: 217] Play note 78692
+[midiseq.c: 1016] FOO 78810 78810 78810
+[cseqHub.c: 196] CseqHub_int 78810
+[cseqHub.c: 217] Play note 78810
+[cseqHub.c: 217] Play note 78930
+[cseqHub.c: 217] Play note 79050
+[cseqHub.c: 217] Play note 79170
+[midiseq.c: 1016] FOO 79248 79248 79248
+[cseqHub.c: 196] CseqHub_int 79248
+[cseqHub.c: 217] Play note 79248
+[cseqHub.c: 217] Play note 79368
+[cseqHub.c: 217] Play note 79488
+[cseqHub.c: 217] Play note 79608
+[midiseq.c: 1016] FOO 79688 79688 79688
+[cseqHub.c: 196] CseqHub_int 79688
+[cseqHub.c: 217] Play note 79688
+[cseqHub.c: 217] Play note 79808
+[cseqHub.c: 217] Play note 79928
+[cseqHub.c: 217] Play note 80048
+[cseqHub.c: 217] Play note 80168
+[midiseq.c: 1016] FOO 80331 80331 80331
+[cseqHub.c: 196] CseqHub_int 80331
+[cseqHub.c: 217] Play note 80331
+[cseqHub.c: 217] Play note 80451
+[midiseq.c: 1016] FOO 80546 80546 80546
+[cseqHub.c: 196] CseqHub_int 80546
+[cseqHub.c: 217] Play note 80546
+[cseqHub.c: 217] Play note 80666
+[midiseq.c: 1016] FOO 80771 80771 80771
+[cseqHub.c: 196] CseqHub_int 80771
+[cseqHub.c: 217] Play note 80771
+[cseqHub.c: 217] Play note 80891
+[cseqHub.c: 217] Play note 81011
+[midiseq.c: 1016] FOO 81108 81108 81108
+[cseqHub.c: 196] CseqHub_int 81108
+[cseqHub.c: 217] Play note 81108
+[cseqHub.c: 217] Play note 81228
+[midiseq.c: 1016] FOO 81309 81309 81309
+[cseqHub.c: 196] CseqHub_int 81309
+[cseqHub.c: 217] Play note 81309
+[cseqHub.c: 217] Play note 81429
+[midiseq.c: 1016] FOO 81507 81507 81507
+[cseqHub.c: 196] CseqHub_int 81507
+[cseqHub.c: 217] Play note 81507
+[midiseq.c: 1016] FOO 81528 81528 81528
+[cseqHub.c: 196] CseqHub_int 81528
+[cseqHub.c: 217] Play note 81528
+[cseqHub.c: 217] Play note 81648
+[midiseq.c: 1016] FOO 81687 81687 81687
+[cseqHub.c: 196] CseqHub_int 81687
+[midiseq.c: 1016] FOO 81712 81712 81712
+[cseqHub.c: 196] CseqHub_int 81712
+[cseqHub.c: 217] Play note 81712
+[cseqHub.c: 217] Play note 81832
+[cseqHub.c: 217] Play note 81952
+[cseqHub.c: 217] Play note 82072
+[cseqHub.c: 217] Play note 82192
+[cseqHub.c: 217] Play note 82312
+[midiseq.c: 1016] FOO 82377 82377 82377
+[cseqHub.c: 196] CseqHub_int 82377
+[midiseq.c: 1016] FOO 82532 82532 82532
+[cseqHub.c: 196] CseqHub_int 82532
+[cseqHub.c: 217] Play note 82532
+[cseqHub.c: 217] Play note 82652
+[midiseq.c: 1016] FOO 82667 82667 82667
+[cseqHub.c: 196] CseqHub_int 82667
+[cseqHub.c: 217] Play note 82667
+[cseqHub.c: 217] Play note 82787
+[midiseq.c: 1016] FOO 82871 82871 82871
+[cseqHub.c: 196] CseqHub_int 82871
+[cseqHub.c: 217] Play note 82871
+[cseqHub.c: 217] Play note 82871
+[cseqHub.c: 217] Play note 82991
+[cseqHub.c: 217] Play note 82991
+[midiseq.c: 1016] FOO 83062 83062 83062
+[cseqHub.c: 196] CseqHub_int 83062
+[cseqHub.c: 217] Play note 83062
+[cseqHub.c: 217] Play note 83182
+[midiseq.c: 1016] FOO 83246 83246 83246
+[cseqHub.c: 196] CseqHub_int 83246
+[cseqHub.c: 217] Play note 83246
+[cseqHub.c: 217] Play note 83366
+[midiseq.c: 1016] FOO 83431 83431 83431
+[cseqHub.c: 196] CseqHub_int 83431
+[midiseq.c: 1016] FOO 83602 83602 83602
+[cseqHub.c: 196] CseqHub_int 83602
+[midiseq.c: 1016] FOO 83755 83755 83755
+[cseqHub.c: 196] CseqHub_int 83755
+[cseqHub.c: 217] Play note 83755
+[cseqHub.c: 217] Play note 83875
+[midiseq.c: 1016] FOO 83928 83928 83928
+[cseqHub.c: 196] CseqHub_int 83928
+[cseqHub.c: 217] Play note 83928
+[cseqHub.c: 217] Play note 84048
+[midiseq.c: 1016] FOO 84085 84085 84085
+[cseqHub.c: 196] CseqHub_int 84085
+[midiseq.c: 1016] FOO 84085 84085 84085
+[cseqHub.c: 196] CseqHub_int 84085
+[cseqHub.c: 217] Play note 84085
+[cseqHub.c: 217] Play note 84205
+[midiseq.c: 1016] FOO 84237 84237 84237
+[cseqHub.c: 196] CseqHub_int 84237
+[cseqHub.c: 217] Play note 84237
+[cseqHub.c: 217] Play note 84357
+[midiseq.c: 1016] FOO 84381 84381 84381
+[cseqHub.c: 196] CseqHub_int 84381
+[cseqHub.c: 217] Play note 84381
+[cseqHub.c: 217] Play note 84501
+[midiseq.c: 1016] FOO 84560 84560 84560
+[cseqHub.c: 196] CseqHub_int 84560
+[cseqHub.c: 217] Play note 84560
+[cseqHub.c: 217] Play note 84680
+[midiseq.c: 1016] FOO 84723 84723 84723
+[cseqHub.c: 196] CseqHub_int 84723
+[cseqHub.c: 217] Play note 84723
+[cseqHub.c: 217] Play note 84843
+[midiseq.c: 1016] FOO 84875 84875 84875
+[cseqHub.c: 196] CseqHub_int 84875
+[cseqHub.c: 217] Play note 84875
+[cseqHub.c: 217] Play note 84995
+[cseqHub.c: 217] Play note 85115
+[midiseq.c: 1016] FOO 85154 85154 85154
+[cseqHub.c: 196] CseqHub_int 85154
+[midiseq.c: 1016] FOO 85392 85392 85392
+[cseqHub.c: 196] CseqHub_int 85392
+[cseqHub.c: 217] Play note 85392
+[cseqHub.c: 217] Play note 85392
+[cseqHub.c: 217] Play note 85512
+[cseqHub.c: 217] Play note 85512
+[midiseq.c: 1016] FOO 85570 85570 85570
+[cseqHub.c: 196] CseqHub_int 85570
+[midiseq.c: 1016] FOO 85773 85773 85773
+[cseqHub.c: 196] CseqHub_int 85773
+[midiseq.c: 1016] FOO 85980 85980 85980
+[cseqHub.c: 196] CseqHub_int 85980
+[cseqHub.c: 217] Play note 85980
+[cseqHub.c: 217] Play note 85980
+[cseqHub.c: 217] Play note 86100
+[cseqHub.c: 217] Play note 86100
+[cseqHub.c: 217] Play note 86220
+[cseqHub.c: 217] Play note 86220
+[midiseq.c: 1016] FOO 86325 86325 86325
+[cseqHub.c: 196] CseqHub_int 86325
+[cseqHub.c: 217] Play note 86325
+[cseqHub.c: 217] Play note 86445
+[cseqHub.c: 217] Play note 86565
+[midiseq.c: 1016] FOO 86571 86571 86571
+[cseqHub.c: 196] CseqHub_int 86571
+[midiseq.c: 1016] FOO 86782 86782 86782
+[cseqHub.c: 196] CseqHub_int 86782
+[cseqHub.c: 217] Play note 86782
+[cseqHub.c: 217] Play note 86782
+[cseqHub.c: 217] Play note 86902
+[cseqHub.c: 217] Play note 86902
+[midiseq.c: 1016] FOO 86979 86979 86979
+[cseqHub.c: 196] CseqHub_int 86979
+[cseqHub.c: 217] Play note 86979
+[cseqHub.c: 217] Play note 87099
+[midiseq.c: 1016] FOO 87166 87166 87166
+[cseqHub.c: 196] CseqHub_int 87166
+[midiseq.c: 1016] FOO 87348 87348 87348
+[cseqHub.c: 196] CseqHub_int 87348
+[cseqHub.c: 217] Play note 87348
+[cseqHub.c: 217] Play note 87348
+[cseqHub.c: 217] Play note 87468
+[cseqHub.c: 217] Play note 87468
+[midiseq.c: 1016] FOO 87563 87563 87563
+[cseqHub.c: 196] CseqHub_int 87563
+[midiseq.c: 1016] FOO 87563 87563 87563
+[cseqHub.c: 196] CseqHub_int 87563
+[cseqHub.c: 217] Play note 87563
+[cseqHub.c: 217] Play note 87563
+[cseqHub.c: 217] Play note 87563
+[cseqHub.c: 217] Play note 87563
+[midiseq.c: 1016] FOO 87848 87848 87848
+[cseqHub.c: 196] CseqHub_int 87848
+[cseqHub.c: 217] Play note 87848
+[cseqHub.c: 217] Play note 87968
+[cseqHub.c: 217] Play note 88088
+[midiseq.c: 1016] FOO 88154 88154 88154
+[cseqHub.c: 196] CseqHub_int 88154
+[cseqHub.c: 217] Play note 88154
+[cseqHub.c: 217] Play note 88154
+[cseqHub.c: 217] Play note 88154
+[cseqHub.c: 217] Play note 88154
+[midiseq.c: 1016] FOO 88376 88376 88376
+[cseqHub.c: 196] CseqHub_int 88376
+[cseqHub.c: 217] Play note 88376
+[cseqHub.c: 217] Play note 88376
+[cseqHub.c: 217] Play note 88376
+[cseqHub.c: 217] Play note 88376
+[midiseq.c: 1016] FOO 88378 88378 88378
+[cseqHub.c: 196] CseqHub_int 88378
+[cseqHub.c: 217] Play note 88378
+[cseqHub.c: 217] Play note 88498
+[cseqHub.c: 217] Play note 88618
+[midiseq.c: 1016] FOO 88652 88652 88652
+[cseqHub.c: 196] CseqHub_int 88652
+[cseqHub.c: 217] Play note 88652
+[cseqHub.c: 217] Play note 88652
+[cseqHub.c: 217] Play note 88652
+[cseqHub.c: 217] Play note 88652
+[midiseq.c: 1016] FOO 88887 88887 88887
+[cseqHub.c: 196] CseqHub_int 88887
+[cseqHub.c: 217] Play note 88887
+[cseqHub.c: 217] Play note 89007
+[midiseq.c: 1016] FOO 89098 89098 89098
+[cseqHub.c: 196] CseqHub_int 89098
+[cseqHub.c: 217] Play note 89098
+[cseqHub.c: 217] Play note 89098
+[cseqHub.c: 217] Play note 89098
+[cseqHub.c: 217] Play note 89098
+[cseqHub.c: 217] Play note 89578
+[cseqHub.c: 217] Play note 89578
+[cseqHub.c: 217] Play note 89578
+[cseqHub.c: 217] Play note 89578
+[midiseq.c: 1016] FOO 89741 89741 89741
+[cseqHub.c: 196] CseqHub_int 89741
+[cseqHub.c: 217] Play note 89741
+[cseqHub.c: 217] Play note 89741
+[cseqHub.c: 217] Play note 89861
+[cseqHub.c: 217] Play note 89861
+[cseqHub.c: 217] Play note 89981
+[cseqHub.c: 217] Play note 89981
+[midiseq.c: 1016] FOO 90039 90039 90039
+[cseqHub.c: 196] CseqHub_int 90039
+[midiseq.c: 1016] FOO 90261 90261 90261
+[cseqHub.c: 196] CseqHub_int 90261
+[midiseq.c: 1016] FOO 90478 90478 90478
+[cseqHub.c: 196] CseqHub_int 90478
+[midiseq.c: 1016] FOO 90644 90644 90644
+[cseqHub.c: 196] CseqHub_int 90644
+[cseqHub.c: 217] Play note 90644
+[cseqHub.c: 217] Play note 90644
+[cseqHub.c: 217] Play note 90764
+[cseqHub.c: 217] Play note 90764
+[midiseq.c: 1016] FOO 90878 90878 90878
+[cseqHub.c: 196] CseqHub_int 90878
+[cseqHub.c: 217] Play note 90878
+[cseqHub.c: 217] Play note 90998
+[cseqHub.c: 217] Play note 91118
+[midiseq.c: 1016] FOO 91129 91129 91129
+[cseqHub.c: 196] CseqHub_int 91129
+[cseqHub.c: 217] Play note 91129
+[cseqHub.c: 217] Play note 91129
+[cseqHub.c: 217] Play note 91249
+[cseqHub.c: 217] Play note 91249
+[midiseq.c: 1016] FOO 91322 91322 91322
+[cseqHub.c: 196] CseqHub_int 91322
+[cseqHub.c: 217] Play note 91322
+[cseqHub.c: 217] Play note 91442
+[midiseq.c: 1016] FOO 91537 91537 91537
+[cseqHub.c: 196] CseqHub_int 91537
+[cseqHub.c: 217] Play note 91537
+[cseqHub.c: 217] Play note 91537
+[cseqHub.c: 217] Play note 91657
+[cseqHub.c: 217] Play note 91657
+[midiseq.c: 1016] FOO 91746 91746 91746
+[cseqHub.c: 196] CseqHub_int 91746
+[cseqHub.c: 217] Play note 91746
+[cseqHub.c: 217] Play note 91866
+[midiseq.c: 1016] FOO 91941 91941 91941
+[cseqHub.c: 196] CseqHub_int 91941
+[cseqHub.c: 217] Play note 91941
+[cseqHub.c: 217] Play note 91941
+[cseqHub.c: 217] Play note 92061
+[cseqHub.c: 217] Play note 92061
+[midiseq.c: 1016] FOO 92134 92134 92134
+[cseqHub.c: 196] CseqHub_int 92134
+[cseqHub.c: 217] Play note 92134
+[cseqHub.c: 217] Play note 92254
+[midiseq.c: 1016] FOO 92327 92327 92327
+[cseqHub.c: 196] CseqHub_int 92327
+[cseqHub.c: 217] Play note 92327
+[cseqHub.c: 217] Play note 92327
+[cseqHub.c: 217] Play note 92447
+[cseqHub.c: 217] Play note 92447
+[midiseq.c: 1016] FOO 92514 92514 92514
+[cseqHub.c: 196] CseqHub_int 92514
+[cseqHub.c: 217] Play note 92754
+[midiseq.c: 1016] FOO 92806 92806 92806
+[cseqHub.c: 196] CseqHub_int 92806
+[cseqHub.c: 217] Play note 92806
+[cseqHub.c: 217] Play note 92806
+[cseqHub.c: 217] Play note 92926
+[cseqHub.c: 217] Play note 92926
+[midiseq.c: 1016] FOO 93004 93004 93004
+[cseqHub.c: 196] CseqHub_int 93004
+[cseqHub.c: 217] Play note 93004
+[cseqHub.c: 217] Play note 93124
+[midiseq.c: 1016] FOO 93188 93188 93188
+[cseqHub.c: 196] CseqHub_int 93188
+[cseqHub.c: 217] Play note 93188
+[cseqHub.c: 217] Play note 93188
+[cseqHub.c: 217] Play note 93308
+[cseqHub.c: 217] Play note 93308
+[midiseq.c: 1016] FOO 93410 93410 93410
+[cseqHub.c: 196] CseqHub_int 93410
+[cseqHub.c: 217] Play note 93650
+[midiseq.c: 1016] FOO 93657 93657 93657
+[cseqHub.c: 196] CseqHub_int 93657
+[cseqHub.c: 217] Play note 93657
+[cseqHub.c: 217] Play note 93657
+[cseqHub.c: 217] Play note 93777
+[cseqHub.c: 217] Play note 93777
+[cseqHub.c: 217] Play note 93897
+[cseqHub.c: 217] Play note 93897
+[midiseq.c: 1016] FOO 93901 93901 93901
+[cseqHub.c: 196] CseqHub_int 93901
+[cseqHub.c: 217] Play note 93901
+[cseqHub.c: 217] Play note 94021
+[cseqHub.c: 217] Play note 94141
+[cseqHub.c: 217] Play note 94261
+[midiseq.c: 1016] FOO 94526 94526 94526
+[cseqHub.c: 196] CseqHub_int 94526
+[cseqHub.c: 217] Play note 94766
+[midiseq.c: 1016] FOO 94806 94806 94806
+[cseqHub.c: 196] CseqHub_int 94806
+[midiseq.c: 1016] FOO 94808 94808 94808
+[cseqHub.c: 196] CseqHub_int 94808
+[cseqHub.c: 217] Play note 94808
+[cseqHub.c: 217] Play note 94928
+[midiseq.c: 1016] FOO 95038 95038 95038
+[cseqHub.c: 196] CseqHub_int 95038
+[cseqHub.c: 217] Play note 95038
+[cseqHub.c: 217] Play note 95038
+[cseqHub.c: 217] Play note 95038
+[cseqHub.c: 217] Play note 95038
+[cseqHub.c: 217] Play note 95518
+[cseqHub.c: 217] Play note 95518
+[cseqHub.c: 217] Play note 95518
+[cseqHub.c: 217] Play note 95518
+[cseqHub.c: 217] Play note 96000
+[cseqHub.c: 217] Play note 96003
+[cseqHub.c: 217] Play note 96003
+[cseqHub.c: 217] Play note 96003
+[cseqHub.c: 217] Play note 96240
+[cseqHub.c: 217] Play note 96240
+[cseqHub.c: 217] Play note 96240
+[cseqHub.c: 217] Play note 96240
+[midiseq.c: 1016] FOO 96478 96478 96478
+[cseqHub.c: 196] CseqHub_int 96478
+[cseqHub.c: 217] Play note 96478
+[cseqHub.c: 217] Play note 96598
+[cseqHub.c: 217] Play note 96718
+[midiseq.c: 1016] FOO 96736 96736 96736
+[cseqHub.c: 196] CseqHub_int 96736
+[cseqHub.c: 217] Play note 96736
+[cseqHub.c: 217] Play note 96736
+[cseqHub.c: 217] Play note 96856
+[cseqHub.c: 217] Play note 96856
+[cseqHub.c: 217] Play note 96976
+[cseqHub.c: 217] Play note 96976
+[cseqHub.c: 217] Play note 97096
+[cseqHub.c: 217] Play note 97096
+[cseqHub.c: 217] Play note 97456
+[cseqHub.c: 217] Play note 97456
+[cseqHub.c: 217] Play note 97576
+[cseqHub.c: 217] Play note 97576
+[cseqHub.c: 217] Play note 97696
+[cseqHub.c: 217] Play note 97696
+[cseqHub.c: 217] Play note 97816
+[cseqHub.c: 217] Play note 97816
+[cseqHub.c: 217] Play note 97936
+[cseqHub.c: 217] Play note 97936
+[cseqHub.c: 217] Play note 98056
+[cseqHub.c: 217] Play note 98056
+[cseqHub.c: 217] Play note 98176
+[cseqHub.c: 217] Play note 98176
+[cseqHub.c: 217] Play note 98416
+[cseqHub.c: 217] Play note 98416
+[cseqHub.c: 217] Play note 98776
+[cseqHub.c: 217] Play note 98896
+[cseqHub.c: 217] Play note 99016
+[cseqHub.c: 217] Play note 99136
+[cseqHub.c: 217] Play note 99256
+[cseqHub.c: 217] Play note 99376
+[cseqHub.c: 217] Play note 99496
+[cseqHub.c: 217] Play note 99496
+[cseqHub.c: 217] Play note 99616
+[cseqHub.c: 217] Play note 99616
+[cseqHub.c: 217] Play note 99856
+[cseqHub.c: 217] Play note 99856
+[cseqHub.c: 217] Play note 100096
+[cseqHub.c: 217] Play note 100096
+[cseqHub.c: 217] Play note 100336
+[cseqHub.c: 217] Play note 100336
+[cseqHub.c: 217] Play note 100576
+[cseqHub.c: 217] Play note 100576
+[cseqHub.c: 217] Play note 100696
+[cseqHub.c: 217] Play note 100696
+[cseqHub.c: 217] Play note 100816
+[cseqHub.c: 217] Play note 100816
+[cseqHub.c: 217] Play note 100936
+[cseqHub.c: 217] Play note 100936
+[cseqHub.c: 217] Play note 101176
+[cseqHub.c: 217] Play note 101176
+[cseqHub.c: 217] Play note 101296
+[cseqHub.c: 217] Play note 101296
+[cseqHub.c: 217] Play note 101416
+[cseqHub.c: 217] Play note 101416
+[cseqHub.c: 217] Play note 101536
+[cseqHub.c: 217] Play note 101536
+[cseqHub.c: 217] Play note 101656
+[cseqHub.c: 217] Play note 101656
+[midiseq.c: 1016] FOO 101713 101713 101713
+[cseqHub.c: 196] CseqHub_int 101713
+[cseqHub.c: 217] Play note 101713
+[cseqHub.c: 217] Play note 101833
+[midiseq.c: 1016] FOO 101948 101948 101948
+[cseqHub.c: 196] CseqHub_int 101948
+[cseqHub.c: 217] Play note 101948
+[cseqHub.c: 217] Play note 101948
+[cseqHub.c: 217] Play note 102068
+[cseqHub.c: 217] Play note 102068
+[midiseq.c: 1016] FOO 102183 102183 102183
+[cseqHub.c: 196] CseqHub_int 102183
+[midiseq.c: 1016] FOO 102393 102393 102393
+[cseqHub.c: 196] CseqHub_int 102393
+[cseqHub.c: 217] Play note 102393
+[cseqHub.c: 217] Play note 102393
+[cseqHub.c: 217] Play note 102513
+[cseqHub.c: 217] Play note 102513
+[midiseq.c: 1016] FOO 102596 102596 102596
+[cseqHub.c: 196] CseqHub_int 102596
+[midiseq.c: 1016] FOO 102780 102780 102780
+[cseqHub.c: 196] CseqHub_int 102780
+[cseqHub.c: 217] Play note 102780
+[cseqHub.c: 217] Play note 102780
+[cseqHub.c: 217] Play note 102900
+[cseqHub.c: 217] Play note 102900
+[midiseq.c: 1016] FOO 102983 102983 102983
+[cseqHub.c: 196] CseqHub_int 102983
+[cseqHub.c: 217] Play note 103223
+[cseqHub.c: 217] Play note 103343
+[cseqHub.c: 217] Play note 103463
+[cseqHub.c: 217] Play note 103583
+[midiseq.c: 1016] FOO 103640 103640 103640
+[cseqHub.c: 196] CseqHub_int 103640
+[cseqHub.c: 217] Play note 103880
+[cseqHub.c: 217] Play note 104000
+[cseqHub.c: 217] Play note 104120
+[cseqHub.c: 217] Play note 104240
+[midiseq.c: 1016] FOO 104255 104255 104255
+[cseqHub.c: 196] CseqHub_int 104255
+[cseqHub.c: 217] Play note 104495
+[cseqHub.c: 217] Play note 104615
+[cseqHub.c: 217] Play note 104735
+[midiseq.c: 1016] FOO 104810 104810 104810
+[cseqHub.c: 196] CseqHub_int 104810
+[cseqHub.c: 217] Play note 104810
+[cseqHub.c: 217] Play note 104810
+[cseqHub.c: 217] Play note 104810
+[cseqHub.c: 217] Play note 104810
+[cseqHub.c: 217] Play note 105290
+[cseqHub.c: 217] Play note 105290
+[cseqHub.c: 217] Play note 105290
+[cseqHub.c: 217] Play note 105290
+[midiseq.c: 1016] FOO 105370 105370 105370
+[cseqHub.c: 196] CseqHub_int 105370
+[cseqHub.c: 217] Play note 105610
+[cseqHub.c: 217] Play note 105730
+[cseqHub.c: 217] Play note 105850
+[midiseq.c: 1016] FOO 105881 105881 105881
+[cseqHub.c: 196] CseqHub_int 105881
+[cseqHub.c: 217] Play note 105881
+[cseqHub.c: 217] Play note 105881
+[cseqHub.c: 217] Play note 105881
+[cseqHub.c: 217] Play note 105881
+[midiseq.c: 1016] FOO 106352 106352 106352
+[cseqHub.c: 196] CseqHub_int 106352
+[cseqHub.c: 217] Play note 106592
+[cseqHub.c: 217] Play note 106712
+[midiseq.c: 1016] FOO 106727 106727 106727
+[cseqHub.c: 196] CseqHub_int 106727
+[cseqHub.c: 217] Play note 106727
+[cseqHub.c: 217] Play note 106727
+[cseqHub.c: 217] Play note 106727
+[cseqHub.c: 217] Play note 106727
+[midiseq.c: 1016] FOO 107022 107022 107022
+[cseqHub.c: 196] CseqHub_int 107022
+[cseqHub.c: 217] Play note 107262
+[midiseq.c: 1016] FOO 107334 107334 107334
+[cseqHub.c: 196] CseqHub_int 107334
+[cseqHub.c: 217] Play note 107334
+[cseqHub.c: 217] Play note 107334
+[cseqHub.c: 217] Play note 107334
+[cseqHub.c: 217] Play note 107334
+[midiseq.c: 1016] FOO 107815 107815 107815
+[cseqHub.c: 196] CseqHub_int 107815
+[cseqHub.c: 217] Play note 107815
+[cseqHub.c: 217] Play note 107935
+[cseqHub.c: 217] Play note 108055
+[cseqHub.c: 217] Play note 108175
+[cseqHub.c: 217] Play note 108295
+[cseqHub.c: 217] Play note 108535
+[midiseq.c: 1016] FOO 108712 108712 108712
+[cseqHub.c: 196] CseqHub_int 108712
+[cseqHub.c: 217] Play note 108712
+[cseqHub.c: 217] Play note 108712
+[cseqHub.c: 217] Play note 108712
+[cseqHub.c: 217] Play note 108712
+[midiseq.c: 1016] FOO 109130 109130 109130
+[cseqHub.c: 196] CseqHub_int 109130
+[cseqHub.c: 217] Play note 109130
+[cseqHub.c: 217] Play note 109250
+[cseqHub.c: 217] Play note 109370
+[cseqHub.c: 217] Play note 109490
+[cseqHub.c: 217] Play note 109610
+[midiseq.c: 1016] FOO 109830 109830 109830
+[cseqHub.c: 196] CseqHub_int 109830
+[cseqHub.c: 217] Play note 110070
+[midiseq.c: 1016] FOO 110110 110110 110110
+[cseqHub.c: 196] CseqHub_int 110110
+[cseqHub.c: 217] Play note 110110
+[cseqHub.c: 217] Play note 110110
+[cseqHub.c: 217] Play note 110110
+[cseqHub.c: 217] Play note 110110
+[cseqHub.c: 217] Play note 110590
+[cseqHub.c: 217] Play note 110590
+[cseqHub.c: 217] Play note 110590
+[cseqHub.c: 217] Play note 110590
+[midiseq.c: 1016] FOO 110678 110678 110678
+[cseqHub.c: 196] CseqHub_int 110678
+[cseqHub.c: 217] Play note 110678
+[cseqHub.c: 217] Play note 110678
+[cseqHub.c: 217] Play note 110678
+[cseqHub.c: 217] Play note 110678
+[midiseq.c: 1016] FOO 111107 111107 111107
+[cseqHub.c: 196] CseqHub_int 111107
+[cseqHub.c: 217] Play note 111107
+[cseqHub.c: 217] Play note 111227
+[cseqHub.c: 217] Play note 111347
+[midiseq.c: 1016] FOO 111427 111427 111427
+[cseqHub.c: 196] CseqHub_int 111427
+[cseqHub.c: 217] Play note 111427
+[cseqHub.c: 217] Play note 111427
+[cseqHub.c: 217] Play note 111427
+[cseqHub.c: 217] Play note 111427
+[midiseq.c: 1016] FOO 111722 111722 111722
+[cseqHub.c: 196] CseqHub_int 111722
+[cseqHub.c: 217] Play note 111722
+[cseqHub.c: 217] Play note 111842
+[cseqHub.c: 217] Play note 111962
+[midiseq.c: 1016] FOO 112066 112066 112066
+[cseqHub.c: 196] CseqHub_int 112066
+[cseqHub.c: 217] Play note 112066
+[cseqHub.c: 217] Play note 112066
+[cseqHub.c: 217] Play note 112066
+[cseqHub.c: 217] Play note 112066
+[midiseq.c: 1016] FOO 112406 112406 112406
+[cseqHub.c: 196] CseqHub_int 112406
+[cseqHub.c: 217] Play note 112406
+[cseqHub.c: 217] Play note 112526
+[cseqHub.c: 217] Play note 112646
+[midiseq.c: 1016] FOO 112719 112719 112719
+[cseqHub.c: 196] CseqHub_int 112719
+[cseqHub.c: 217] Play note 112719
+[cseqHub.c: 217] Play note 112719
+[cseqHub.c: 217] Play note 112719
+[cseqHub.c: 217] Play note 112719
+[midiseq.c: 1016] FOO 113048 113048 113048
+[cseqHub.c: 196] CseqHub_int 113048
+[cseqHub.c: 217] Play note 113048
+[cseqHub.c: 217] Play note 113168
+[cseqHub.c: 217] Play note 113288
+[midiseq.c: 1016] FOO 113369 113369 113369
+[cseqHub.c: 196] CseqHub_int 113369
+[cseqHub.c: 217] Play note 113369
+[cseqHub.c: 217] Play note 113369
+[cseqHub.c: 217] Play note 113369
+[cseqHub.c: 217] Play note 113369
+[midiseq.c: 1016] FOO 113695 113695 113695
+[cseqHub.c: 196] CseqHub_int 113695
+[cseqHub.c: 217] Play note 113695
+[cseqHub.c: 217] Play note 113815
+[cseqHub.c: 217] Play note 113935
+[midiseq.c: 1016] FOO 113996 113996 113996
+[cseqHub.c: 196] CseqHub_int 113996
+[cseqHub.c: 217] Play note 113996
+[cseqHub.c: 217] Play note 113996
+[cseqHub.c: 217] Play note 113996
+[cseqHub.c: 217] Play note 113996
+[midiseq.c: 1016] FOO 114326 114326 114326
+[cseqHub.c: 196] CseqHub_int 114326
+[cseqHub.c: 217] Play note 114326
+[cseqHub.c: 217] Play note 114446
+[cseqHub.c: 217] Play note 114566
+[cseqHub.c: 217] Play note 114686
+[midiseq.c: 1016] FOO 114691 114691 114691
+[cseqHub.c: 196] CseqHub_int 114691
+[cseqHub.c: 217] Play note 114691
+[cseqHub.c: 217] Play note 114691
+[cseqHub.c: 217] Play note 114691
+[cseqHub.c: 217] Play note 114691
+[cseqHub.c: 217] Play note 115171
+[cseqHub.c: 217] Play note 115171
+[cseqHub.c: 217] Play note 115171
+[cseqHub.c: 217] Play note 115171
+[cseqHub.c: 217] Play note 115653
+[cseqHub.c: 217] Play note 115656
+[cseqHub.c: 217] Play note 115656
+[cseqHub.c: 217] Play note 115656
+[cseqHub.c: 217] Play note 115893
+[cseqHub.c: 217] Play note 115893
+[cseqHub.c: 217] Play note 115893
+[cseqHub.c: 217] Play note 115893
+[cseqHub.c: 217] Play note 116373
+[cseqHub.c: 217] Play note 116373
+[cseqHub.c: 217] Play note 116373
+[cseqHub.c: 217] Play note 116373
+[cseqHub.c: 217] Play note 116851
+[cseqHub.c: 217] Play note 116853
+[cseqHub.c: 217] Play note 116856
+[cseqHub.c: 217] Play note 116856
+[cseqHub.c: 217] Play note 117091
+[cseqHub.c: 217] Play note 117091
+[cseqHub.c: 217] Play note 117091
+[cseqHub.c: 217] Play note 117093
+[cseqHub.c: 217] Play note 117213
+[cseqHub.c: 217] Play note 117213
+[cseqHub.c: 217] Play note 117216
+[cseqHub.c: 217] Play note 117571
+[cseqHub.c: 217] Play note 117571
+[cseqHub.c: 217] Play note 117571
+[cseqHub.c: 217] Play note 117571
+[cseqHub.c: 217] Play note 117811
+[cseqHub.c: 217] Play note 117811
+[cseqHub.c: 217] Play note 117811
+[cseqHub.c: 217] Play note 117813
+[midiseq.c: 1016] FOO 117907 117907 117907
+[cseqHub.c: 196] CseqHub_int 117907
+[midiseq.c: 1016] FOO 915921 915921 915921
+[cseqHub.c: 196] CseqHub_int 915921
+[cseqHub.c: 217] Play note 915921
+[midiseq.c: 1016] FOO 915977 915977 915977
+[cseqHub.c: 196] CseqHub_int 915977
+[cseqHub.c: 217] Play note 915977
+[cseqHub.c: 217] Play note 916097
+[midiseq.c: 1016] FOO 916158 916158 916158
+[cseqHub.c: 196] CseqHub_int 916158
+[cseqHub.c: 217] Play note 916158
+[cseqHub.c: 217] Play note 916158
+[cseqHub.c: 217] Play note 916158
+[cseqHub.c: 217] Play note 916158
+[cseqHub.c: 217] Play note 916638
+[cseqHub.c: 217] Play note 916638
+[cseqHub.c: 217] Play note 916638
+[cseqHub.c: 217] Play note 916638
+[cseqHub.c: 217] Play note 917120
+[cseqHub.c: 217] Play note 917123
+[cseqHub.c: 217] Play note 917123
+[cseqHub.c: 217] Play note 917123
+[cseqHub.c: 217] Play note 917360
+[cseqHub.c: 217] Play note 917360
+[cseqHub.c: 217] Play note 917360
+[cseqHub.c: 217] Play note 917360
+[cseqHub.c: 217] Play note 917840
+[cseqHub.c: 217] Play note 917840
+[cseqHub.c: 217] Play note 917840
+[cseqHub.c: 217] Play note 917840
+[cseqHub.c: 217] Play note 918318
+[cseqHub.c: 217] Play note 918320
+[cseqHub.c: 217] Play note 918323
+[cseqHub.c: 217] Play note 918323
+[cseqHub.c: 217] Play note 918558
+[cseqHub.c: 217] Play note 918558
+[cseqHub.c: 217] Play note 918558
+[cseqHub.c: 217] Play note 918560
+[cseqHub.c: 217] Play note 918680
+[cseqHub.c: 217] Play note 918680
+[cseqHub.c: 217] Play note 918683
+[cseqHub.c: 217] Play note 919038
+[cseqHub.c: 217] Play note 919038
+[cseqHub.c: 217] Play note 919038
+[cseqHub.c: 217] Play note 919038
+[cseqHub.c: 217] Play note 919278
+[cseqHub.c: 217] Play note 919278
+[cseqHub.c: 217] Play note 919278
+[cseqHub.c: 217] Play note 919280
+[cseqHub.c: 217] Play note 919755
+[cseqHub.c: 217] Play note 919758
+[cseqHub.c: 217] Play note 919758
+[cseqHub.c: 217] Play note 919758
+[cseqHub.c: 217] Play note 920233
+[cseqHub.c: 217] Play note 920235
+[cseqHub.c: 217] Play note 920235
+[cseqHub.c: 217] Play note 920238
+[cseqHub.c: 217] Play note 920475
+[cseqHub.c: 217] Play note 920475
+[cseqHub.c: 217] Play note 920478
+[cseqHub.c: 217] Play note 920478
+[cseqHub.c: 217] Play note 920593
+[cseqHub.c: 217] Play note 920593
+[cseqHub.c: 217] Play note 920598
+[cseqHub.c: 217] Play note 920598
+[cseqHub.c: 217] Play note 920953
+[cseqHub.c: 217] Play note 920953
+[cseqHub.c: 217] Play note 920958
+[cseqHub.c: 217] Play note 920958
+[cseqHub.c: 217] Play note 921195
+[cseqHub.c: 217] Play note 921195
+[cseqHub.c: 217] Play note 921195
+[cseqHub.c: 217] Play note 921198
+[cseqHub.c: 217] Play note 921673
+[cseqHub.c: 217] Play note 921673
+[cseqHub.c: 217] Play note 921675
+[cseqHub.c: 217] Play note 921675
+[cseqHub.c: 217] Play note 922158
+[cseqHub.c: 217] Play note 922158
+[cseqHub.c: 217] Play note 922158
+[cseqHub.c: 217] Play note 922158
+[cseqHub.c: 217] Play note 922398
+[cseqHub.c: 217] Play note 922398
+[cseqHub.c: 217] Play note 922398
+[cseqHub.c: 217] Play note 922398
+[cseqHub.c: 217] Play note 922878
+[cseqHub.c: 217] Play note 922878
+[cseqHub.c: 217] Play note 922878
+[cseqHub.c: 217] Play note 922998
+[cseqHub.c: 217] Play note 922998
+[cseqHub.c: 217] Play note 923000
+[cseqHub.c: 217] Play note 923118
+[cseqHub.c: 217] Play note 923118
+[cseqHub.c: 217] Play note 923118
+[cseqHub.c: 217] Play note 923233
+[cseqHub.c: 217] Play note 923238
+[cseqHub.c: 217] Play note 923238
+[cseqHub.c: 217] Play note 923358
+[cseqHub.c: 217] Play note 923358
+[cseqHub.c: 217] Play note 923358
+[cseqHub.c: 217] Play note 923598
+[cseqHub.c: 217] Play note 923598
+[cseqHub.c: 217] Play note 923613
