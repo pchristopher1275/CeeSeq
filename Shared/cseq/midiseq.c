@@ -63,14 +63,14 @@ typedef struct _MidiseqCell
     Ticks duration;
 } MidiseqCell;
 
-#define MidiseqCell_type(cell) (cell).type
-#define MidiseqCell_t(cell) (cell).t
-#define MidiseqCell_notePitch(cell) (cell).b.b[0]
-#define MidiseqCell_noteVelocity(cell) (cell).b.b[1]
-#define MidiseqCell_noteDuration(cell) (cell).duration
-#define MidiseqCell_ccNumber(cell) (cell).b.b[0]
-#define MidiseqCell_ccValue(cell) (cell).b.b[1]
-#define MidiseqCell_bendValue(cell) (cell).b.bend
+#define MidiseqCell_type(cell) ((cell).type)
+#define MidiseqCell_t(cell) ((cell).t)
+#define MidiseqCell_notePitch(cell) ((cell).b.b[0])
+#define MidiseqCell_noteVelocity(cell) ((cell).b.b[1])
+#define MidiseqCell_noteDuration(cell) ((cell).duration)
+#define MidiseqCell_ccNumber(cell) ((cell).b.b[0])
+#define MidiseqCell_ccValue(cell) ((cell).b.b[1])
+#define MidiseqCell_bendValue(cell) ((cell).b.bend)
 
 typedef struct _Midiseq
 {
@@ -831,3 +831,157 @@ Pad *LiveList_pad(LiveList *llst, int index, Error *err)
     }
     return llst->pads + index;
 }
+
+
+//
+// N O T E    M A N A G E R
+//
+
+typedef struct PendingNoteOff_t {
+    struct PendingNoteOff_t *next;
+    Ticks timestamp;
+    int pitch;
+} PendingNoteOff;
+
+const int PendingNoteOff_nodepoolsize = 30;
+static PendingNoteOff *PendingNoteOff_freelist = NULL;
+static int PendingNoteOff_freecount = 0;
+
+PendingNoteOff *PendingNoteOff_new() {
+    if (PendingNoteOff_freelist == NULL) {
+        for (int i = 0; i <  PendingNoteOff_nodepoolsize/2; i++) {
+            PendingNoteOff *node = (PendingNoteOff*)sysmem_newptrclear(sizeof(PendingNoteOff));
+            node->next = PendingNoteOff_freelist;
+            PendingNoteOff_freelist = node;
+            PendingNoteOff_freecount++;
+        }    
+    }
+    PendingNoteOff *r = PendingNoteOff_freelist;
+    PendingNoteOff_freelist = r->next;
+    PendingNoteOff_freecount--;
+    r->next = NULL;
+    return r;
+}
+
+void PendingNoteOff_free(PendingNoteOff *node) {
+    if (PendingNoteOff_freecount > 2*PendingNoteOff_nodepoolsize) {
+        sysmem_freeptr(node);
+    } else {
+        PendingNoteOff zero = {0};
+        *node = zero;
+        node->next = PendingNoteOff_freelist;
+        PendingNoteOff_freelist = node;
+        PendingNoteOff_freecount++;
+    }
+}
+
+
+
+typedef struct {
+    PendingNoteOff *pending;
+    Port *output;
+    t_atom *atoms;
+} NoteManager;
+
+const int NoteManager_atomcount = 4;
+
+bool NoteManager_removePitch(NoteManager *manager, int pitch) {
+    PendingNoteOff *p    = manager->pending;
+    PendingNoteOff *last = NULL;
+    while (p != NULL) {
+        if (p->pitch == pitch) {
+            if (last == NULL) {
+                manager->pending = p->next;
+            } else {
+                last->next = p->next;
+            }
+            PendingNoteOff_free(p);
+            return true;
+        } 
+        last = p;
+        p    = p->next;    
+    }
+    return false;
+}
+
+void NoteManager_insertNoteOff(NoteManager *manager, Ticks offTimestamp, int pitch) {
+    PendingNoteOff *node = PendingNoteOff_new();
+    node->pitch     = pitch;
+    node->timestamp = offTimestamp;
+
+    PendingNoteOff *p    = manager->pending;
+    PendingNoteOff *last = NULL;
+    while (p != NULL) {
+        if (p->timestamp > offTimestamp) {
+            if (last == NULL) {
+                manager->pending = node;
+            } else {
+                last->next       = node;                
+            }
+            node->next = p;
+            return;
+        } 
+        last = p;
+        p    = p->next;    
+    }
+}
+
+// This is 10010000 which is a note-on (1001), on channel 0 (0000)
+const int NOTEON_COMMAND = 144;
+
+
+void NoteManager_sendNoteOn(NoteManager *manager, int pitch, int velocity) {
+    t_atom *av = manager->atoms;
+    atom_setsym(av + 0, gensym("midievent"));
+    atom_setlong(av + 1, NOTEON_COMMAND);
+    atom_setlong(av + 2, pitch);
+    atom_setlong(av + 3, velocity);
+    Error_declare(err);
+    Port_send(manager->output, 4, av, err);
+    Error_maypost(err);
+}
+
+void NoteManager_flushOffs(NoteManager *manager) {
+    PendingNoteOff *p = manager->pending;
+    while (p != NULL) {
+        NoteManager_sendNoteOn(manager, p->pitch, 0);
+        PendingNoteOff *n = p;
+        p = p->next;
+        PendingNoteOff_free(n);
+    }
+    manager->pending = NULL;
+}
+
+void NoteManager_scheduleOffs(NoteManager *manager, Ticks current) {
+    while (manager->pending != NULL) {
+        if (manager->pending->timestamp > current) {
+            return;
+        }
+        NoteManager_sendNoteOn(manager, manager->pending->pitch, 0);    
+        PendingNoteOff *n = manager->pending;
+        manager->pending = manager->pending->next;
+        PendingNoteOff_free(n);
+    }
+}
+
+void NoteManager_midievent(NoteManager *manager, MidiseqCell cell) {
+    if (MidiseqCell_type(cell) == Midiseq_notetype) {
+        int pitch     = MidiseqCell_notePitch(cell);
+        int velocity  = MidiseqCell_noteVelocity(cell);
+        Ticks offtime = MidiseqCell_t(cell) + MidiseqCell_noteDuration(cell);
+
+        if (NoteManager_removePitch(manager, pitch)) {
+            NoteManager_sendNoteOn(manager, pitch, 0);
+        }        
+        NoteManager_insertNoteOff(manager, offtime, pitch);
+        NoteManager_sendNoteOn(manager, pitch, velocity);
+    }
+}
+
+
+
+
+
+
+
+

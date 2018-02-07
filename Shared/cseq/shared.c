@@ -206,3 +206,13 @@ void Port_sendnote(Port *port, int pitch, int velocity, Ticks duration, Error *e
         Error_format(err, "Port_sendnote called on porttype = %s", Port_typeString(port));
     }
 }
+
+void Port_send(Port *port, short argc, t_atom *argv, Error *err)
+{
+    if (Port_isVstType(port)) {
+        outlet_anything(port->outlet1, NULL, argc, argv);
+    }
+    else {
+        Error_format(err, "Port_send called on porttype = %s", Port_typeString(port));
+    }
+}
