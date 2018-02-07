@@ -25,11 +25,6 @@ void Port_free(Port *x);
 
 void ext_main(void *r)
 {
-    // // THIS IS BOGUS
-    // char *f = NULL;
-    // sb_add(f, 1);
-
-
     // NOTE: If class_new makes a copy of className, than className has essentially leaked.
     sds className = NULL;
     if (PORT_BUILD_NUMBER == 0) {
@@ -44,12 +39,7 @@ void ext_main(void *r)
     t_class *c = class_new(className, (method)Port_new, (method)Port_free,
         sizeof(Port), (method)0L, A_GIMME, 0);
     class_register(CLASS_BOX, c);
-    if (Error_iserror(err)) {
-       post("DBLog failed: %s", Error_message(err));
-       Error_clear(err);
-    }
-
-    Error_clear(err);
+    Error_maypost(err);
     Port_class = c;
 }
 
