@@ -25,9 +25,6 @@ typedef struct _CseqHub
 
     t_timeobject *schedular;
 
-    // Midiseq *midi;
-    // Destination *dst;
-
     LiveList *llst;
 
     Port *vstDestination;
@@ -136,16 +133,6 @@ void *CseqHub_new(t_symbol *s, long argc, t_atom *argv)
     }
 
     PatcherFind_clear(pf);
-
-    /*
-    x->dst = (Destination*)MakenoteDestination_new(pack, err);
-    if (Error_iserror(err)) {
-        post("Failed MakenoteDestination_new: %s", Error_message(err));
-        return x;
-    }
-    */
-
-    // Midiseq_dblog(x->midi);
     Error_clear(err);
     CseqHub_int(x, 60);
     return x;
@@ -226,12 +213,6 @@ void CseqHub_playnotes(CseqHub *x)
                     Port_sendnote(port, MidiseqCell_notePitch(cell), MidiseqCell_noteVelocity(cell), msDuration, err);
                     Error_maypost(err);                    
                 }
-                /*
-                Destination_send(x->dst, cell, err);
-                if (Error_iserror(err)) {
-                    post("Failed Destination_call: %s", Error_message(err));
-                }
-                */
             }
         }
         if (Error_maypost(err)) {
