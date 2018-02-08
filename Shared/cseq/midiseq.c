@@ -1,10 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "shared.c"
-
-struct _Midiseq;
-typedef struct _Midiseq Midiseq;
-
+#include "midiseq.h"
 int Midiseq_fastfwrd(Midiseq *midi, long t, Error *err);
 sds stripBaseName(const char *path);
 
@@ -49,19 +46,19 @@ const int Midiseq_cctype     = 3;
 const int Midiseq_cycletype  = 4;
 const int Midiseq_endgrptype = 5;
 
-typedef unsigned char uint8;
-typedef unsigned short uint16;
-typedef struct _MidiseqCell
-{
-    uint8 type;
-    union
-    {
-        uint8 b[2];
-        uint16 bend;
-    } b;
-    Ticks t;
-    Ticks duration;
-} MidiseqCell;
+// typedef unsigned char uint8;
+// typedef unsigned short uint16;
+// typedef struct _MidiseqCell
+// {
+//     uint8 type;
+//     union
+//     {
+//         uint8 b[2];
+//         uint16 bend;
+//     } b;
+//     Ticks t;
+//     Ticks duration;
+// } MidiseqCell;
 
 #define MidiseqCell_type(cell) ((cell).type)
 #define MidiseqCell_t(cell) ((cell).t)
@@ -72,19 +69,19 @@ typedef struct _MidiseqCell
 #define MidiseqCell_ccValue(cell) ((cell).b.b[1])
 #define MidiseqCell_bendValue(cell) ((cell).b.bend)
 
-typedef struct _Midiseq
-{
-    MidiseqCell *data;                            // This is an stretchy_buffer
-    int ptr;
-    bool useMasterClock;
+// typedef struct _Midiseq
+// {
+//     MidiseqCell *data;                            // This is an stretchy_buffer
+//     int ptr;
+//     bool useMasterClock;
 
-    Ticks sequenceLength;
+//     Ticks sequenceLength;
 
-    // startTime is the time offset that t = 0 that is stored in the sequence corresponds too.
-    // Specifically, if useMasterClock is true, the startTime is updated whenever the ptr rolls
-    // off the end of the sequence, and raps around back to the beginning.
-    Ticks startTime;
-} Midiseq;
+//     // startTime is the time offset that t = 0 that is stored in the sequence corresponds too.
+//     // Specifically, if useMasterClock is true, the startTime is updated whenever the ptr rolls
+//     // off the end of the sequence, and raps around back to the beginning.
+//     Ticks startTime;
+// } Midiseq;
 
 const int Midiseq_maxLineLength = 1024;
 
@@ -206,35 +203,6 @@ void Midiseq_dblog(Midiseq *midi)
     }
     return;
 }
-
-
-//
-// M i d i s e q    A r r a y
-//
-typedef Midiseq *MidiseqArr;
-#define MidiseqArr_declare(name) MidiseqArr name = NULL
-MidiseqArr MidiseqArr_new(int initialSize)
-{
-    MidiseqArr_declare(arr);
-    sb_add(arr, initialSize);
-    for (int i = 0; i < initialSize; i++) {
-        Midiseq_init(arr+i);
-    }
-    return arr;
-}
-
-
-MidiseqArr MidiseqArr_free(MidiseqArr arr)
-{
-    if (arr != NULL) {
-        for (int i = 0; i < sb_count(arr); i++) {
-            Midiseq_clear(arr+i);
-        }
-        sb_free(arr);
-    }
-    return arr;
-}
-
 
 //
 // P A T C H E R    F I N D
@@ -674,11 +642,6 @@ Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
 //
 // P A D
 //
-typedef struct
-{
-    t_symbol *chokeGroup;
-    Midiseq *sequence;
-} Pad;
 
 void Pad_init(Pad *pad)
 {
@@ -837,12 +800,6 @@ Pad *LiveList_pad(LiveList *llst, int index, Error *err)
 // N O T E    M A N A G E R
 //
 
-typedef struct PendingNoteOff_t {
-    struct PendingNoteOff_t *next;
-    Ticks timestamp;
-    int pitch;
-} PendingNoteOff;
-
 const int PendingNoteOff_nodepoolsize = 30;
 static PendingNoteOff *PendingNoteOff_freelist = NULL;
 static int PendingNoteOff_freecount = 0;
@@ -874,14 +831,6 @@ void PendingNoteOff_free(PendingNoteOff *node) {
         PendingNoteOff_freecount++;
     }
 }
-
-
-
-typedef struct {
-    PendingNoteOff *pending;
-    Port *output;
-    t_atom *atoms;
-} NoteManager;
 
 const int NoteManager_atomcount = 4;
 
@@ -952,15 +901,20 @@ void NoteManager_flushOffs(NoteManager *manager) {
     manager->pending = NULL;
 }
 
-void NoteManager_scheduleOffs(NoteManager *manager, Ticks current) {
+Ticks NoteManager_scheduleOffs(NoteManager *manager, Ticks current) {
     while (manager->pending != NULL) {
         if (manager->pending->timestamp > current) {
-            return;
+            break;
         }
         NoteManager_sendNoteOn(manager, manager->pending->pitch, 0);    
         PendingNoteOff *n = manager->pending;
-        manager->pending = manager->pending->next;
+        manager->pending  = manager->pending->next;
         PendingNoteOff_free(n);
+    }
+    if (manager->pending != NULL) {
+        return manager->pending->timestamp - current;
+    } else {
+        return -1;
     }
 }
 

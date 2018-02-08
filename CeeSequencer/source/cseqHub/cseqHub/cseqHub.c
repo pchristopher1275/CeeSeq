@@ -206,9 +206,9 @@ void CseqHub_playnotes(CseqHub *x)
             if (MidiseqCell_type(cell) == Midiseq_notetype) {
                 dblog("Play note %lld", now);
                 double msDuration = itm_tickstoms(itm_getglobal(), MidiseqCell_noteDuration(cell));
-                outlet_int(x->duration_outlet, (long)msDuration);
-                outlet_int(x->velocity_outlet, MidiseqCell_noteVelocity(cell));
-                outlet_int(x->pitch_outlet, MidiseqCell_notePitch(cell));
+                // outlet_int(x->duration_outlet, (long)msDuration);
+                // outlet_int(x->velocity_outlet, MidiseqCell_noteVelocity(cell));
+                // outlet_int(x->pitch_outlet, MidiseqCell_notePitch(cell));
                 Port *port = x->vstDestination;
                 if (port != NULL) {
                     Port_sendnote(port, MidiseqCell_notePitch(cell), MidiseqCell_noteVelocity(cell), msDuration, err);
