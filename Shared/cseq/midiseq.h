@@ -1,3 +1,4 @@
+sds stripBaseName(const char *path);
 typedef unsigned char uint8;
 typedef unsigned short uint16;
 typedef struct
@@ -26,6 +27,8 @@ typedef struct
     Ticks startTime;
 } Midiseq;
 
+int Midiseq_fastfwrd(Midiseq *midi, long t, Error *err);
+
 typedef struct
 {
     t_symbol *chokeGroup;
@@ -45,3 +48,20 @@ typedef struct
     Port *output;
     t_atom *atoms;
 } NoteManager;
+
+typedef struct
+{
+    t_object *reciever;
+    t_symbol *varname;
+} PatcherFindCell;
+
+typedef struct
+{
+    PatcherFindCell *objectsFound;
+} PatcherFind;
+
+typedef struct
+{
+    Pad *pads;
+    Pad **running;
+} LiveList;

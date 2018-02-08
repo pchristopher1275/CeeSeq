@@ -27,6 +27,8 @@ typedef struct _CseqHub
 
     LiveList *llst;
 
+    NoteManager *noteManager;
+
     Port *vstDestination;
 
 } CseqHub;
@@ -132,6 +134,7 @@ void *CseqHub_new(t_symbol *s, long argc, t_atom *argv)
     else {
         x->vstDestination = (Port*)pack;
     }
+    x->noteManager = NoteManager_new(x->vstDestination);
 
     PatcherFind_clear(pf);
     Error_clear(err);
@@ -142,9 +145,10 @@ void *CseqHub_new(t_symbol *s, long argc, t_atom *argv)
 
 void CseqHub_free(CseqHub *x)
 {
-    object_free((t_object *) x->d_proxy);
-    object_free(x->schedular);
     LiveList_free(x->llst);
+    NoteManager_free(x->noteManager);
+    object_free((t_object *) x->d_proxy);
+    object_free(x->schedular);    
 }
 
 
@@ -185,7 +189,6 @@ void CseqHub_int(CseqHub *x, long val)
     time_stop(x->schedular);
     time_now(x->schedular, NULL);
     Error_clear(err);
-    dblog("CseqHub_int %lld", now);
 }
 
 
@@ -195,7 +198,7 @@ void CseqHub_playnotes(CseqHub *x)
     Ticks now = cseqHub_now();
     MidiseqCell cell = {0};
     int status = 0;
-    Ticks smallestDelta = -1;
+    Ticks smallestDelta = NoteManager_scheduleOffs(x->noteManager, now);
     for (int p = 0; p < LiveList_runningLength(x->llst); p++) {
         Pad *pad      = LiveList_runningPad(x->llst, p, err);
         if (Error_maypost(err)) {
@@ -204,16 +207,16 @@ void CseqHub_playnotes(CseqHub *x)
         Midiseq *midi = Pad_sequence(pad);
         while ( (status = Midiseq_nextevent(midi, now, &cell, err)) == Midiseq_nextEventContinue) {
             if (MidiseqCell_type(cell) == Midiseq_notetype) {
-                dblog("Play note %lld", now);
-                double msDuration = itm_tickstoms(itm_getglobal(), MidiseqCell_noteDuration(cell));
+                // double msDuration = itm_tickstoms(itm_getglobal(), MidiseqCell_noteDuration(cell));
                 // outlet_int(x->duration_outlet, (long)msDuration);
                 // outlet_int(x->velocity_outlet, MidiseqCell_noteVelocity(cell));
                 // outlet_int(x->pitch_outlet, MidiseqCell_notePitch(cell));
-                Port *port = x->vstDestination;
-                if (port != NULL) {
-                    Port_sendnote(port, MidiseqCell_notePitch(cell), MidiseqCell_noteVelocity(cell), msDuration, err);
-                    Error_maypost(err);
-                }
+                // Port *port = x->vstDestination;
+                // if (port != NULL) {
+                //     Port_sendnote(port, MidiseqCell_notePitch(cell), MidiseqCell_noteVelocity(cell), msDuration, err);
+                //     Error_maypost(err);
+                // }
+                NoteManager_midievent(x->noteManager, cell);
             }
         }
         if (Error_maypost(err)) {

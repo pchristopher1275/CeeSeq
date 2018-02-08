@@ -209,8 +209,9 @@ void Port_sendnote(Port *port, int pitch, int velocity, Ticks duration, Error *e
 
 void Port_send(Port *port, short argc, t_atom *argv, Error *err)
 {
+    t_symbol *selector = atom_getsym(argv + 0);
     if (Port_isVstType(port)) {
-        outlet_anything(port->outlet1, NULL, argc, argv);
+        outlet_anything(port->outlet1, selector, argc-1, argv+1);
     }
     else {
         Error_format(err, "Port_send called on porttype = %s", Port_typeString(port));
