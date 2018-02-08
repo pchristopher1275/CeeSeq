@@ -51,7 +51,7 @@ sub xcodebuild {
 }
 
 sub findBuildNumber {
-    my @lines = backtick "ls externals/";
+    my @lines = backtick "ls '$gInstallLocation/externals/'";
     chomp(@lines);
     my $largest = 0;
     for my $line (@lines) {

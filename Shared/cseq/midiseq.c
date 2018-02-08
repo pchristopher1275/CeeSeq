@@ -797,48 +797,29 @@ void NoteManager_free(NoteManager *nm) {
     sysmem_freeptr(nm);
 }
 
-// // remove the first element that matches pitch in the pending list
-// bool NoteManager_removePitch(NoteManager *manager, int pitch) {
-//     PendingNoteOff *p    = manager->pending;
-//     PendingNoteOff *last = NULL;
-//     while (p != NULL) {
-//         if (p->pitch == pitch) {
-//             if (last == NULL) {
-//                 manager->pending = p->next;
-//             } else {
-//                 last->next = p->next;
-//             }
-//             PendingNoteOff_free(p);
-//             return true;
-//         } 
-//         last = p;
-//         p    = p->next;    
-//     }
-//     return false;
-// }
+void NoteManager_removePendingNoteOff(NoteManager *manager, PendingNoteOff *previous, PendingNoteOff *target) {
+    PendingNoteOff *next = target->next;
+    if (previous == NULL) {
+        manager->pending = next;
+    } else {
+        previous->next   = next;
+    }
+    PendingNoteOff_free(target);
+    return;
+}
 
-// // insert a note off 
-// void NoteManager_insertNoteOff(NoteManager *manager, Ticks offTimestamp, int pitch) {
-//     PendingNoteOff *node = PendingNoteOff_new();
-//     node->pitch     = pitch;
-//     node->timestamp = offTimestamp;
+void NoteManager_insertPendingNoteOff(NoteManager *manager, PendingNoteOff *previous, PendingNoteOff *newNode) {
+    if (previous == NULL) {
+        newNode->next    = manager->pending;
+        manager->pending = newNode;
+    } else {
+        newNode->next    = previous->next;
+        previous->next   = newNode;
+    }
+    return;
+}
 
-//     PendingNoteOff *p    = manager->pending;
-//     PendingNoteOff *last = NULL;
-//     while (p != NULL) {
-//         if (p->timestamp > offTimestamp) {
-//             if (last == NULL) {
-//                 manager->pending = node;
-//             } else {
-//                 last->next       = node;                
-//             }
-//             node->next = p;
-//             return;
-//         } 
-//         last = p;
-//         p    = p->next;    
-//     }
-// }
+
 
 // insert a note off, and remove any single pitch that is already there. Return true if a note-off was removed
 bool NoteManager_insertNoteOff(NoteManager *manager, Ticks offTimestamp, int pitch) {
@@ -851,36 +832,31 @@ bool NoteManager_insertNoteOff(NoteManager *manager, Ticks offTimestamp, int pit
     PendingNoteOff *p    = manager->pending;
     PendingNoteOff *last = NULL;
     while (p != NULL) {
-        dblog("insertNoteOff @ %lld", offTimestamp);
         // Remove a pitch if it is present
-        if (p->pitch == pitch) {
+        if (!removedPitch && p->pitch == pitch) {
             removedPitch = true;
-            PendingNoteOff *d = p;
-            if (last == NULL) {
-                manager->pending = p->next;
-            } else {
-                last->next = p->next;
-            }
-            PendingNoteOff_free(d);
-            p = p->next;
+            PendingNoteOff *n = p->next;
+            NoteManager_removePendingNoteOff(manager, last, p);
+            p = n;
             continue;
         } 
 
         // Add the pitch at the correct timestamp
-        if (p->timestamp > offTimestamp) {
+        if (!insertedNode && p->timestamp > offTimestamp) {
             insertedNode = true;
-            if (last == NULL) {
-                manager->pending = node;
-            } else {
-                last->next       = node;                
-            }
-            node->next = p;
+            NoteManager_insertPendingNoteOff(manager, last, node);
+            p = node;
         } 
+
         if (removedPitch && insertedNode) {
             break;
         }
         last = p;
         p    = p->next;    
+    }
+    if (!insertedNode) {
+        NoteManager_insertPendingNoteOff(manager, last, node);
+        
     }
     return removedPitch;
 }
@@ -922,12 +898,11 @@ void NoteManager_dblogPending(NoteManager *manager, Ticks current) {
 }
 
 Ticks NoteManager_scheduleOffs(NoteManager *manager, Ticks current) {
-    NoteManager_dblogPending(manager, current);
     while (manager->pending != NULL) {
         if (manager->pending->timestamp > current) {
             break;
         }
-        NoteManager_sendNoteOn(manager, manager->pending->pitch, 0);    
+        NoteManager_sendNoteOn(manager, manager->pending->pitch, 0);  
         PendingNoteOff *n = manager->pending;
         manager->pending  = manager->pending->next;
         PendingNoteOff_free(n);
