@@ -51,14 +51,16 @@ typedef struct
 
 typedef struct
 {
-    t_object *reciever;
+    Port *reciever;
     t_symbol *varname;
-} PatcherFindCell;
+    t_symbol *track;
+    t_symbol *type;
+} PortFindCell;
 
 typedef struct
 {
-    PatcherFindCell *objectsFound;
-} PatcherFind;
+    PortFindCell *objectsFound;
+} PortFind;
 
 typedef struct
 {

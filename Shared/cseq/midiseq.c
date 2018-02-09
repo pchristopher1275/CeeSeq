@@ -172,23 +172,28 @@ void Midiseq_dblog(Midiseq *midi)
 //
 // P A T C H E R    F I N D
 //
-long PatcherFind_iterator(PatcherFind *pf, t_object *targetBox)
+long PortFind_iterator(PortFind *pf, t_object *targetBox)
 {
-    dblog0("Enter iterator");
-    t_symbol *varname = object_attr_getsym(targetBox, gensym("varname"));
-    if (varname == NULL) {
+    t_object *obj = jbox_get_object(targetBox);
+    if (gensym("Port") != object_classname(obj)) {
         return 0;
     }
 
-    PatcherFindCell pfc = {0};
-    pfc.reciever        = jbox_get_object(targetBox);
+    t_symbol *varname = object_attr_getsym(targetBox, gensym("varname"));
+    if (varname == NULL) {
+        varname = gensym("unknown");
+    }
+
+
+    PortFindCell pfc = {0};
+    pfc.reciever        = (Port*)obj;
     pfc.varname         = varname;
     sb_push(pf->objectsFound, pfc);
     return 0;
 }
 
 
-int PatcherFind_discover(PatcherFind *pf, t_object *sourceMaxObject, Error *err)
+int PortFind_discover(PortFind *pf, t_object *sourceMaxObject, Error *err)
 {
     t_object *patcher = NULL;
     long result       = 0;
@@ -197,24 +202,23 @@ int PatcherFind_discover(PatcherFind *pf, t_object *sourceMaxObject, Error *err)
         Error_format(err, "Failed object_obex_lookup (%s)", Error_maxErrToString(maxErr));
         return 0;
     }
-    object_method(patcher, gensym("iterate"), PatcherFind_iterator, (void *)pf, PI_WANTBOX | PI_DEEP, &result);
+    object_method(patcher, gensym("iterate"), PortFind_iterator, (void *)pf, PI_WANTBOX | PI_DEEP, &result);
     return 0;
 }
 
 
-#define PatcherFind_declare(name) PatcherFind _##name = {0}; PatcherFind *name = &_##name
-void PatcherFind_clear(PatcherFind *pf)
+#define PortFind_declare(name) PortFind _##name = {0}; PortFind *name = &_##name
+void PortFind_clear(PortFind *pf)
 {
     sb_free(pf->objectsFound);
     pf->objectsFound = NULL;
 }
 
 
-t_object *PatcherFind_find(PatcherFind *pf, t_symbol *symbol)
+Port *PortFind_findByVarname(PortFind *pf, t_symbol *symbol)
 {
     for (int i = 0; i < sb_count(pf->objectsFound); i++) {
-        PatcherFindCell *pfc = pf->objectsFound + i;
-        dblog("Trying to find '%s': seeing '%s'", symbol->s_name, pfc->varname->s_name);
+        PortFindCell *pfc = pf->objectsFound + i;
         if (pfc->varname == symbol) {
             return pfc->reciever;
         }
@@ -222,6 +226,27 @@ t_object *PatcherFind_find(PatcherFind *pf, t_symbol *symbol)
     return NULL;
 }
 
+Port *PortFind_findByTrack(PortFind *pf, t_symbol *symbol)
+{
+    for (int i = 0; i < sb_count(pf->objectsFound); i++) {
+        PortFindCell *pfc = pf->objectsFound + i;
+        if (pfc->reciever->track == symbol) {
+            return pfc->reciever;
+        }
+    }
+    return NULL;   
+}
+
+Port *PortFind_findByType(PortFind *pf, t_symbol *symbol)
+{
+    for (int i = 0; i < sb_count(pf->objectsFound); i++) {
+        PortFindCell *pfc = pf->objectsFound + i;
+        if (pfc->reciever->type == symbol) {
+            return pfc->reciever;
+        }
+    }
+    return NULL;   
+}
 
 //
 // F R O M     F I L E
@@ -913,8 +938,6 @@ Ticks NoteManager_scheduleOffs(NoteManager *manager, Ticks current) {
         return -1;
     }
 }
-
-
 
 void NoteManager_midievent(NoteManager *manager, MidiseqCell cell) {
     if (MidiseqCell_type(cell) == Midiseq_notetype) {

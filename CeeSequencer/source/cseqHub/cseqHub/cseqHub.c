@@ -124,19 +124,16 @@ void *CseqHub_new(t_symbol *s, long argc, t_atom *argv)
     // START TRANSPORT
     itm_resume(time_getitm(x->schedular));
 
-    PatcherFind_declare(pf);
-    PatcherFind_discover(pf, (t_object*)x, err);
+    PortFind_declare(pf);
+    PortFind_discover(pf, (t_object*)x, err);
     Error_maypost(err);
-    t_object *pack = PatcherFind_find(pf, gensym("vstPort"));
-    if (pack == NULL) {
+    x->vstDestination = PortFind_findByVarname(pf, gensym("vstPort"));
+    if (x->vstDestination == NULL) {
         post("vstPort was NOT found");
-    }
-    else {
-        x->vstDestination = (Port*)pack;
     }
     x->noteManager = NoteManager_new(x->vstDestination);
 
-    PatcherFind_clear(pf);
+    PortFind_clear(pf);
     Error_clear(err);
     CseqHub_int(x, 60);
     return x;
@@ -206,18 +203,7 @@ void CseqHub_playnotes(CseqHub *x)
         }
         Midiseq *midi = Pad_sequence(pad);
         while ( (status = Midiseq_nextevent(midi, now, &cell, err)) == Midiseq_nextEventContinue) {
-            if (MidiseqCell_type(cell) == Midiseq_notetype) {
-                // double msDuration = itm_tickstoms(itm_getglobal(), MidiseqCell_noteDuration(cell));
-                // outlet_int(x->duration_outlet, (long)msDuration);
-                // outlet_int(x->velocity_outlet, MidiseqCell_noteVelocity(cell));
-                // outlet_int(x->pitch_outlet, MidiseqCell_notePitch(cell));
-                // Port *port = x->vstDestination;
-                // if (port != NULL) {
-                //     Port_sendnote(port, MidiseqCell_notePitch(cell), MidiseqCell_noteVelocity(cell), msDuration, err);
-                //     Error_maypost(err);
-                // }
-                NoteManager_midievent(x->noteManager, cell);
-            }
+            NoteManager_midievent(x->noteManager, cell);
         }
         if (Error_maypost(err)) {
             continue;

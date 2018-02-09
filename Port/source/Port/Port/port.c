@@ -37,6 +37,8 @@ void ext_main(void *r)
 
     t_class *c = class_new(className, (method)Port_new, (method)Port_free,
         sizeof(Port), (method)0L, A_GIMME, 0);
+    CLASS_ATTR_SYM(c, "track", 0, Port, track);
+    CLASS_ATTR_SYM(c, "type", 0, Port, type);
     class_register(CLASS_BOX, c);
     Error_maypost(err);
     Port_class = c;
@@ -46,13 +48,19 @@ void ext_main(void *r)
 void *Port_new(t_symbol *s, long argc, t_atom *argv)
 {
     Port *x = (Port *)object_alloc(Port_class);
+    attr_args_process(x, argc, argv);
     x->porttype = Port_vstType;
     x->outlet1 = outlet_new(x, NULL);
+    if (x->track == NULL) {
+        x->track = gensym("unknown");
+    }
+    if (x->type == NULL) {
+        x->type  = gensym("unknown");
+    }
     return x;
 }
 
 
 void Port_free(Port *port)
 {
-    object_free((t_object *)port);
 }
