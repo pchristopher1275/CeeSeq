@@ -29,13 +29,14 @@ typedef struct
 
 int Midiseq_fastfwrd(Midiseq *midi, long t, Error *err);
 
-struct NoteManager_t;
+struct Track_t;
+
 typedef struct
 {
     t_symbol *chokeGroup;
-    t_symbol *track;
     Midiseq *sequence;
-    struct NoteManager_t *noteManager;
+    t_symbol *trackName;
+    struct Track_t *track;
 } Pad;
 
 typedef struct PendingNoteOff_t 
@@ -74,10 +75,12 @@ typedef struct
     Pad **running;
 } PadList;
 
-typedef struct 
+typedef struct Track_t
 {
     t_symbol *name;
     NoteManager *noteManager;
 } Track;
 
 typedef struct {} TrackList;
+Track *TrackList_findTrackByName(TrackList *tl_in, t_symbol *name);
+Track *TrackList_findTrackByIndex(TrackList *tl_in, int index, Error *err);

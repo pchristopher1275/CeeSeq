@@ -26,6 +26,8 @@ typedef struct _CseqHub
     t_timeobject *schedular;
 
     PadList *llst;
+    TrackList *trackList;
+
 
     NoteManager *noteManager;
 
@@ -99,12 +101,14 @@ void *CseqHub_new(t_symbol *s, long argc, t_atom *argv)
     }
 
     t_symbol *cg = gensym("cg");
+    t_symbol *trackName = gensym("piano");
     const int npads = 128;
     x->llst = PadList_new(npads);
     for (int i = 0; i < PadList_padsLength(x->llst); i++) {
         int index = i % 8;
         Pad *pad = PadList_pad(x->llst, i, err);
-        Pad_setChokeGroup(pad, cg);
+        Pad_chokeGroup(pad) = cg;
+        Pad_trackName(pad)  = trackName;
         if (index != 7) {
             sds midifile = sdscatprintf(sdsempty(), "%s/Desktop/test%d.mid", HOME, index);
             Pad *pad = PadList_pad(x->llst, i, err);
@@ -129,8 +133,10 @@ void *CseqHub_new(t_symbol *s, long argc, t_atom *argv)
     Error_maypost(err);
     x->vstDestination = PortFind_findByVarname(pf, gensym("vstPort"));
     x->noteManager = NoteManager_new(x->vstDestination);
-
+    x->trackList  = TrackList_new(pf);
+    PadList_assignTrack(x->llst, x->trackList);
     PortFind_clear(pf);
+
     Error_clear(err);
     CseqHub_int(x, 60);
     return x;
@@ -192,15 +198,29 @@ void CseqHub_playnotes(CseqHub *x)
     Ticks now = cseqHub_now();
     MidiseqCell cell = {0};
     int status = 0;
-    Ticks smallestDelta = NoteManager_scheduleOffs(x->noteManager, now);
+    // Ticks smallestDelta = NoteManager_scheduleOffs(x->noteManager, now);
+    Ticks smallestDelta = -1;
+    for (int i = 0; i < TrackList_count(x->trackList); i++) {
+        Track *track = TrackList_findTrackByIndex(x->trackList, i, err);
+        Error_maypost(err);
+        Ticks delta = NoteManager_scheduleOffs(Track_noteManager(track), now);
+        if (smallestDelta < 0) {
+            smallestDelta = delta;
+        } else if (delta >= 0 && delta < smallestDelta) {
+            smallestDelta = delta;
+        }
+    }
+
+
     for (int p = 0; p < PadList_runningLength(x->llst); p++) {
         Pad *pad      = PadList_runningPad(x->llst, p, err);
         if (Error_maypost(err)) {
             continue;
         }
-        Midiseq *midi = Pad_sequence(pad);
+        Midiseq *midi            = Pad_sequence(pad);
+        NoteManager *noteManager = Track_noteManager(Pad_track(pad));
         while ( (status = Midiseq_nextevent(midi, now, &cell, err)) == Midiseq_nextEventContinue) {
-            NoteManager_midievent(x->noteManager, cell);
+            NoteManager_midievent(noteManager, cell);
         }
         if (Error_maypost(err)) {
             continue;

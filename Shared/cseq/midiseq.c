@@ -652,19 +652,18 @@ void Pad_clear(Pad *pad)
 }
 
 
-#define Pad_chokeGroup(pad) pad->chokeGroup
-#define Pad_sequence(pad)   pad->sequence
+#define Pad_chokeGroup(pad) (pad)->chokeGroup
+#define Pad_trackName(pad)  (pad)->trackName
+#define Pad_track(pad)      (pad)->track
+
+static inline Midiseq *Pad_sequence(Pad *pad) {
+    return pad->sequence;
+}
 
 void Pad_setSequence(Pad *pad, Midiseq *midi)
 {
     Midiseq_free(Pad_sequence(pad));
-    Pad_sequence(pad) = midi;
-}
-
-
-void Pad_setChokeGroup(Pad *pad, t_symbol *cg)
-{
-    Pad_chokeGroup(pad) = cg;
+    pad->sequence = midi;
 }
 
 
@@ -778,10 +777,11 @@ Pad *PadList_pad(PadList *llst, int index, Error *err)
     return llst->pads + index;
 }
 
-void PadList_assignNoteManager(PadList *llst, TrackList *tl) {
-    
-
-
+void PadList_assignTrack(PadList *llst, TrackList *tl) {
+    for (int i = 0; i < sb_count(llst->pads); i++) {
+        Pad *pad = llst->pads + i;
+        Pad_track(pad) = TrackList_findTrackByName(tl, Pad_trackName(pad));
+    }
 }
 
 //
@@ -833,6 +833,19 @@ Track *TrackList_findTrackByName(TrackList *tl_in, t_symbol *name) {
     return tl + 0; // Always return the Null track if didn't find.
 }
 
+int TrackList_count(TrackList *tl_in) {
+    Track *tl = (Track*)tl_in;
+    return sb_count(tl);
+}
+
+Track *TrackList_findTrackByIndex(TrackList *tl_in, int index, Error *err) {
+    Track *tl = (Track*)tl_in;
+    if (index < 0 || index >= sb_count(tl)) {
+        Error_format(err, "Index out of range (%d, %d)", index, sb_count(tl));
+        return tl + 0;
+    }
+    return tl + index;
+}
 //
 // N O T E    M A N A G E R
 //
