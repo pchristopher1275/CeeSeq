@@ -44,7 +44,6 @@ const int Midiseq_cctype     = 3;
 const int Midiseq_cycletype  = 4;
 const int Midiseq_endgrptype = 5;
 
-
 #define MidiseqCell_type(cell) ((cell).type)
 #define MidiseqCell_t(cell) ((cell).t)
 #define MidiseqCell_notePitch(cell) ((cell).b.b[0])
@@ -142,6 +141,7 @@ static void Midiseq_setMidicsvExecPath()
 
 }
 
+
 void Midiseq_dblog(Midiseq *midi)
 {
     dblog("Midiseq %p", midi);
@@ -169,6 +169,7 @@ void Midiseq_dblog(Midiseq *midi)
     return;
 }
 
+
 //
 // P A T C H E R    F I N D
 //
@@ -183,7 +184,6 @@ long PortFind_iterator(PortFind *pf, t_object *targetBox)
     if (varname == NULL) {
         varname = gensym("unknown");
     }
-
 
     PortFindCell pfc = {0};
     pfc.reciever        = (Port*)obj;
@@ -226,6 +226,7 @@ Port *PortFind_findByVarname(PortFind *pf, t_symbol *symbol)
     return Port_null;
 }
 
+
 Port *PortFind_findByTrack(PortFind *pf, t_symbol *symbol)
 {
     for (int i = 0; i < sb_count(pf->objectsFound); i++) {
@@ -234,8 +235,9 @@ Port *PortFind_findByTrack(PortFind *pf, t_symbol *symbol)
             return pfc->reciever;
         }
     }
-    return Port_null;   
+    return Port_null;
 }
+
 
 Port *PortFind_findByType(PortFind *pf, t_symbol *symbol)
 {
@@ -245,20 +247,26 @@ Port *PortFind_findByType(PortFind *pf, t_symbol *symbol)
             return pfc->reciever;
         }
     }
-    return Port_null;   
+    return Port_null;
 }
 
-int PortFind_portCount(PortFind *pf) {
+
+int PortFind_portCount(PortFind *pf)
+{
     return sb_count(pf->objectsFound);
 }
 
-Port *PortFind_findByIndex(PortFind *pf, int index, Error *err) {
+
+Port *PortFind_findByIndex(PortFind *pf, int index, Error *err)
+{
     if (index < 0 || index >= PortFind_portCount(pf)) {
         Error_format(err, "Index out of range (%d, %d)", index, PortFind_portCount(pf));
         return Port_null;
     }
     return pf->objectsFound[index].reciever;
 }
+
+
 //
 // F R O M     F I L E
 //
@@ -656,9 +664,11 @@ void Pad_clear(Pad *pad)
 #define Pad_trackName(pad)  (pad)->trackName
 #define Pad_track(pad)      (pad)->track
 
-static inline Midiseq *Pad_sequence(Pad *pad) {
+static inline Midiseq *Pad_sequence(Pad *pad)
+{
     return pad->sequence;
 }
+
 
 void Pad_setSequence(Pad *pad, Midiseq *midi)
 {
@@ -777,12 +787,15 @@ Pad *PadList_pad(PadList *llst, int index, Error *err)
     return llst->pads + index;
 }
 
-void PadList_assignTrack(PadList *llst, TrackList *tl) {
+
+void PadList_assignTrack(PadList *llst, TrackList *tl)
+{
     for (int i = 0; i < sb_count(llst->pads); i++) {
         Pad *pad = llst->pads + i;
         Pad_track(pad) = TrackList_findTrackByName(tl, Pad_trackName(pad));
     }
 }
+
 
 //
 // T R A C K
@@ -791,7 +804,8 @@ void PadList_assignTrack(PadList *llst, TrackList *tl) {
 #define Track_noteManager(t) ((t)->noteManager)
 #define Track_name(t) ((t)->name)
 
-TrackList *TrackList_new(PortFind *pf) {
+TrackList *TrackList_new(PortFind *pf)
+{
     Error_declare(err);
     Track *tl = NULL;
     {
@@ -809,13 +823,15 @@ TrackList *TrackList_new(PortFind *pf) {
         Track_name(&t)        = Port_track(p);
         Track_noteManager(&t) = NoteManager_new(p);
         sb_push(tl, t);
-    }    
+    }
 
     Error_clear(err);
     return (TrackList*)tl;
 }
 
-void TrackList_free(TrackList *tl_in) {
+
+void TrackList_free(TrackList *tl_in)
+{
     Track *tl = (Track*)tl_in;
     for (int i = 0; i < sb_count(tl); i++) {
         NoteManager_free(tl[i].noteManager);
@@ -823,22 +839,28 @@ void TrackList_free(TrackList *tl_in) {
     sb_free(tl);
 }
 
-Track *TrackList_findTrackByName(TrackList *tl_in, t_symbol *name) {
+
+Track *TrackList_findTrackByName(TrackList *tl_in, t_symbol *name)
+{
     Track *tl = (Track*)tl_in;
     for (int i = 0; i < sb_count(tl); i++) {
         if (tl[i].name == name) {
             return tl + i;
         }
     }
-    return tl + 0; // Always return the Null track if didn't find.
+    return tl + 0;                                // Always return the Null track if didn't find.
 }
 
-int TrackList_count(TrackList *tl_in) {
+
+int TrackList_count(TrackList *tl_in)
+{
     Track *tl = (Track*)tl_in;
     return sb_count(tl);
 }
 
-Track *TrackList_findTrackByIndex(TrackList *tl_in, int index, Error *err) {
+
+Track *TrackList_findTrackByIndex(TrackList *tl_in, int index, Error *err)
+{
     Track *tl = (Track*)tl_in;
     if (index < 0 || index >= sb_count(tl)) {
         Error_format(err, "Index out of range (%d, %d)", index, sb_count(tl));
@@ -846,6 +868,8 @@ Track *TrackList_findTrackByIndex(TrackList *tl_in, int index, Error *err) {
     }
     return tl + index;
 }
+
+
 //
 // N O T E    M A N A G E R
 //
@@ -856,14 +880,15 @@ static PendingNoteOff *PendingNoteOff_freelist = NULL;
 // freecount is how many items are on the free list
 static int PendingNoteOff_freecount = 0;
 
-PendingNoteOff *PendingNoteOff_new() {
+PendingNoteOff *PendingNoteOff_new()
+{
     if (PendingNoteOff_freecount <= 0) {
         for (int i = 0; i <  PendingNoteOff_nodepoolsize; i++) {
             PendingNoteOff *node = (PendingNoteOff*)sysmem_newptrclear(sizeof(PendingNoteOff));
             node->next = PendingNoteOff_freelist;
             PendingNoteOff_freelist = node;
             PendingNoteOff_freecount++;
-        }    
+        }
     }
     PendingNoteOff *r = PendingNoteOff_freelist;
     PendingNoteOff_freelist = r->next;
@@ -872,10 +897,13 @@ PendingNoteOff *PendingNoteOff_new() {
     return r;
 }
 
-void PendingNoteOff_free(PendingNoteOff *node) {
+
+void PendingNoteOff_free(PendingNoteOff *node)
+{
     if (PendingNoteOff_freecount > PendingNoteOff_nodepoolsize) {
         sysmem_freeptr(node);
-    } else {
+    }
+    else {
         PendingNoteOff zero = {0};
         *node = zero;
         node->next = PendingNoteOff_freelist;
@@ -884,38 +912,48 @@ void PendingNoteOff_free(PendingNoteOff *node) {
     }
 }
 
+
 const int NoteManager_atomcount = 4;
 
-NoteManager *NoteManager_new(Port *port) {
+NoteManager *NoteManager_new(Port *port)
+{
     NoteManager *nm = (NoteManager*)sysmem_newptrclear(sizeof(NoteManager));
     nm->atoms       = (t_atom*)sysmem_newptrclear(sizeof(t_atom) * NoteManager_atomcount);
     nm->output      = port;
     return nm;
 }
 
-void NoteManager_free(NoteManager *nm) {
+
+void NoteManager_free(NoteManager *nm)
+{
     NoteManager zero = {0};
     sysmem_freeptr(nm->atoms);
     *nm = zero;
     sysmem_freeptr(nm);
 }
 
-void NoteManager_removePendingNoteOff(NoteManager *manager, PendingNoteOff *previous, PendingNoteOff *target) {
+
+void NoteManager_removePendingNoteOff(NoteManager *manager, PendingNoteOff *previous, PendingNoteOff *target)
+{
     PendingNoteOff *next = target->next;
     if (previous == NULL) {
         manager->pending = next;
-    } else {
+    }
+    else {
         previous->next   = next;
     }
     PendingNoteOff_free(target);
     return;
 }
 
-void NoteManager_insertPendingNoteOff(NoteManager *manager, PendingNoteOff *previous, PendingNoteOff *newNode) {
+
+void NoteManager_insertPendingNoteOff(NoteManager *manager, PendingNoteOff *previous, PendingNoteOff *newNode)
+{
     if (previous == NULL) {
         newNode->next    = manager->pending;
         manager->pending = newNode;
-    } else {
+    }
+    else {
         newNode->next    = previous->next;
         previous->next   = newNode;
     }
@@ -923,9 +961,9 @@ void NoteManager_insertPendingNoteOff(NoteManager *manager, PendingNoteOff *prev
 }
 
 
-
 // insert a note off, and remove any single pitch that is already there. Return true if a note-off was removed
-bool NoteManager_insertNoteOff(NoteManager *manager, Ticks offTimestamp, int pitch) {
+bool NoteManager_insertNoteOff(NoteManager *manager, Ticks offTimestamp, int pitch)
+{
     PendingNoteOff *node = PendingNoteOff_new();
     node->pitch     = pitch;
     node->timestamp = offTimestamp;
@@ -942,24 +980,24 @@ bool NoteManager_insertNoteOff(NoteManager *manager, Ticks offTimestamp, int pit
             NoteManager_removePendingNoteOff(manager, last, p);
             p = n;
             continue;
-        } 
+        }
 
         // Add the pitch at the correct timestamp
         if (!insertedNode && p->timestamp > offTimestamp) {
             insertedNode = true;
             NoteManager_insertPendingNoteOff(manager, last, node);
             p = node;
-        } 
+        }
 
         if (removedPitch && insertedNode) {
             break;
         }
         last = p;
-        p    = p->next;    
+        p    = p->next;
     }
     if (!insertedNode) {
         NoteManager_insertPendingNoteOff(manager, last, node);
-        
+
     }
     return removedPitch;
 }
@@ -968,8 +1006,8 @@ bool NoteManager_insertNoteOff(NoteManager *manager, Ticks offTimestamp, int pit
 // This is 10010000 which is a note-on (1001), on channel 0 (0000)
 const int NOTEON_COMMAND = 144;
 
-
-void NoteManager_sendNoteOn(NoteManager *manager, int pitch, int velocity) {
+void NoteManager_sendNoteOn(NoteManager *manager, int pitch, int velocity)
+{
     t_atom *av = manager->atoms;
     atom_setsym(av + 0, gensym("midievent"));
     atom_setlong(av + 1, NOTEON_COMMAND);
@@ -980,7 +1018,9 @@ void NoteManager_sendNoteOn(NoteManager *manager, int pitch, int velocity) {
     Error_maypost(err);
 }
 
-void NoteManager_flushOffs(NoteManager *manager) {
+
+void NoteManager_flushOffs(NoteManager *manager)
+{
     PendingNoteOff *p = manager->pending;
     while (p != NULL) {
         NoteManager_sendNoteOn(manager, p->pitch, 0);
@@ -991,7 +1031,9 @@ void NoteManager_flushOffs(NoteManager *manager) {
     manager->pending = NULL;
 }
 
-void NoteManager_dblogPending(NoteManager *manager, Ticks current) {
+
+void NoteManager_dblogPending(NoteManager *manager, Ticks current)
+{
     dblog("dbPending %lld:", current);
     PendingNoteOff *p = manager->pending;
     while (p != NULL) {
@@ -1000,40 +1042,37 @@ void NoteManager_dblogPending(NoteManager *manager, Ticks current) {
     }
 }
 
-Ticks NoteManager_scheduleOffs(NoteManager *manager, Ticks current) {
+
+Ticks NoteManager_scheduleOffs(NoteManager *manager, Ticks current)
+{
     while (manager->pending != NULL) {
         if (manager->pending->timestamp > current) {
             break;
         }
-        NoteManager_sendNoteOn(manager, manager->pending->pitch, 0);  
+        NoteManager_sendNoteOn(manager, manager->pending->pitch, 0);
         PendingNoteOff *n = manager->pending;
         manager->pending  = manager->pending->next;
         PendingNoteOff_free(n);
     }
     if (manager->pending != NULL) {
         return manager->pending->timestamp - current;
-    } else {
+    }
+    else {
         return -1;
     }
 }
 
-void NoteManager_midievent(NoteManager *manager, MidiseqCell cell) {
+
+void NoteManager_midievent(NoteManager *manager, MidiseqCell cell)
+{
     if (MidiseqCell_type(cell) == Midiseq_notetype) {
         int pitch     = MidiseqCell_notePitch(cell);
         int velocity  = MidiseqCell_noteVelocity(cell);
         Ticks offtime = MidiseqCell_t(cell) + MidiseqCell_noteDuration(cell);
 
-        if (NoteManager_insertNoteOff(manager, offtime, pitch)){
+        if (NoteManager_insertNoteOff(manager, offtime, pitch)) {
             NoteManager_sendNoteOn(manager, pitch, 0);
-        }        
+        }
         NoteManager_sendNoteOn(manager, pitch, velocity);
     }
 }
-
-
-
-
-
-
-
-

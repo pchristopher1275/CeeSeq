@@ -171,13 +171,17 @@ typedef struct
     t_symbol *type;
 } Port;
 
-Port PORT_NULL_IMPL = {{0}};
+Port PORT_NULL_IMPL =
+{
+    {
+        0
+    }
+};
 
 #define Port_null (&PORT_NULL_IMPL)
 
 #define Port_track(p) ((p)->track)
 #define Port_type(p) ((p)->type)
-
 
 static const char *Port_typeString(Port *port)
 {
@@ -197,16 +201,19 @@ static int Port_isVstType(Port *port)
     return port->porttype == Port_vstType;
 }
 
+
 static int Port_isNullType(Port *port)
 {
-    return port->porttype == Port_nullType;   
+    return port->porttype == Port_nullType;
 }
+
 
 void Port_send(Port *port, short argc, t_atom *argv, Error *err)
 {
     if (Port_isNullType(port)) {
         return;
-    } else if (Port_isVstType(port)) {
+    }
+    else if (Port_isVstType(port)) {
         t_symbol *selector = atom_getsym(argv + 0);
         outlet_anything(port->outlet1, selector, argc-1, argv+1);
     }

@@ -28,7 +28,6 @@ typedef struct _CseqHub
     PadList *llst;
     TrackList *trackList;
 
-
     NoteManager *noteManager;
 
     Port *vstDestination;
@@ -148,7 +147,7 @@ void CseqHub_free(CseqHub *x)
     PadList_free(x->llst);
     NoteManager_free(x->noteManager);
     object_free((t_object *) x->d_proxy);
-    object_free(x->schedular);    
+    object_free(x->schedular);
 }
 
 
@@ -206,11 +205,11 @@ void CseqHub_playnotes(CseqHub *x)
         Ticks delta = NoteManager_scheduleOffs(Track_noteManager(track), now);
         if (smallestDelta < 0) {
             smallestDelta = delta;
-        } else if (delta >= 0 && delta < smallestDelta) {
+        }
+        else if (delta >= 0 && delta < smallestDelta) {
             smallestDelta = delta;
         }
     }
-
 
     for (int p = 0; p < PadList_runningLength(x->llst); p++) {
         Pad *pad      = PadList_runningPad(x->llst, p, err);
