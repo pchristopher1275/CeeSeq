@@ -25,7 +25,7 @@ typedef struct _CseqHub
 
     t_timeobject *schedular;
 
-    LiveList *llst;
+    PadList *llst;
 
     NoteManager *noteManager;
 
@@ -100,14 +100,14 @@ void *CseqHub_new(t_symbol *s, long argc, t_atom *argv)
 
     t_symbol *cg = gensym("cg");
     const int npads = 128;
-    x->llst = LiveList_new(npads);
-    for (int i = 0; i < LiveList_padsLength(x->llst); i++) {
+    x->llst = PadList_new(npads);
+    for (int i = 0; i < PadList_padsLength(x->llst); i++) {
         int index = i % 8;
-        Pad *pad = LiveList_pad(x->llst, i, err);
+        Pad *pad = PadList_pad(x->llst, i, err);
         Pad_setChokeGroup(pad, cg);
         if (index != 7) {
             sds midifile = sdscatprintf(sdsempty(), "%s/Desktop/test%d.mid", HOME, index);
-            Pad *pad = LiveList_pad(x->llst, i, err);
+            Pad *pad = PadList_pad(x->llst, i, err);
             if (Error_maypost(err)) {
                 sdsfree(midifile);
                 continue;
@@ -128,9 +128,6 @@ void *CseqHub_new(t_symbol *s, long argc, t_atom *argv)
     PortFind_discover(pf, (t_object*)x, err);
     Error_maypost(err);
     x->vstDestination = PortFind_findByVarname(pf, gensym("vstPort"));
-    if (x->vstDestination == NULL) {
-        post("vstPort was NOT found");
-    }
     x->noteManager = NoteManager_new(x->vstDestination);
 
     PortFind_clear(pf);
@@ -142,7 +139,7 @@ void *CseqHub_new(t_symbol *s, long argc, t_atom *argv)
 
 void CseqHub_free(CseqHub *x)
 {
-    LiveList_free(x->llst);
+    PadList_free(x->llst);
     NoteManager_free(x->noteManager);
     object_free((t_object *) x->d_proxy);
     object_free(x->schedular);    
@@ -179,7 +176,7 @@ void CseqHub_int(CseqHub *x, long val)
     long pitch = val;
     Error_declare(err);
     Ticks now = cseqHub_now();
-    LiveList_play(x->llst, (int)pitch, now, now, false, err);
+    PadList_play(x->llst, (int)pitch, now, now, false, err);
     if (Error_iserror(err)) {
         post("Unexpected fail during midiseq_start: %s", Error_message(err));
     }
@@ -196,8 +193,8 @@ void CseqHub_playnotes(CseqHub *x)
     MidiseqCell cell = {0};
     int status = 0;
     Ticks smallestDelta = NoteManager_scheduleOffs(x->noteManager, now);
-    for (int p = 0; p < LiveList_runningLength(x->llst); p++) {
-        Pad *pad      = LiveList_runningPad(x->llst, p, err);
+    for (int p = 0; p < PadList_runningLength(x->llst); p++) {
+        Pad *pad      = PadList_runningPad(x->llst, p, err);
         if (Error_maypost(err)) {
             continue;
         }

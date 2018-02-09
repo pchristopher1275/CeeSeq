@@ -160,7 +160,6 @@ enum
 {
     Port_nullType = 0,
     Port_vstType = 1,
-    Port_noType = 2,
 };
 
 typedef struct
@@ -172,6 +171,14 @@ typedef struct
     t_symbol *type;
 } Port;
 
+Port PORT_NULL_IMPL = {{0}};
+
+#define Port_null (&PORT_NULL_IMPL)
+
+#define Port_track(p) ((p)->track)
+#define Port_type(p) ((p)->type)
+
+
 static const char *Port_typeString(Port *port)
 {
     switch(port->porttype) {
@@ -179,8 +186,6 @@ static const char *Port_typeString(Port *port)
             return "Port_nullType";
         case Port_vstType:
             return "Port_vstType";
-        case Port_noType:
-            return "Port_noType";
         default:
             return "PORT-UNKNOWN";
     }
@@ -197,31 +202,12 @@ static int Port_isNullType(Port *port)
     return port->porttype == Port_nullType;   
 }
 
-void Port_sendnote(Port *port, int pitch, int velocity, Ticks duration, Error *err)
-{
-    if (Port_isNullType(port)) {
-        return
-    } else if (Port_isVstType(port)) {
-        const short ac = 3;
-        t_atom av[ac] = {
-            {
-                0
-            }
-        };
-        atom_setlong(av+0, pitch);
-        atom_setlong(av+1, velocity);
-        atom_setfloat(av+2, (float)duration);
-        outlet_anything(port->outlet1, gensym("note"), ac, av);
-    }
-    else {
-        Error_format(err, "Port_sendnote called on porttype = %s", Port_typeString(port));
-    }
-}
-
 void Port_send(Port *port, short argc, t_atom *argv, Error *err)
 {
-    t_symbol *selector = atom_getsym(argv + 0);
-    if (Port_isVstType(port)) {
+    if (Port_isNullType(port)) {
+        return;
+    } else if (Port_isVstType(port)) {
+        t_symbol *selector = atom_getsym(argv + 0);
         outlet_anything(port->outlet1, selector, argc-1, argv+1);
     }
     else {

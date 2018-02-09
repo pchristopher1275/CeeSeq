@@ -223,7 +223,7 @@ Port *PortFind_findByVarname(PortFind *pf, t_symbol *symbol)
             return pfc->reciever;
         }
     }
-    return NULL;
+    return Port_null;
 }
 
 Port *PortFind_findByTrack(PortFind *pf, t_symbol *symbol)
@@ -234,7 +234,7 @@ Port *PortFind_findByTrack(PortFind *pf, t_symbol *symbol)
             return pfc->reciever;
         }
     }
-    return NULL;   
+    return Port_null;   
 }
 
 Port *PortFind_findByType(PortFind *pf, t_symbol *symbol)
@@ -245,9 +245,20 @@ Port *PortFind_findByType(PortFind *pf, t_symbol *symbol)
             return pfc->reciever;
         }
     }
-    return NULL;   
+    return Port_null;   
 }
 
+int PortFind_portCount(PortFind *pf) {
+    return sb_count(pf->objectsFound);
+}
+
+Port *PortFind_findByIndex(PortFind *pf, int index, Error *err) {
+    if (index < 0 || index >= PortFind_portCount(pf)) {
+        Error_format(err, "Index out of range (%d, %d)", index, PortFind_portCount(pf));
+        return Port_null;
+    }
+    return pf->objectsFound[index].reciever;
+}
 //
 // F R O M     F I L E
 //
@@ -658,11 +669,11 @@ void Pad_setChokeGroup(Pad *pad, t_symbol *cg)
 
 
 //
-// L I V E   L I S T
+// P A D   L I S T
 //
-LiveList *LiveList_new(int npads)
+PadList *PadList_new(int npads)
 {
-    LiveList *llst = (LiveList*)sysmem_newptrclear(sizeof(LiveList));
+    PadList *llst = (PadList*)sysmem_newptrclear(sizeof(PadList));
     sb_add(llst->pads, npads);
     for (int i = 0; i < npads; i++) {
         Pad_init(llst->pads + i);
@@ -671,7 +682,7 @@ LiveList *LiveList_new(int npads)
 }
 
 
-void LiveList_free(LiveList *llst)
+void PadList_free(PadList *llst)
 {
     if (llst != NULL) {
         for (int i = 0; i < sb_count(llst->pads); i++) {
@@ -684,7 +695,7 @@ void LiveList_free(LiveList *llst)
 }
 
 
-int LiveList_play(LiveList *llst, int index, Ticks startTime, Ticks currentTime, bool useMasterClock, Error *err)
+int PadList_play(PadList *llst, int index, Ticks startTime, Ticks currentTime, bool useMasterClock, Error *err)
 {
     int padsLength = sb_count(llst->pads);
     if (index < 0 || index >= padsLength) {
@@ -736,29 +747,29 @@ int LiveList_play(LiveList *llst, int index, Ticks startTime, Ticks currentTime,
 }
 
 
-int LiveList_runningLength(LiveList *llst)
+int PadList_runningLength(PadList *llst)
 {
     return sb_count(llst->running);
 }
 
 
-Pad *LiveList_runningPad(LiveList *llst, int index, Error *err)
+Pad *PadList_runningPad(PadList *llst, int index, Error *err)
 {
-    if (index < 0 || index >= LiveList_runningLength(llst)) {
-        Error_format(err, "Index out of range (%d, %d)", index, LiveList_runningLength(llst));
+    if (index < 0 || index >= PadList_runningLength(llst)) {
+        Error_format(err, "Index out of range (%d, %d)", index, PadList_runningLength(llst));
         return NULL;
     }
     return llst->running[index];
 }
 
 
-int LiveList_padsLength(LiveList *llst)
+int PadList_padsLength(PadList *llst)
 {
     return sb_count(llst->pads);
 }
 
 
-Pad *LiveList_pad(LiveList *llst, int index, Error *err)
+Pad *PadList_pad(PadList *llst, int index, Error *err)
 {
     if (index < 0 || index >= sb_count(llst->pads)) {
         Error_format(err, "Index out of range (%d, %d)", index, sb_count(llst->pads));
@@ -767,6 +778,60 @@ Pad *LiveList_pad(LiveList *llst, int index, Error *err)
     return llst->pads + index;
 }
 
+void PadList_assignNoteManager(PadList *llst, TrackList *tl) {
+    
+
+
+}
+
+//
+// T R A C K
+//
+
+#define Track_noteManager(t) ((t)->noteManager)
+#define Track_name(t) ((t)->name)
+
+TrackList *TrackList_new(PortFind *pf) {
+    Error_declare(err);
+    Track *tl = NULL;
+    {
+        // Insert the null track at position 1 of the tracklist
+        Track t = {0};
+        t.name  = gensym("null");
+        t.noteManager = NoteManager_new(Port_null);
+        sb_push(tl, t);
+    }
+
+    for (int i = 0; i < PortFind_portCount(pf); i++) {
+        // Notice I don't handle any error that occures. I assume none do since I bound findByIndex by portCount
+        Port *p = PortFind_findByIndex(pf, i, err);
+        Track t = {0};
+        Track_name(&t)        = Port_track(p);
+        Track_noteManager(&t) = NoteManager_new(p);
+        sb_push(tl, t);
+    }    
+
+    Error_clear(err);
+    return (TrackList*)tl;
+}
+
+void TrackList_free(TrackList *tl_in) {
+    Track *tl = (Track*)tl_in;
+    for (int i = 0; i < sb_count(tl); i++) {
+        NoteManager_free(tl[i].noteManager);
+    }
+    sb_free(tl);
+}
+
+Track *TrackList_findTrackByName(TrackList *tl_in, t_symbol *name) {
+    Track *tl = (Track*)tl_in;
+    for (int i = 0; i < sb_count(tl); i++) {
+        if (tl[i].name == name) {
+            return tl + i;
+        }
+    }
+    return tl + 0; // Always return the Null track if didn't find.
+}
 
 //
 // N O T E    M A N A G E R

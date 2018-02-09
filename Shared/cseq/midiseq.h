@@ -29,10 +29,13 @@ typedef struct
 
 int Midiseq_fastfwrd(Midiseq *midi, long t, Error *err);
 
+struct NoteManager_t;
 typedef struct
 {
     t_symbol *chokeGroup;
+    t_symbol *track;
     Midiseq *sequence;
+    struct NoteManager_t *noteManager;
 } Pad;
 
 typedef struct PendingNoteOff_t 
@@ -42,12 +45,15 @@ typedef struct PendingNoteOff_t
     int pitch;
 } PendingNoteOff;
 
-typedef struct 
+typedef struct NoteManager_t
 {
     PendingNoteOff *pending;
     Port *output;
     t_atom *atoms;
 } NoteManager;
+
+NoteManager *NoteManager_new(Port *port);
+void NoteManager_free(NoteManager *nm);
 
 typedef struct
 {
@@ -66,4 +72,12 @@ typedef struct
 {
     Pad *pads;
     Pad **running;
-} LiveList;
+} PadList;
+
+typedef struct 
+{
+    t_symbol *name;
+    NoteManager *noteManager;
+} Track;
+
+typedef struct {} TrackList;
