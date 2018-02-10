@@ -100,14 +100,16 @@ void *CseqHub_new(t_symbol *s, long argc, t_atom *argv)
     }
 
     t_symbol *cg = gensym("cg");
-    t_symbol *trackName = gensym("piano");
+    t_symbol *pianoName = gensym("piano");
+    t_symbol *organName = gensym("organ");
     const int npads = 128;
     x->llst = PadList_new(npads);
     for (int i = 0; i < PadList_padsLength(x->llst); i++) {
         int index = i % 8;
+        bool useOrgan = (i % 16) >= 8;
         Pad *pad = PadList_pad(x->llst, i, err);
         Pad_chokeGroup(pad) = cg;
-        Pad_trackName(pad)  = trackName;
+        Pad_trackName(pad)  = useOrgan ? organName : pianoName;
         if (index != 7) {
             sds midifile = sdscatprintf(sdsempty(), "%s/Desktop/test%d.mid", HOME, index);
             Pad *pad = PadList_pad(x->llst, i, err);
