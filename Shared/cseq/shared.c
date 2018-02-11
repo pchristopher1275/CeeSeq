@@ -162,13 +162,17 @@ enum
     Port_vstType = 1,
 };
 
-typedef struct
+struct Port_t;
+typedef void (*Port_anythingDispatchFunc)(void *hub, struct Port_t *port, t_symbol *msg, long argc, t_atom *argv);
+typedef struct Port_t
 {
     t_object d_obj;
     int porttype;
     void *outlet1;
     t_symbol *track;
     t_symbol *type;
+    void *hub;
+    Port_anythingDispatchFunc anythingDispatch;
 } Port;
 
 Port PORT_NULL_IMPL =
@@ -180,8 +184,10 @@ Port PORT_NULL_IMPL =
 
 #define Port_null (&PORT_NULL_IMPL)
 
-#define Port_track(p) ((p)->track)
-#define Port_type(p) ((p)->type)
+#define Port_track(p)            ((p)->track)
+#define Port_type(p)             ((p)->type)
+#define Port_hub(p)              ((p)->hub)
+#define Port_anythingDispatch(p) ((p)->anythingDispatch)
 
 static const char *Port_typeString(Port *port)
 {

@@ -25,14 +25,12 @@ typedef struct _CseqHub
 
     t_timeobject *schedular;
 
-    PadList *llst;
-    TrackList *trackList;
-
-    NoteManager *noteManager;
-
-    Port *vstDestination;
-
+    Hub hub;
 } CseqHub;
+
+#define CseqHub_hub(cseq)       (&(cseq)->hub)
+#define CseqHub_padList(cseq)   (Hub_padList(CseqHub_hub(cseq)))
+#define CseqHub_trackList(cseq) (Hub_trackList(CseqHub_hub(cseq)))
 
 void *CseqHub_new(t_symbol *s, long argc, t_atom *argv);
 void CseqHub_free(CseqHub *x);
@@ -103,10 +101,10 @@ void *CseqHub_new(t_symbol *s, long argc, t_atom *argv)
     t_symbol *pianoName = gensym("piano");
     t_symbol *organName = gensym("organ");
     const int npads = 128;
-    x->llst = PadList_new(npads);
+    CseqHub_padList(x) = PadList_new(npads);
     const bool initWithNotes = true;
-    for (int i = 0; i < PadList_padsLength(x->llst); i++) {
-        Pad *pad            = PadList_pad(x->llst, i, err);
+    for (int i = 0; i < PadList_padsLength(CseqHub_padList(x)); i++) {
+        Pad *pad            = PadList_pad(CseqHub_padList(x), i, err);
         Pad_padIndex(pad)   = i;
         Pad_chokeGroup(pad) = cg;
         
@@ -155,12 +153,10 @@ void *CseqHub_new(t_symbol *s, long argc, t_atom *argv)
     itm_resume(time_getitm(x->schedular));
 
     PortFind_declare(pf);
-    PortFind_discover(pf, (t_object*)x, err);
+    PortFind_discover(pf, (t_object*)x, CseqHub_hub(x) ,err);
     Error_maypost(err);
-    x->vstDestination = PortFind_findByVarname(pf, gensym("vstPort"));
-    x->noteManager = NoteManager_new(x->vstDestination);
-    x->trackList  = TrackList_new(pf);
-    PadList_assignTrack(x->llst, x->trackList);
+    CseqHub_trackList(x) = TrackList_new(pf);
+    PadList_assignTrack(CseqHub_padList(x), CseqHub_trackList(x));
     PortFind_clear(pf);
 
     Error_clear(err);
@@ -171,8 +167,8 @@ void *CseqHub_new(t_symbol *s, long argc, t_atom *argv)
 
 void CseqHub_free(CseqHub *x)
 {
-    PadList_free(x->llst);
-    NoteManager_free(x->noteManager);
+    PadList_free(CseqHub_padList(x));
+    TrackList_free(CseqHub_trackList(x));
     object_free((t_object *) x->d_proxy);
     object_free(x->schedular);
 }
@@ -206,7 +202,7 @@ void CseqHub_int(CseqHub *x, long val)
 
     if (lastVelocity == 0) {
         int padIndex = (int)val;
-        Pad *pad     = PadList_pad(x->llst, padIndex, err);
+        Pad *pad     = PadList_pad(CseqHub_padList(x), padIndex, err);
         if (Error_maypost(err)) {
             return;
         }
@@ -217,7 +213,7 @@ void CseqHub_int(CseqHub *x, long val)
 
     int padIndex = (int)val;
     Ticks now = cseqHub_now();
-    PadList_play(x->llst, padIndex, now, now, false, err);
+    PadList_play(CseqHub_padList(x), padIndex, now, now, false, err);
     Error_maypost(err);
     time_stop(x->schedular);
     time_now(x->schedular, NULL);
@@ -232,8 +228,8 @@ void CseqHub_playnotes(CseqHub *x)
     MidiseqCell cell = {0};
     int status = 0;
     Ticks smallestDelta = -1;
-    for (int i = 0; i < TrackList_count(x->trackList); i++) {
-        Track *track = TrackList_findTrackByIndex(x->trackList, i, err);
+    for (int i = 0; i < TrackList_count(CseqHub_trackList(x)); i++) {
+        Track *track = TrackList_findTrackByIndex(CseqHub_trackList(x), i, err);
         Error_maypost(err);
         Ticks delta = NoteManager_scheduleOffs(Track_noteManager(track), now);
         if (smallestDelta < 0) {
@@ -246,7 +242,7 @@ void CseqHub_playnotes(CseqHub *x)
 
     Pad *pad = NULL;
     PadListIterator_declare(iterator);
-    while (PadList_iterateRunning(x->llst, iterator, &pad)) {
+    while (PadList_iterateRunning(CseqHub_padList(x), iterator, &pad)) {
         Midiseq *midi            = Pad_sequence(pad);
         NoteManager *noteManager = Track_noteManager(Pad_track(pad));
         while ( (status = Midiseq_nextevent(midi, now, &cell, err)) == Midiseq_nextEventContinue) {
@@ -268,7 +264,7 @@ void CseqHub_playnotes(CseqHub *x)
                 smallestDelta = delta;
             }
         } else if (status == Midiseq_nextEventComplete) {
-            PadList_clearRunning(x->llst, iterator); 
+            PadList_clearRunning(CseqHub_padList(x), iterator); 
         }
     }
     if (smallestDelta >= 0) {

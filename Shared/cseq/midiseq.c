@@ -198,15 +198,26 @@ long PortFind_iterator(PortFind *pf, t_object *targetBox)
     }
 
     PortFindCell pfc = {0};
-    pfc.reciever        = (Port*)obj;
+    Port *port          = (Port*)obj;
+    pfc.reciever        = port;
     pfc.varname         = varname;
     sb_push(pf->objectsFound, pfc);
+
+    Port_hub(port)              = PortFind_hub(pf);
+    Port_anythingDispatch(port) = PortFind_anythingDispatch(pf);
+
     return 0;
 }
 
+void Hub_dispatch(void *hub, struct Port_t *port, t_symbol *msg, long argc, t_atom *argv) {
+    dblog("Ping %s", msg->s_name);
+}
 
-int PortFind_discover(PortFind *pf, t_object *sourceMaxObject, Error *err)
+int PortFind_discover(PortFind *pf, t_object *sourceMaxObject, void *hub, Error *err)
 {
+    PortFind_hub(pf)              = hub;
+    PortFind_anythingDispatch(pf) = Hub_dispatch;
+
     t_object *patcher = NULL;
     long result       = 0;
     t_max_err maxErr = object_obex_lookup(sourceMaxObject, gensym("#P"), &patcher);
@@ -215,6 +226,10 @@ int PortFind_discover(PortFind *pf, t_object *sourceMaxObject, Error *err)
         return 0;
     }
     object_method(patcher, gensym("iterate"), PortFind_iterator, (void *)pf, PI_WANTBOX | PI_DEEP, &result);
+
+    PortFind_hub(pf)              = NULL;
+    PortFind_anythingDispatch(pf) = NULL;
+
     return 0;
 }
 

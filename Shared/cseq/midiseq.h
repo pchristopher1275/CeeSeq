@@ -105,21 +105,24 @@ typedef struct
 {
     Port *reciever;
     t_symbol *varname;
-    t_symbol *track;
-    t_symbol *type;
 } PortFindCell;
 
 typedef struct
 {
     PortFindCell *objectsFound;
+    void *hub;
+    Port_anythingDispatchFunc anythingDispatch;
 } PortFind;
+
+#define PortFind_hub(p)              ((p)->hub)
+#define PortFind_anythingDispatch(p) ((p)->anythingDispatch)
 
 typedef struct
 {
     Pad *pads;
     Pad **running;
 } PadList;
-int PadList_padsLength(PadList *llst);
+int PadList_padsLength(PadList *padList);
 
 typedef struct Track_t
 {
@@ -133,3 +136,12 @@ typedef struct Track_t
 typedef struct {} TrackList;
 Track *TrackList_findTrackByName(TrackList *tl_in, t_symbol *name);
 Track *TrackList_findTrackByIndex(TrackList *tl_in, int index, Error *err);
+
+typedef struct 
+{
+    PadList *padList;
+    TrackList *trackList;
+} Hub;
+
+#define Hub_padList(hub)   ((hub)->padList)
+#define Hub_trackList(hub) ((hub)->trackList)
