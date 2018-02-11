@@ -177,6 +177,7 @@
 #define sb_add(a,n)        (sb__maybegrow(a,n), sb__len(a)+=(n), &(a)[sb__len(a)-(n)])
 #define sb_last(a)         ((a)[sb__len(a)-1])
 #define sb_pop(a)          ((a) != NULL && sb__len(a) > 0 ? sb__len(a)-- : 0)
+#define sb_clear(a)        sb_clearf((a), sizeof(*(a)))
 
 #define sb__raw(a) ((int *) (a) - 2)
 #define sb__cap(a) sb__raw(a)[0]
@@ -187,6 +188,14 @@
 #define sb__grow(a,n)      ((a) = sb_growf((a), (n), sizeof(*(a))))
 
 #include <stdlib.h>
+
+void *sb_clearf(void *arr, int itemsize) {
+   if (arr) {
+      memset(arr, 0, sb__len(arr)*itemsize);
+      sb__len(arr) = 0;
+   }
+   return arr;
+}
 
 void *sb_growf(void *arr, int increment, int itemsize){
    int dbl_cur = arr ? 2*sb__cap(arr) : 0;

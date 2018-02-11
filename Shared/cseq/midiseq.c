@@ -38,21 +38,6 @@ static int convertIntFileLine(const char *src, Error *err, const char *file, int
 //
 // M I D I S E Q
 //
-const int Midiseq_notetype   = 1;
-const int Midiseq_bendtype   = 2;
-const int Midiseq_cctype     = 3;
-const int Midiseq_cycletype  = 4;
-const int Midiseq_endgrptype = 5;
-
-#define MidiseqCell_type(cell) ((cell).type)
-#define MidiseqCell_t(cell) ((cell).t)
-#define MidiseqCell_notePitch(cell) ((cell).b.b[0])
-#define MidiseqCell_noteVelocity(cell) ((cell).b.b[1])
-#define MidiseqCell_noteDuration(cell) ((cell).duration)
-#define MidiseqCell_ccNumber(cell) ((cell).b.b[0])
-#define MidiseqCell_ccValue(cell) ((cell).b.b[1])
-#define MidiseqCell_bendValue(cell) ((cell).b.bend)
-
 const int Midiseq_maxLineLength = 1024;
 
 // Create new empty midi sequence
@@ -68,6 +53,33 @@ static inline Midiseq *Midiseq_new()
     cell.t = midi->sequenceLength;
     cell.type = Midiseq_cycletype;
     midi->data[1] = cell;
+    return midi;
+}
+
+static inline Midiseq *Midiseq_newNote(int pitch)
+{
+    Midiseq *midi = (Midiseq*)sysmem_newptrclear(sizeof(Midiseq));
+    midi->sequenceLength = 480*4;
+
+    MidiseqCell zero = {0}, cell = {0};
+
+    MidiseqCell_t(cell)    = 0;    
+    MidiseqCell_type(cell) = Midiseq_endgrptype;
+    sb_push(midi->data, cell);
+    
+    cell = zero;
+    MidiseqCell_t(cell)            = 0;
+    MidiseqCell_type(cell)         = Midiseq_notetype;
+    MidiseqCell_notePitch(cell)    = pitch;
+    MidiseqCell_noteVelocity(cell) = 90;
+    MidiseqCell_noteDuration(cell) = 480;
+    sb_push(midi->data, cell);
+
+    cell                   = zero;
+    MidiseqCell_t(cell)    = midi->sequenceLength;
+    MidiseqCell_type(cell) = Midiseq_cycletype;
+    sb_push(midi->data, cell);
+    
     return midi;
 }
 
@@ -659,11 +671,6 @@ void Pad_clear(Pad *pad)
     }
 }
 
-
-#define Pad_chokeGroup(pad) (pad)->chokeGroup
-#define Pad_trackName(pad)  (pad)->trackName
-#define Pad_track(pad)      (pad)->track
-
 static inline Midiseq *Pad_sequence(Pad *pad)
 {
     return pad->sequence;
@@ -704,14 +711,19 @@ void PadList_free(PadList *llst)
 }
 
 
-int PadList_play(PadList *llst, int index, Ticks startTime, Ticks currentTime, bool useMasterClock, Error *err)
+int PadList_play(PadList *llst, int padIndex, Ticks startTime, Ticks currentTime, bool useMasterClock, Error *err)
 {
     int padsLength = sb_count(llst->pads);
-    if (index < 0 || index >= padsLength) {
-        Error_format(err, "Index out of range (%d, %d)", index, padsLength);
+    if (padIndex < 0 || padIndex >= padsLength) {
+        Error_format(err, "Index out of range (%d, %d)", padIndex, padsLength);
         return 1;
     }
-    Pad *nwPad = llst->pads + index;
+    Pad *pad = llst->pads + padIndex;
+    // Since we're starting to play, we just recieved a Note-on for this pad. Reset the pad 
+    Pad_inEndgroup(pad)         = false;
+    Pad_noteReleasePending(pad) = true;
+
+    // Now let's find a place to stick this pad into the running array
     int runningLength = sb_count(llst->running);
     int chokeIndex  = -1;
     int insertIndex = -1;
@@ -723,7 +735,7 @@ int PadList_play(PadList *llst, int index, Ticks startTime, Ticks currentTime, b
             }
             continue;
         }
-        if (chokeIndex < 0 && Pad_chokeGroup(nwPad) != NULL && Pad_chokeGroup(nwPad) == Pad_chokeGroup(p)) {
+        if (chokeIndex < 0 && Pad_chokeGroup(pad) != NULL && Pad_chokeGroup(pad) == Pad_chokeGroup(p)) {
             chokeIndex = i;
             if (insertIndex < 0) {
                 insertIndex = i;
@@ -736,13 +748,14 @@ int PadList_play(PadList *llst, int index, Ticks startTime, Ticks currentTime, b
     }
 
     if (chokeIndex >= 0) {
+        // Remove choked Pad
         llst->running[chokeIndex] = NULL;
     }
     if (insertIndex < 0) {
-        sb_add(llst->running, 1);
+        llst->running = sb_add(llst->running, 1);
         insertIndex = sb_count(llst->running)-1;
     }
-    llst->running[insertIndex] = nwPad;
+    llst->running[insertIndex] = pad;
     for (int i = runningLength-1; i >= 0; i--) {
         if (llst->running[i] == NULL) {
             sb_pop(llst->running);
@@ -755,6 +768,19 @@ int PadList_play(PadList *llst, int index, Ticks startTime, Ticks currentTime, b
     return Midiseq_start(Pad_sequence(llst->running[insertIndex]), startTime, currentTime, false, err);
 }
 
+void PadList_markReleasePending(PadList *llst, int padIndex, bool pending, Error *err) {
+    if (padIndex < 0 || padIndex >= PadList_padsLength(llst)) {
+        Error_format(err, "Index out of range (%d, %d)", padIndex, PadList_padsLength(llst));
+        return;
+    }
+    Pad *pad = llst->pads + padIndex;
+    Pad_noteReleasePending(pad) = pending;
+    if (!pending) {
+        // We recieved a note-off. So cancel any pending endgroups
+        NoteManager_padNoteOff(Track_noteManager(Pad_track(pad)), padIndex);
+    }
+}
+
 
 int PadList_runningLength(PadList *llst)
 {
@@ -762,15 +788,42 @@ int PadList_runningLength(PadList *llst)
 }
 
 
-Pad *PadList_runningPad(PadList *llst, int index, Error *err)
-{
-    if (index < 0 || index >= PadList_runningLength(llst)) {
-        Error_format(err, "Index out of range (%d, %d)", index, PadList_runningLength(llst));
-        return NULL;
+// Pad *PadList_runningPad(PadList *llst, int index, Error *err)
+// {
+//     if (index < 0 || index >= PadList_runningLength(llst)) {
+//         Error_format(err, "Index out of range (%d, %d)", index, PadList_runningLength(llst));
+//         return NULL;
+//     }
+//     return llst->running[index];
+// }
+
+typedef struct {int index;} PadListIterator;
+#define PadListIterator_declare(name) PadListIterator _##name = {-1}; PadListIterator *name = &_##name
+
+// iterator always points at the same element that is saved in the pad argument. This is done so that the iterator
+// is left in a state that can be sent to PadList_clearRunning.
+bool PadList_iterateRunning(PadList *llst, PadListIterator *iterator, Pad **pad) {
+    *pad = NULL;
+    if (iterator->index < -1) {
+        return false;
     }
-    return llst->running[index];
+    while (iterator->index+1 < PadList_runningLength(llst)) {
+        iterator->index++;
+        *pad = llst->running[iterator->index];
+        if (*pad != NULL) {
+            return true;
+        }
+        
+    }
+    return false;
 }
 
+void PadList_clearRunning(PadList *llst, PadListIterator *iterator) {
+    if (iterator->index >= 0 && iterator->index < PadList_runningLength(llst)) {
+        llst->running[iterator->index] = NULL;
+    }
+    return;
+}
 
 int PadList_padsLength(PadList *llst)
 {
@@ -800,9 +853,6 @@ void PadList_assignTrack(PadList *llst, TrackList *tl)
 //
 // T R A C K
 //
-
-#define Track_noteManager(t) ((t)->noteManager)
-#define Track_name(t) ((t)->name)
 
 TrackList *TrackList_new(PortFind *pf)
 {
@@ -885,18 +935,17 @@ PendingNoteOff *PendingNoteOff_new()
     if (PendingNoteOff_freecount <= 0) {
         for (int i = 0; i <  PendingNoteOff_nodepoolsize; i++) {
             PendingNoteOff *node = (PendingNoteOff*)sysmem_newptrclear(sizeof(PendingNoteOff));
-            node->next = PendingNoteOff_freelist;
+            PendingNoteOff_next(node) = PendingNoteOff_freelist;
             PendingNoteOff_freelist = node;
             PendingNoteOff_freecount++;
         }
     }
     PendingNoteOff *r = PendingNoteOff_freelist;
-    PendingNoteOff_freelist = r->next;
+    PendingNoteOff_freelist = PendingNoteOff_next(r);
     PendingNoteOff_freecount--;
-    r->next = NULL;
+    PendingNoteOff_next(r) = NULL;
     return r;
 }
-
 
 void PendingNoteOff_free(PendingNoteOff *node)
 {
@@ -906,12 +955,109 @@ void PendingNoteOff_free(PendingNoteOff *node)
     else {
         PendingNoteOff zero = {0};
         *node = zero;
-        node->next = PendingNoteOff_freelist;
+        PendingNoteOff_next(node) = PendingNoteOff_freelist;
         PendingNoteOff_freelist = node;
         PendingNoteOff_freecount++;
     }
 }
 
+bool PendingNoteOff_removePitch(PendingNoteOff **head, int pitch) {
+     // First remove the pitch from endgroups
+    PendingNoteOff *p    = *head;
+    PendingNoteOff *last = NULL;
+    while (p != NULL) {
+        if (PendingNoteOff_pitch(p) == pitch) {
+            if (last == NULL) {
+                *head = PendingNoteOff_next(p);
+            } else {
+                PendingNoteOff_next(last) = PendingNoteOff_next(p);
+            }
+            PendingNoteOff_free(p);
+            return true;
+        }
+        last = p;
+        p    = PendingNoteOff_next(p);
+    }
+    return false;
+}
+
+void PendingNoteOff_removePadIndexed(PendingNoteOff **head, int padIndex, int **pitchesRemoved) {
+     // First remove the pitch from endgroups
+    sb_clear(*pitchesRemoved);
+    PendingNoteOff *p    = *head;
+    PendingNoteOff *last = NULL;
+    while (p != NULL) {
+        if (PendingNoteOff_padIndex(p) == padIndex) {
+            sb_push(*pitchesRemoved, PendingNoteOff_pitch(p)); 
+            PendingNoteOff *n = PendingNoteOff_next(p);
+            if (last == NULL) {
+                *head = n;
+            } else {
+                PendingNoteOff_next(last) = n;
+            }
+            PendingNoteOff_free(p);
+            p = n;
+            continue;
+        }
+        last = p;
+        p    = PendingNoteOff_next(p);
+    }
+    return;
+}
+
+void PendingNoteOff_insertTimestamped(PendingNoteOff **head, int pitch, Ticks timestamp) {
+    PendingNoteOff *node = PendingNoteOff_new();
+    PendingNoteOff_pitch(node)     = pitch;    
+    PendingNoteOff_timestamp(node) = timestamp;    
+    
+    PendingNoteOff *p    = *head;
+    PendingNoteOff *last = NULL;
+    while (p != NULL) {
+        if (PendingNoteOff_timestamp(p) > timestamp) {
+            // This will make p point to the element AFTER node, and last be EITHER (a) the element BEFORE node, or (b) if last == NULL
+            // than node will be the first (and only) element of the list 
+            break;
+        }
+        last = p;
+        p    = PendingNoteOff_next(p);
+    }
+
+    if (last == NULL) {
+        PendingNoteOff_next(node) = *head;
+        *head                     = node;
+    } else {
+        PendingNoteOff_next(node) = p;
+        PendingNoteOff_next(last) = node;
+    }
+            
+    return;
+}
+
+void PendingNoteOff_insertPadIndexed(PendingNoteOff **head, int pitch, int padIndex) {
+    PendingNoteOff *node = PendingNoteOff_new();
+    PendingNoteOff_pitch(node)     = pitch;    
+    PendingNoteOff_padIndex(node)  = padIndex;    
+    PendingNoteOff_next(node)      = *head;
+    *head                          = node;
+}
+
+// pop the first element off the list
+void PendingNoteOff_pop(PendingNoteOff **head) {
+    if (*head) {
+        PendingNoteOff *n = *head;
+        *head = PendingNoteOff_next(*head);
+        PendingNoteOff_free(n);
+    }
+}
+
+void PendingNoteOff_freeAll(PendingNoteOff *start) {
+    PendingNoteOff *p = start;
+    while (p != NULL) {
+        PendingNoteOff *n = p;
+        p = PendingNoteOff_next(p);
+        PendingNoteOff_free(n);
+    }
+}
 
 const int NoteManager_atomcount = 4;
 
@@ -923,82 +1069,31 @@ NoteManager *NoteManager_new(Port *port)
     return nm;
 }
 
-
 void NoteManager_free(NoteManager *nm)
 {
+    PendingNoteOff_freeAll(NoteManager_pending(nm));
+    sb_free(nm->removedPitches);
+    sb_free(nm->pending);
+    sb_free(nm->endgroups);
     NoteManager zero = {0};
     sysmem_freeptr(nm->atoms);
     *nm = zero;
     sysmem_freeptr(nm);
 }
 
-
-void NoteManager_removePendingNoteOff(NoteManager *manager, PendingNoteOff *previous, PendingNoteOff *target)
-{
-    PendingNoteOff *next = target->next;
-    if (previous == NULL) {
-        manager->pending = next;
-    }
-    else {
-        previous->next   = next;
-    }
-    PendingNoteOff_free(target);
-    return;
-}
-
-
-void NoteManager_insertPendingNoteOff(NoteManager *manager, PendingNoteOff *previous, PendingNoteOff *newNode)
-{
-    if (previous == NULL) {
-        newNode->next    = manager->pending;
-        manager->pending = newNode;
-    }
-    else {
-        newNode->next    = previous->next;
-        previous->next   = newNode;
-    }
-    return;
-}
-
-
 // insert a note off, and remove any single pitch that is already there. Return true if a note-off was removed
-bool NoteManager_insertNoteOff(NoteManager *manager, Ticks offTimestamp, int pitch)
+bool NoteManager_insertNoteOff(NoteManager *manager, Ticks timestamp, int pitch, int padIndexForEndgroup)
 {
-    PendingNoteOff *node = PendingNoteOff_new();
-    node->pitch     = pitch;
-    node->timestamp = offTimestamp;
-
-    bool removedPitch    = false;
-    bool insertedNode    = false;
-    PendingNoteOff *p    = manager->pending;
-    PendingNoteOff *last = NULL;
-    while (p != NULL) {
-        // Remove a pitch if it is present
-        if (!removedPitch && p->pitch == pitch) {
-            removedPitch = true;
-            PendingNoteOff *n = p->next;
-            NoteManager_removePendingNoteOff(manager, last, p);
-            p = n;
-            continue;
-        }
-
-        // Add the pitch at the correct timestamp
-        if (!insertedNode && p->timestamp > offTimestamp) {
-            insertedNode = true;
-            NoteManager_insertPendingNoteOff(manager, last, node);
-            p = node;
-        }
-
-        if (removedPitch && insertedNode) {
-            break;
-        }
-        last = p;
-        p    = p->next;
+    bool removedPitch = PendingNoteOff_removePitch(&NoteManager_endgroups(manager), pitch); 
+    bool q            = PendingNoteOff_removePitch(&NoteManager_pending(manager),   pitch);
+    removedPitch      = removedPitch || q;
+    if (padIndexForEndgroup >= 0) {
+        // Mark this pitch as endgroup
+        PendingNoteOff_insertPadIndexed(&NoteManager_endgroups(manager), pitch, padIndexForEndgroup);
+    } else {
+        PendingNoteOff_insertTimestamped(&NoteManager_pending(manager), pitch, timestamp);
     }
-    if (!insertedNode) {
-        NoteManager_insertPendingNoteOff(manager, last, node);
 
-    }
     return removedPitch;
 }
 
@@ -1021,58 +1116,71 @@ void NoteManager_sendNoteOn(NoteManager *manager, int pitch, int velocity)
 
 void NoteManager_flushOffs(NoteManager *manager)
 {
-    PendingNoteOff *p = manager->pending;
+    PendingNoteOff *p = NoteManager_endgroups(manager);
     while (p != NULL) {
-        NoteManager_sendNoteOn(manager, p->pitch, 0);
+        NoteManager_sendNoteOn(manager, PendingNoteOff_pitch(p), 0);
         PendingNoteOff *n = p;
-        p = p->next;
+        p = PendingNoteOff_next(p);
         PendingNoteOff_free(n);
     }
-    manager->pending = NULL;
+    NoteManager_pending(manager) = NULL;
+
+    p = NoteManager_pending(manager);
+    while (p != NULL) {
+        NoteManager_sendNoteOn(manager, PendingNoteOff_pitch(p), 0);
+        PendingNoteOff *n = p;
+        p = PendingNoteOff_next(p);
+        PendingNoteOff_free(n);
+    }
+    NoteManager_pending(manager) = NULL;
 }
 
 
 void NoteManager_dblogPending(NoteManager *manager, Ticks current)
 {
     dblog("dbPending %lld:", current);
-    PendingNoteOff *p = manager->pending;
+    PendingNoteOff *p = NoteManager_pending(manager);
     while (p != NULL) {
-        dblog("  %lld %d", p->timestamp-current, p->pitch);
-        p = p->next;
+        dblog("  %lld %d", PendingNoteOff_timestamp(p)-current, PendingNoteOff_pitch(p));
+        p = PendingNoteOff_next(p);
     }
 }
 
-
 Ticks NoteManager_scheduleOffs(NoteManager *manager, Ticks current)
 {
-    while (manager->pending != NULL) {
-        if (manager->pending->timestamp > current) {
+    while (NoteManager_pending(manager) != NULL) {
+        if (PendingNoteOff_timestamp(NoteManager_pending(manager)) > current) {
             break;
         }
-        NoteManager_sendNoteOn(manager, manager->pending->pitch, 0);
-        PendingNoteOff *n = manager->pending;
-        manager->pending  = manager->pending->next;
-        PendingNoteOff_free(n);
+        NoteManager_sendNoteOn(manager, PendingNoteOff_pitch(NoteManager_pending(manager)), 0);
+        PendingNoteOff_pop(&NoteManager_pending(manager));
     }
-    if (manager->pending != NULL) {
-        return manager->pending->timestamp - current;
+    if (NoteManager_pending(manager) != NULL) {
+        return PendingNoteOff_timestamp(NoteManager_pending(manager)) - current;
     }
     else {
         return -1;
     }
 }
 
-
-void NoteManager_midievent(NoteManager *manager, MidiseqCell cell)
+// padIndexForEndgroup should be -1 if this cell is not in an endgroup
+void NoteManager_midievent(NoteManager *manager, MidiseqCell cell, int padIndexForEndgroup)
 {
     if (MidiseqCell_type(cell) == Midiseq_notetype) {
         int pitch     = MidiseqCell_notePitch(cell);
         int velocity  = MidiseqCell_noteVelocity(cell);
         Ticks offtime = MidiseqCell_t(cell) + MidiseqCell_noteDuration(cell);
 
-        if (NoteManager_insertNoteOff(manager, offtime, pitch)) {
+        if (NoteManager_insertNoteOff(manager, offtime, pitch, padIndexForEndgroup)) {
             NoteManager_sendNoteOn(manager, pitch, 0);
         }
         NoteManager_sendNoteOn(manager, pitch, velocity);
+    }
+}
+
+void NoteManager_padNoteOff(NoteManager *manager, int padIndex) {
+    PendingNoteOff_removePadIndexed(&NoteManager_endgroups(manager), padIndex, &manager->removedPitches);
+    for (int i = 0; i < sb_count(manager->removedPitches); i++) {
+        NoteManager_sendNoteOn(manager, manager->removedPitches[i], 0); 
     }
 }

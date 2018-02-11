@@ -104,25 +104,50 @@ void *CseqHub_new(t_symbol *s, long argc, t_atom *argv)
     t_symbol *organName = gensym("organ");
     const int npads = 128;
     x->llst = PadList_new(npads);
+    const bool initWithNotes = true;
     for (int i = 0; i < PadList_padsLength(x->llst); i++) {
-        int index = i % 8;
-        bool useOrgan = (i % 16) >= 8;
-        Pad *pad = PadList_pad(x->llst, i, err);
+        Pad *pad            = PadList_pad(x->llst, i, err);
+        Pad_padIndex(pad)   = i;
         Pad_chokeGroup(pad) = cg;
-        Pad_trackName(pad)  = useOrgan ? organName : pianoName;
-        if (index != 7) {
-            sds midifile = sdscatprintf(sdsempty(), "%s/Desktop/test%d.mid", HOME, index);
-            Pad *pad = PadList_pad(x->llst, i, err);
-            if (Error_maypost(err)) {
-                sdsfree(midifile);
-                continue;
-            }
-
-            Midiseq *midi = Midiseq_fromfile(midifile, err);
-            Error_maypost(err);
-            sdsfree(midifile);
-            if (midi != NULL) {
+        
+        if (initWithNotes) {
+            int roll           = (i % 24);
+            int pitch          = 48 + roll;
+            Pad_trackName(pad) = organName;
+            if (roll >= 8) {
+                Midiseq *midi = Midiseq_newNote(pitch);                                
                 Pad_setSequence(pad, midi);
+            } else {
+                sds midifile = sdscatprintf(sdsempty(), "%s/Desktop/test%d.mid", HOME, roll);
+                if (Error_maypost(err)) {
+                    sdsfree(midifile);
+                    continue;
+                }
+
+                Midiseq *midi = Midiseq_fromfile(midifile, err);
+                Error_maypost(err);
+                sdsfree(midifile);
+                if (midi != NULL) {
+                    Pad_setSequence(pad, midi);
+                }
+            }
+        } else {
+            int index = i % 8;
+            bool useOrgan = (i % 16) >= 8;
+            Pad_trackName(pad)  = useOrgan ? organName : pianoName;    
+            if (index != 7) {
+                sds midifile = sdscatprintf(sdsempty(), "%s/Desktop/test%d.mid", HOME, index);
+                if (Error_maypost(err)) {
+                    sdsfree(midifile);
+                    continue;
+                }
+
+                Midiseq *midi = Midiseq_fromfile(midifile, err);
+                Error_maypost(err);
+                sdsfree(midifile);
+                if (midi != NULL) {
+                    Pad_setSequence(pad, midi);
+                }
             }
         }
     }
@@ -173,20 +198,27 @@ void CseqHub_assist(CseqHub *x, void *b, long m, long a, char *s)
 static int lastVelocity = 0;
 void CseqHub_int(CseqHub *x, long val)
 {
+    Error_declare(err);
     if (proxy_getinlet((t_object *)x) == 1) {
         lastVelocity = val;
         return;
     }
+
     if (lastVelocity == 0) {
+        int padIndex = (int)val;
+        Pad *pad     = PadList_pad(x->llst, padIndex, err);
+        if (Error_maypost(err)) {
+            return;
+        }
+        Pad_noteReleasePending(pad) = false;
+        NoteManager_padNoteOff(Track_noteManager(Pad_track(pad)), padIndex);
         return;
     }
-    long pitch = val;
-    Error_declare(err);
+
+    int padIndex = (int)val;
     Ticks now = cseqHub_now();
-    PadList_play(x->llst, (int)pitch, now, now, false, err);
-    if (Error_iserror(err)) {
-        post("Unexpected fail during midiseq_start: %s", Error_message(err));
-    }
+    PadList_play(x->llst, padIndex, now, now, false, err);
+    Error_maypost(err);
     time_stop(x->schedular);
     time_now(x->schedular, NULL);
     Error_clear(err);
@@ -199,7 +231,6 @@ void CseqHub_playnotes(CseqHub *x)
     Ticks now = cseqHub_now();
     MidiseqCell cell = {0};
     int status = 0;
-    // Ticks smallestDelta = NoteManager_scheduleOffs(x->noteManager, now);
     Ticks smallestDelta = -1;
     for (int i = 0; i < TrackList_count(x->trackList); i++) {
         Track *track = TrackList_findTrackByIndex(x->trackList, i, err);
@@ -213,15 +244,17 @@ void CseqHub_playnotes(CseqHub *x)
         }
     }
 
-    for (int p = 0; p < PadList_runningLength(x->llst); p++) {
-        Pad *pad      = PadList_runningPad(x->llst, p, err);
-        if (Error_maypost(err)) {
-            continue;
-        }
+    Pad *pad = NULL;
+    PadListIterator_declare(iterator);
+    while (PadList_iterateRunning(x->llst, iterator, &pad)) {
         Midiseq *midi            = Pad_sequence(pad);
         NoteManager *noteManager = Track_noteManager(Pad_track(pad));
         while ( (status = Midiseq_nextevent(midi, now, &cell, err)) == Midiseq_nextEventContinue) {
-            NoteManager_midievent(noteManager, cell);
+            if (MidiseqCell_type(cell) == Midiseq_endgrptype) {
+                Pad_inEndgroup(pad) = true;
+            }
+
+            NoteManager_midievent(noteManager, cell, (Pad_noteReleasePending(pad) && Pad_inEndgroup(pad)) ? Pad_padIndex(pad) : -1);
         }
         if (Error_maypost(err)) {
             continue;
@@ -234,8 +267,9 @@ void CseqHub_playnotes(CseqHub *x)
             else if (delta < smallestDelta) {
                 smallestDelta = delta;
             }
+        } else if (status == Midiseq_nextEventComplete) {
+            PadList_clearRunning(x->llst, iterator); 
         }
-
     }
     if (smallestDelta >= 0) {
         t_atom callbackInterval = {0};
