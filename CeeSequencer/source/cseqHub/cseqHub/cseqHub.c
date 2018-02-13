@@ -34,7 +34,7 @@ typedef struct _CseqHub
 #define CseqHub_bank(cseq)              Hub_bank(CseqHub_hub(cseq))
 #define CseqHub_selectedPad(cseq)       Hub_selectedPad(CseqHub_hub(cseq))
 #define CseqHub_grabNextTappedPad(cseq) Hub_grabNextTappedPad(CseqHub_hub(cseq))
-#define CseqHub_guiTop(cseq)            Hub_guiTop(CseqHub_hub(cseq))
+#define CseqHub_gui(cseq)               Hub_gui(CseqHub_hub(cseq))
 #define CseqHub_padIndexFromInNote(cseq, inputNote) Hub_padIndexFromInNote(CseqHub_hub(cseq), inputNote)
 
 void *CseqHub_new(t_symbol *s, long argc, t_atom *argv);
@@ -162,7 +162,6 @@ void *CseqHub_new(t_symbol *s, long argc, t_atom *argv)
     Error_maypost(err);
     CseqHub_trackList(x) = TrackList_new(pf);
     PadList_assignTrack(CseqHub_padList(x), CseqHub_trackList(x));
-    CseqHub_guiTop(x) = PortFind_findByType(pf, gensym("guiTop"));
     PortFind_clear(pf);
 
     Error_clear(err);
@@ -216,9 +215,9 @@ void CseqHub_int(CseqHub *x, long val)
         CseqHub_grabNextTappedPad(x) = false;
         CseqHub_selectedPad(x)       = padIndex;
         Hub *hub = CseqHub_hub(x);
-        Port_sendInteger(Hub_guiTop(hub), gensym("selBank"), Hub_bank(hub));
-        Port_sendInteger(Hub_guiTop(hub), gensym("selFrame"), Hub_frame(hub));
-        Port_sendInteger(Hub_guiTop(hub), gensym("selPad"), padIndex % (Hub_padsPerFrame*Hub_framesPerBank));
+        // Port_sendInteger(Hub_guiTop(hub), gensym("selBank"), Hub_bank(hub));
+        // Port_sendInteger(Hub_guiTop(hub), gensym("selFrame"), Hub_frame(hub));
+        // Port_sendInteger(Hub_guiTop(hub), gensym("selPad"), padIndex % (Hub_padsPerFrame*Hub_framesPerBank));
     }
 
     if (lastVelocity == 0) {

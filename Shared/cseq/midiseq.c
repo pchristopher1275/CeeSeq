@@ -210,52 +210,6 @@ long PortFind_iterator(PortFind *pf, t_object *targetBox)
     return 0;
 }
 
-//XXX: move these hub functions to the bottom of the file
-void Hub_incrementFrame(Hub *hub) {
-    if (Hub_frame(hub) >= (Hub_framesPerBank-1)) {
-        return;
-    }
-
-    Hub_frame(hub)++;
-    Port_sendInteger(Hub_guiTop(hub), gensym("currFrame"), Hub_frame(hub));
-}
-
-void Hub_decrementFrame(Hub *hub) {
-    if (Hub_frame(hub) <= 0) {
-        return;
-    }
-
-    Hub_frame(hub)--;
-    Port_sendInteger(Hub_guiTop(hub), gensym("currFrame"), Hub_frame(hub));
-}
-
-void Hub_selectNextPushedPad(Hub *hub) {
-    Hub_grabNextTappedPad(hub) = true;
-    // Port_sendInteger(Hub_guiTop(hub), gensym("currFrameIndex"), Hub_frame(hub));
-}
-
-
-
-void Hub_anythingDispatch(void *hub_in, struct Port_t *port, t_symbol *msg, long argc, t_atom *argv) {
-    Hub *hub = (Hub*)hub_in;
-    if (msg == gensym("incrementFrame")) {
-        Hub_incrementFrame(hub);
-    } else if (msg == gensym("decrementFrame")) {
-
-    } else if (msg == gensym("selectNextPushedPad")) {
-
-    }
-    dblog("Ping %s", msg->s_name);
-}
-
-void Hub_intDispatch(void *hub, struct Port_t *port, long value, long inlet) {
-    dblog("Hmmmm %s", Port_id(port)->s_name);
-    int ev = port_parseEvSymbol(Port_id(port));
-    if (ev >= 0) {
-        dblog("Ev sent to %d: inlet %ld", ev, inlet);
-    }
-}
-
 int PortFind_discover(PortFind *pf, t_object *sourceMaxObject, void *hub, Error *err)
 {
     PortFind_hub(pf)              = hub;
@@ -1244,3 +1198,60 @@ void NoteManager_padNoteOff(NoteManager *manager, int padIndex) {
         NoteManager_sendNoteOn(manager, manager->removedPitches[i], 0); 
     }
 }
+
+//
+// G U I
+// 
+void Gui_discover(Gui *gui, PortFind *pf) 
+{
+
+}
+
+
+//
+// H U B
+//
+void Hub_incrementFrame(Hub *hub) {
+    if (Hub_frame(hub) >= (Hub_framesPerBank-1)) {
+        return;
+    }
+
+    Hub_frame(hub)++;
+    // Port_sendInteger(Hub_guiTop(hub), gensym("currFrame"), Hub_frame(hub));
+}
+
+void Hub_decrementFrame(Hub *hub) {
+    if (Hub_frame(hub) <= 0) {
+        return;
+    }
+
+    Hub_frame(hub)--;
+    // Port_sendInteger(Hub_guiTop(hub), gensym("currFrame"), Hub_frame(hub));
+}
+
+void Hub_selectNextPushedPad(Hub *hub) {
+    Hub_grabNextTappedPad(hub) = true;
+    // Port_sendInteger(Hub_guiTop(hub), gensym("currFrameIndex"), Hub_frame(hub));
+}
+
+
+
+void Hub_anythingDispatch(void *hub_in, struct Port_t *port, t_symbol *msg, long argc, t_atom *argv) {
+    Hub *hub = (Hub*)hub_in;
+    if (msg == gensym("incrementFrame")) {
+        Hub_incrementFrame(hub);
+    } else if (msg == gensym("decrementFrame")) {
+
+    } else if (msg == gensym("selectNextPushedPad")) {
+
+    }
+    dblog("Ping %s", msg->s_name);
+}
+
+void Hub_intDispatch(void *hub, struct Port_t *port, long value, long inlet) {
+    int ev = port_parseEvSymbol(Port_id(port));
+    if (ev >= 0) {
+        dblog("Ev sent to %d: inlet %ld", ev, inlet);
+    }
+}
+

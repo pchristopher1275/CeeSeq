@@ -139,6 +139,14 @@ typedef struct {} TrackList;
 Track *TrackList_findTrackByName(TrackList *tl_in, t_symbol *name);
 Track *TrackList_findTrackByIndex(TrackList *tl_in, int index, Error *err);
 
+typedef struct {
+
+} Gui;
+
+
+//
+// H U B
+//
 typedef struct 
 {
     PadList *padList;
@@ -156,8 +164,7 @@ typedef struct
     // which pad has been selected
     int selectedPad;
 
-    // Port to send gui messages too
-    Port *guiTop;
+    Gui *gui;
 } Hub;
 
 #define Hub_padList(hub)           ((hub)->padList)
@@ -166,9 +173,11 @@ typedef struct
 #define Hub_frame(hub)             ((hub)->frame)
 #define Hub_selectedPad(hub)       ((hub)->selectedPad)
 #define Hub_grabNextTappedPad(hub) ((hub)->grabNextTappedPad)
-#define Hub_guiTop(hub)            ((hub)->guiTop)
+#define Hub_gui(hub)               ((hub)->gui)
 #define Hub_padsPerFrame           24
 #define Hub_framesPerBank           8
 #define Hub_firstMidiNote          48
 #define Hub_padIndexFromInNote(hub, inputNote) (Hub_bank(hub)*8*Hub_padsPerFrame + Hub_frame(hub)*Hub_padsPerFrame + (inputNote - Hub_firstMidiNote))
+void Hub_anythingDispatch(void *hub, struct Port_t *port, t_symbol *msg, long argc, t_atom *argv);
+void Hub_intDispatch(void *hub, struct Port_t *port, long value, long inlet);
 
