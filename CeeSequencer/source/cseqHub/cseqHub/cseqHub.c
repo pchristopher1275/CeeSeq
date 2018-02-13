@@ -28,9 +28,14 @@ typedef struct _CseqHub
     Hub hub;
 } CseqHub;
 
-#define CseqHub_hub(cseq)       (&(cseq)->hub)
-#define CseqHub_padList(cseq)   (Hub_padList(CseqHub_hub(cseq)))
-#define CseqHub_trackList(cseq) (Hub_trackList(CseqHub_hub(cseq)))
+#define CseqHub_hub(cseq)               (&(cseq)->hub)
+#define CseqHub_padList(cseq)           Hub_padList(CseqHub_hub(cseq))
+#define CseqHub_trackList(cseq)         Hub_trackList(CseqHub_hub(cseq))
+#define CseqHub_bank(cseq)              Hub_bank(CseqHub_hub(cseq))
+#define CseqHub_selectedPad(cseq)       Hub_selectedPad(CseqHub_hub(cseq))
+#define CseqHub_grabNextTappedPad(cseq) Hub_grabNextTappedPad(CseqHub_hub(cseq))
+#define CseqHub_guiTop(cseq)            Hub_guiTop(CseqHub_hub(cseq))
+#define CseqHub_padIndexFromInNote(cseq, inputNote) Hub_padIndexFromInNote(CseqHub_hub(cseq), inputNote)
 
 void *CseqHub_new(t_symbol *s, long argc, t_atom *argv);
 void CseqHub_free(CseqHub *x);
@@ -157,10 +162,11 @@ void *CseqHub_new(t_symbol *s, long argc, t_atom *argv)
     Error_maypost(err);
     CseqHub_trackList(x) = TrackList_new(pf);
     PadList_assignTrack(CseqHub_padList(x), CseqHub_trackList(x));
+    CseqHub_guiTop(x) = PortFind_findByType(pf, gensym("guiTop"));
     PortFind_clear(pf);
 
     Error_clear(err);
-    CseqHub_int(x, 60);
+    // CseqHub_int(x, 60);
     return x;
 }
 
@@ -200,8 +206,22 @@ void CseqHub_int(CseqHub *x, long val)
         return;
     }
 
+    int padIndex = CseqHub_padIndexFromInNote(x, val);
+    if (padIndex >= PadList_padsLength(CseqHub_padList(x))) {
+        post("Bad padIndex %d", padIndex);
+        return;
+    }
+
+    if (CseqHub_grabNextTappedPad(x)) {
+        CseqHub_grabNextTappedPad(x) = false;
+        CseqHub_selectedPad(x)       = padIndex;
+        Hub *hub = CseqHub_hub(x);
+        Port_sendInteger(Hub_guiTop(hub), gensym("selBank"), Hub_bank(hub));
+        Port_sendInteger(Hub_guiTop(hub), gensym("selFrame"), Hub_frame(hub));
+        Port_sendInteger(Hub_guiTop(hub), gensym("selPad"), padIndex % (Hub_padsPerFrame*Hub_framesPerBank));
+    }
+
     if (lastVelocity == 0) {
-        int padIndex = (int)val;
         Pad *pad     = PadList_pad(CseqHub_padList(x), padIndex, err);
         if (Error_maypost(err)) {
             return;
@@ -210,8 +230,7 @@ void CseqHub_int(CseqHub *x, long val)
         NoteManager_padNoteOff(Track_noteManager(Pad_track(pad)), padIndex);
         return;
     }
-
-    int padIndex = (int)val;
+    
     Ticks now = cseqHub_now();
     PadList_play(CseqHub_padList(x), padIndex, now, now, false, err);
     Error_maypost(err);

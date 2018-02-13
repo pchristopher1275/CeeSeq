@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include "../stretchy_buffer.h"
 #include "../sds/sds.h"
 #include "../sds/sds.c"
@@ -156,23 +157,30 @@ void DBLog_init(const char *tag, Error *err)
 //
 // P O R T
 //
+
 enum
 {
+    // XXX: Port type is deprecated use the track and type symbols on Port
     Port_nullType = 0,
     Port_vstType = 1,
 };
 
 struct Port_t;
 typedef void (*Port_anythingDispatchFunc)(void *hub, struct Port_t *port, t_symbol *msg, long argc, t_atom *argv);
+typedef void (*Port_intDispatchFunc)(void *hub, struct Port_t *port, long value, long inlet);
 typedef struct Port_t
 {
     t_object d_obj;
     int porttype;
-    void *outlet1;
+    long inletnum;
+    void **proxy;
+    void **outlet;
     t_symbol *track;
-    t_symbol *type;
+    t_symbol *id;
     void *hub;
     Port_anythingDispatchFunc anythingDispatch;
+    Port_intDispatchFunc intDispatch;
+    t_atom *sendBuffer;
 } Port;
 
 Port PORT_NULL_IMPL =
@@ -185,11 +193,30 @@ Port PORT_NULL_IMPL =
 #define Port_null (&PORT_NULL_IMPL)
 
 #define Port_track(p)            ((p)->track)
-#define Port_type(p)             ((p)->type)
+#define Port_id(p)               ((p)->id)
 #define Port_hub(p)              ((p)->hub)
 #define Port_anythingDispatch(p) ((p)->anythingDispatch)
+#define Port_intDispatch(p)      ((p)->intDispatch)
+#define Port_sendBuffer(p)       ((p)->sendBuffer)
 
-static const char *Port_typeString(Port *port)
+// Will parse id's of the form ev\d+ and return the \d+ number. Returns -1 otherwise
+int port_parseEvSymbol(t_symbol *id) {
+    int r = -1;
+    int consumed = 0;
+    if (id == NULL) {
+        return -1;
+    }
+    
+    if (sscanf(id->s_name, "ev%d%n", &r, &consumed) != 1) {
+        return -1;
+    }
+    if (strlen(id->s_name) != consumed) {
+        return -1;
+    }
+    return r;
+}
+
+static const char *Port_idString(Port *port)
 {
     switch(port->porttype) {
         case Port_nullType:
@@ -221,9 +248,16 @@ void Port_send(Port *port, short argc, t_atom *argv, Error *err)
     }
     else if (Port_isVstType(port)) {
         t_symbol *selector = atom_getsym(argv + 0);
-        outlet_anything(port->outlet1, selector, argc-1, argv+1);
+        outlet_anything(port->outlet[0], selector, argc-1, argv+1);
     }
     else {
-        Error_format(err, "Port_send called on porttype = %s", Port_typeString(port));
+        Error_format(err, "Port_send called on porttype = %s", Port_idString(port));
     }
 }
+
+void Port_sendInteger(Port *port, t_symbol *selector, int value) {
+    t_atom a = {0};
+    atom_setlong(&a, value);
+    outlet_anything(port->outlet[0], selector, 1, &a);
+}
+

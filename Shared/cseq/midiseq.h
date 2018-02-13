@@ -112,10 +112,12 @@ typedef struct
     PortFindCell *objectsFound;
     void *hub;
     Port_anythingDispatchFunc anythingDispatch;
+    Port_intDispatchFunc intDispatch;
 } PortFind;
 
 #define PortFind_hub(p)              ((p)->hub)
 #define PortFind_anythingDispatch(p) ((p)->anythingDispatch)
+#define PortFind_intDispatch(p)      ((p)->intDispatch)
 
 typedef struct
 {
@@ -141,7 +143,32 @@ typedef struct
 {
     PadList *padList;
     TrackList *trackList;
+
+    // bank varies from 0 - infinity
+    int bank;
+
+    // frame varies from 0 - 7
+    int frame;
+
+    // true if the next padIndex tapped should be written into selectedPad
+    bool grabNextTappedPad;
+
+    // which pad has been selected
+    int selectedPad;
+
+    // Port to send gui messages too
+    Port *guiTop;
 } Hub;
 
-#define Hub_padList(hub)   ((hub)->padList)
-#define Hub_trackList(hub) ((hub)->trackList)
+#define Hub_padList(hub)           ((hub)->padList)
+#define Hub_trackList(hub)         ((hub)->trackList)
+#define Hub_bank(hub)              ((hub)->bank)
+#define Hub_frame(hub)             ((hub)->frame)
+#define Hub_selectedPad(hub)       ((hub)->selectedPad)
+#define Hub_grabNextTappedPad(hub) ((hub)->grabNextTappedPad)
+#define Hub_guiTop(hub)            ((hub)->guiTop)
+#define Hub_padsPerFrame           24
+#define Hub_framesPerBank           8
+#define Hub_firstMidiNote          48
+#define Hub_padIndexFromInNote(hub, inputNote) (Hub_bank(hub)*8*Hub_padsPerFrame + Hub_frame(hub)*Hub_padsPerFrame + (inputNote - Hub_firstMidiNote))
+

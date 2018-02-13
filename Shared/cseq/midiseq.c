@@ -205,18 +205,62 @@ long PortFind_iterator(PortFind *pf, t_object *targetBox)
 
     Port_hub(port)              = PortFind_hub(pf);
     Port_anythingDispatch(port) = PortFind_anythingDispatch(pf);
+    Port_intDispatch(port)      = PortFind_intDispatch(pf);
 
     return 0;
 }
 
-void Hub_dispatch(void *hub, struct Port_t *port, t_symbol *msg, long argc, t_atom *argv) {
+//XXX: move these hub functions to the bottom of the file
+void Hub_incrementFrame(Hub *hub) {
+    if (Hub_frame(hub) >= (Hub_framesPerBank-1)) {
+        return;
+    }
+
+    Hub_frame(hub)++;
+    Port_sendInteger(Hub_guiTop(hub), gensym("currFrame"), Hub_frame(hub));
+}
+
+void Hub_decrementFrame(Hub *hub) {
+    if (Hub_frame(hub) <= 0) {
+        return;
+    }
+
+    Hub_frame(hub)--;
+    Port_sendInteger(Hub_guiTop(hub), gensym("currFrame"), Hub_frame(hub));
+}
+
+void Hub_selectNextPushedPad(Hub *hub) {
+    Hub_grabNextTappedPad(hub) = true;
+    // Port_sendInteger(Hub_guiTop(hub), gensym("currFrameIndex"), Hub_frame(hub));
+}
+
+
+
+void Hub_anythingDispatch(void *hub_in, struct Port_t *port, t_symbol *msg, long argc, t_atom *argv) {
+    Hub *hub = (Hub*)hub_in;
+    if (msg == gensym("incrementFrame")) {
+        Hub_incrementFrame(hub);
+    } else if (msg == gensym("decrementFrame")) {
+
+    } else if (msg == gensym("selectNextPushedPad")) {
+
+    }
     dblog("Ping %s", msg->s_name);
+}
+
+void Hub_intDispatch(void *hub, struct Port_t *port, long value, long inlet) {
+    dblog("Hmmmm %s", Port_id(port)->s_name);
+    int ev = port_parseEvSymbol(Port_id(port));
+    if (ev >= 0) {
+        dblog("Ev sent to %d: inlet %ld", ev, inlet);
+    }
 }
 
 int PortFind_discover(PortFind *pf, t_object *sourceMaxObject, void *hub, Error *err)
 {
     PortFind_hub(pf)              = hub;
-    PortFind_anythingDispatch(pf) = Hub_dispatch;
+    PortFind_anythingDispatch(pf) = Hub_anythingDispatch;
+    PortFind_intDispatch(pf)      = Hub_intDispatch;
 
     t_object *patcher = NULL;
     long result       = 0;
@@ -229,6 +273,7 @@ int PortFind_discover(PortFind *pf, t_object *sourceMaxObject, void *hub, Error 
 
     PortFind_hub(pf)              = NULL;
     PortFind_anythingDispatch(pf) = NULL;
+    PortFind_intDispatch(pf)      = NULL;
 
     return 0;
 }
@@ -270,7 +315,7 @@ Port *PortFind_findByType(PortFind *pf, t_symbol *symbol)
 {
     for (int i = 0; i < sb_count(pf->objectsFound); i++) {
         PortFindCell *pfc = pf->objectsFound + i;
-        if (pfc->reciever->type == symbol) {
+        if (Port_id(pfc->reciever) == symbol) {
             return pfc->reciever;
         }
     }
