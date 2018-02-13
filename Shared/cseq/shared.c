@@ -200,13 +200,14 @@ Port PORT_NULL_IMPL =
 #define Port_sendBuffer(p)       ((p)->sendBuffer)
 
 // Will parse id's of the form ev\d+ and return the \d+ number. Returns -1 otherwise
-int port_parseEvSymbol(t_symbol *id) {
+int port_parseEvSymbol(t_symbol *id)
+{
     int r = -1;
     int consumed = 0;
     if (id == NULL) {
         return -1;
     }
-    
+
     if (sscanf(id->s_name, "ev%d%n", &r, &consumed) != 1) {
         return -1;
     }
@@ -215,6 +216,7 @@ int port_parseEvSymbol(t_symbol *id) {
     }
     return r;
 }
+
 
 static const char *Port_idString(Port *port)
 {
@@ -255,9 +257,10 @@ void Port_send(Port *port, short argc, t_atom *argv, Error *err)
     }
 }
 
-void Port_sendInteger(Port *port, t_symbol *selector, int value) {
+
+void Port_sendInteger(Port *port, t_symbol *selector, int value)
+{
     t_atom a = {0};
     atom_setlong(&a, value);
     outlet_anything(port->outlet[0], selector, 1, &a);
 }
-

@@ -112,15 +112,16 @@ void *CseqHub_new(t_symbol *s, long argc, t_atom *argv)
         Pad *pad            = PadList_pad(CseqHub_padList(x), i, err);
         Pad_padIndex(pad)   = i;
         Pad_chokeGroup(pad) = cg;
-        
+
         if (initWithNotes) {
             int roll           = (i % 24);
             int pitch          = 48 + roll;
             Pad_trackName(pad) = organName;
             if (roll >= 8) {
-                Midiseq *midi = Midiseq_newNote(pitch);                                
+                Midiseq *midi = Midiseq_newNote(pitch);
                 Pad_setSequence(pad, midi);
-            } else {
+            }
+            else {
                 sds midifile = sdscatprintf(sdsempty(), "%s/Desktop/test%d.mid", HOME, roll);
                 if (Error_maypost(err)) {
                     sdsfree(midifile);
@@ -134,10 +135,11 @@ void *CseqHub_new(t_symbol *s, long argc, t_atom *argv)
                     Pad_setSequence(pad, midi);
                 }
             }
-        } else {
+        }
+        else {
             int index = i % 8;
             bool useOrgan = (i % 16) >= 8;
-            Pad_trackName(pad)  = useOrgan ? organName : pianoName;    
+            Pad_trackName(pad)  = useOrgan ? organName : pianoName;
             if (index != 7) {
                 sds midifile = sdscatprintf(sdsempty(), "%s/Desktop/test%d.mid", HOME, index);
                 if (Error_maypost(err)) {
@@ -229,7 +231,7 @@ void CseqHub_int(CseqHub *x, long val)
         NoteManager_padNoteOff(Track_noteManager(Pad_track(pad)), padIndex);
         return;
     }
-    
+
     Ticks now = cseqHub_now();
     PadList_play(CseqHub_padList(x), padIndex, now, now, false, err);
     Error_maypost(err);
@@ -281,8 +283,9 @@ void CseqHub_playnotes(CseqHub *x)
             else if (delta < smallestDelta) {
                 smallestDelta = delta;
             }
-        } else if (status == Midiseq_nextEventComplete) {
-            PadList_clearRunning(CseqHub_padList(x), iterator); 
+        }
+        else if (status == Midiseq_nextEventComplete) {
+            PadList_clearRunning(CseqHub_padList(x), iterator);
         }
     }
     if (smallestDelta >= 0) {

@@ -60,7 +60,6 @@ void *Port_new(t_symbol *s, long argc, t_atom *argv)
         Port_id(port) = gensym("unknown");
     }
 
-
     port->porttype              = Port_vstType;
     port->proxy  = NULL;
     port->outlet = NULL;
@@ -71,37 +70,43 @@ void *Port_new(t_symbol *s, long argc, t_atom *argv)
         sb_add(port->outlet, 4);
         for (int i = 3; i >= 0; i--) {
             void *p = NULL;
-            if (i != 0) { 
+            if (i != 0) {
                 p = proxy_new(port, (long)i, &port->inletnum);
             }
             port->proxy[i]  = p;
             port->outlet[i] = intout(port);
         }
-    } else {
-        void *out = outlet_new(port, NULL); 
-        sb_push(port->outlet, out);    
     }
-    
+    else {
+        void *out = outlet_new(port, NULL);
+        sb_push(port->outlet, out);
+    }
+
     Port_hub(port)              = NULL;
     Port_anythingDispatch(port) = NULL;
     Port_intDispatch(port)      = NULL;
     Port_sendBuffer(port)       = NULL;
-    
+
     return port;
 }
 
-void Port_anything(Port *port, t_symbol *msg, long argc, t_atom *argv) {
+
+void Port_anything(Port *port, t_symbol *msg, long argc, t_atom *argv)
+{
     if (Port_anythingDispatch(port) != NULL) {
         Port_anythingDispatch(port)(Port_hub(port), port, msg, argc, argv);
     }
 }
 
-void Port_int(Port *port, long value) {
+
+void Port_int(Port *port, long value)
+{
     if (Port_intDispatch(port) != NULL) {
         int inlet = proxy_getinlet((t_object *)port);
         Port_intDispatch(port)(Port_hub(port), port, value, inlet);
     }
 }
+
 
 void Port_free(Port *port)
 {
