@@ -1,13 +1,56 @@
 sds stripBaseName(const char *path);
-typedef unsigned char uint8;
-typedef unsigned short uint16;
+
+//
+// B I N    F I L E
+//
+typedef struct 
+{
+    int version;
+    sds filename;
+    sds buffer;
+    FILE *stream;  
+} BinFile;
+
+// Currently we only support littleEndian read and write
+#define BinFile_isLittleEndian true
+#define BinFile_lengthFieldSize     8
+#define BinFile_lengthFieldSizeStr "8"
+#define BinFile_version(bf)    (bf)->version
+#define BinFile_filename(bf)   (bf)->filename
+#define BinFile_stream(bf)     (bf)->stream
+#define BinFile_buffer(bf)     (bf)->buffer
+
+BinFile *BinFile_new();
+BinFile *BinFile_newWriter(const char *file, Error *err);
+BinFile *BinFile_newReader(const char *file, Error *err);
+void BinFile_free(BinFile *bf);
+off_t BinFile_writeNullLength(BinFile *bf, Error *err);
+void BinFile_writeBackLength(BinFile *bf, off_t location, Error *err);
+off_t BinFile_tell(BinFile *bf, Error *err);
+uint32_t BinFile_readLength(BinFile *bf, Error *err);
+void BinFile_fillBuffer(BinFile *bf, uint32_t size, Error *err);
+void BinFile_writeInteger(BinFile *bf, long value, Error *err);
+long BinFile_readInteger(BinFile *bf, Error *err);
+void BinFile_writeString(BinFile *bf, sds value, Error *err);
+sds BinFile_readString(BinFile *bf, Error *err);
+void BinFile_writeSymbol(BinFile *bf, t_symbol *value, Error *err);
+t_symbol *BinFile_readSymbol(BinFile *bf, Error *err);
+void BinFile_writeTicks(BinFile *bf, Ticks value, Error *err);
+Ticks BinFile_readTicks(BinFile *bf, Error *err);
+void BinFile_writeBool(BinFile *bf, bool value, Error *err);
+bool BinFile_readBool(BinFile *bf, Error *err);
+
+
+//
+// M I D I S E Q
+//
 typedef struct
 {
-    uint8 type;
+    uint8_t type;
     union
     {
-        uint8 b[2];
-        uint16 bend;
+        uint8_t b[2];
+        uint16_t bend;
     } b;
     Ticks t;
     Ticks duration;
@@ -31,19 +74,26 @@ const int Midiseq_endgrptype = 5;
 
 typedef struct
 {
-    MidiseqCell *data;                            // This is an stretchy_buffer
-    int ptr;
+    // ** Persisted **
+    MidiseqCell *data;
     bool useMasterClock;
-
     Ticks sequenceLength;
 
+
+    // ** NOT Persisted **
     // startTime is the time offset that t = 0 that is stored in the sequence corresponds too.
     // Specifically, if useMasterClock is true, the startTime is updated whenever the ptr rolls
     // off the end of the sequence, and raps around back to the beginning.
     Ticks startTime;
+
+    int ptr;
 } Midiseq;
+#define Midiseq_data(mseq)           ((mseq)->data)
+#define Midiseq_useMasterClock(mseq) ((mseq)->useMasterClock)
+#define Midiseq_sequenceLength(mseq) ((mseq)->sequenceLength)
 
 int Midiseq_fastfwrd(Midiseq *midi, long t, Error *err);
+void Midiseq_free(Midiseq *midi);
 
 struct Track_t;
 
@@ -140,9 +190,17 @@ Track *TrackList_findTrackByName(TrackList *tl_in, t_symbol *name);
 Track *TrackList_findTrackByIndex(TrackList *tl_in, int index, Error *err);
 
 typedef struct {
-
+    Port *currBank;
+    Port *currFrame;
+    Port *selBank;
+    Port *selFrame;
+    Port *selPad;
 } Gui;
-
+#define Gui_currBank(gui)  (gui)->currBank
+#define Gui_currFrame(gui) (gui)->currFrame
+#define Gui_selBank(gui)   (gui)->selBank
+#define Gui_selFrame(gui)  (gui)->selFrame
+#define Gui_selPad(gui)    (gui)->selPad
 
 //
 // H U B
@@ -176,8 +234,10 @@ typedef struct
 #define Hub_gui(hub)               ((hub)->gui)
 #define Hub_padsPerFrame           24
 #define Hub_framesPerBank           8
+#define Hub_padsPerBank            (Hub_padsPerFrame*Hub_framesPerBank)
 #define Hub_firstMidiNote          48
-#define Hub_padIndexFromInNote(hub, inputNote) (Hub_bank(hub)*8*Hub_padsPerFrame + Hub_frame(hub)*Hub_padsPerFrame + (inputNote - Hub_firstMidiNote))
+#define Hub_relativeSelectedPad(hub) (Hub_selectedPad(hub) % Hub_padsPerFrame)
+#define Hub_padIndexFromInNote(hub, inputNote) (Hub_bank(hub)*Hub_padsPerBank + Hub_frame(hub)*Hub_padsPerFrame + (inputNote - Hub_firstMidiNote))
 void Hub_anythingDispatch(void *hub, struct Port_t *port, t_symbol *msg, long argc, t_atom *argv);
 void Hub_intDispatch(void *hub, struct Port_t *port, long value, long inlet);
 

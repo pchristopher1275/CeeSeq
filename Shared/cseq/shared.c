@@ -111,7 +111,10 @@ int Error_maypost(Error *err)
     return iserror;
 }
 
-
+#define Error_returnVoidOnError(err)           if (Error_iserror(err)) return
+#define Error_returnZeroOnError(err)           if (Error_iserror(err)) return 0
+#define Error_returnNullOnError(err)           if (Error_iserror(err)) return NULL
+#define Error_gotoLabelOnError(err, label)     if (Error_iserror(err)) goto label
 //
 // T E X T    L O G G I N G
 //
@@ -198,6 +201,7 @@ Port PORT_NULL_IMPL =
 #define Port_anythingDispatch(p) ((p)->anythingDispatch)
 #define Port_intDispatch(p)      ((p)->intDispatch)
 #define Port_sendBuffer(p)       ((p)->sendBuffer)
+#define Port_outlet(p, n)        ((p)->outlet[(n)])
 
 // Will parse id's of the form ev\d+ and return the \d+ number. Returns -1 otherwise
 int port_parseEvSymbol(t_symbol *id)
@@ -250,17 +254,20 @@ void Port_send(Port *port, short argc, t_atom *argv, Error *err)
     }
     else if (Port_isVstType(port)) {
         t_symbol *selector = atom_getsym(argv + 0);
-        outlet_anything(port->outlet[0], selector, argc-1, argv+1);
+        outlet_anything(Port_outlet(port, 0), selector, argc-1, argv+1);
     }
     else {
         Error_format(err, "Port_send called on porttype = %s", Port_idString(port));
     }
 }
 
+void Port_sendInteger(Port *p, long value) {
+    outlet_int(Port_outlet(p, 0), value);   
+}
 
-void Port_sendInteger(Port *port, t_symbol *selector, int value)
+void Port_sendSelectorAndInteger(Port *port, t_symbol *selector, int value)
 {
     t_atom a = {0};
     atom_setlong(&a, value);
-    outlet_anything(port->outlet[0], selector, 1, &a);
+    outlet_anything(Port_outlet(port, 0), selector, 1, &a);
 }

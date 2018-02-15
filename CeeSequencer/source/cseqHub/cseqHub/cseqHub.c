@@ -65,7 +65,6 @@ void ext_main(void *r)
 
     t_class *c = class_new(className, (method)CseqHub_new, (method)CseqHub_free,
         sizeof(CseqHub), (method)0L, A_GIMME, 0);
-    class_addmethod(c, (method)CseqHub_assist, "assist", A_CANT, 0);
     class_addmethod(c, (method)CseqHub_int, "int", A_LONG, 0);
     class_register(CLASS_BOX, c);
     if (Error_iserror(err)) {
@@ -105,57 +104,21 @@ void *CseqHub_new(t_symbol *s, long argc, t_atom *argv)
     t_symbol *cg = gensym("cg");
     t_symbol *pianoName = gensym("piano");
     t_symbol *organName = gensym("organ");
-    const int npads = 128;
+    const int npads = Hub_padsPerBank;
     CseqHub_padList(x) = PadList_new(npads);
-    const bool initWithNotes = true;
     for (int i = 0; i < PadList_padsLength(CseqHub_padList(x)); i++) {
-        Pad *pad            = PadList_pad(CseqHub_padList(x), i, err);
+        Pad *pad = PadList_pad(CseqHub_padList(x), i, err);
+        if (Error_maypost(err)) {
+            continue;
+        }
         Pad_padIndex(pad)   = i;
         Pad_chokeGroup(pad) = cg;
-
-        if (initWithNotes) {
-            int roll           = (i % 24);
-            int pitch          = 48 + roll;
-            Pad_trackName(pad) = organName;
-            if (roll >= 8) {
-                Midiseq *midi = Midiseq_newNote(pitch);
-                Pad_setSequence(pad, midi);
-            }
-            else {
-                sds midifile = sdscatprintf(sdsempty(), "%s/Desktop/test%d.mid", HOME, roll);
-                if (Error_maypost(err)) {
-                    sdsfree(midifile);
-                    continue;
-                }
-
-                Midiseq *midi = Midiseq_fromfile(midifile, err);
-                Error_maypost(err);
-                sdsfree(midifile);
-                if (midi != NULL) {
-                    Pad_setSequence(pad, midi);
-                }
-            }
-        }
-        else {
-            int index = i % 8;
-            bool useOrgan = (i % 16) >= 8;
-            Pad_trackName(pad)  = useOrgan ? organName : pianoName;
-            if (index != 7) {
-                sds midifile = sdscatprintf(sdsempty(), "%s/Desktop/test%d.mid", HOME, index);
-                if (Error_maypost(err)) {
-                    sdsfree(midifile);
-                    continue;
-                }
-
-                Midiseq *midi = Midiseq_fromfile(midifile, err);
-                Error_maypost(err);
-                sdsfree(midifile);
-                if (midi != NULL) {
-                    Pad_setSequence(pad, midi);
-                }
-            }
-        }
+        Pad_trackName(pad)  = (i % 48) < 24 ? organName : pianoName;
+        int pitch = 48 + (i % 24);
+        Midiseq *midi = Midiseq_newNote(pitch);
+        Pad_setSequence(pad, midi);        
     }
+
     // START TRANSPORT
     itm_resume(time_getitm(x->schedular));
 
@@ -164,7 +127,12 @@ void *CseqHub_new(t_symbol *s, long argc, t_atom *argv)
     Error_maypost(err);
     CseqHub_trackList(x) = TrackList_new(pf);
     PadList_assignTrack(CseqHub_padList(x), CseqHub_trackList(x));
+    CseqHub_gui(x) = Gui_new(pf);
     PortFind_clear(pf);
+
+    Hub *hub = CseqHub_hub(x);
+    Gui_setSelectedCoordinates(Hub_gui(hub), Hub_bank(hub), Hub_frame(hub), Hub_relativeSelectedPad(hub));
+    Gui_setCurrentCoordinates(Hub_gui(hub), Hub_bank(hub), Hub_frame(hub));
 
     Error_clear(err);
     // CseqHub_int(x, 60);
@@ -179,24 +147,6 @@ void CseqHub_free(CseqHub *x)
     object_free((t_object *) x->d_proxy);
     object_free(x->schedular);
 }
-
-
-void CseqHub_assist(CseqHub *x, void *b, long m, long a, char *s)
-{
-    if (m == ASSIST_INLET) {                      // Inlets
-        switch (a) {
-            case 0: sprintf(s, "bang Gets Delayed, stop Cancels"); break;
-            case 1: sprintf(s, "Set Delay Time"); break;
-        }
-    }
-    else {                                        // Outlets
-        switch (a) {
-            case 0: sprintf(s, "Delayed bang"); break;
-            case 1: sprintf(s, "Another Delayed bang"); break;
-        }
-    }
-}
-
 
 static int lastVelocity = 0;
 void CseqHub_int(CseqHub *x, long val)
@@ -217,9 +167,8 @@ void CseqHub_int(CseqHub *x, long val)
         CseqHub_grabNextTappedPad(x) = false;
         CseqHub_selectedPad(x)       = padIndex;
         Hub *hub = CseqHub_hub(x);
-        // Port_sendInteger(Hub_guiTop(hub), gensym("selBank"), Hub_bank(hub));
-        // Port_sendInteger(Hub_guiTop(hub), gensym("selFrame"), Hub_frame(hub));
-        // Port_sendInteger(Hub_guiTop(hub), gensym("selPad"), padIndex % (Hub_padsPerFrame*Hub_framesPerBank));
+        Gui_setSelectedCoordinates(Hub_gui(hub), Hub_bank(hub), Hub_frame(hub), Hub_relativeSelectedPad(hub));
+        Gui_setCurrentCoordinates(Hub_gui(hub), Hub_bank(hub), Hub_frame(hub));
     }
 
     if (lastVelocity == 0) {

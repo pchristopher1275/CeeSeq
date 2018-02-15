@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
+#include <inttypes.h>
 #include "shared.c"
 #include "midiseq.h"
 
@@ -56,6 +57,91 @@ static inline Midiseq *Midiseq_new()
     return midi;
 }
 
+void Midiseq_toBinFile(Midiseq *mseq, BinFile *bf, Error *err) {
+    BinFile_writeBool(bf, Midiseq_useMasterClock(mseq), err);
+    Error_returnVoidOnError(err);
+
+    BinFile_writeTicks(bf, Midiseq_sequenceLength(mseq), err);
+    Error_returnVoidOnError(err);
+
+    BinFile_writeInteger(bf, sb_count(Midiseq_data(mseq)), err);
+    Error_returnVoidOnError(err);
+
+    off_t location = BinFile_writeNullLength(bf, err);
+    Error_returnVoidOnError(err);    
+
+    for (int i = 0; i < sb_count(Midiseq_data(mseq)); i++) {
+        MidiseqCell cell = Midiseq_data(mseq)[i];
+        if (fprintf(BinFile_stream(bf), " %u %u %lld", MidiseqCell_type(cell), MidiseqCell_bendValue(cell), MidiseqCell_t(cell)) < 0) {
+            Error_format(err, "Midiseq_toBinFile failed at fprintf[1] while writing %s", BinFile_filename(bf));
+            return;
+        }
+
+        if (MidiseqCell_type(cell) == Midiseq_notetype) {
+            if (fprintf(BinFile_stream(bf), " %lld", MidiseqCell_noteDuration(cell)) < 0) {
+                Error_format(err, "Midiseq_toBinFile failed at fprintf[2] while writing %s", BinFile_filename(bf));
+                return;       
+            }
+        }
+    }
+
+    BinFile_writeBackLength(bf, location, err);
+    Error_returnVoidOnError(err);
+}
+
+Midiseq *Midiseq_fromBinFile(BinFile *bf, Error *err) {
+    Midiseq *mseq = (Midiseq*)sysmem_newptrclear(sizeof(Midiseq));
+    Midiseq_useMasterClock(mseq) = BinFile_readBool(bf, err);
+    Error_gotoLabelOnError(err, END);
+
+    Midiseq_sequenceLength(mseq) = BinFile_readTicks(bf,  err);
+    Error_gotoLabelOnError(err, END);
+
+    long length = BinFile_readInteger(bf, err);
+    Error_gotoLabelOnError(err, END);
+
+    uint32_t dataLength = BinFile_readLength(bf, err);
+    Error_gotoLabelOnError(err, END);
+
+    off_t start = BinFile_tell(bf, err);
+    Error_gotoLabelOnError(err, END);
+
+
+    for (int i = 0; i < length; i++) {
+        MidiseqCell cell = {0};
+        unsigned int type = 0, bendVal = 0;
+        if (fscanf(BinFile_stream(bf), "%u %u %lld", &type, &bendVal, &MidiseqCell_t(cell)) != 3) {
+            Error_format(err, "Midiseq_fromBinFile failed at fscanf[1] while reading %s", BinFile_filename(bf));
+            goto END;
+        }
+        MidiseqCell_type(cell)      = type;
+        MidiseqCell_bendValue(cell) = bendVal;
+
+        if (MidiseqCell_type(cell) == Midiseq_notetype) {
+            if (fscanf(BinFile_stream(bf), "%lld", &MidiseqCell_noteDuration(cell)) != 1) {
+                Error_format(err, "Midiseq_fromBinFile failed at fscanf[2] while reading %s", BinFile_filename(bf));
+                goto END;
+            }
+        }
+        else {
+            MidiseqCell_noteDuration(cell) = 0;
+        }
+    }
+
+    off_t end = BinFile_tell(bf, err);
+    Error_gotoLabelOnError(err, END);
+
+    if ((uint32_t)(end-start) != dataLength) {
+        Error_format(err, "Midiseq_fromBinFile failed data consistency check (%" PRIu32 ", %" PRIu32 ")",  (uint32_t)(end-start), dataLength);
+        goto END;
+    }
+
+    return mseq;
+
+  END:
+    Midiseq_free(mseq);
+    return NULL;
+}
 
 static inline Midiseq *Midiseq_newNote(int pitch)
 {
@@ -109,7 +195,7 @@ static inline void Midiseq_clear(Midiseq *midi)
 }
 
 
-static inline void Midiseq_free(Midiseq *midi)
+void Midiseq_free(Midiseq *midi)
 {
     if (midi != NULL) {
         Midiseq_clear(midi);
@@ -272,7 +358,7 @@ Port *PortFind_findByTrack(PortFind *pf, t_symbol *symbol)
 }
 
 
-Port *PortFind_findByType(PortFind *pf, t_symbol *symbol)
+Port *PortFind_findById(PortFind *pf, t_symbol *symbol)
 {
     for (int i = 0; i < sb_count(pf->objectsFound); i++) {
         PortFindCell *pfc = pf->objectsFound + i;
@@ -1242,11 +1328,41 @@ void NoteManager_padNoteOff(NoteManager *manager, int padIndex)
 //
 // G U I
 //
-void Gui_discover(Gui *gui, PortFind *pf)
+Gui *Gui_new(PortFind *pf)
 {
-
+    Gui *gui = (Gui*)sysmem_newptrclear(sizeof(Gui));
+    Gui_currBank(gui)  = PortFind_findById(pf, gensym("currBank"));
+    Gui_currFrame(gui) = PortFind_findById(pf, gensym("currFrame"));
+    Gui_selBank(gui)   = PortFind_findById(pf, gensym("selBank"));
+    Gui_selFrame(gui)  = PortFind_findById(pf, gensym("selFrame"));
+    Gui_selPad(gui)    = PortFind_findById(pf, gensym("selPad"));
+    t_atom a[2] = {{0}};
+    Error_declare(err);
+    atom_setsym(a+0,  gensym("cantchange"));
+    atom_setlong(a+1, 1);
+    Port_send(Gui_currBank(gui), 2, a, err);
+    Error_maypost(err);
+    Port_send(Gui_currFrame(gui), 2, a, err);
+    Error_maypost(err);
+    Port_send(Gui_selBank(gui), 2, a, err);
+    Error_maypost(err);
+    Port_send(Gui_selFrame(gui), 2, a, err);
+    Error_maypost(err);
+    Port_send(Gui_selPad(gui), 2, a, err);
+    Error_maypost(err);
+    return gui;
 }
 
+void Gui_setCurrentCoordinates(Gui *gui, int bank, int frame) {
+    Port_sendInteger(Gui_currBank(gui),  (long)bank);
+    Port_sendInteger(Gui_currFrame(gui), (long)frame);
+}
+
+void Gui_setSelectedCoordinates(Gui *gui, int bank, int frame, int pad) {
+    Port_sendInteger(Gui_selBank(gui),  (long)bank);
+    Port_sendInteger(Gui_selFrame(gui), (long)frame);  
+    Port_sendInteger(Gui_selPad(gui), (long)pad);   
+}
 
 //
 // H U B
@@ -1258,7 +1374,7 @@ void Hub_incrementFrame(Hub *hub)
     }
 
     Hub_frame(hub)++;
-    // Port_sendInteger(Hub_guiTop(hub), gensym("currFrame"), Hub_frame(hub));
+    Gui_setCurrentCoordinates(Hub_gui(hub), Hub_bank(hub), Hub_frame(hub));
 }
 
 
@@ -1269,14 +1385,13 @@ void Hub_decrementFrame(Hub *hub)
     }
 
     Hub_frame(hub)--;
-    // Port_sendInteger(Hub_guiTop(hub), gensym("currFrame"), Hub_frame(hub));
+    Gui_setCurrentCoordinates(Hub_gui(hub), Hub_bank(hub), Hub_frame(hub));
 }
 
 
 void Hub_selectNextPushedPad(Hub *hub)
 {
     Hub_grabNextTappedPad(hub) = true;
-    // Port_sendInteger(Hub_guiTop(hub), gensym("currFrameIndex"), Hub_frame(hub));
 }
 
 
@@ -1287,12 +1402,11 @@ void Hub_anythingDispatch(void *hub_in, struct Port_t *port, t_symbol *msg, long
         Hub_incrementFrame(hub);
     }
     else if (msg == gensym("decrementFrame")) {
-
+        Hub_decrementFrame(hub);
     }
     else if (msg == gensym("selectNextPushedPad")) {
-
+        Hub_selectNextPushedPad(hub);
     }
-    dblog("Ping %s", msg->s_name);
 }
 
 
@@ -1303,3 +1417,231 @@ void Hub_intDispatch(void *hub, struct Port_t *port, long value, long inlet)
         dblog("Ev sent to %d: inlet %ld", ev, inlet);
     }
 }
+
+
+
+//
+// B I N    F I L E
+//
+
+BinFile *BinFile_new() {
+    BinFile *bf = (BinFile*)sysmem_newptrclear(sizeof(BinFile));
+    BinFile_filename(bf) = sdsempty();
+    BinFile_buffer(bf)   = sdsempty();
+    return bf;
+}
+
+BinFile *BinFile_newWriter(const char *file, Error *err) {
+    BinFile *bf =  BinFile_new();
+    BinFile_stream(bf) = fopen(file, "w");
+    if (BinFile_stream(bf) == NULL) {
+        Error_format(err, "Failed to open file %s", file);
+        BinFile_free(bf);
+        return NULL;
+    }
+    sdsfree(BinFile_filename(bf));
+    BinFile_filename(bf) = sdsnew(file);
+    if (fwrite(&BinFile_version(bf), sizeof(BinFile_version(bf)), 1, BinFile_stream(bf)) != sizeof(BinFile_version(bf))) {
+        Error_format(err, "Failed to write version number to file %s", file);
+        BinFile_free(bf);
+        return NULL;
+    }
+
+    return bf;
+}
+
+BinFile *BinFile_newReader(const char *file, Error *err) {
+    BinFile *bf =  BinFile_new();
+    BinFile_stream(bf) = fopen(file, "r");
+    if (BinFile_stream(bf) == NULL) {
+        Error_format(err, "Failed to open file %s", file);
+        BinFile_free(bf);
+        return NULL;
+    }
+    BinFile_filename(bf) = sdscatprintf(sdsempty(), "%s", file);
+    if (fread(&bf->version, sizeof(bf->version), 1, BinFile_stream(bf)) != sizeof(bf->version)) {
+        Error_format(err, "Failed to read version number from file  %s", file);
+    }
+    BinFile_filename(bf) = sdscatprintf(sdsempty(), "%s", file);
+    return bf;
+}
+
+void BinFile_free(BinFile *bf) {
+    if (BinFile_stream(bf) != NULL) {
+        fclose(BinFile_stream(bf));
+        BinFile_stream(bf) = NULL;
+    }
+    
+    sdsfree(BinFile_filename(bf));
+    BinFile_filename(bf) = NULL;
+    sdsfree(BinFile_buffer(bf));
+    BinFile_buffer(bf) = NULL;
+    sysmem_freeptr(bf);
+}
+
+off_t BinFile_writeNullLength(BinFile *bf, Error *err) {
+    errno = 0;
+    off_t start = BinFile_tell(bf, err);
+    Error_returnZeroOnError(err);
+    if (fprintf(BinFile_stream(bf), "%" BinFile_lengthFieldSizeStr "s", "") < 0) {
+        Error_format(err, "Failed fprintf while writing %s", BinFile_filename(bf));
+        return 0;
+    }
+    return start;
+} 
+
+void BinFile_writeBackLength(BinFile *bf, off_t location, Error *err) {
+    off_t end = BinFile_tell(bf, err);
+    Error_returnVoidOnError(err);
+
+    uint32_t length = (uint32_t)(end-location);
+    if (fprintf(BinFile_stream(bf), "%-" BinFile_lengthFieldSizeStr PRIx32, length) < 0) {
+        Error_format(err, "Failed fprintf while writing %s", BinFile_filename(bf));
+        return;
+    }
+    if (fseeko(BinFile_stream(bf), end, SEEK_SET) != 0){
+        Error_format(err, "Failed fseeko[2] while writing %s", BinFile_filename(bf));
+        return;
+    }
+    
+    return;
+}
+
+off_t BinFile_tell(BinFile *bf, Error *err) {
+    errno = 0;
+    off_t location = ftello(BinFile_stream(bf));
+    if (errno != 0) {
+        Error_format(err, "Failed ftello while working with %s", BinFile_filename(bf));
+        return 0;
+    }
+    return location;
+}
+
+uint32_t BinFile_readLength(BinFile *bf, Error *err) {
+    BinFile_fillBuffer(bf, BinFile_lengthFieldSize, err);
+    Error_returnZeroOnError(err);
+
+    uint32_t length;
+    if (sscanf(BinFile_buffer(bf), "%" SCNx32, &length) != 1) {
+        Error_format(err, "Failed sscanf while reading %s", BinFile_filename(bf));
+        return 0;   
+    }
+    return length;
+}
+
+void BinFile_fillBuffer(BinFile *bf, uint32_t size, Error *err) {
+    // NOTE: I verified that this call DOES NOT shrink the buffer
+    BinFile_buffer(bf) = sdsgrowzero(BinFile_buffer(bf), (size_t)size+1);
+    sdsclear(BinFile_buffer(bf));
+    if (fread(BinFile_buffer(bf), size, 1, BinFile_stream(bf)) != size) {
+        Error_format(err, "Failed fread while working with %s", BinFile_filename(bf));
+        return;   
+    }
+    // NOTE: this means that the buffer can be used like a string in the correct context. IT DOES NOT say that there aren't
+    // other nulls embedded in the string.
+    BinFile_buffer(bf)[size] = '\0';
+}
+
+void BinFile_writeInteger(BinFile *bf, long value, Error *err) {
+    off_t location = BinFile_writeNullLength(bf, err);
+    Error_returnVoidOnError(err);
+    
+    if (fprintf(BinFile_stream(bf), "%ld", value) < 0) {
+        Error_format(err, "BinFile_writeInteger failed fprintf while writing %s", BinFile_filename(bf));
+        return;
+    }
+    BinFile_writeBackLength(bf, location, err);
+    Error_returnVoidOnError(err);
+}
+
+long BinFile_readInteger(BinFile *bf, Error *err) {
+    uint32_t length = BinFile_readLength(bf, err);
+    Error_returnZeroOnError(err);
+    
+    BinFile_fillBuffer(bf, length, err);
+    Error_returnZeroOnError(err);
+    
+    long value = 0;
+    if (sscanf(BinFile_buffer(bf), "%ld", &value) != 1) {
+        Error_format(err, "BinFile_readInteger failed sscanf[2] while reading %s", BinFile_filename(bf));
+        return 0;
+    }
+    return value;
+}
+
+void BinFile_writeString(BinFile *bf, sds value, Error *err) {
+    off_t location = BinFile_writeNullLength(bf, err);
+    Error_returnVoidOnError(err);
+    
+    if (fprintf(BinFile_stream(bf), "%s", value) < 0) {
+        Error_format(err, "BinFile_writeInteger failed fprintf while writing %s", BinFile_filename(bf));
+        return;
+    }
+    BinFile_writeBackLength(bf, location, err);
+}
+
+sds BinFile_readString(BinFile *bf, Error *err) {
+    uint32_t length = BinFile_readLength(bf, err);
+    Error_returnNullOnError(err);
+
+    BinFile_fillBuffer(bf, length, err);
+    Error_returnNullOnError(err);    
+    
+    return sdsdup(BinFile_buffer(bf));
+}
+void BinFile_writeSymbol(BinFile *bf, t_symbol *value, Error *err) {
+    BinFile_writeString(bf, value->s_name, err);
+    return;
+}
+
+t_symbol *BinFile_readSymbol(BinFile *bf, Error *err) {
+     uint32_t length = BinFile_readLength(bf, err);
+    if (Error_iserror(err)) {
+        return 0;
+    }
+    BinFile_fillBuffer(bf, length, err);
+    if (Error_iserror(err)) {
+        return 0;
+    }
+    return gensym(BinFile_buffer(bf));
+}
+
+void BinFile_writeTicks(BinFile *bf, Ticks value, Error *err) {
+    off_t location = BinFile_writeNullLength(bf, err);
+    Error_returnVoidOnError(err);
+    
+    if (fprintf(BinFile_stream(bf), "%lld", value) < 0) {
+        Error_format(err, "BinFile_writeTicks failed fprintf while writing %s", BinFile_filename(bf));
+        return;
+    }
+
+    BinFile_writeBackLength(bf, location, err);
+    Error_returnVoidOnError(err);
+}
+
+Ticks BinFile_readTicks(BinFile *bf, Error *err) {
+    uint32_t length = BinFile_readLength(bf, err);
+    Error_returnZeroOnError(err);
+    
+    BinFile_fillBuffer(bf, length, err);
+    Error_returnZeroOnError(err);
+    
+    Ticks value = 0;
+    if (sscanf(BinFile_buffer(bf), "%lld", &value) != 1) {
+        Error_format(err, "BinFile_readInteger failed sscanf[2] while reading %s", BinFile_filename(bf));
+        return 0;
+    }
+    return value;
+}
+
+void BinFile_writeBool(BinFile *bf, bool value, Error *err) {
+    BinFile_writeInteger(bf, value ? 1 : 0, err);
+}
+
+bool BinFile_readBool(BinFile *bf, Error *err) {
+    return BinFile_readInteger(bf, err) ? true : false;
+}
+
+
+
+
