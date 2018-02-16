@@ -8,27 +8,38 @@ typedef struct
     int version;
     sds filename;
     sds buffer;
+    int mostRecentFlags;
     FILE *stream;  
 } BinFile;
 
-// Currently we only support littleEndian read and write
-#define BinFile_isLittleEndian true
-#define BinFile_lengthFieldSize     8
-#define BinFile_lengthFieldSizeStr "8"
+// #define BinFile_lengthFieldSize         11
+
+// This is the most positive integer in a 4 byte int. NOTE the number of digits in this number should be one-less
+// than BinFile_lengthFieldSizeStr
+#define BinFile_nullLengthFieldSizeStr "11"
+#define BinFile_maxLength      2147483647
 #define BinFile_version(bf)    (bf)->version
 #define BinFile_filename(bf)   (bf)->filename
 #define BinFile_stream(bf)     (bf)->stream
 #define BinFile_buffer(bf)     (bf)->buffer
+#define BinFileFlag_tag        1
+
+#define BinFile_mostRecentFlags(bf)     (bf)->mostRecentFlags
+
+
+#define BinFile_writeBackLength(bf, location, err) BinFile_writeBackLengthFlags(bf, location, -1, err)
+#define BinFile_readLength(bf, err) BinFile_readLengthFlags(bf, NULL, err)
+#define BinFile_writeLength(bf, length, err) BinFile_writeLengthFlags(bf, length, -1, err)
 
 BinFile *BinFile_new();
 BinFile *BinFile_newWriter(const char *file, Error *err);
 BinFile *BinFile_newReader(const char *file, Error *err);
 void BinFile_free(BinFile *bf);
-off_t BinFile_writeNullLength(BinFile *bf, Error *err);
-void BinFile_writeBackLength(BinFile *bf, off_t location, Error *err);
+off_t BinFile_writeNullLength(BinFile *bf, bool spaceForFlags, Error *err);
+void BinFile_writeBackLengthFlags(BinFile *bf, off_t location, long flags, Error *err);
 off_t BinFile_tell(BinFile *bf, Error *err);
-uint32_t BinFile_readLength(BinFile *bf, Error *err);
-void BinFile_fillBuffer(BinFile *bf, uint32_t size, Error *err);
+long BinFile_readLengthFlags(BinFile *bf, long *flags, Error *err);
+void BinFile_fillBuffer(BinFile *bf, long size, Error *err);
 void BinFile_writeInteger(BinFile *bf, long value, Error *err);
 long BinFile_readInteger(BinFile *bf, Error *err);
 void BinFile_writeString(BinFile *bf, sds value, Error *err);
@@ -39,7 +50,8 @@ void BinFile_writeTicks(BinFile *bf, Ticks value, Error *err);
 Ticks BinFile_readTicks(BinFile *bf, Error *err);
 void BinFile_writeBool(BinFile *bf, bool value, Error *err);
 bool BinFile_readBool(BinFile *bf, Error *err);
-
+void BinFile_writeTag(BinFile *bf, const char *tag, Error *err);
+void BinFile_verifyTag(BinFile *bf, const char *tag, Error *err);
 
 //
 // M I D I S E Q

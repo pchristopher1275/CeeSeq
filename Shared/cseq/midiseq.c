@@ -58,6 +58,9 @@ static inline Midiseq *Midiseq_new()
 }
 
 void Midiseq_toBinFile(Midiseq *mseq, BinFile *bf, Error *err) {
+    BinFile_writeTag(bf, "midiseq", err);
+    Error_returnVoidOnError(err);
+
     BinFile_writeBool(bf, Midiseq_useMasterClock(mseq), err);
     Error_returnVoidOnError(err);
 
@@ -67,8 +70,12 @@ void Midiseq_toBinFile(Midiseq *mseq, BinFile *bf, Error *err) {
     BinFile_writeInteger(bf, sb_count(Midiseq_data(mseq)), err);
     Error_returnVoidOnError(err);
 
-    off_t location = BinFile_writeNullLength(bf, err);
+    off_t location = BinFile_writeNullLength(bf, false, err);
     Error_returnVoidOnError(err);    
+
+
+    BinFile_writeTag(bf, "midiseq_start_data", err);
+    Error_returnVoidOnError(err);
 
     for (int i = 0; i < sb_count(Midiseq_data(mseq)); i++) {
         MidiseqCell cell = Midiseq_data(mseq)[i];
@@ -84,6 +91,8 @@ void Midiseq_toBinFile(Midiseq *mseq, BinFile *bf, Error *err) {
             }
         }
     }
+    BinFile_writeTag(bf, "midiseq_end_data", err);
+    Error_returnVoidOnError(err);
 
     BinFile_writeBackLength(bf, location, err);
     Error_returnVoidOnError(err);
@@ -91,6 +100,10 @@ void Midiseq_toBinFile(Midiseq *mseq, BinFile *bf, Error *err) {
 
 Midiseq *Midiseq_fromBinFile(BinFile *bf, Error *err) {
     Midiseq *mseq = (Midiseq*)sysmem_newptrclear(sizeof(Midiseq));
+
+    BinFile_verifyTag(bf, "midiseq", err);
+    Error_gotoLabelOnError(err, END);
+
     Midiseq_useMasterClock(mseq) = BinFile_readBool(bf, err);
     Error_gotoLabelOnError(err, END);
 
@@ -100,12 +113,14 @@ Midiseq *Midiseq_fromBinFile(BinFile *bf, Error *err) {
     long length = BinFile_readInteger(bf, err);
     Error_gotoLabelOnError(err, END);
 
-    uint32_t dataLength = BinFile_readLength(bf, err);
+    long dataLength = BinFile_readLength(bf, err);
     Error_gotoLabelOnError(err, END);
 
     off_t start = BinFile_tell(bf, err);
     Error_gotoLabelOnError(err, END);
 
+    BinFile_verifyTag(bf, "midiseq_start_data", err);
+    Error_gotoLabelOnError(err, END);
 
     for (int i = 0; i < length; i++) {
         MidiseqCell cell = {0};
@@ -127,12 +142,14 @@ Midiseq *Midiseq_fromBinFile(BinFile *bf, Error *err) {
             MidiseqCell_noteDuration(cell) = 0;
         }
     }
+    BinFile_verifyTag(bf, "midiseq_end_data", err);
+    Error_gotoLabelOnError(err, END);
 
     off_t end = BinFile_tell(bf, err);
     Error_gotoLabelOnError(err, END);
 
-    if ((uint32_t)(end-start) != dataLength) {
-        Error_format(err, "Midiseq_fromBinFile failed data consistency check (%" PRIu32 ", %" PRIu32 ")",  (uint32_t)(end-start), dataLength);
+    if ((long)(end-start) != dataLength) {
+        Error_format(err, "Failed data consistency check (%ld, %ld)",  (long)(end-start), dataLength);
         goto END;
     }
 
@@ -1441,7 +1458,8 @@ BinFile *BinFile_newWriter(const char *file, Error *err) {
     }
     sdsfree(BinFile_filename(bf));
     BinFile_filename(bf) = sdsnew(file);
-    if (fwrite(&BinFile_version(bf), sizeof(BinFile_version(bf)), 1, BinFile_stream(bf)) != sizeof(BinFile_version(bf))) {
+
+    if (fprintf(BinFile_stream(bf), "%d ", BinFile_version(bf)) < 0) {
         Error_format(err, "Failed to write version number to file %s", file);
         BinFile_free(bf);
         return NULL;
@@ -1458,11 +1476,12 @@ BinFile *BinFile_newReader(const char *file, Error *err) {
         BinFile_free(bf);
         return NULL;
     }
-    BinFile_filename(bf) = sdscatprintf(sdsempty(), "%s", file);
-    if (fread(&bf->version, sizeof(bf->version), 1, BinFile_stream(bf)) != sizeof(bf->version)) {
+    BinFile_filename(bf) = sdsnew(file);
+    if (fscanf(BinFile_stream(bf), "%d ", &BinFile_version(bf))) {
         Error_format(err, "Failed to read version number from file  %s", file);
+        BinFile_free(bf);
+        return NULL;
     }
-    BinFile_filename(bf) = sdscatprintf(sdsempty(), "%s", file);
     return bf;
 }
 
@@ -1479,32 +1498,158 @@ void BinFile_free(BinFile *bf) {
     sysmem_freeptr(bf);
 }
 
-off_t BinFile_writeNullLength(BinFile *bf, Error *err) {
+int binFile_hexDigitToInt(char hex) {
+    switch (hex) {
+        case '0': return 0;
+        case '1': return 1;
+        case '2': return 2;
+        case '3': return 3;
+        case '4': return 4;
+        case '5': return 5;
+        case '6': return 6;
+        case '7': return 7;
+        case '8': return 8;
+        case '9': return 9;
+        case 'a': return 10;
+        case 'b': return 11;
+        case 'c': return 12;
+        case 'd': return 13;
+        case 'e': return 14;
+        case 'f': return 15;
+    }
+    return 0;
+}
+char binFile_intToHexDigit(int digit) {
+    switch (digit) {
+        case 0: return '0';
+        case 1: return '1';
+        case 2: return '2';
+        case 3: return '3';
+        case 4: return '4';
+        case 5: return '5';
+        case 6: return '6';
+        case 7: return '7';
+        case 8: return '8';
+        case 9: return '9';
+        case 10: return 'a';
+        case 11: return 'b';
+        case 12: return 'c';
+        case 13: return 'd';
+        case 14: return 'e';
+        case 15: return 'f';
+    }
+    return 0;
+}
+
+off_t BinFile_writeNullLength(BinFile *bf, bool spaceForFlags, Error *err) {
     errno = 0;
     off_t start = BinFile_tell(bf, err);
     Error_returnZeroOnError(err);
-    if (fprintf(BinFile_stream(bf), "%" BinFile_lengthFieldSizeStr "s", "") < 0) {
+
+    const char *format = ("%" BinFile_nullLengthFieldSizeStr "s ");
+    if (fprintf(BinFile_stream(bf), format, "") < 0) {
         Error_format(err, "Failed fprintf while writing %s", BinFile_filename(bf));
         return 0;
+    }
+    if (spaceForFlags) {
+        if (fprintf(BinFile_stream(bf), "0000 ") < 0) {
+            Error_format(err, "Failed fprintf while writing %s", BinFile_filename(bf));
+            return 0;
+        }
     }
     return start;
 } 
 
-void BinFile_writeBackLength(BinFile *bf, off_t location, Error *err) {
-    off_t end = BinFile_tell(bf, err);
-    Error_returnVoidOnError(err);
-
-    uint32_t length = (uint32_t)(end-location);
-    if (fprintf(BinFile_stream(bf), "%-" BinFile_lengthFieldSizeStr PRIx32, length) < 0) {
+void BinFile_writeFlags(BinFile *bf, long flags, Error *err) {
+    char hex[4] = {
+        binFile_intToHexDigit((flags)       & 0xFF),
+        binFile_intToHexDigit((flags >> 8)  & 0xFF),
+        binFile_intToHexDigit((flags >> 16) & 0xFF),
+        binFile_intToHexDigit((flags >> 24) & 0xFF),
+    };
+    if (fprintf(BinFile_stream(bf), "%c%c%c%c ", hex[0], hex[1], hex[2], hex[3]) < 0) {
         Error_format(err, "Failed fprintf while writing %s", BinFile_filename(bf));
         return;
     }
+}
+
+void BinFile_writeBackLengthFlags(BinFile *bf, off_t location, long flags, Error *err) {
+    off_t end = BinFile_tell(bf, err);
+    Error_returnVoidOnError(err);
+
+    long length = (long)(end-location);
+    if (length > BinFile_maxLength) {
+        Error_format(err, "Length is too large (%ld) while writing %s", length, BinFile_filename(bf));
+        return;
+    }
+    if (fseeko(BinFile_stream(bf), location, SEEK_SET) != 0){
+        Error_format(err, "Failed fseeko[1] while writing %s", BinFile_filename(bf));
+        return;
+    }
+
+    if (flags >= 0) {
+        length = -length;
+    }
+
+    const char *format = ("%" BinFile_nullLengthFieldSizeStr "ld ");
+    if (fprintf(BinFile_stream(bf), format, length) < 0) {
+        Error_format(err, "Failed fprintf while writing %s", BinFile_filename(bf));
+        return;
+    }
+
+    if (flags >= 0) {
+        BinFile_writeFlags(bf, flags, err);
+    }
+
     if (fseeko(BinFile_stream(bf), end, SEEK_SET) != 0){
         Error_format(err, "Failed fseeko[2] while writing %s", BinFile_filename(bf));
         return;
     }
     
     return;
+}
+
+void BinFile_writeLengthFlags(BinFile *bf, long length, long flags, Error *err) {
+    if (length > BinFile_maxLength) {
+        Error_format(err, "Length is too large (%ld) while writing %s", length, BinFile_filename(bf));
+        return;
+    }
+    if (flags >= 0) {
+        length = -length;
+    }
+    if (fprintf(BinFile_stream(bf), "%ld ", length) < 0) {
+        Error_format(err, "Failed fprintf while writing %s", BinFile_filename(bf));
+        return;
+    }
+    if (flags >= 0) {
+        BinFile_writeFlags(bf, flags, err);
+    }
+
+}
+
+long BinFile_readLengthFlags(BinFile *bf, long *flags, Error *err) {
+    long length;
+    char space;
+    if (fscanf(BinFile_stream(bf), " %ld%c", &length, &space) != 2 || space != ' ') {
+        Error_format(err, "Failed sscanf[1] while reading %s", BinFile_filename(bf));
+        return 0;   
+    }
+    if (length < 0) {
+        length = -length;
+        char f[4] = "\0\0\0\0";
+        if (fscanf(BinFile_stream(bf), "%c%c%c%c%c", f+0, f+1, f+2, f+3, &space) != 5 || space != ' ') {
+            Error_format(err, "Failed sscanf[2] while reading %s", BinFile_filename(bf));
+            return 0;   
+        }   
+        if (flags != NULL) {
+            *flags = 0;
+            for (int i = 0; i < 4; i++) {
+                int v = binFile_hexDigitToInt(f[i]) << i*8;
+                *flags = *flags | v;
+            }
+        }
+    }
+    return length;
 }
 
 off_t BinFile_tell(BinFile *bf, Error *err) {
@@ -1517,45 +1662,39 @@ off_t BinFile_tell(BinFile *bf, Error *err) {
     return location;
 }
 
-uint32_t BinFile_readLength(BinFile *bf, Error *err) {
-    BinFile_fillBuffer(bf, BinFile_lengthFieldSize, err);
-    Error_returnZeroOnError(err);
-
-    uint32_t length;
-    if (sscanf(BinFile_buffer(bf), "%" SCNx32, &length) != 1) {
-        Error_format(err, "Failed sscanf while reading %s", BinFile_filename(bf));
-        return 0;   
+void BinFile_fillBuffer(BinFile *bf, long size, Error *err) {
+    // Want buffer to contain size+1 characters INCLUDING the null byte
+    if (sdslen(BinFile_buffer(bf)) < size) {
+        // NOTE: I verified that this call DOES NOT shrink the buffer.
+        // NOTE: sdsMakeRoomFor always allocates sdslen()+1 bytes  
+        BinFile_buffer(bf) = sdsgrowzero(BinFile_buffer(bf), (size_t)size);
     }
-    return length;
-}
-
-void BinFile_fillBuffer(BinFile *bf, uint32_t size, Error *err) {
-    // NOTE: I verified that this call DOES NOT shrink the buffer
-    BinFile_buffer(bf) = sdsgrowzero(BinFile_buffer(bf), (size_t)size+1);
-    sdsclear(BinFile_buffer(bf));
+    sdssetlen(BinFile_buffer(bf), size);
     if (fread(BinFile_buffer(bf), size, 1, BinFile_stream(bf)) != size) {
         Error_format(err, "Failed fread while working with %s", BinFile_filename(bf));
         return;   
     }
     // NOTE: this means that the buffer can be used like a string in the correct context. IT DOES NOT say that there aren't
-    // other nulls embedded in the string.
+    // other nulls embedded in the string. I think that the way I'm preparing this string, there might be 2 nulls at the end
+    // of it. 
     BinFile_buffer(bf)[size] = '\0';
 }
 
 void BinFile_writeInteger(BinFile *bf, long value, Error *err) {
-    off_t location = BinFile_writeNullLength(bf, err);
-    Error_returnVoidOnError(err);
+    sdsclear(BinFile_buffer(bf));
+    sdscatprintf(BinFile_buffer(bf), "%ld", value);
     
-    if (fprintf(BinFile_stream(bf), "%ld", value) < 0) {
-        Error_format(err, "BinFile_writeInteger failed fprintf while writing %s", BinFile_filename(bf));
+    BinFile_writeLength(bf, sdslen(BinFile_buffer(bf)), err);
+    Error_returnVoidOnError(err);
+
+    if (fwrite(BinFile_buffer(bf), sdslen(BinFile_buffer(bf)), 0, BinFile_stream(bf)) != sdslen(BinFile_buffer(bf))) {
+        Error_format(err, "Failed fwrite while writing %s", BinFile_filename(bf));
         return;
     }
-    BinFile_writeBackLength(bf, location, err);
-    Error_returnVoidOnError(err);
 }
 
 long BinFile_readInteger(BinFile *bf, Error *err) {
-    uint32_t length = BinFile_readLength(bf, err);
+    long length = BinFile_readLength(bf, err);
     Error_returnZeroOnError(err);
     
     BinFile_fillBuffer(bf, length, err);
@@ -1563,23 +1702,24 @@ long BinFile_readInteger(BinFile *bf, Error *err) {
     
     long value = 0;
     if (sscanf(BinFile_buffer(bf), "%ld", &value) != 1) {
-        Error_format(err, "BinFile_readInteger failed sscanf[2] while reading %s", BinFile_filename(bf));
+        Error_format(err, "Failed sscanf while reading %s", BinFile_filename(bf));
         return 0;
     }
     return value;
 }
 
 void BinFile_writeString(BinFile *bf, sds value, Error *err) {
-    off_t location = BinFile_writeNullLength(bf, err);
+    BinFile_writeLength(bf, sdslen(value), err);
     Error_returnVoidOnError(err);
-    
-    if (fprintf(BinFile_stream(bf), "%s", value) < 0) {
-        Error_format(err, "BinFile_writeInteger failed fprintf while writing %s", BinFile_filename(bf));
+
+    if (fwrite(BinFile_buffer(bf), sdslen(BinFile_buffer(bf)), 1, BinFile_stream(bf)) != sdslen(BinFile_buffer(bf))) {
+        Error_format(err, "Failed fprintf while writing %s", BinFile_filename(bf));
         return;
     }
-    BinFile_writeBackLength(bf, location, err);
+
 }
 
+// must call sdsfree on any non-NULL return value
 sds BinFile_readString(BinFile *bf, Error *err) {
     uint32_t length = BinFile_readLength(bf, err);
     Error_returnNullOnError(err);
@@ -1589,34 +1729,33 @@ sds BinFile_readString(BinFile *bf, Error *err) {
     
     return sdsdup(BinFile_buffer(bf));
 }
+
 void BinFile_writeSymbol(BinFile *bf, t_symbol *value, Error *err) {
     BinFile_writeString(bf, value->s_name, err);
     return;
 }
 
 t_symbol *BinFile_readSymbol(BinFile *bf, Error *err) {
-     uint32_t length = BinFile_readLength(bf, err);
-    if (Error_iserror(err)) {
-        return 0;
-    }
+    long length = BinFile_readLength(bf, err);
+    Error_returnNullOnError(err);
+
     BinFile_fillBuffer(bf, length, err);
-    if (Error_iserror(err)) {
-        return 0;
-    }
+    Error_returnNullOnError(err);
+    
     return gensym(BinFile_buffer(bf));
 }
 
 void BinFile_writeTicks(BinFile *bf, Ticks value, Error *err) {
-    off_t location = BinFile_writeNullLength(bf, err);
+    sdsclear(BinFile_buffer(bf));
+    sdscatprintf(BinFile_buffer(bf), "%lld", value);
+
+    BinFile_writeLength(bf, sdslen(BinFile_buffer(bf)), err);
     Error_returnVoidOnError(err);
-    
-    if (fprintf(BinFile_stream(bf), "%lld", value) < 0) {
-        Error_format(err, "BinFile_writeTicks failed fprintf while writing %s", BinFile_filename(bf));
+
+    if (fwrite(BinFile_buffer(bf), sdslen(BinFile_buffer(bf)), 1, BinFile_stream(bf)) != sdslen(BinFile_buffer(bf))) {
+        Error_format(err, "Failed fprintf while writing %s", BinFile_filename(bf));
         return;
     }
-
-    BinFile_writeBackLength(bf, location, err);
-    Error_returnVoidOnError(err);
 }
 
 Ticks BinFile_readTicks(BinFile *bf, Error *err) {
@@ -1628,7 +1767,7 @@ Ticks BinFile_readTicks(BinFile *bf, Error *err) {
     
     Ticks value = 0;
     if (sscanf(BinFile_buffer(bf), "%lld", &value) != 1) {
-        Error_format(err, "BinFile_readInteger failed sscanf[2] while reading %s", BinFile_filename(bf));
+        Error_format(err, "Failed sscanf while reading %s", BinFile_filename(bf));
         return 0;
     }
     return value;
@@ -1641,6 +1780,34 @@ void BinFile_writeBool(BinFile *bf, bool value, Error *err) {
 bool BinFile_readBool(BinFile *bf, Error *err) {
     return BinFile_readInteger(bf, err) ? true : false;
 }
+
+void BinFile_writeTag(BinFile *bf, const char *tag, Error *err) {
+    int len = strlen(tag);
+    BinFile_writeLengthFlags(bf, len, BinFileFlag_tag, err);
+    Error_returnVoidOnError(err);
+
+    if (fwrite(tag, len, 1, BinFile_stream(bf)) != len) {
+        Error_format(err, "Failed fwrite while writing %s", BinFile_filename(bf));
+        return;
+    }
+}
+
+void BinFile_verifyTag(BinFile *bf, const char *tag, Error *err) {
+    long flags  = 0;
+    long length = BinFile_readLengthFlags(bf, &flags, err);
+    Error_returnVoidOnError(err);
+    if (flags & BinFileFlag_tag) {
+        Error_format0(err, "Expected flag marked with BinFileFlag_tag");
+        return;
+    }
+    BinFile_fillBuffer(bf, length, err);
+    if (strcmp(tag, BinFile_buffer(bf)) != 0) {
+        Error_format(err, "Expected tag '%s', but found '%s'", tag, BinFile_buffer(bf));
+        return;
+    }
+    return;
+}
+
 
 
 
