@@ -3,13 +3,19 @@ sds stripBaseName(const char *path);
 //
 // B I N    F I L E
 //
+struct PortFind_t;
+typedef struct 
+{
+    struct PortFind_t *portFind;
+} BinFilePayload;
+
 typedef struct 
 {
     int version;
     sds filename;
     sds buffer;
-    int mostRecentFlags;
     FILE *stream;  
+    BinFilePayload *payload;
 } BinFile;
 
 // #define BinFile_lengthFieldSize         11
@@ -24,7 +30,8 @@ typedef struct
 #define BinFile_buffer(bf)     (bf)->buffer
 #define BinFileFlag_tag        1
 
-#define BinFile_mostRecentFlags(bf)     (bf)->mostRecentFlags
+#define BinFile_portFindPayload(bf) ((bf)->payload == NULL ? NULL : (bf)->payload->portFind)
+
 
 
 #define BinFile_writeBackLength(bf, location, err) BinFile_writeBackLengthFlags(bf, location, -1, err)
@@ -86,13 +93,12 @@ const int Midiseq_endgrptype = 5;
 
 typedef struct
 {
-    // ** Persisted **
-    MidiseqCell *data;
+    // ** PERSISTED **
     bool useMasterClock;
     Ticks sequenceLength;
+    MidiseqCell *data;
 
-
-    // ** NOT Persisted **
+    // ** not persisted **
     // startTime is the time offset that t = 0 that is stored in the sequence corresponds too.
     // Specifically, if useMasterClock is true, the startTime is updated whenever the ptr rolls
     // off the end of the sequence, and raps around back to the beginning.
@@ -100,32 +106,67 @@ typedef struct
 
     int ptr;
 } Midiseq;
+
 #define Midiseq_data(mseq)           ((mseq)->data)
 #define Midiseq_useMasterClock(mseq) ((mseq)->useMasterClock)
 #define Midiseq_sequenceLength(mseq) ((mseq)->sequenceLength)
 
-int Midiseq_fastfwrd(Midiseq *midi, long t, Error *err);
+#define Midiseq_newUninitialized() ((Midiseq*)sysmem_newptrclear(sizeof(Midiseq)))
+Midiseq *Midiseq_new();
+void Midiseq_toBinFile(Midiseq *mseq, BinFile *bf, Error *err);
+Midiseq *Midiseq_fromBinFile(BinFile *bf, Error *err);
+void Midiseq_fromBinFileUnititialized(Midiseq *mseq, BinFile *bf, Error *err);
+Midiseq *Midiseq_newNote(int pitch);
+void Midiseq_init(Midiseq *midi);
+void Midiseq_clear(Midiseq *midi);
 void Midiseq_free(Midiseq *midi);
+int Midiseq_len(Midiseq *midi);
+void Midiseq_push(Midiseq *midi, MidiseqCell cell);
+MidiseqCell *Midiseq_get(Midiseq *midi, int index, Error *err);
+void Midiseq_setMidicsvExecPath();
+void Midiseq_dblog(Midiseq *midi);
+int Midiseq_assignLength(Midiseq *midi);
+int Midiseq_insertCell(Midiseq *midi, MidiseqCell cell, int index, Error *err);
+int Midiseq_insertEndgroup(Midiseq *midi, Error *err);
+int Midiseq_start(Midiseq *midi, Ticks startTime, Ticks currentTime, bool useMasterClock, Error *err);
+void Midiseq_stop(Midiseq *midi);
+int Midiseq_nextevent(Midiseq *midi, Ticks until, MidiseqCell *cell, Error *err);
+int Midiseq_fastfwrd(Midiseq *midi, long t, Error *err);
+Midiseq *Midiseq_fromfile(const char *fullpath, Error *err);
 
 struct Track_t;
-
 typedef struct
 {
+    // ** PERSISTED **
     t_symbol *chokeGroup;
-    Midiseq *sequence;
     t_symbol *trackName;
     int padIndex;
+    Midiseq *sequence;
+    
+    // ** not persisted **
     bool noteReleasePending;
     bool inEndgroup;
     struct Track_t *track;
 } Pad;
 
 #define Pad_chokeGroup(pad) (pad)->chokeGroup
+static inline Midiseq *Pad_sequence(Pad *pad) {return pad->sequence;}
+void Pad_setSequence(Pad *pad, Midiseq *midi);
 #define Pad_trackName(pad)  (pad)->trackName
 #define Pad_track(pad)      (pad)->track
 #define Pad_padIndex(pad)   (pad)->padIndex
 #define Pad_noteReleasePending(pad)  (pad)->noteReleasePending
 #define Pad_inEndgroup(pad) (pad)->inEndgroup
+
+#define Pad_newUninitialized() ((Pad*)sysmem_newptrclear(sizeof(Pad)))
+Pad *Pad_new();
+void Pad_init(Pad *pad);
+void Pad_free(Pad *pad);
+void Pad_clear(Pad *pad);
+void Pad_setSequence(Pad *pad, Midiseq *midi);
+void Pad_toBinFile(Pad *pad, BinFile *bf, Error *err);
+Pad *Pad_fromBinFile(BinFile *bf, Error *err);
+void Pad_fromBinFileUninitialized(Pad *pad, BinFile *bf, Error *err);
 
 typedef struct PendingNoteOff_t 
 {
@@ -147,6 +188,15 @@ typedef struct PendingNoteOff_t
     } \
 } while (0)
 
+PendingNoteOff *PendingNoteOff_new();
+void PendingNoteOff_free(PendingNoteOff *node);
+bool PendingNoteOff_removePitch(PendingNoteOff **head, int pitch);
+void PendingNoteOff_removePadIndexed(PendingNoteOff **head, int padIndex, int **pitchesRemoved);
+void PendingNoteOff_insertTimestamped(PendingNoteOff **head, int pitch, Ticks timestamp);
+void PendingNoteOff_insertPadIndexed(PendingNoteOff **head, int pitch, int padIndex);
+void PendingNoteOff_pop(PendingNoteOff **head);
+void PendingNoteOff_freeAll(PendingNoteOff *start);
+
 typedef struct NoteManager_t
 {
     PendingNoteOff *pending;
@@ -161,7 +211,14 @@ typedef struct NoteManager_t
 
 NoteManager *NoteManager_new(Port *port);
 void NoteManager_free(NoteManager *nm);
+bool NoteManager_insertNoteOff(NoteManager *manager, Ticks timestamp, int pitch, int padIndexForEndgroup);
+void NoteManager_sendNoteOn(NoteManager *manager, int pitch, int velocity);
+void NoteManager_flushOffs(NoteManager *manager);
+void NoteManager_dblogPending(NoteManager *manager, Ticks current);
+Ticks NoteManager_scheduleOffs(NoteManager *manager, Ticks current);
+void NoteManager_midievent(NoteManager *manager, MidiseqCell cell, int padIndexForEndgroup);
 void NoteManager_padNoteOff(NoteManager *manager, int padIndex);
+
 
 typedef struct
 {
@@ -169,7 +226,7 @@ typedef struct
     t_symbol *varname;
 } PortFindCell;
 
-typedef struct
+typedef struct PortFind_t
 {
     PortFindCell *objectsFound;
     void *hub;
@@ -181,12 +238,45 @@ typedef struct
 #define PortFind_anythingDispatch(p) ((p)->anythingDispatch)
 #define PortFind_intDispatch(p)      ((p)->intDispatch)
 
+long PortFind_iterator(PortFind *pf, t_object *targetBox);
+int PortFind_discover(PortFind *pf, t_object *sourceMaxObject, void *hub, Error *err);
+#define PortFind_declare(name) PortFind _##name = {0}; PortFind *name = &_##name
+void PortFind_clear(PortFind *pf);
+Port *PortFind_findByVarname(PortFind *pf, t_symbol *symbol);
+Port *PortFind_findByTrack(PortFind *pf, t_symbol *symbol);
+Port *PortFind_findById(PortFind *pf, t_symbol *symbol);
+int PortFind_portCount(PortFind *pf);
+Port *PortFind_findByIndex(PortFind *pf, int index, Error *err);
+
+
+typedef struct {int index;} PadListIterator;
+#define PadListIterator_declare(name) PadListIterator _##name = {-1}; PadListIterator *name = &_##name
+
 typedef struct
 {
     Pad *pads;
     Pad **running;
 } PadList;
-int PadList_padsLength(PadList *padList);
+
+#define PadList_pads(plst)    ((plst)->pads)
+#define PadList_running(plst) ((plst)->running)
+
+#define PadList_newUninitialized() (PadList*)sysmem_newptrclear(sizeof(PadList))
+PadList *PadList_new(int npads);
+void PadList_free(PadList *llst);
+int PadList_play(PadList *llst, int padIndex, Ticks startTime, Ticks currentTime, bool useMasterClock, Error *err);
+void PadList_markReleasePending(PadList *llst, int padIndex, bool pending, Error *err);
+int PadList_runningLength(PadList *llst);
+bool PadList_iterateRunning(PadList *llst, PadListIterator *iterator, Pad **pad);
+void PadList_clearRunning(PadList *llst, PadListIterator *iterator);
+int PadList_padsLength(PadList *llst);
+Pad *PadList_pad(PadList *llst, int index, Error *err);
+struct TrackList_t;
+void PadList_assignTrack(PadList *llst, struct TrackList_t *tl);
+void PadList_toBinFile(PadList *llst, BinFile *bf, Error *err);
+PadList *PadList_fromBinFile(BinFile *bf, Error *err);
+void PadList_fromBinFileUninitialized(PadList *llst, BinFile *bf, Error *err);
+
 
 typedef struct Track_t
 {
@@ -196,10 +286,17 @@ typedef struct Track_t
 #define Track_noteManager(t) ((t)->noteManager)
 #define Track_name(t) ((t)->name)
 
+typedef struct TrackList_t {} TrackList;
 
-typedef struct {} TrackList;
 Track *TrackList_findTrackByName(TrackList *tl_in, t_symbol *name);
 Track *TrackList_findTrackByIndex(TrackList *tl_in, int index, Error *err);
+TrackList *TrackList_new(PortFind *pf);
+void TrackList_free(TrackList *tl_in);
+Track *TrackList_findTrackByName(TrackList *tl_in, t_symbol *name);
+int TrackList_count(TrackList *tl_in);
+Track *TrackList_findTrackByIndex(TrackList *tl_in, int index, Error *err);
+TrackList *TrackList_fromBinFile(BinFile *bf, Error *err);
+void TrackList_toBinFile(TrackList *tl, BinFile *bf, Error *err);
 
 typedef struct {
     Port *currBank;
@@ -213,6 +310,11 @@ typedef struct {
 #define Gui_selBank(gui)   (gui)->selBank
 #define Gui_selFrame(gui)  (gui)->selFrame
 #define Gui_selPad(gui)    (gui)->selPad
+
+Gui *Gui_new(PortFind *pf);
+void Gui_init(Gui *gui, PortFind *pf); 
+void Gui_setCurrentCoordinates(Gui *gui, int bank, int frame) ;
+void Gui_setSelectedCoordinates(Gui *gui, int bank, int frame, int pad);
 
 //
 // H U B
@@ -250,6 +352,16 @@ typedef struct
 #define Hub_firstMidiNote          48
 #define Hub_relativeSelectedPad(hub) (Hub_selectedPad(hub) % Hub_padsPerFrame)
 #define Hub_padIndexFromInNote(hub, inputNote) (Hub_bank(hub)*Hub_padsPerBank + Hub_frame(hub)*Hub_padsPerFrame + (inputNote - Hub_firstMidiNote))
-void Hub_anythingDispatch(void *hub, struct Port_t *port, t_symbol *msg, long argc, t_atom *argv);
+
+Hub *Hub_new();
+void Hub_init(Hub *hub);
+void Hub_free(Hub *hub);
+void Hub_incrementFrame(Hub *hub);
+void Hub_decrementFrame(Hub *hub);
+void Hub_selectNextPushedPad(Hub *hub);
+void Hub_anythingDispatch(void *hub_in, struct Port_t *port, t_symbol *msg, long argc, t_atom *argv);
 void Hub_intDispatch(void *hub, struct Port_t *port, long value, long inlet);
+void Hub_toBinFile(Hub *hub, BinFile *bf, Error *err);
+Hub *Hub_fromBinFile(BinFile *bf, Error *err);
+void Hub_fromBinFileUninitialized(Hub *hub, BinFile *bf, Error *err);
 

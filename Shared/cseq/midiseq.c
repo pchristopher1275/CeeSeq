@@ -42,9 +42,10 @@ static int convertIntFileLine(const char *src, Error *err, const char *file, int
 const int Midiseq_maxLineLength = 1024;
 
 // Create new empty midi sequence
-static inline Midiseq *Midiseq_new()
+#define Midiseq_newUninitialized() ((Midiseq*)sysmem_newptrclear(sizeof(Midiseq)))
+Midiseq *Midiseq_new()
 {
-    Midiseq *midi = (Midiseq*)sysmem_newptrclear(sizeof(Midiseq));
+    Midiseq *midi = Midiseq_newUninitialized();
     midi->sequenceLength = 480*4;
     sb_add(midi->data, 2);
     MidiseqCell cell = {0};
@@ -70,10 +71,6 @@ void Midiseq_toBinFile(Midiseq *mseq, BinFile *bf, Error *err) {
     BinFile_writeInteger(bf, sb_count(Midiseq_data(mseq)), err);
     Error_returnVoidOnError(err);
 
-    off_t location = BinFile_writeNullLength(bf, false, err);
-    Error_returnVoidOnError(err);    
-
-
     BinFile_writeTag(bf, "midiseq_start_data", err);
     Error_returnVoidOnError(err);
 
@@ -93,39 +90,42 @@ void Midiseq_toBinFile(Midiseq *mseq, BinFile *bf, Error *err) {
     }
     BinFile_writeTag(bf, "midiseq_end_data", err);
     Error_returnVoidOnError(err);
-
-    BinFile_writeBackLength(bf, location, err);
-    Error_returnVoidOnError(err);
 }
 
-Midiseq *Midiseq_fromBinFile(BinFile *bf, Error *err) {
-    Midiseq *mseq = (Midiseq*)sysmem_newptrclear(sizeof(Midiseq));
 
+Midiseq *Midiseq_fromBinFile(BinFile *bf, Error *err) {
+    Midiseq *mseq = Midiseq_newUninitialized();
+    Midiseq_fromBinFileUnititialized(mseq, bf, err);
+    if (Error_iserror(err)) {
+        sysmem_freeptr(mseq);
+        return NULL;
+    }
+    return mseq;
+}
+
+void Midiseq_fromBinFileUnititialized(Midiseq *mseq, BinFile *bf, Error *err) {
     BinFile_verifyTag(bf, "midiseq", err);
-    Error_gotoLabelOnError(err, END);
+    Error_returnVoidOnError(err);
 
     Midiseq_useMasterClock(mseq) = BinFile_readBool(bf, err);
-    Error_gotoLabelOnError(err, END);
+    Error_returnVoidOnError(err);
 
     Midiseq_sequenceLength(mseq) = BinFile_readTicks(bf,  err);
-    Error_gotoLabelOnError(err, END);
+    Error_returnVoidOnError(err);
 
     long length = BinFile_readInteger(bf, err);
-    Error_gotoLabelOnError(err, END);
-
-    long dataLength = BinFile_readLength(bf, err);
-    Error_gotoLabelOnError(err, END);
-
-    off_t start = BinFile_tell(bf, err);
-    Error_gotoLabelOnError(err, END);
+    Error_returnVoidOnError(err);
 
     BinFile_verifyTag(bf, "midiseq_start_data", err);
-    Error_gotoLabelOnError(err, END);
+    Error_returnVoidOnError(err);
 
+    MidiseqCell *data = NULL;
+    sb_add(data, length);
+    sb_clear(data);
     for (int i = 0; i < length; i++) {
         MidiseqCell cell = {0};
         unsigned int type = 0, bendVal = 0;
-        if (fscanf(BinFile_stream(bf), "%u %u %lld", &type, &bendVal, &MidiseqCell_t(cell)) != 3) {
+        if (fscanf(BinFile_stream(bf), " %u %u %lld", &type, &bendVal, &MidiseqCell_t(cell)) != 3) {
             Error_format(err, "Midiseq_fromBinFile failed at fscanf[1] while reading %s", BinFile_filename(bf));
             goto END;
         }
@@ -133,34 +133,26 @@ Midiseq *Midiseq_fromBinFile(BinFile *bf, Error *err) {
         MidiseqCell_bendValue(cell) = bendVal;
 
         if (MidiseqCell_type(cell) == Midiseq_notetype) {
-            if (fscanf(BinFile_stream(bf), "%lld", &MidiseqCell_noteDuration(cell)) != 1) {
+            if (fscanf(BinFile_stream(bf), " %lld", &MidiseqCell_noteDuration(cell)) != 1) {
                 Error_format(err, "Midiseq_fromBinFile failed at fscanf[2] while reading %s", BinFile_filename(bf));
                 goto END;
             }
         }
-        else {
-            MidiseqCell_noteDuration(cell) = 0;
-        }
+        data[i] = cell;
     }
+    
     BinFile_verifyTag(bf, "midiseq_end_data", err);
     Error_gotoLabelOnError(err, END);
 
-    off_t end = BinFile_tell(bf, err);
-    Error_gotoLabelOnError(err, END);
-
-    if ((long)(end-start) != dataLength) {
-        Error_format(err, "Failed data consistency check (%ld, %ld)",  (long)(end-start), dataLength);
-        goto END;
-    }
-
-    return mseq;
+    Midiseq_data(mseq) = data;
+    return;
 
   END:
-    Midiseq_free(mseq);
-    return NULL;
+    sb_free(data);
+    return;
 }
 
-static inline Midiseq *Midiseq_newNote(int pitch)
+Midiseq *Midiseq_newNote(int pitch)
 {
     Midiseq *midi = (Midiseq*)sysmem_newptrclear(sizeof(Midiseq));
     midi->sequenceLength = 480*4;
@@ -193,7 +185,7 @@ static inline Midiseq *Midiseq_newNote(int pitch)
 }
 
 
-static inline void Midiseq_init(Midiseq *midi)
+void Midiseq_init(Midiseq *midi)
 {
     if (midi != NULL) {
         Midiseq zero = {0};
@@ -202,7 +194,7 @@ static inline void Midiseq_init(Midiseq *midi)
 }
 
 
-static inline void Midiseq_clear(Midiseq *midi)
+void Midiseq_clear(Midiseq *midi)
 {
     if (midi != NULL) {
         sb_free(midi->data);
@@ -221,20 +213,20 @@ void Midiseq_free(Midiseq *midi)
 }
 
 
-static inline int Midiseq_len(Midiseq *midi)
+int Midiseq_len(Midiseq *midi)
 {
     // REMEMBER: because of cycle and endgroup, every midi sequence has at least 2 elements.
     return sb_count(midi->data);
 }
 
 
-static inline void Midiseq_push(Midiseq *midi, MidiseqCell cell)
+void Midiseq_push(Midiseq *midi, MidiseqCell cell)
 {
     sb_push(midi->data, cell);
 }
 
 
-static inline MidiseqCell *Midiseq_get(Midiseq *midi, int index, Error *err)
+MidiseqCell *Midiseq_get(Midiseq *midi, int index, Error *err)
 {
     if (index < 0 || index >= Midiseq_len(midi)) {
         Error_format(err, "Index out of range (%d, %d)", index, Midiseq_len(midi));
@@ -247,7 +239,7 @@ static inline MidiseqCell *Midiseq_get(Midiseq *midi, int index, Error *err)
 bool Midiseq_pathsAllocated = false;
 sds Midiseq_midiCsvExecPath = NULL;
 sds Midiseq_csvMidiExecPath = NULL;
-static void Midiseq_setMidicsvExecPath()
+void Midiseq_setMidicsvExecPath()
 {
     if (!Midiseq_pathsAllocated) {
         const char *HOME = getenv("HOME");
@@ -342,8 +334,6 @@ int PortFind_discover(PortFind *pf, t_object *sourceMaxObject, void *hub, Error 
     return 0;
 }
 
-
-#define PortFind_declare(name) PortFind _##name = {0}; PortFind *name = &_##name
 void PortFind_clear(PortFind *pf)
 {
     sb_free(pf->objectsFound);
@@ -532,7 +522,7 @@ enum
 // Midiseq_nextevent always writes the current cell into the cell pointer. If the event
 // stored in cell happened before until, then (a) the sequence is advanced and (b) the
 // function returns 1. Otherwise 0 is returned and the sequence is left alone.
-static int Midiseq_nextevent(Midiseq *midi, Ticks until, MidiseqCell *cell, Error *err)
+int Midiseq_nextevent(Midiseq *midi, Ticks until, MidiseqCell *cell, Error *err)
 {
     if (midi->startTime == 0) {
         Error_format0(err, "Called nextevent on stoped sequence");
@@ -776,6 +766,12 @@ Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
 //
 // P A D
 //
+Pad *Pad_new(){
+    Pad *pad = Pad_newUninitialized();
+    Pad_init(pad);
+    return pad;
+}
+
 void Pad_init(Pad *pad)
 {
     if (pad != NULL) {
@@ -785,6 +781,12 @@ void Pad_init(Pad *pad)
     }
 }
 
+void Pad_free(Pad *pad) {
+    if (pad != NULL) {
+        Pad_clear(pad);
+        sysmem_freeptr(pad);
+    }
+}
 
 void Pad_clear(Pad *pad)
 {
@@ -796,25 +798,62 @@ void Pad_clear(Pad *pad)
 }
 
 
-static inline Midiseq *Pad_sequence(Pad *pad)
-{
-    return pad->sequence;
-}
-
 
 void Pad_setSequence(Pad *pad, Midiseq *midi)
 {
-    Midiseq_free(Pad_sequence(pad));
+    if (Pad_sequence(pad) != NULL) {
+        Midiseq_free(Pad_sequence(pad));
+    }
     pad->sequence = midi;
+}
+
+void Pad_toBinFile(Pad *pad, BinFile *bf, Error *err) {
+    BinFile_writeSymbol(bf, Pad_chokeGroup(pad), err);
+    Error_returnVoidOnError(err);
+
+    BinFile_writeSymbol(bf, Pad_trackName(pad), err);
+    Error_returnVoidOnError(err);    
+
+    BinFile_writeInteger(bf, Pad_padIndex(pad), err);
+    Error_returnVoidOnError(err);    
+
+    Midiseq_toBinFile(Pad_sequence(pad), bf, err);
+    Error_returnVoidOnError(err);
+}
+
+Pad *Pad_fromBinFile(BinFile *bf, Error *err) {
+    Pad *pad = Pad_newUninitialized();
+    Pad_fromBinFileUninitialized(pad, bf, err);
+    if (Error_iserror(err)) {
+        sysmem_freeptr(pad);
+        return NULL;
+    }
+    return pad;
+}
+
+void Pad_fromBinFileUninitialized(Pad *pad, BinFile *bf, Error *err) {
+    Pad_chokeGroup(pad) = BinFile_readSymbol(bf, err);
+    Error_returnVoidOnError(err);
+    
+    Pad_trackName(pad) = BinFile_readSymbol(bf, err);
+    Error_returnVoidOnError(err);
+
+    Pad_padIndex(pad)  = BinFile_readInteger(bf, err);
+    Error_returnVoidOnError(err);
+
+    Pad_setSequence(pad, Midiseq_fromBinFile(bf, err));
+    Error_returnVoidOnError(err);    
 }
 
 
 //
 // P A D   L I S T
 //
+#define PadList_newUninitialized() (PadList*)sysmem_newptrclear(sizeof(PadList))
+
 PadList *PadList_new(int npads)
 {
-    PadList *llst = (PadList*)sysmem_newptrclear(sizeof(PadList));
+    PadList *llst = PadList_newUninitialized();
     sb_add(llst->pads, npads);
     for (int i = 0; i < npads; i++) {
         Pad_init(llst->pads + i);
@@ -914,20 +953,6 @@ int PadList_runningLength(PadList *llst)
     return sb_count(llst->running);
 }
 
-
-// Pad *PadList_runningPad(PadList *llst, int index, Error *err)
-// {
-//     if (index < 0 || index >= PadList_runningLength(llst)) {
-//         Error_format(err, "Index out of range (%d, %d)", index, PadList_runningLength(llst));
-//         return NULL;
-//     }
-//     return llst->running[index];
-// }
-
-typedef struct {int index;}
-PadListIterator;
-#define PadListIterator_declare(name) PadListIterator _##name = {-1}; PadListIterator *name = &_##name
-
 // iterator always points at the same element that is saved in the pad argument. This is done so that the iterator
 // is left in a state that can be sent to PadList_clearRunning.
 bool PadList_iterateRunning(PadList *llst, PadListIterator *iterator, Pad **pad)
@@ -981,6 +1006,56 @@ void PadList_assignTrack(PadList *llst, TrackList *tl)
     }
 }
 
+void PadList_toBinFile(PadList *llst, BinFile *bf, Error *err) {
+    BinFile_writeTag(bf, "padlist_start", err);
+    Error_returnVoidOnError(err);
+
+    BinFile_writeInteger(bf, PadList_padsLength(llst), err);
+    Error_returnVoidOnError(err);
+
+    for (int i = 0; i < PadList_padsLength(llst); i++) {
+        Pad *pad = PadList_pad(llst, i, err);
+        Error_returnVoidOnError(err);
+
+        Pad_toBinFile(pad, bf, err);
+        Error_returnVoidOnError(err);                
+    }
+
+    BinFile_writeTag(bf, "padlist_end", err);
+    Error_returnVoidOnError(err);
+}
+
+PadList *PadList_fromBinFile(BinFile *bf, Error *err) {
+    PadList *llst = PadList_newUninitialized();
+    PadList_fromBinFileUninitialized(llst, bf, err);
+    if (Error_iserror(err)) {
+        sysmem_freeptr(llst);
+        return NULL;
+    }
+    return llst;
+}
+
+// Remember the rul is that if there is an error, the PadList passed in remains uninitialized.
+void PadList_fromBinFileUninitialized(PadList *llst, BinFile *bf, Error *err) {
+    BinFile_verifyTag(bf, "padlist_start", err);
+    Error_returnVoidOnError(err);
+
+    long len = BinFile_readInteger(bf, err);
+    Error_returnVoidOnError(err);
+            
+    Pad *pads = NULL;
+    sb_add(pads, len);
+    sb_clear(pads);
+
+    for (int i = 0; i < len; i++) {
+        Pad_fromBinFileUninitialized(pads + i, bf, err);
+        Error_returnVoidOnError(err);
+    }
+    BinFile_verifyTag(bf, "padlist_end", err);
+
+    PadList_pads(llst) = pads;
+    Error_returnVoidOnError(err);
+}
 
 //
 // T R A C K
@@ -1049,6 +1124,22 @@ Track *TrackList_findTrackByIndex(TrackList *tl_in, int index, Error *err)
         return tl + 0;
     }
     return tl + index;
+}
+
+// NOTE: currently nothing is actually stored in the output file. The complete tracklist comes from a port find payload in the BinFile instance.
+TrackList *TrackList_fromBinFile(BinFile *bf, Error *err)
+{
+    PortFind *pf = BinFile_portFindPayload(bf);
+    if (pf == NULL) {
+        Error_format0(err, "Expected portFindPayload on BinFile, but didn't see one");
+        return NULL;
+    }
+
+    return TrackList_new(pf);
+}
+
+void TrackList_toBinFile(TrackList *tl, BinFile *bf, Error *err) {
+    // NO-op since nothing in the tracklist is written to file.
 }
 
 
@@ -1348,6 +1439,12 @@ void NoteManager_padNoteOff(NoteManager *manager, int padIndex)
 Gui *Gui_new(PortFind *pf)
 {
     Gui *gui = (Gui*)sysmem_newptrclear(sizeof(Gui));
+    Gui_init(gui, pf);
+    return gui;
+}
+
+void Gui_init(Gui *gui, PortFind *pf) 
+{
     Gui_currBank(gui)  = PortFind_findById(pf, gensym("currBank"));
     Gui_currFrame(gui) = PortFind_findById(pf, gensym("currFrame"));
     Gui_selBank(gui)   = PortFind_findById(pf, gensym("selBank"));
@@ -1367,15 +1464,16 @@ Gui *Gui_new(PortFind *pf)
     Error_maypost(err);
     Port_send(Gui_selPad(gui), 2, a, err);
     Error_maypost(err);
-    return gui;
 }
 
-void Gui_setCurrentCoordinates(Gui *gui, int bank, int frame) {
+void Gui_setCurrentCoordinates(Gui *gui, int bank, int frame) 
+{
     Port_sendInteger(Gui_currBank(gui),  (long)bank);
     Port_sendInteger(Gui_currFrame(gui), (long)frame);
 }
 
-void Gui_setSelectedCoordinates(Gui *gui, int bank, int frame, int pad) {
+void Gui_setSelectedCoordinates(Gui *gui, int bank, int frame, int pad) 
+{
     Port_sendInteger(Gui_selBank(gui),  (long)bank);
     Port_sendInteger(Gui_selFrame(gui), (long)frame);  
     Port_sendInteger(Gui_selPad(gui), (long)pad);   
@@ -1384,6 +1482,19 @@ void Gui_setSelectedCoordinates(Gui *gui, int bank, int frame, int pad) {
 //
 // H U B
 //
+
+#define Hub_newUninitialized() (Hub*)sysmem_newptrclear(sizeof(Hub))
+
+Hub *Hub_new() {
+    return Hub_newUninitialized();
+}
+void Hub_init(Hub *hub) {}
+
+void Hub_free(Hub *hub) {
+    PadList_free(Hub_padList(hub));
+    TrackList_free(Hub_trackList(hub));
+}
+
 void Hub_incrementFrame(Hub *hub)
 {
     if (Hub_frame(hub) >= (Hub_framesPerBank-1)) {
@@ -1411,6 +1522,39 @@ void Hub_selectNextPushedPad(Hub *hub)
     Hub_grabNextTappedPad(hub) = true;
 }
 
+void Hub_midiFileDrop(Hub *hub, t_atom *pathAtom) {
+    Error_declare(err);
+    if (pathAtom == NULL) {
+        post("midiFileDrop requires at least 1 symbol argument");
+        return;
+    }
+    t_symbol *path = atom_getsym(pathAtom);
+    if (path == gensym("")) {
+        post("midiFileDrop requires at least 1 symbol argument");
+        return;
+    }
+    const char *colon = strchr(path->s_name, ':');
+    if (colon == NULL) {
+        post("midiFileDrop expected to find colon (:) in filename");
+        return;
+    }
+    sds filename = sdsnew(colon+1);
+    Midiseq *mseq = Midiseq_fromfile(filename, err);
+    if (Error_iserror(err)) {
+        post("midiFileDrop: %s", Error_message(err));
+        Error_clear(err);
+        return;
+    }
+    sdsfree(filename);
+    Pad *pad = PadList_pad(Hub_padList(hub), Hub_selectedPad(hub), err);
+    if (Error_iserror(err)) {
+        post("midiFileDrop: %s", Error_message(err));
+        Midiseq_free(mseq);
+        Error_clear(err);
+        return;
+    }
+    Pad_setSequence(pad, mseq);
+}
 
 void Hub_anythingDispatch(void *hub_in, struct Port_t *port, t_symbol *msg, long argc, t_atom *argv)
 {
@@ -1423,6 +1567,8 @@ void Hub_anythingDispatch(void *hub_in, struct Port_t *port, t_symbol *msg, long
     }
     else if (msg == gensym("selectNextPushedPad")) {
         Hub_selectNextPushedPad(hub);
+    } else if (msg == gensym("midiFileDrop")) {
+        Hub_midiFileDrop(hub, (argc > 0 ? argv + 0 : NULL));
     }
 }
 
@@ -1435,6 +1581,43 @@ void Hub_intDispatch(void *hub, struct Port_t *port, long value, long inlet)
     }
 }
 
+void Hub_toBinFile(Hub *hub, BinFile *bf, Error *err) {
+    BinFile_writeTag(bf, "hub_start", err);
+    Error_returnVoidOnError(err);
+
+    PadList_toBinFile(Hub_padList(hub), bf, err);
+    Error_returnVoidOnError(err);
+
+    TrackList_toBinFile(Hub_trackList(hub), bf, err);
+    Error_returnVoidOnError(err);
+
+    BinFile_writeTag(bf, "hub_end", err);    
+    Error_returnVoidOnError(err);
+}
+
+Hub *Hub_fromBinFile(BinFile *bf, Error *err) {
+    Hub *hub = Hub_newUninitialized();
+    Hub_fromBinFileUninitialized(hub, bf, err);
+    if (Error_iserror(err)) {
+        Hub_free(hub);
+        return NULL;
+    }
+    return hub;
+}
+
+void Hub_fromBinFileUninitialized(Hub *hub, BinFile *bf, Error *err) {
+    BinFile_verifyTag(bf, "hub_start", err);
+    Error_returnVoidOnError(err);
+
+    Hub_padList(hub) = PadList_fromBinFile(bf, err);
+    Error_returnVoidOnError(err);
+    
+    Hub_trackList(hub) = TrackList_fromBinFile(bf, err);
+    Error_returnVoidOnError(err);
+
+    BinFile_verifyTag(bf, "hub_end", err);    
+    Error_returnVoidOnError(err);
+}
 
 
 //
