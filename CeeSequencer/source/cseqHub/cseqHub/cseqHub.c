@@ -127,12 +127,15 @@ void *CseqHub_new(t_symbol *s, long argc, t_atom *argv)
     Error_maypost(err);
     CseqHub_trackList(x) = TrackList_new(pf);
     PadList_assignTrack(CseqHub_padList(x), CseqHub_trackList(x));
-    CseqHub_gui(x) = Gui_new(pf);
-    PortFind_clear(pf);
+
+    
 
     Hub *hub = CseqHub_hub(x);
-    Gui_setSelectedCoordinates(Hub_gui(hub), Hub_bank(hub), Hub_frame(hub), Hub_relativeSelectedPad(hub));
-    Gui_setCurrentCoordinates(Hub_gui(hub), Hub_bank(hub), Hub_frame(hub));
+    Hub_init(hub, pf, err);
+    Error_maypost(err);
+    PortFind_clear(pf);
+    Hub_updateSelectedCoordinates(hub);
+    Hub_updateCurrentCoordinates(hub);
 
     Error_clear(err);
     // CseqHub_int(x, 60);
@@ -167,8 +170,8 @@ void CseqHub_int(CseqHub *x, long val)
         CseqHub_grabNextTappedPad(x) = false;
         CseqHub_selectedPad(x)       = padIndex;
         Hub *hub = CseqHub_hub(x);
-        Gui_setSelectedCoordinates(Hub_gui(hub), Hub_bank(hub), Hub_frame(hub), Hub_relativeSelectedPad(hub));
-        Gui_setCurrentCoordinates(Hub_gui(hub), Hub_bank(hub), Hub_frame(hub));
+        Hub_updateSelectedCoordinates(hub);
+        Hub_updateCurrentCoordinates(hub);
     }
 
     if (lastVelocity == 0) {

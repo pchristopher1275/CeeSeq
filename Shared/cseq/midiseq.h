@@ -298,23 +298,23 @@ Track *TrackList_findTrackByIndex(TrackList *tl_in, int index, Error *err);
 TrackList *TrackList_fromBinFile(BinFile *bf, Error *err);
 void TrackList_toBinFile(TrackList *tl, BinFile *bf, Error *err);
 
-typedef struct {
-    Port *currBank;
-    Port *currFrame;
-    Port *selBank;
-    Port *selFrame;
-    Port *selPad;
-} Gui;
-#define Gui_currBank(gui)  (gui)->currBank
-#define Gui_currFrame(gui) (gui)->currFrame
-#define Gui_selBank(gui)   (gui)->selBank
-#define Gui_selFrame(gui)  (gui)->selFrame
-#define Gui_selPad(gui)    (gui)->selPad
+// typedef struct {
+//     Port *currBank;
+//     Port *currFrame;
+//     Port *selBank;
+//     Port *selFrame;
+//     Port *selPad;
+// } Gui;
+// #define Gui_currBank(gui)  (gui)->currBank
+// #define Gui_currFrame(gui) (gui)->currFrame
+// #define Gui_selBank(gui)   (gui)->selBank
+// #define Gui_selFrame(gui)  (gui)->selFrame
+// #define Gui_selPad(gui)    (gui)->selPad
 
-Gui *Gui_new(PortFind *pf);
-void Gui_init(Gui *gui, PortFind *pf); 
-void Gui_setCurrentCoordinates(Gui *gui, int bank, int frame) ;
-void Gui_setSelectedCoordinates(Gui *gui, int bank, int frame, int pad);
+// Gui *Gui_new(PortFind *pf);
+// void Gui_init(Gui *gui, PortFind *pf); 
+// void Gui_setCurrentCoordinates(Gui *gui, int bank, int frame) ;
+// void Gui_setSelectedCoordinates(Gui *gui, int bank, int frame, int pad);
 
 //
 // H U B
@@ -323,6 +323,12 @@ typedef struct
 {
     PadList *padList;
     TrackList *trackList;
+
+    Port *currBankPort;
+    Port *currFramePort;
+    Port *selBankPort;
+    Port *selFramePort;
+    Port *selPadPort;
 
     // bank varies from 0 - infinity
     int bank;
@@ -336,7 +342,7 @@ typedef struct
     // which pad has been selected
     int selectedPad;
 
-    Gui *gui;
+    
 } Hub;
 
 #define Hub_padList(hub)           ((hub)->padList)
@@ -350,11 +356,18 @@ typedef struct
 #define Hub_framesPerBank           8
 #define Hub_padsPerBank            (Hub_padsPerFrame*Hub_framesPerBank)
 #define Hub_firstMidiNote          48
+#define Hub_selectedBank(hub)        (Hub_selectedPad(hub) / (Hub_padsPerFrame*Hub_framesPerBank))
+#define Hub_selectedFrame(hub)       (Hub_selectedPad(hub) / Hub_framesPerBank)
 #define Hub_relativeSelectedPad(hub) (Hub_selectedPad(hub) % Hub_padsPerFrame)
 #define Hub_padIndexFromInNote(hub, inputNote) (Hub_bank(hub)*Hub_padsPerBank + Hub_frame(hub)*Hub_padsPerFrame + (inputNote - Hub_firstMidiNote))
+#define Hub_currBankPort(hub)  (hub)->currBankPort
+#define Hub_currFramePort(hub) (hub)->currFramePort
+#define Hub_selBankPort(hub)   (hub)->selBankPort
+#define Hub_selFramePort(hub)  (hub)->selFramePort
+#define Hub_selPadPort(hub)    (hub)->selPadPort
 
-Hub *Hub_new();
-void Hub_init(Hub *hub);
+Hub *Hub_new(PortFind *pf, Error *err);
+void Hub_init(Hub *hub, PortFind *pf, Error *err);
 void Hub_free(Hub *hub);
 void Hub_incrementFrame(Hub *hub);
 void Hub_decrementFrame(Hub *hub);
@@ -364,4 +377,5 @@ void Hub_intDispatch(void *hub, struct Port_t *port, long value, long inlet);
 void Hub_toBinFile(Hub *hub, BinFile *bf, Error *err);
 Hub *Hub_fromBinFile(BinFile *bf, Error *err);
 void Hub_fromBinFileUninitialized(Hub *hub, BinFile *bf, Error *err);
-
+void Hub_updateCurrentCoordinates(Hub *hub);
+void Hub_updateSelectedCoordinates(Hub *hub);

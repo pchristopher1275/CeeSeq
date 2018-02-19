@@ -196,7 +196,6 @@ Port PORT_NULL_IMPL =
 };
 
 #define Port_null (&PORT_NULL_IMPL)
-
 #define Port_track(p)            ((p)->track)
 #define Port_id(p)               ((p)->id)
 #define Port_hub(p)              ((p)->hub)

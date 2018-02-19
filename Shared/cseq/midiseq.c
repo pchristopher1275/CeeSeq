@@ -1436,48 +1436,49 @@ void NoteManager_padNoteOff(NoteManager *manager, int padIndex)
 //
 // G U I
 //
-Gui *Gui_new(PortFind *pf)
-{
-    Gui *gui = (Gui*)sysmem_newptrclear(sizeof(Gui));
-    Gui_init(gui, pf);
-    return gui;
-}
 
-void Gui_init(Gui *gui, PortFind *pf) 
-{
-    Gui_currBank(gui)  = PortFind_findById(pf, gensym("currBank"));
-    Gui_currFrame(gui) = PortFind_findById(pf, gensym("currFrame"));
-    Gui_selBank(gui)   = PortFind_findById(pf, gensym("selBank"));
-    Gui_selFrame(gui)  = PortFind_findById(pf, gensym("selFrame"));
-    Gui_selPad(gui)    = PortFind_findById(pf, gensym("selPad"));
-    t_atom a[2] = {{0}};
-    Error_declare(err);
-    atom_setsym(a+0,  gensym("cantchange"));
-    atom_setlong(a+1, 1);
-    Port_send(Gui_currBank(gui), 2, a, err);
-    Error_maypost(err);
-    Port_send(Gui_currFrame(gui), 2, a, err);
-    Error_maypost(err);
-    Port_send(Gui_selBank(gui), 2, a, err);
-    Error_maypost(err);
-    Port_send(Gui_selFrame(gui), 2, a, err);
-    Error_maypost(err);
-    Port_send(Gui_selPad(gui), 2, a, err);
-    Error_maypost(err);
-}
+// Gui *Gui_new(PortFind *pf)
+// {
+//     Gui *gui = (Gui*)sysmem_newptrclear(sizeof(Gui));
+//     Gui_init(gui, pf);
+//     return gui;
+// }
 
-void Gui_setCurrentCoordinates(Gui *gui, int bank, int frame) 
-{
-    Port_sendInteger(Gui_currBank(gui),  (long)bank);
-    Port_sendInteger(Gui_currFrame(gui), (long)frame);
-}
+// void Gui_init(Gui *gui, PortFind *pf) 
+// {
+//     Gui_currBank(gui)  = PortFind_findById(pf, gensym("currBank"));
+//     Gui_currFrame(gui) = PortFind_findById(pf, gensym("currFrame"));
+//     Gui_selBank(gui)   = PortFind_findById(pf, gensym("selBank"));
+//     Gui_selFrame(gui)  = PortFind_findById(pf, gensym("selFrame"));
+//     Gui_selPad(gui)    = PortFind_findById(pf, gensym("selPad"));
+//     t_atom a[2] = {{0}};
+//     Error_declare(err);
+//     atom_setsym(a+0,  gensym("cantchange"));
+//     atom_setlong(a+1, 1);
+//     Port_send(Gui_currBank(gui), 2, a, err);
+//     Error_maypost(err);
+//     Port_send(Gui_currFrame(gui), 2, a, err);
+//     Error_maypost(err);
+//     Port_send(Gui_selBank(gui), 2, a, err);
+//     Error_maypost(err);
+//     Port_send(Gui_selFrame(gui), 2, a, err);
+//     Error_maypost(err);
+//     Port_send(Gui_selPad(gui), 2, a, err);
+//     Error_maypost(err);
+// }
 
-void Gui_setSelectedCoordinates(Gui *gui, int bank, int frame, int pad) 
-{
-    Port_sendInteger(Gui_selBank(gui),  (long)bank);
-    Port_sendInteger(Gui_selFrame(gui), (long)frame);  
-    Port_sendInteger(Gui_selPad(gui), (long)pad);   
-}
+// void Gui_setCurrentCoordinates(Gui *gui, int bank, int frame) 
+// {
+//     Port_sendInteger(Gui_currBank(gui),  (long)bank);
+//     Port_sendInteger(Gui_currFrame(gui), (long)frame);
+// }
+
+// void Gui_setSelectedCoordinates(Gui *gui, int bank, int frame, int pad) 
+// {
+//     Port_sendInteger(Gui_selBank(gui),  (long)bank);
+//     Port_sendInteger(Gui_selFrame(gui), (long)frame);  
+//     Port_sendInteger(Gui_selPad(gui), (long)pad);   
+// }
 
 //
 // H U B
@@ -1485,10 +1486,43 @@ void Gui_setSelectedCoordinates(Gui *gui, int bank, int frame, int pad)
 
 #define Hub_newUninitialized() (Hub*)sysmem_newptrclear(sizeof(Hub))
 
-Hub *Hub_new() {
-    return Hub_newUninitialized();
+Hub *Hub_new(PortFind *pf, Error *err) {
+    Hub *hub = Hub_newUninitialized();
+    Hub_init(hub, pf, err);
+    Error_gotoLabelOnError(err, END);
+
+    return hub;
+
+    END:
+    sysmem_freeptr(hub);
+    return NULL;
 }
-void Hub_init(Hub *hub) {}
+
+void Hub_init(Hub *hub, PortFind *pf, Error *err) {
+    Hub_currBankPort(hub)  = PortFind_findById(pf, gensym("currBank"));
+    Hub_currFramePort(hub) = PortFind_findById(pf, gensym("currFrame"));
+    Hub_selBankPort(hub)   = PortFind_findById(pf, gensym("selBank"));
+    Hub_selFramePort(hub)  = PortFind_findById(pf, gensym("selFrame"));
+    Hub_selPadPort(hub)    = PortFind_findById(pf, gensym("selPad"));
+    
+    t_atom a[2] = {{0}};
+    atom_setsym(a+0,  gensym("cantchange"));
+    atom_setlong(a+1, 1);
+    Port_send(Hub_currBankPort(hub), 2, a, err);
+    Error_returnVoidOnError(err);
+
+    Port_send(Hub_currFramePort(hub), 2, a, err);
+    Error_returnVoidOnError(err);
+    
+    Port_send(Hub_selBankPort(hub), 2, a, err);
+    Error_returnVoidOnError(err);
+    
+    Port_send(Hub_selFramePort(hub), 2, a, err);
+    Error_returnVoidOnError(err);
+
+    Port_send(Hub_selPadPort(hub), 2, a, err);
+    Error_returnVoidOnError(err);
+}
 
 void Hub_free(Hub *hub) {
     PadList_free(Hub_padList(hub));
@@ -1502,7 +1536,7 @@ void Hub_incrementFrame(Hub *hub)
     }
 
     Hub_frame(hub)++;
-    Gui_setCurrentCoordinates(Hub_gui(hub), Hub_bank(hub), Hub_frame(hub));
+    Hub_updateCurrentCoordinates(hub);
 }
 
 
@@ -1513,13 +1547,26 @@ void Hub_decrementFrame(Hub *hub)
     }
 
     Hub_frame(hub)--;
-    Gui_setCurrentCoordinates(Hub_gui(hub), Hub_bank(hub), Hub_frame(hub));
+    Hub_updateCurrentCoordinates(hub);
 }
 
 
 void Hub_selectNextPushedPad(Hub *hub)
 {
     Hub_grabNextTappedPad(hub) = true;
+}
+
+void Hub_updateCurrentCoordinates(Hub *hub) 
+{
+    Port_sendInteger(Hub_currBankPort(hub),  Hub_bank(hub));
+    Port_sendInteger(Hub_currFramePort(hub), Hub_frame(hub));
+}
+
+void Hub_updateSelectedCoordinates(Hub *hub) 
+{
+    Port_sendInteger(Hub_selBankPort(hub),  (long)Hub_selectedBank(hub));
+    Port_sendInteger(Hub_selFramePort(hub), (long)Hub_selectedFrame(hub));  
+    Port_sendInteger(Hub_selPadPort(hub),   (long)Hub_relativeSelectedPad(hub));   
 }
 
 void Hub_midiFileDrop(Hub *hub, t_atom *pathAtom) {
