@@ -43,6 +43,8 @@ void ext_main(void *r)
     class_addmethod(c, (method)Port_int, "int", A_LONG, 0);
     CLASS_ATTR_SYM(c, "track", 0, Port, track);
     CLASS_ATTR_SYM(c, "id", 0, Port, id);
+    CLASS_ATTR_LONG(c, "iinps", 0, Port, intInlets);
+    CLASS_ATTR_LONG(c, "iouts", 0, Port, intOutlets);
     class_register(CLASS_BOX, c);
     Error_maypost(err);
     Port_class = c;
@@ -75,6 +77,31 @@ void *Port_new(t_symbol *s, long argc, t_atom *argv)
             }
             port->proxy[i]  = p;
             port->outlet[i] = intout(port);
+        }
+    } else if (Port_intInlets(port) > 0 || Port_intOutlets(port) > 0) {
+        if (Port_intInlets(port) <= 0) {
+            Port_intInlets(port) = 1;
+        }
+        if (Port_intOutlets(port) <= 0) {
+            Port_intOutlets(port) = 1;
+        } 
+        dblog0("Pete 1");
+        sb_add(port->proxy, Port_intInlets(port));
+        sb_clear(port->proxy);
+        sb_add(port->outlet, Port_intOutlets(port));
+        sb_clear(port->outlet);
+
+        for (int i = Port_intInlets(port)-1; i >= 0; i--) {
+            dblog("inlet %d", i);
+            void *p = NULL;
+            if (i != 0) {
+                p = proxy_new(port, (long)i, &Port_inletnum(port));
+            }
+            Port_proxy(port, i) = p;
+        }
+        for (int i = Port_intOutlets(port)-1; i >= 0; i--) {
+            dblog("outlet %d", i);
+            Port_outlet(port, i) = intout(port);
         }
     }
     else {

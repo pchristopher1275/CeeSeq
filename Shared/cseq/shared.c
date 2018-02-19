@@ -180,6 +180,8 @@ typedef struct Port_t
     void **outlet;
     t_symbol *track;
     t_symbol *id;
+    long intInlets;
+    long intOutlets;
     void *hub;
     Port_anythingDispatchFunc anythingDispatch;
     Port_intDispatchFunc intDispatch;
@@ -202,6 +204,10 @@ Port PORT_NULL_IMPL =
 #define Port_intDispatch(p)      ((p)->intDispatch)
 #define Port_sendBuffer(p)       ((p)->sendBuffer)
 #define Port_outlet(p, n)        ((p)->outlet[(n)])
+#define Port_proxy(p, n)         ((p)->proxy[(n)])
+#define Port_intInlets(p)        ((p)->intInlets)
+#define Port_intOutlets(p)       ((p)->intOutlets)
+#define Port_inletnum(p)         (p)->inletnum
 
 // Will parse id's of the form ev\d+ and return the \d+ number. Returns -1 otherwise
 int port_parseEvSymbol(t_symbol *id)
