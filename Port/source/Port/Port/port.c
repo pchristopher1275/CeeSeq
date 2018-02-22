@@ -85,14 +85,11 @@ void *Port_new(t_symbol *s, long argc, t_atom *argv)
         if (Port_intOutlets(port) <= 0) {
             Port_intOutlets(port) = 1;
         } 
-        dblog0("Pete 1");
+
         sb_add(port->proxy, Port_intInlets(port));
-        sb_clear(port->proxy);
         sb_add(port->outlet, Port_intOutlets(port));
-        sb_clear(port->outlet);
 
         for (int i = Port_intInlets(port)-1; i >= 0; i--) {
-            dblog("inlet %d", i);
             void *p = NULL;
             if (i != 0) {
                 p = proxy_new(port, (long)i, &Port_inletnum(port));
@@ -100,8 +97,7 @@ void *Port_new(t_symbol *s, long argc, t_atom *argv)
             Port_proxy(port, i) = p;
         }
         for (int i = Port_intOutlets(port)-1; i >= 0; i--) {
-            dblog("outlet %d", i);
-            Port_outlet(port, i) = intout(port);
+            Port_outlet(port, i) = outlet_new(port, NULL);
         }
     }
     else {

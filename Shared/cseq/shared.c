@@ -5,8 +5,12 @@
 #include "../sds/sds.h"
 #include "../sds/sds.c"
 
+#ifndef APIF
+#define APIF /**/
+#endif 
+
 sds stripBaseNameString = NULL;
-sds stripBaseName(const char *path)
+APIF sds stripBaseName(const char *path)
 {
     if (stripBaseNameString != NULL) {
         sdsfree(stripBaseNameString);
@@ -28,7 +32,7 @@ sds stripBaseName(const char *path)
 // T I M E
 //
 typedef long long Ticks;
-Ticks cseqHub_now()
+APIF Ticks cseqHub_now()
 {
     return (Ticks)itm_getticks(itm_getglobal());
 }
@@ -45,13 +49,13 @@ typedef struct _Error
 
 #define Error_declare(name) Error _##name = {false, NULL}; Error *name = &_##name
 
-static inline bool Error_iserror(Error *err)
+APIF static inline bool Error_iserror(Error *err)
 {
     return err->iserror;
 }
 
 
-sds Error_message(Error *err)
+APIF sds Error_message(Error *err)
 {
     if (err->iserror) {
         return err->message;
@@ -60,7 +64,7 @@ sds Error_message(Error *err)
 }
 
 
-void Error_clear(Error *err)
+APIF void Error_clear(Error *err)
 {
     if (err->message != NULL) {
         sdsfree(err->message);
@@ -70,7 +74,7 @@ void Error_clear(Error *err)
 }
 
 
-void Error_formatFileLine(Error *dst, const char *file, int line, sds message)
+APIF void Error_formatFileLine(Error *dst, const char *file, int line, sds message)
 {
     Error_clear(dst);
     dst->message = sdscatprintf(sdsempty(), "[%s:%d] %s", stripBaseName(file), line, message);
@@ -82,7 +86,7 @@ void Error_formatFileLine(Error *dst, const char *file, int line, sds message)
 #define Error_format(dst, format, ...) Error_formatFileLine(dst, __FILE__, __LINE__, sdscatprintf(sdsempty(), (format), __VA_ARGS__))
 #define Error_format0(dst, format) Error_formatFileLine(dst, __FILE__, __LINE__, sdscatprintf(sdsempty(), (format)))
 
-const char *Error_maxErrToString(t_max_err maxErr)
+APIF const char *Error_maxErrToString(t_max_err maxErr)
 {
     const char *label = "UNKNOWN";
     switch (maxErr) {
@@ -101,7 +105,7 @@ const char *Error_maxErrToString(t_max_err maxErr)
 }
 
 
-int Error_maypost(Error *err)
+APIF int Error_maypost(Error *err)
 {
     int iserror = Error_iserror(err);
     if (iserror) {
@@ -121,7 +125,7 @@ int Error_maypost(Error *err)
 
 FILE *dbLog_outputFd = NULL;
 
-void DBLog_printSDS(const char *file, int line, sds message)
+APIF void DBLog_printSDS(const char *file, int line, sds message)
 {
     if (dbLog_outputFd != NULL) {
         fprintf(dbLog_outputFd, "[%s: %d] %s\n", stripBaseName(file), line, message);
@@ -134,7 +138,7 @@ void DBLog_printSDS(const char *file, int line, sds message)
 #define dblog(format, ...) DBLog_printSDS(__FILE__, __LINE__, sdscatprintf(sdsempty(), format, __VA_ARGS__))
 #define dblog0(format) DBLog_printSDS(__FILE__, __LINE__, sdsnew(format))
 
-void DBLog_init(const char *tag, Error *err)
+APIF void DBLog_init(const char *tag, Error *err)
 {
     if (dbLog_outputFd == NULL) {
         const char *HOME = getenv("HOME");
@@ -209,7 +213,7 @@ Port PORT_NULL_IMPL =
 #define Port_inletnum(p)         (p)->inletnum
 
 // Will parse id's of the form ev\d+ and return the \d+ number. Returns -1 otherwise
-int port_parseEvSymbol(t_symbol *id)
+APIF int port_parseEvSymbol(t_symbol *id)
 {
     int r = -1;
     int consumed = 0;
@@ -227,7 +231,7 @@ int port_parseEvSymbol(t_symbol *id)
 }
 
 
-static const char *Port_idString(Port *port)
+APIF static const char *Port_idString(Port *port)
 {
     switch(port->porttype) {
         case Port_nullType:
@@ -240,37 +244,41 @@ static const char *Port_idString(Port *port)
 }
 
 
-static int Port_isVstType(Port *port)
+APIF static int Port_isVstType(Port *port)
 {
     return port->porttype == Port_vstType;
 }
 
 
-static int Port_isNullType(Port *port)
+APIF static int Port_isNullType(Port *port)
 {
     return port->porttype == Port_nullType;
 }
 
 
-void Port_send(Port *port, short argc, t_atom *argv, Error *err)
+APIF void Port_send(Port *port, int outlet, short argc, t_atom *argv, Error *err)
 {
     if (Port_isNullType(port)) {
         return;
     }
     else if (Port_isVstType(port)) {
+        if (outlet >= sb_count(&Port_outlet(port, 0))) {
+            Error_format(err, "Index out of range (%d, %d)", outlet, sb_count(&Port_outlet(port, 0)));
+            return;
+        }
         t_symbol *selector = atom_getsym(argv + 0);
-        outlet_anything(Port_outlet(port, 0), selector, argc-1, argv+1);
+        outlet_anything(Port_outlet(port, outlet), selector, argc-1, argv+1);
     }
     else {
         Error_format(err, "Port_send called on porttype = %s", Port_idString(port));
     }
 }
 
-void Port_sendInteger(Port *p, long value) {
-    outlet_int(Port_outlet(p, 0), value);   
+APIF void Port_sendInteger(Port *p, int outlet, long value) {
+    outlet_int(Port_outlet(p, outlet), value);   
 }
 
-void Port_sendSelectorAndInteger(Port *port, t_symbol *selector, int value)
+APIF void Port_sendSelectorAndInteger(Port *port, t_symbol *selector, int value)
 {
     t_atom a = {0};
     atom_setlong(&a, value);

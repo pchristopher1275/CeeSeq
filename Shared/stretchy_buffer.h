@@ -177,7 +177,7 @@
 #define sb_add(a,n)        (sb__maybegrow(a,n), sb__len(a)+=(n), &(a)[sb__len(a)-(n)])
 #define sb_last(a)         ((a)[sb__len(a)-1])
 #define sb_pop(a)          ((a) != NULL && sb__len(a) > 0 ? sb__len(a)-- : 0)
-#define sb_clear(a)        sb_clearf((a), sizeof(*(a)))
+#define sb_clear(a)        (sb_free(a), (a) = NULL, 0)
 
 #define sb__raw(a) ((int *) (a) - 2)
 #define sb__cap(a) sb__raw(a)[0]
@@ -189,20 +189,44 @@
 
 #include <stdlib.h>
 
-void *sb_clearf(void *arr, int itemsize) {
-   if (arr) {
-      memset(arr, 0, sb__len(arr)*itemsize);
-      sb__len(arr) = 0;
+
+/*
+#define sb_insertNumItems(a, index, numitems) sb_insertf(a, index, numitems, sizeof(*a))
+#define sb_insert(a, index)                   sb_insertNumItems(a, index, 1)
+void *sb_insertf(void *arr, int index, int numitems, int itemsize) {
+   if (index < 0 || index >= sb_count(arr)) {
+      return NULL;
    }
-   return arr;
+   sb_add(arr, numitems);
+   int dstByteOffset = (index + numitems)*itemsize;
+   int srcByteOffset = index*itemsize;
+   int numBytesMoved = numitems*itemsize;
+   memmove(arr + dstByteOffset, arr + srcByteOffset, numBytesMoved);
+   return arr+srcByteOffset;
 }
 
-void *sb_growf(void *arr, int increment, int itemsize){
+void sb_removef(void *arr, int index, int numitems, int itemsize) {
+   if (index < 0 || index >= sb_count(arr)) {
+      // If the index is out of range, just return
+      return;
+   }
+}
+*/
+
+// void *sb_clearf(void *arr, int itemsize) {
+//    if (arr) {
+//       memset(arr, 0, sb__len(arr)*itemsize);
+//       sb__len(arr) = 0;
+//    }
+//    return arr;
+// }
+
+void *sb_growf(void *arr, int increment, int itemsize) {
    int dbl_cur = arr ? 2*sb__cap(arr) : 0;
    int min_needed = sb_count(arr) + increment;
    int m = dbl_cur > min_needed ? dbl_cur : min_needed;
-   // CSeq modified this to use max/MSP memory allocation
-   int *p = (int *)sysmem_resizeptr(arr ? sb__raw(arr) : 0, itemsize * m + sizeof(int)*2);
+   size_t szBytes = itemsize * m + sizeof(int)*2;
+   int *p = (int *)sysmem_resizeptrclear(arr ? sb__raw(arr) : 0, szBytes);
    if (p) {
       if (!arr)
          p[1] = 0;

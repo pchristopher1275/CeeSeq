@@ -1,3 +1,4 @@
+#define APIF /**/
 sds stripBaseName(const char *path);
 
 //
@@ -138,18 +139,25 @@ struct Track_t;
 typedef struct
 {
     // ** PERSISTED **
-    t_symbol *chokeGroup;
     t_symbol *trackName;
     int padIndex;
     Midiseq *sequence;
-    
+
+    bool chokeGroupGlobal;
+    int chokeGroupInstrument;
+    int chokeGroupIndex;
+
     // ** not persisted **
+    int64_t chokeGroup;
     bool noteReleasePending;
     bool inEndgroup;
     struct Track_t *track;
 } Pad;
 
-#define Pad_chokeGroup(pad) (pad)->chokeGroup
+#define Pad_chokeGroup(pad)           (pad)->chokeGroup
+#define Pad_chokeGroupGlobal(pad)     (pad)->chokeGroupGlobal
+#define Pad_chokeGroupInstrument(pad) (pad)->chokeGroupInstrument
+#define Pad_chokeGroupIndex(pad)      (pad)->chokeGroupIndex
 static inline Midiseq *Pad_sequence(Pad *pad) {return pad->sequence;}
 void Pad_setSequence(Pad *pad, Midiseq *midi);
 #define Pad_trackName(pad)  (pad)->trackName
@@ -167,6 +175,7 @@ void Pad_setSequence(Pad *pad, Midiseq *midi);
 void Pad_toBinFile(Pad *pad, BinFile *bf, Error *err);
 Pad *Pad_fromBinFile(BinFile *bf, Error *err);
 void Pad_fromBinFileUninitialized(Pad *pad, BinFile *bf, Error *err);
+void Pad_computeChokeGroup(Pad *pad);
 
 typedef struct PendingNoteOff_t 
 {
@@ -298,23 +307,61 @@ Track *TrackList_findTrackByIndex(TrackList *tl_in, int index, Error *err);
 TrackList *TrackList_fromBinFile(BinFile *bf, Error *err);
 void TrackList_toBinFile(TrackList *tl, BinFile *bf, Error *err);
 
-// typedef struct {
-//     Port *currBank;
-//     Port *currFrame;
-//     Port *selBank;
-//     Port *selFrame;
-//     Port *selPad;
-// } Gui;
-// #define Gui_currBank(gui)  (gui)->currBank
-// #define Gui_currFrame(gui) (gui)->currFrame
-// #define Gui_selBank(gui)   (gui)->selBank
-// #define Gui_selFrame(gui)  (gui)->selFrame
-// #define Gui_selPad(gui)    (gui)->selPad
+//
+// P O R T   R E F
+//
+typedef struct PortRef_t 
+{
+    Port *port;
+    int outlet;
+} PortRef;
 
-// Gui *Gui_new(PortFind *pf);
-// void Gui_init(Gui *gui, PortFind *pf); 
-// void Gui_setCurrentCoordinates(Gui *gui, int bank, int frame) ;
-// void Gui_setSelectedCoordinates(Gui *gui, int bank, int frame, int pad);
+#define PortRef_port(pr)   (pr)->port
+#define PortRef_outlet(pr) (pr)->outlet
+
+#define PortRef_noNew 1
+#define PortRef_noInit 1
+#define PortRef_noFree 1
+
+#define PortRef_declare(name, port, outlet)    PortRef _##name = {port, outlet}; PortRef *name = &_##name
+#define PortRef_set(pr, portIn, outletIn) (pr)->port = (portIn); (pr)->outlet = (outletIn)
+#define PortRef_value(pr)                      (*pr)
+#define PortRef_clear(pr)                      /**/
+#define PortRef_send(pr, argc, argv, err)      Port_send(PortRef_port(pr), PortRef_outlet(pr), argc, argv, err)
+#define PortRef_sendInteger(pr, value, err)    Port_sendInteger(PortRef_port(pr), PortRef_outlet(pr), value, err)
+
+//
+// D R O P   D O W N
+//
+
+typedef struct DropDown_t
+{
+    t_symbol **table;
+    int selected;
+    PortRef portRef;
+} DropDown;
+
+static inline PortRef *DropDown_portRef(DropDown *dd) {
+    return &dd->portRef;
+}
+
+#define DropDown_setPortRef(dd, pr) (dd)->portRef = *pr
+#define DropDown_table(dd)          (dd)->table
+
+static inline int DropDown_selected(DropDown *dd) {
+    return dd->selected;
+}
+
+void DropDown_setSelected(DropDown *dd, int selected, Error *err);
+DropDown *DropDown_new(const char **table, PortRef *pr);
+void DropDown_init(DropDown *dd, const char **table, PortRef *pr);
+void DropDown_clear(DropDown *dd);
+void DropDown_free(DropDown *dd);
+void DropDown_updateSelected(DropDown *dd, Error *err);
+void DropDown_initializeMenu(DropDown *dd, Error *err);
+void DropDown_initCGLocalGlobal(DropDown *dd, PortRef *pr);
+void DropDown_initCGInstrument(DropDown *dd, PortRef *pr);
+void DropDown_initCGIndex(DropDown *dd, PortRef *pr);
 
 //
 // H U B
@@ -329,6 +376,13 @@ typedef struct
     Port *selBankPort;
     Port *selFramePort;
     Port *selPadPort;
+
+    Port *chokeGroupPort;
+    
+    DropDown cgLocalGlobalMenu;
+    DropDown cgInstrumentMenu;
+    DropDown cgIndexMenu;
+
 
     // bank varies from 0 - infinity
     int bank;
@@ -351,20 +405,29 @@ typedef struct
 #define Hub_frame(hub)             ((hub)->frame)
 #define Hub_selectedPad(hub)       ((hub)->selectedPad)
 #define Hub_grabNextTappedPad(hub) ((hub)->grabNextTappedPad)
-#define Hub_gui(hub)               ((hub)->gui)
 #define Hub_padsPerFrame           24
 #define Hub_framesPerBank           8
 #define Hub_padsPerBank            (Hub_padsPerFrame*Hub_framesPerBank)
 #define Hub_firstMidiNote          48
-#define Hub_selectedBank(hub)        (Hub_selectedPad(hub) / (Hub_padsPerFrame*Hub_framesPerBank))
-#define Hub_selectedFrame(hub)       (Hub_selectedPad(hub) / Hub_framesPerBank)
-#define Hub_relativeSelectedPad(hub) (Hub_selectedPad(hub) % Hub_padsPerFrame)
+
+#define hub_padIndexToBank(index)         (index / Hub_padsPerBank)
+#define hub_padIndexToFrame(index)        (index / Hub_framesPerBank)
+#define hub_padIndexToRelativePad(index)  (index % Hub_padsPerFrame)
+
+#define Hub_selectedBank(hub)        hub_padIndexToBank(Hub_selectedPad(hub))
+#define Hub_selectedFrame(hub)       hub_padIndexToFrame(Hub_selectedPad(hub))
+#define Hub_relativeSelectedPad(hub) hub_padIndexToRelativePad(Hub_selectedPad(hub))
+
 #define Hub_padIndexFromInNote(hub, inputNote) (Hub_bank(hub)*Hub_padsPerBank + Hub_frame(hub)*Hub_padsPerFrame + (inputNote - Hub_firstMidiNote))
 #define Hub_currBankPort(hub)  (hub)->currBankPort
 #define Hub_currFramePort(hub) (hub)->currFramePort
 #define Hub_selBankPort(hub)   (hub)->selBankPort
 #define Hub_selFramePort(hub)  (hub)->selFramePort
 #define Hub_selPadPort(hub)    (hub)->selPadPort
+
+#define Hub_cgLocalGlobalMenu(hub) &((hub)->cgLocalGlobalMenu)
+#define Hub_cgInstrumentMenu(hub)  &((hub)->cgInstrumentMenu)
+#define Hub_cgIndexMenu(hub)       &((hub)->cgIndexMenu)
 
 Hub *Hub_new(PortFind *pf, Error *err);
 void Hub_init(Hub *hub, PortFind *pf, Error *err);
@@ -377,5 +440,5 @@ void Hub_intDispatch(void *hub, struct Port_t *port, long value, long inlet);
 void Hub_toBinFile(Hub *hub, BinFile *bf, Error *err);
 Hub *Hub_fromBinFile(BinFile *bf, Error *err);
 void Hub_fromBinFileUninitialized(Hub *hub, BinFile *bf, Error *err);
-void Hub_updateCurrentCoordinates(Hub *hub);
-void Hub_updateSelectedCoordinates(Hub *hub);
+void Hub_updateGuiCurrentCoordinates(Hub *hub);
+

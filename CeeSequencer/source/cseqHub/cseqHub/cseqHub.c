@@ -16,15 +16,10 @@ typedef struct _CseqHub
 {
     t_object d_obj;
 
-    void *d_proxy;
-    long d_inletnum;
-
-    void *pitch_outlet;
-    void *velocity_outlet;
-    void *duration_outlet;
-
+    // Be careful initializing these. I assume that object_new DOES NOT zero the whole struct.
+    void *proxy;
+    long inletnum;
     t_timeobject *schedular;
-
     Hub hub;
 } CseqHub;
 
@@ -34,7 +29,6 @@ typedef struct _CseqHub
 #define CseqHub_bank(cseq)              Hub_bank(CseqHub_hub(cseq))
 #define CseqHub_selectedPad(cseq)       Hub_selectedPad(CseqHub_hub(cseq))
 #define CseqHub_grabNextTappedPad(cseq) Hub_grabNextTappedPad(CseqHub_hub(cseq))
-#define CseqHub_gui(cseq)               Hub_gui(CseqHub_hub(cseq))
 #define CseqHub_padIndexFromInNote(cseq, inputNote) Hub_padIndexFromInNote(CseqHub_hub(cseq), inputNote)
 
 void *CseqHub_new(t_symbol *s, long argc, t_atom *argv);
@@ -81,64 +75,69 @@ void ext_main(void *r)
 
 void *CseqHub_new(t_symbol *s, long argc, t_atom *argv)
 {
+    Error_declare(err);
     CseqHub *x = (CseqHub *)object_alloc(CseqHub_class);
-    x->d_inletnum = 0;
-    x->d_proxy = proxy_new(x, 1, &x->d_inletnum);
-    x->duration_outlet = intout(x);
-    x->velocity_outlet = intout(x);
-    x->pitch_outlet    = intout(x);
-    x->schedular = (t_object *)time_new((t_object *)x, gensym("schedular"), (method)CseqHub_playnotes,
+    x->inletnum        = 0;
+    x->proxy           = proxy_new(x, 1, &x->inletnum);
+    x->schedular       = (t_object *)time_new((t_object *)x, gensym("schedular"), (method)CseqHub_playnotes,
         TIME_FLAGS_TICKSONLY | TIME_FLAGS_USECLOCK);
+    Hub *hub = CseqHub_hub(x);
+    Hub zero = {0};
+    *hub = zero;
 
     t_atom a = {0};
     atom_setfloat(&a, 0.0);
     time_setvalue(x->schedular, NULL, 1, &a);
 
-    Error_declare(err);
+    PortFind_declare(pf);
+    PortFind_discover(pf, (t_object*)x, CseqHub_hub(x) ,err);
+    Error_maypost(err);
+
+    Hub_init(hub, pf, err);    
+    
+
     const char *HOME = getenv("HOME");
     if (HOME == NULL) {
         post("Failed to find HOME");
         HOME = "foobar";
     }
 
-    t_symbol *cg = gensym("cg");
-    t_symbol *pianoName = gensym("piano");
+    // t_symbol *pianoName = gensym("piano");
     t_symbol *organName = gensym("organ");
     const int npads = Hub_padsPerBank;
     CseqHub_padList(x) = PadList_new(npads);
+    
+    dblog0("POINT preloop");
+
     for (int i = 0; i < PadList_padsLength(CseqHub_padList(x)); i++) {
         Pad *pad = PadList_pad(CseqHub_padList(x), i, err);
         if (Error_maypost(err)) {
             continue;
         }
-        Pad_padIndex(pad)   = i;
-        Pad_chokeGroup(pad) = cg;
-        Pad_trackName(pad)  = (i % 48) < 24 ? organName : pianoName;
+
+        Pad_padIndex(pad)             = i;
+        Pad_chokeGroupGlobal(pad)     = i % 5 == 0 ? true : false;
+        Pad_chokeGroupInstrument(pad) = i % 6;
+        Pad_chokeGroupIndex(pad)      = i % 17; 
+        Pad_computeChokeGroup(pad);
+
+
+        Pad_trackName(pad) = organName;
         int pitch = 48 + (i % 24);
         Midiseq *midi = Midiseq_newNote(pitch);
         Pad_setSequence(pad, midi);        
     }
+    dblog0("POINT end of loop");
 
     // START TRANSPORT
     itm_resume(time_getitm(x->schedular));
 
-    PortFind_declare(pf);
-    PortFind_discover(pf, (t_object*)x, CseqHub_hub(x) ,err);
-    Error_maypost(err);
     CseqHub_trackList(x) = TrackList_new(pf);
     PadList_assignTrack(CseqHub_padList(x), CseqHub_trackList(x));
 
-    
-
-    Hub *hub = CseqHub_hub(x);
-    Hub_init(hub, pf, err);
+    Hub_changeSelectedPad(hub, 0, err);
     Error_maypost(err);
-    PortFind_clear(pf);
-    Hub_updateSelectedCoordinates(hub);
-    Hub_updateCurrentCoordinates(hub);
-
-    Error_clear(err);
-    // CseqHub_int(x, 60);
+    dblog0("POINT end");
     return x;
 }
 
@@ -147,7 +146,7 @@ void CseqHub_free(CseqHub *x)
 {
     PadList_free(CseqHub_padList(x));
     TrackList_free(CseqHub_trackList(x));
-    object_free((t_object *) x->d_proxy);
+    object_free((t_object *) x->proxy);
     object_free(x->schedular);
 }
 
@@ -168,10 +167,10 @@ void CseqHub_int(CseqHub *x, long val)
 
     if (CseqHub_grabNextTappedPad(x)) {
         CseqHub_grabNextTappedPad(x) = false;
-        CseqHub_selectedPad(x)       = padIndex;
         Hub *hub = CseqHub_hub(x);
-        Hub_updateSelectedCoordinates(hub);
-        Hub_updateCurrentCoordinates(hub);
+        Error_declare(err);
+        Hub_changeSelectedPad(hub, padIndex, err);
+        Error_maypost(err);
     }
 
     if (lastVelocity == 0) {
@@ -215,6 +214,10 @@ void CseqHub_playnotes(CseqHub *x)
     Pad *pad = NULL;
     PadListIterator_declare(iterator);
     while (PadList_iterateRunning(CseqHub_padList(x), iterator, &pad)) {
+        if (pad == NULL) {
+            post("Yup that bitch is null");
+            break;
+        }
         Midiseq *midi            = Pad_sequence(pad);
         NoteManager *noteManager = Track_noteManager(Pad_track(pad));
         while ( (status = Midiseq_nextevent(midi, now, &cell, err)) == Midiseq_nextEventContinue) {
