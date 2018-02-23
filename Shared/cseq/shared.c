@@ -119,6 +119,7 @@ APIF int Error_maypost(Error *err)
 #define Error_returnZeroOnError(err)           if (Error_iserror(err)) return 0
 #define Error_returnNullOnError(err)           if (Error_iserror(err)) return NULL
 #define Error_gotoLabelOnError(err, label)     if (Error_iserror(err)) goto label
+
 //
 // T E X T    L O G G I N G
 //
