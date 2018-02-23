@@ -19,8 +19,6 @@ typedef struct
     BinFilePayload *payload;
 } BinFile;
 
-// #define BinFile_lengthFieldSize         11
-
 // This is the most positive integer in a 4 byte int. NOTE the number of digits in this number should be one-less
 // than BinFile_lengthFieldSizeStr
 #define BinFile_nullLengthFieldSizeStr "11"
@@ -32,8 +30,6 @@ typedef struct
 #define BinFileFlag_tag        1
 
 #define BinFile_portFindPayload(bf) ((bf)->payload == NULL ? NULL : (bf)->payload->portFind)
-
-
 
 #define BinFile_writeBackLength(bf, location, err) BinFile_writeBackLengthFlags(bf, location, -1, err)
 #define BinFile_readLength(bf, err) BinFile_readLengthFlags(bf, NULL, err)
@@ -76,12 +72,6 @@ typedef struct
     Ticks duration;
 } MidiseqCell;
 
-const int Midiseq_notetype   = 1;
-const int Midiseq_bendtype   = 2;
-const int Midiseq_cctype     = 3;
-const int Midiseq_cycletype  = 4;
-const int Midiseq_endgrptype = 5;
-
 #define MidiseqCell_type(cell) ((cell).type)
 #define MidiseqCell_t(cell) ((cell).t)
 #define MidiseqCell_notePitch(cell) ((cell).b.b[0])
@@ -107,6 +97,11 @@ typedef struct
 
     int ptr;
 } Midiseq;
+const int Midiseq_notetype   = 1;
+const int Midiseq_bendtype   = 2;
+const int Midiseq_cctype     = 3;
+const int Midiseq_cycletype  = 4;
+const int Midiseq_endgrptype = 5;
 
 #define Midiseq_data(mseq)           ((mseq)->data)
 #define Midiseq_useMasterClock(mseq) ((mseq)->useMasterClock)
@@ -405,6 +400,15 @@ typedef struct
 #define Hub_frame(hub)             ((hub)->frame)
 #define Hub_selectedPad(hub)       ((hub)->selectedPad)
 #define Hub_grabNextTappedPad(hub) ((hub)->grabNextTappedPad)
+#define Hub_currBankPort(hub)  (hub)->currBankPort
+#define Hub_currFramePort(hub) (hub)->currFramePort
+#define Hub_selBankPort(hub)   (hub)->selBankPort
+#define Hub_selFramePort(hub)  (hub)->selFramePort
+#define Hub_selPadPort(hub)    (hub)->selPadPort
+#define Hub_cgLocalGlobalMenu(hub) &((hub)->cgLocalGlobalMenu)
+#define Hub_cgInstrumentMenu(hub)  &((hub)->cgInstrumentMenu)
+#define Hub_cgIndexMenu(hub)       &((hub)->cgIndexMenu)
+
 #define Hub_padsPerFrame           24
 #define Hub_framesPerBank           8
 #define Hub_padsPerBank            (Hub_padsPerFrame*Hub_framesPerBank)
@@ -419,15 +423,6 @@ typedef struct
 #define Hub_relativeSelectedPad(hub) hub_padIndexToRelativePad(Hub_selectedPad(hub))
 
 #define Hub_padIndexFromInNote(hub, inputNote) (Hub_bank(hub)*Hub_padsPerBank + Hub_frame(hub)*Hub_padsPerFrame + (inputNote - Hub_firstMidiNote))
-#define Hub_currBankPort(hub)  (hub)->currBankPort
-#define Hub_currFramePort(hub) (hub)->currFramePort
-#define Hub_selBankPort(hub)   (hub)->selBankPort
-#define Hub_selFramePort(hub)  (hub)->selFramePort
-#define Hub_selPadPort(hub)    (hub)->selPadPort
-
-#define Hub_cgLocalGlobalMenu(hub) &((hub)->cgLocalGlobalMenu)
-#define Hub_cgInstrumentMenu(hub)  &((hub)->cgInstrumentMenu)
-#define Hub_cgIndexMenu(hub)       &((hub)->cgIndexMenu)
 
 Hub *Hub_new(PortFind *pf, Error *err);
 void Hub_init(Hub *hub, PortFind *pf, Error *err);
