@@ -24,6 +24,7 @@ typedef struct _CseqHub
 } CseqHub;
 
 #define CseqHub_hub(cseq)               (&(cseq)->hub)
+
 #define CseqHub_padList(cseq)           Hub_padList(CseqHub_hub(cseq))
 #define CseqHub_trackList(cseq)         Hub_trackList(CseqHub_hub(cseq))
 #define CseqHub_bank(cseq)              Hub_bank(CseqHub_hub(cseq))
@@ -105,24 +106,22 @@ void *CseqHub_new(t_symbol *s, long argc, t_atom *argv)
     // t_symbol *pianoName = gensym("piano");
     t_symbol *organName = gensym("organ");
     const int npads = Hub_padsPerBank;
-    CseqHub_padList(x) = PadList_new(npads);
+    Hub_setPadList(CseqHub_hub(x), PadList_new(npads));
     
-    dblog0("POINT preloop");
-
     for (int i = 0; i < PadList_padsLength(CseqHub_padList(x)); i++) {
         Pad *pad = PadList_pad(CseqHub_padList(x), i, err);
         if (Error_maypost(err)) {
             continue;
         }
 
-        Pad_padIndex(pad)             = i;
-        Pad_chokeGroupGlobal(pad)     = i % 5 == 0 ? true : false;
-        Pad_chokeGroupInstrument(pad) = i % 6;
-        Pad_chokeGroupIndex(pad)      = i % 17; 
+        Pad_setPadIndex(pad, i);
+        Pad_setChokeGroupGlobal(pad, i % 5 == 0 ? true : false);
+        Pad_setChokeGroupInstrument(pad, i % 6);
+        Pad_setChokeGroupIndex(pad, i % 17); 
         Pad_computeChokeGroup(pad);
 
 
-        Pad_trackName(pad) = organName;
+        Pad_setTrackName(pad, organName);
         int pitch = 48 + (i % 24);
         Midiseq *midi = Midiseq_newNote(pitch);
         Pad_setSequence(pad, midi);        
@@ -132,7 +131,7 @@ void *CseqHub_new(t_symbol *s, long argc, t_atom *argv)
     // START TRANSPORT
     itm_resume(time_getitm(x->schedular));
 
-    CseqHub_trackList(x) = TrackList_new(pf);
+    Hub_setTrackList(CseqHub_hub(x), TrackList_new(pf));
     PadList_assignTrack(CseqHub_padList(x), CseqHub_trackList(x));
 
     Hub_changeSelectedPad(hub, 0, err);
@@ -166,7 +165,7 @@ void CseqHub_int(CseqHub *x, long val)
     }
 
     if (CseqHub_grabNextTappedPad(x)) {
-        CseqHub_grabNextTappedPad(x) = false;
+        Hub_setGrabNextTappedPad(CseqHub_hub(x), false);
         Hub *hub = CseqHub_hub(x);
         Error_declare(err);
         Hub_changeSelectedPad(hub, padIndex, err);
@@ -178,7 +177,7 @@ void CseqHub_int(CseqHub *x, long val)
         if (Error_maypost(err)) {
             return;
         }
-        Pad_noteReleasePending(pad) = false;
+        Pad_setNoteReleasePending(pad, false);
         NoteManager_padNoteOff(Track_noteManager(Pad_track(pad)), padIndex);
         return;
     }
@@ -222,7 +221,7 @@ void CseqHub_playnotes(CseqHub *x)
         NoteManager *noteManager = Track_noteManager(Pad_track(pad));
         while ( (status = Midiseq_nextevent(midi, now, &cell, err)) == Midiseq_nextEventContinue) {
             if (MidiseqCell_type(cell) == Midiseq_endgrptype) {
-                Pad_inEndgroup(pad) = true;
+                Pad_setInEndgroup(pad, true);
             }
 
             NoteManager_midievent(noteManager, cell, (Pad_noteReleasePending(pad) && Pad_inEndgroup(pad)) ? Pad_padIndex(pad) : -1);

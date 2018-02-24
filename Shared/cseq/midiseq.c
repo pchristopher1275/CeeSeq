@@ -107,10 +107,10 @@ APIF void Midiseq_fromBinFileUnititialized(Midiseq *mseq, BinFile *bf, Error *er
     BinFile_verifyTag(bf, "midiseq", err);
     Error_returnVoidOnError(err);
 
-    Midiseq_useMasterClock(mseq) = BinFile_readBool(bf, err);
+    Midiseq_setUseMasterClock(mseq, BinFile_readBool(bf, err));
     Error_returnVoidOnError(err);
 
-    Midiseq_sequenceLength(mseq) = BinFile_readTicks(bf,  err);
+    Midiseq_setSequenceLength(mseq, BinFile_readTicks(bf,  err));
     Error_returnVoidOnError(err);
 
     long length = BinFile_readInteger(bf, err);
@@ -143,7 +143,7 @@ APIF void Midiseq_fromBinFileUnititialized(Midiseq *mseq, BinFile *bf, Error *er
     BinFile_verifyTag(bf, "midiseq_end_data", err);
     Error_gotoLabelOnError(err, END);
 
-    Midiseq_data(mseq) = data;
+    Midiseq_setData(mseq, data);
     return;
 
   END:
@@ -313,9 +313,9 @@ APIF long PortFind_iterator(PortFind *pf, t_object *targetBox)
 
 APIF int PortFind_discover(PortFind *pf, t_object *sourceMaxObject, void *hub, Error *err)
 {
-    PortFind_hub(pf)              = hub;
-    PortFind_anythingDispatch(pf) = Hub_anythingDispatch;
-    PortFind_intDispatch(pf)      = Hub_intDispatch;
+    PortFind_setHub(pf, hub);
+    PortFind_setAnythingDispatch(pf, Hub_anythingDispatch);
+    PortFind_setIntDispatch(pf, Hub_intDispatch);
 
     t_object *patcher = NULL;
     long result       = 0;
@@ -326,9 +326,9 @@ APIF int PortFind_discover(PortFind *pf, t_object *sourceMaxObject, void *hub, E
     }
     object_method(patcher, gensym("iterate"), PortFind_iterator, (void *)pf, PI_WANTBOX | PI_DEEP, &result);
 
-    PortFind_hub(pf)              = NULL;
-    PortFind_anythingDispatch(pf) = NULL;
-    PortFind_intDispatch(pf)      = NULL;
+    PortFind_setHub(pf, NULL);
+    PortFind_setAnythingDispatch(pf, NULL);
+    PortFind_setIntDispatch(pf, NULL);
 
     return 0;
 }
@@ -837,28 +837,28 @@ APIF Pad *Pad_fromBinFile(BinFile *bf, Error *err) {
 }
 
 APIF void Pad_fromBinFileUninitialized(Pad *pad, BinFile *bf, Error *err) {
-    Pad_trackName(pad) = BinFile_readSymbol(bf, err);
+    Pad_setTrackName(pad, BinFile_readSymbol(bf, err));
     Error_returnVoidOnError(err);
 
-    Pad_padIndex(pad)  = BinFile_readInteger(bf, err);
+    Pad_setPadIndex(pad, BinFile_readInteger(bf, err));
     Error_returnVoidOnError(err);
 
     Pad_setSequence(pad, Midiseq_fromBinFile(bf, err));
     Error_returnVoidOnError(err);    
 
-    Pad_chokeGroupGlobal(pad) = BinFile_readBool(bf, err);    
+    Pad_setChokeGroupGlobal(pad, BinFile_readBool(bf, err));
     Error_returnVoidOnError(err);
 
-    Pad_chokeGroupInstrument(pad) = BinFile_readInteger(bf, err);
+    Pad_setChokeGroupInstrument(pad, BinFile_readInteger(bf, err));
     Error_returnVoidOnError(err);
 
-    Pad_chokeGroupIndex(pad) = BinFile_readInteger(bf, err);
+    Pad_setChokeGroupIndex(pad, BinFile_readInteger(bf, err));
     Error_returnVoidOnError(err);
 }
 
 APIF void Pad_computeChokeGroup(Pad *pad) {
     if (!Pad_chokeGroupGlobal(pad) && Pad_chokeGroupInstrument(pad) == 0 && Pad_chokeGroupIndex(pad) == 0) {
-        Pad_chokeGroup(pad) = 0;
+        Pad_setChokeGroup(pad, 0);
         return;    
     }
 
@@ -877,14 +877,12 @@ APIF void Pad_computeChokeGroup(Pad *pad) {
 
     value |= (instrument & 0xFF) << 40; // 8 bits for instrument
     value |= (index & 0xFF)      << 48; // 8 bits for index
-    Pad_chokeGroup(pad) = value;
+    Pad_setChokeGroup(pad, value);
 }
 
 //
 // P A D   L I S T
 //
-#define PadList_newUninitialized() (PadList*)sysmem_newptrclear(sizeof(PadList))
-
 APIF PadList *PadList_new(int npads)
 {
     PadList *llst = PadList_newUninitialized();
@@ -919,8 +917,8 @@ APIF int PadList_play(PadList *llst, int padIndex, Ticks startTime, Ticks curren
     }
     Pad *pad = llst->pads + padIndex;
     // Since we're starting to play, we just recieved a Note-on for this pad. Reset the pad
-    Pad_inEndgroup(pad)         = false;
-    Pad_noteReleasePending(pad) = true;
+    Pad_setInEndgroup(pad, false);
+    Pad_setNoteReleasePending(pad, true);
 
     // Now let's find a place to stick this pad into the running array
     int runningLength = sb_count(llst->running);
@@ -975,7 +973,7 @@ APIF void PadList_markReleasePending(PadList *llst, int padIndex, bool pending, 
         return;
     }
     Pad *pad = llst->pads + padIndex;
-    Pad_noteReleasePending(pad) = pending;
+    Pad_setNoteReleasePending(pad, pending);
     if (!pending) {
         // We recieved a note-off. So cancel any pending endgroups
         NoteManager_padNoteOff(Track_noteManager(Pad_track(pad)), padIndex);
@@ -1037,7 +1035,7 @@ APIF void PadList_assignTrack(PadList *llst, TrackList *tl)
 {
     for (int i = 0; i < sb_count(llst->pads); i++) {
         Pad *pad = llst->pads + i;
-        Pad_track(pad) = TrackList_findTrackByName(tl, Pad_trackName(pad));
+        Pad_setTrack(pad, TrackList_findTrackByName(tl, Pad_trackName(pad)));
     }
 }
 
@@ -1087,7 +1085,7 @@ APIF void PadList_fromBinFileUninitialized(PadList *llst, BinFile *bf, Error *er
     }
     BinFile_verifyTag(bf, "padlist_end", err);
 
-    PadList_pads(llst) = pads;
+    PadList_setPads(llst, pads);
     Error_returnVoidOnError(err);
 }
 
@@ -1111,8 +1109,8 @@ APIF TrackList *TrackList_new(PortFind *pf)
         // Notice I don't handle any error that occures. I assume none do since I bound findByIndex by portCount
         Port *p = PortFind_findByIndex(pf, i, err);
         Track t = {0};
-        Track_name(&t)        = Port_track(p);
-        Track_noteManager(&t) = NoteManager_new(p);
+        Track_setName(&t, Port_track(p));
+        Track_setNoteManager(&t, NoteManager_new(p));
         sb_push(tl, t);
     }
 
@@ -1195,7 +1193,7 @@ APIF void DropDown_init(DropDown *dd, const char **table, PortRef *pr) {
         sb_push(l, s);
         ptr++;
     }
-    DropDown_table(dd) = l;
+    DropDown_setTable(dd, l);
     DropDown_setPortRef(dd, pr);
     return;
 }
@@ -1470,15 +1468,15 @@ APIF void NoteManager_free(NoteManager *nm)
 // insert a note off, and remove any single pitch that is already there. Return true if a note-off was removed
 APIF bool NoteManager_insertNoteOff(NoteManager *manager, Ticks timestamp, int pitch, int padIndexForEndgroup)
 {
-    bool removedPitch = PendingNoteOff_removePitch(&NoteManager_endgroups(manager), pitch);
-    bool q            = PendingNoteOff_removePitch(&NoteManager_pending(manager),   pitch);
+    bool removedPitch = PendingNoteOff_removePitch(&manager->endgroups, pitch);
+    bool q            = PendingNoteOff_removePitch(&manager->pending, pitch);
     removedPitch      = removedPitch || q;
     if (padIndexForEndgroup >= 0) {
         // Mark this pitch as endgroup
-        PendingNoteOff_insertPadIndexed(&NoteManager_endgroups(manager), pitch, padIndexForEndgroup);
+        PendingNoteOff_insertPadIndexed(&manager->endgroups, pitch, padIndexForEndgroup);
     }
     else {
-        PendingNoteOff_insertTimestamped(&NoteManager_pending(manager), pitch, timestamp);
+        PendingNoteOff_insertTimestamped(&manager->pending, pitch, timestamp);
     }
 
     return removedPitch;
@@ -1510,7 +1508,7 @@ APIF void NoteManager_flushOffs(NoteManager *manager)
         p = PendingNoteOff_next(p);
         PendingNoteOff_free(n);
     }
-    NoteManager_pending(manager) = NULL;
+    NoteManager_setEndgroups(manager, NULL);
 
     p = NoteManager_pending(manager);
     while (p != NULL) {
@@ -1519,7 +1517,7 @@ APIF void NoteManager_flushOffs(NoteManager *manager)
         p = PendingNoteOff_next(p);
         PendingNoteOff_free(n);
     }
-    NoteManager_pending(manager) = NULL;
+    NoteManager_setPending(manager, NULL);
 }
 
 
@@ -1541,7 +1539,7 @@ APIF Ticks NoteManager_scheduleOffs(NoteManager *manager, Ticks current)
             break;
         }
         NoteManager_sendNoteOn(manager, PendingNoteOff_pitch(NoteManager_pending(manager)), 0);
-        PendingNoteOff_pop(&NoteManager_pending(manager));
+        PendingNoteOff_pop(&manager->pending);
     }
     if (NoteManager_pending(manager) != NULL) {
         return PendingNoteOff_timestamp(NoteManager_pending(manager)) - current;
@@ -1570,7 +1568,7 @@ APIF void NoteManager_midievent(NoteManager *manager, MidiseqCell cell, int padI
 
 APIF void NoteManager_padNoteOff(NoteManager *manager, int padIndex)
 {
-    PendingNoteOff_removePadIndexed(&NoteManager_endgroups(manager), padIndex, &manager->removedPitches);
+    PendingNoteOff_removePadIndexed(&manager->endgroups, padIndex, &manager->removedPitches);
     for (int i = 0; i < sb_count(manager->removedPitches); i++) {
         NoteManager_sendNoteOn(manager, manager->removedPitches[i], 0);
     }
@@ -1579,8 +1577,6 @@ APIF void NoteManager_padNoteOff(NoteManager *manager, int padIndex)
 //
 // H U B
 //
-
-#define Hub_newUninitialized() (Hub*)sysmem_newptrclear(sizeof(Hub))
 
 APIF Hub *Hub_new(PortFind *pf, Error *err) {
     Hub *hub = Hub_newUninitialized();
@@ -1595,11 +1591,11 @@ APIF Hub *Hub_new(PortFind *pf, Error *err) {
 }
 
 APIF void Hub_init(Hub *hub, PortFind *pf, Error *err) {
-    Hub_currBankPort(hub)   = PortFind_findById(pf, gensym("currBank"));
-    Hub_currFramePort(hub)  = PortFind_findById(pf, gensym("currFrame"));
-    Hub_selBankPort(hub)    = PortFind_findById(pf, gensym("selBank"));
-    Hub_selFramePort(hub)   = PortFind_findById(pf, gensym("selFrame"));
-    Hub_selPadPort(hub)     = PortFind_findById(pf, gensym("selPad"));
+    Hub_setCurrBankPort(hub, PortFind_findById(pf, gensym("currBank")));
+    Hub_setCurrFramePort(hub, PortFind_findById(pf, gensym("currFrame")));
+    Hub_setSelBankPort(hub, PortFind_findById(pf, gensym("selBank")));
+    Hub_setSelFramePort(hub, PortFind_findById(pf, gensym("selFrame")));
+    Hub_setSelPadPort(hub, PortFind_findById(pf, gensym("selPad")));
 
 
     Port *cg = PortFind_findById(pf, gensym("chokeGroup"));
@@ -1651,7 +1647,7 @@ APIF void Hub_incrementFrame(Hub *hub)
         return;
     }
 
-    Hub_frame(hub)++;
+    Hub_setFrame(hub, Hub_frame(hub)+1);
     Hub_updateGuiCurrentCoordinates(hub);
 }
 
@@ -1662,14 +1658,14 @@ APIF void Hub_decrementFrame(Hub *hub)
         return;
     }
 
-    Hub_frame(hub)--;
+    Hub_setFrame(hub, Hub_frame(hub)-1);
     Hub_updateGuiCurrentCoordinates(hub);
 }
 
 
 APIF void Hub_selectNextPushedPad(Hub *hub)
 {
-    Hub_grabNextTappedPad(hub) = true;
+    Hub_setGrabNextTappedPad(hub, true);
 }
 
 APIF void Hub_updateGuiCurrentCoordinates(Hub *hub) 
@@ -1719,17 +1715,17 @@ APIF void Hub_manageChokeGroups(Hub *hub, long value, long inlet, Error *err) {
         case 0:
             DropDown_setSelected(Hub_cgLocalGlobalMenu(hub), value, err);
             Error_returnVoidOnError(err);
-            Pad_chokeGroupGlobal(pad) = value ? true : false;
+            Pad_setChokeGroupGlobal(pad, value ? true : false);
             break;
         case 1:
             DropDown_setSelected(Hub_cgInstrumentMenu(hub), value, err);
             Error_returnVoidOnError(err);
-            Pad_chokeGroupInstrument(pad) = value;
+            Pad_setChokeGroupInstrument(pad, value);
             break;
         case 2:
             DropDown_setSelected(Hub_cgIndexMenu(hub), value, err);
             Error_returnVoidOnError(err);
-            Pad_chokeGroupIndex(pad) = value;
+            Pad_setChokeGroupIndex(pad, value);
             break;
         default:
             Error_format(err, "INTERNAL ERROR: bad inlet %ld", inlet);
@@ -1740,7 +1736,7 @@ APIF void Hub_manageChokeGroups(Hub *hub, long value, long inlet, Error *err) {
 }
 
 APIF void Hub_changeSelectedPad(Hub *hub, int selectedPadIndex, Error *err) {
-    Hub_selectedPad(hub) = selectedPadIndex;
+    Hub_setSelectedPad(hub, selectedPadIndex);
     Pad *pad = PadList_pad(Hub_padList(hub), selectedPadIndex, err);
     Error_returnVoidOnError(err);
 
@@ -1833,10 +1829,10 @@ APIF void Hub_fromBinFileUninitialized(Hub *hub, BinFile *bf, Error *err) {
     BinFile_verifyTag(bf, "hub_start", err);
     Error_returnVoidOnError(err);
 
-    Hub_padList(hub) = PadList_fromBinFile(bf, err);
+    Hub_setPadList(hub, PadList_fromBinFile(bf, err));
     Error_returnVoidOnError(err);
     
-    Hub_trackList(hub) = TrackList_fromBinFile(bf, err);
+    Hub_setTrackList(hub, TrackList_fromBinFile(bf, err));
     Error_returnVoidOnError(err);
 
     BinFile_verifyTag(bf, "hub_end", err);    
@@ -1850,21 +1846,21 @@ APIF void Hub_fromBinFileUninitialized(Hub *hub, BinFile *bf, Error *err) {
 
 APIF BinFile *BinFile_new() {
     BinFile *bf = (BinFile*)sysmem_newptrclear(sizeof(BinFile));
-    BinFile_filename(bf) = sdsempty();
-    BinFile_buffer(bf)   = sdsempty();
+    BinFile_setFilename(bf, sdsempty());
+    BinFile_setBuffer(bf, sdsempty());
     return bf;
 }
 
 APIF BinFile *BinFile_newWriter(const char *file, Error *err) {
     BinFile *bf =  BinFile_new();
-    BinFile_stream(bf) = fopen(file, "w");
+    BinFile_setStream(bf, fopen(file, "w"));
     if (BinFile_stream(bf) == NULL) {
         Error_format(err, "Failed to open file %s", file);
         BinFile_free(bf);
         return NULL;
     }
     sdsfree(BinFile_filename(bf));
-    BinFile_filename(bf) = sdsnew(file);
+    BinFile_setFilename(bf, sdsnew(file));
 
     if (fprintf(BinFile_stream(bf), "%d ", BinFile_version(bf)) < 0) {
         Error_format(err, "Failed to write version number to file %s", file);
@@ -1877,14 +1873,14 @@ APIF BinFile *BinFile_newWriter(const char *file, Error *err) {
 
 APIF BinFile *BinFile_newReader(const char *file, Error *err) {
     BinFile *bf =  BinFile_new();
-    BinFile_stream(bf) = fopen(file, "r");
+    BinFile_setStream(bf, fopen(file, "r"));
     if (BinFile_stream(bf) == NULL) {
         Error_format(err, "Failed to open file %s", file);
         BinFile_free(bf);
         return NULL;
     }
-    BinFile_filename(bf) = sdsnew(file);
-    if (fscanf(BinFile_stream(bf), "%d ", &BinFile_version(bf))) {
+    BinFile_setFilename(bf, sdsnew(file));
+    if (fscanf(BinFile_stream(bf), "%d ", &bf->version)) {
         Error_format(err, "Failed to read version number from file  %s", file);
         BinFile_free(bf);
         return NULL;
@@ -1895,13 +1891,13 @@ APIF BinFile *BinFile_newReader(const char *file, Error *err) {
 APIF void BinFile_free(BinFile *bf) {
     if (BinFile_stream(bf) != NULL) {
         fclose(BinFile_stream(bf));
-        BinFile_stream(bf) = NULL;
+        BinFile_setStream(bf, NULL);
     }
     
     sdsfree(BinFile_filename(bf));
-    BinFile_filename(bf) = NULL;
+    BinFile_setFilename(bf, NULL);
     sdsfree(BinFile_buffer(bf));
-    BinFile_buffer(bf) = NULL;
+    BinFile_setBuffer(bf, NULL);
     sysmem_freeptr(bf);
 }
 
@@ -2074,7 +2070,7 @@ APIF void BinFile_fillBuffer(BinFile *bf, long size, Error *err) {
     if (sdslen(BinFile_buffer(bf)) < size) {
         // NOTE: I verified that this call DOES NOT shrink the buffer.
         // NOTE: sdsMakeRoomFor always allocates sdslen()+1 bytes  
-        BinFile_buffer(bf) = sdsgrowzero(BinFile_buffer(bf), (size_t)size);
+        BinFile_setBuffer(bf, sdsgrowzero(BinFile_buffer(bf), (size_t)size));
     }
     sdssetlen(BinFile_buffer(bf), size);
     if (fread(BinFile_buffer(bf), size, 1, BinFile_stream(bf)) != size) {

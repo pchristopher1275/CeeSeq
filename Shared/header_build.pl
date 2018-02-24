@@ -262,7 +262,7 @@ sub BinFile_preAccessor {
 #define BinFile_maxLength              2147483647
 #define BinFileFlag_tag                1
 static inline PortFind *BinFile_portFindPayload(BinFile *self){ return (self->payload == NULL ? NULL : self->payload->portFind); }
-static inline BinFile_setPayload(BinFile *self, BinFilePayload *payload) { self->payload = payload}
+static inline void BinFile_setPayload(BinFile *self, BinFilePayload *payload) { self->payload = payload;}
 #define BinFile_writeBackLength(bf, location, err) BinFile_writeBackLengthFlags(bf, location, -1, err)
 #define BinFile_readLength(bf, err) BinFile_readLengthFlags(bf, NULL, err)
 #define BinFile_writeLength(bf, length, err) BinFile_writeLengthFlags(bf, length, -1, err)
@@ -412,10 +412,10 @@ sub PendingNoteOff_preAccessor {
 #define PendingNoteOff_timestamp(pno) (pno)->ticksOrPadIndex.timestamp
 #define PendingNoteOff_padIndex(pno)  (pno)->ticksOrPadIndex.padIndex 
 #define PendingNoteOff_pitch(pno)     (pno)->pitch
-#define PendingNoteOff_increment(pno) do { \
-    if (pno) { \
-        (pno) = PendingNoteOff_next(pno); \
-    } \
+#define PendingNoteOff_increment(pno) do { \\
+    if (pno) { \\
+        (pno) = PendingNoteOff_next(pno); \\
+    } \\
 } while (0)
 END
 }
@@ -446,7 +446,7 @@ sub NoteManager_define {
 
 sub PortFindCell_define {
 	my %config = (
-		typeName => "PadFindCell",
+		typeName => "PortFindCell",
 		fields => [
 			{group=>"noPersist",},
 			{name=>"reciever", type=>"Port *",},
@@ -467,6 +467,12 @@ sub PortFind_define {
 			{name=>"intDispatch",      type=>"Port_intDispatchFunc",},
 
 		],
+		postAccessor => sub {
+			my ($out) = @_;
+			print {$out} <<END;
+#define PortFind_declare(name) PortFind _##name = {0}; PortFind *name = &_##name			
+END
+		},
 	);
 	return \%config;
 }
@@ -530,7 +536,7 @@ sub PortRef_postAccessor {
 #define PortRef_declare(name, port, outlet)    PortRef _##name = {port, outlet}; PortRef *name = &_##name
 static inline void PortRef_set(PortRef *pr, Port *port, int outlet) {
 	pr->port   = port;
-	pr->outlet = outletl
+	pr->outlet = outlet;
 }
 //#define PortRef_value(pr)                      (*pr)
 //#define PortRef_clear(pr)                      /**/
@@ -551,19 +557,49 @@ sub PortRef_define {
 	);
 	return \%config;	
 }
-
+sub DropDown_postAccessor {
+	my ($out) = @_;
+	print {$out}<<END;
+static inline PortRef *DropDown_portRef(DropDown *dd) {
+    return &dd->portRef;
+}
+static inline void DropDown_setPortRef(DropDown *dd, PortRef *pr) {
+	dd->portRef = *pr;
+}
+END
+}
 sub DropDown_define {
 	my %config = (
 		typeName => "DropDown",
 		fields => [
 			{name=>"table",   type=>"t_symbol **"},
 			{name=>"selected", type=>"int", setter=>"none"},
-			{name=>"portRef", type=>"PortRef"},
+			{name=>"portRef", type=>"PortRef", getter=>"none", setter=>"none"},
 		],
+		postAccessor => \&DropDown_postAccessor,
 	);
 	return \%config;
 }
 
+sub Hub_postAccessor {
+	my ($out) = @_;
+	print {$out} <<END;
+#define Hub_padsPerFrame           24
+#define Hub_framesPerBank           8
+#define Hub_padsPerBank            (Hub_padsPerFrame*Hub_framesPerBank)
+#define Hub_firstMidiNote          48
+
+#define hub_padIndexToBank(index)         (index / Hub_padsPerBank)
+#define hub_padIndexToFrame(index)        (index / Hub_framesPerBank)
+#define hub_padIndexToRelativePad(index)  (index % Hub_padsPerFrame)
+
+#define Hub_selectedBank(hub)        hub_padIndexToBank(Hub_selectedPad(hub))
+#define Hub_selectedFrame(hub)       hub_padIndexToFrame(Hub_selectedPad(hub))
+#define Hub_relativeSelectedPad(hub) hub_padIndexToRelativePad(Hub_selectedPad(hub))
+
+#define Hub_padIndexFromInNote(hub, inputNote) (Hub_bank(hub)*Hub_padsPerBank + Hub_frame(hub)*Hub_padsPerFrame + (inputNote - Hub_firstMidiNote))
+END
+}
 sub Hub_define {
 	my %config = (
 		typeName => "Hub",
@@ -585,6 +621,7 @@ sub Hub_define {
 			{name=>"selectedPad",       type=>"int",  comment=>"which pad has been selected"},
 
 		],
+		postAccessor => \&Hub_postAccessor,
 	);
 	return \%config;
 }
@@ -641,7 +678,7 @@ sub main {
 
 
 	## ARRAY
-	writeArrayDefn($out, {typeName=>"BarArr", elemName=>"Bar"});
+	#writeArrayDefn($out, {typeName=>"BarArr", elemName=>"Bar"});
 }	
 
 main();

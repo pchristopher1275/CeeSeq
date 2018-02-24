@@ -1,48 +1,87 @@
+// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
 #define APIF /**/
 sds stripBaseName(const char *path);
 
-//
-// B I N    F I L E
-//
-struct PortFind_t;
-typedef struct 
-{
-    struct PortFind_t *portFind;
-} BinFilePayload;
 
-typedef struct 
+struct BinFilePayload_t;
+typedef struct BinFilePayload_t BinFilePayload;
+struct BinFile_t;
+typedef struct BinFile_t BinFile;
+struct MidiseqCell_t;
+typedef struct MidiseqCell_t MidiseqCell;
+struct Midiseq_t;
+typedef struct Midiseq_t Midiseq;
+struct Pad_t;
+typedef struct Pad_t Pad;
+struct PendingNoteOff_t;
+typedef struct PendingNoteOff_t PendingNoteOff;
+struct NoteManager_t;
+typedef struct NoteManager_t NoteManager;
+struct PortFindCell_t;
+typedef struct PortFindCell_t PortFindCell;
+struct PortFind_t;
+typedef struct PortFind_t PortFind;
+struct PadListIterator_t;
+typedef struct PadListIterator_t PadListIterator;
+struct PadList_t;
+typedef struct PadList_t PadList;
+struct Track_t;
+typedef struct Track_t Track;
+struct TrackList_t;
+typedef struct TrackList_t TrackList;
+struct PortRef_t;
+typedef struct PortRef_t PortRef;
+struct DropDown_t;
+typedef struct DropDown_t DropDown;
+struct Hub_t;
+typedef struct Hub_t Hub;
+
+
+// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+struct BinFilePayload_t
 {
+    // ** not persisted **
+    PortFind *portFind;
+};
+#define BinFilePayload_newUninitialized() ((BinFilePayload*)sysmem_newptrclear(sizeof(BinFilePayload)))
+
+// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+struct BinFile_t
+{
+    // ** not persisted **
     int version;
     sds filename;
     sds buffer;
-    FILE *stream;  
+    FILE *stream;
     BinFilePayload *payload;
-} BinFile;
-
-// This is the most positive integer in a 4 byte int. NOTE the number of digits in this number should be one-less
-// than BinFile_lengthFieldSizeStr
+};
+#define BinFile_newUninitialized() ((BinFile*)sysmem_newptrclear(sizeof(BinFile)))
 #define BinFile_nullLengthFieldSizeStr "11"
-#define BinFile_maxLength      2147483647
-#define BinFile_version(bf)    (bf)->version
-#define BinFile_filename(bf)   (bf)->filename
-#define BinFile_stream(bf)     (bf)->stream
-#define BinFile_buffer(bf)     (bf)->buffer
-#define BinFileFlag_tag        1
-
-#define BinFile_portFindPayload(bf) ((bf)->payload == NULL ? NULL : (bf)->payload->portFind)
-
+#define BinFile_maxLength              2147483647
+#define BinFileFlag_tag                1
+static inline PortFind *BinFile_portFindPayload(BinFile *self){ return (self->payload == NULL ? NULL : self->payload->portFind); }
+static inline void BinFile_setPayload(BinFile *self, BinFilePayload *payload) { self->payload = payload;}
 #define BinFile_writeBackLength(bf, location, err) BinFile_writeBackLengthFlags(bf, location, -1, err)
 #define BinFile_readLength(bf, err) BinFile_readLengthFlags(bf, NULL, err)
 #define BinFile_writeLength(bf, length, err) BinFile_writeLengthFlags(bf, length, -1, err)
-
+static inline int BinFile_version(BinFile *self){return self->version;}
+static inline void BinFile_setVersion(BinFile *self, int value){self->version = value;}
+static inline sds BinFile_filename(BinFile *self){return self->filename;}
+static inline void BinFile_setFilename(BinFile *self, sds value){self->filename = value;}
+static inline sds BinFile_buffer(BinFile *self){return self->buffer;}
+static inline void BinFile_setBuffer(BinFile *self, sds value){self->buffer = value;}
+static inline FILE *BinFile_stream(BinFile *self){return self->stream;}
+static inline void BinFile_setStream(BinFile *self, FILE *value){self->stream = value;}
 BinFile *BinFile_new();
 BinFile *BinFile_newWriter(const char *file, Error *err);
 BinFile *BinFile_newReader(const char *file, Error *err);
 void BinFile_free(BinFile *bf);
 off_t BinFile_writeNullLength(BinFile *bf, bool spaceForFlags, Error *err);
+void BinFile_writeFlags(BinFile *bf, long flags, Error *err);
 void BinFile_writeBackLengthFlags(BinFile *bf, off_t location, long flags, Error *err);
-off_t BinFile_tell(BinFile *bf, Error *err);
+void BinFile_writeLengthFlags(BinFile *bf, long length, long flags, Error *err);
 long BinFile_readLengthFlags(BinFile *bf, long *flags, Error *err);
+off_t BinFile_tell(BinFile *bf, Error *err);
 void BinFile_fillBuffer(BinFile *bf, long size, Error *err);
 void BinFile_writeInteger(BinFile *bf, long value, Error *err);
 long BinFile_readInteger(BinFile *bf, Error *err);
@@ -57,10 +96,8 @@ bool BinFile_readBool(BinFile *bf, Error *err);
 void BinFile_writeTag(BinFile *bf, const char *tag, Error *err);
 void BinFile_verifyTag(BinFile *bf, const char *tag, Error *err);
 
-//
-// M I D I S E Q
-//
-typedef struct
+// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+struct MidiseqCell_t
 {
     uint8_t type;
     union
@@ -70,8 +107,8 @@ typedef struct
     } b;
     Ticks t;
     Ticks duration;
-} MidiseqCell;
-
+};
+#define MidiseqCell_newUninitialized() ((MidiseqCell*)sysmem_newptrclear(sizeof(MidiseqCell)))
 #define MidiseqCell_type(cell) ((cell).type)
 #define MidiseqCell_t(cell) ((cell).t)
 #define MidiseqCell_notePitch(cell) ((cell).b.b[0])
@@ -81,33 +118,36 @@ typedef struct
 #define MidiseqCell_ccValue(cell) ((cell).b.b[1])
 #define MidiseqCell_bendValue(cell) ((cell).b.bend)
 
-
-typedef struct
+// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+struct Midiseq_t
 {
     // ** PERSISTED **
     bool useMasterClock;
     Ticks sequenceLength;
     MidiseqCell *data;
-
     // ** not persisted **
     // startTime is the time offset that t = 0 that is stored in the sequence corresponds too.
     // Specifically, if useMasterClock is true, the startTime is updated whenever the ptr rolls
     // off the end of the sequence, and raps around back to the beginning.
     Ticks startTime;
-
     int ptr;
-} Midiseq;
+};
+#define Midiseq_newUninitialized() ((Midiseq*)sysmem_newptrclear(sizeof(Midiseq)))
 const int Midiseq_notetype   = 1;
 const int Midiseq_bendtype   = 2;
 const int Midiseq_cctype     = 3;
 const int Midiseq_cycletype  = 4;
 const int Midiseq_endgrptype = 5;
-
-#define Midiseq_data(mseq)           ((mseq)->data)
-#define Midiseq_useMasterClock(mseq) ((mseq)->useMasterClock)
-#define Midiseq_sequenceLength(mseq) ((mseq)->sequenceLength)
-
-#define Midiseq_newUninitialized() ((Midiseq*)sysmem_newptrclear(sizeof(Midiseq)))
+static inline bool Midiseq_useMasterClock(Midiseq *self){return self->useMasterClock;}
+static inline void Midiseq_setUseMasterClock(Midiseq *self, bool value){self->useMasterClock = value;}
+static inline Ticks Midiseq_sequenceLength(Midiseq *self){return self->sequenceLength;}
+static inline void Midiseq_setSequenceLength(Midiseq *self, Ticks value){self->sequenceLength = value;}
+static inline MidiseqCell *Midiseq_data(Midiseq *self){return self->data;}
+static inline void Midiseq_setData(Midiseq *self, MidiseqCell *value){self->data = value;}
+static inline Ticks Midiseq_startTime(Midiseq *self){return self->startTime;}
+static inline void Midiseq_setStartTime(Midiseq *self, Ticks value){self->startTime = value;}
+static inline int Midiseq_ptr(Midiseq *self){return self->ptr;}
+static inline void Midiseq_setPtr(Midiseq *self, int value){self->ptr = value;}
 Midiseq *Midiseq_new();
 void Midiseq_toBinFile(Midiseq *mseq, BinFile *bf, Error *err);
 Midiseq *Midiseq_fromBinFile(BinFile *bf, Error *err);
@@ -130,49 +170,54 @@ int Midiseq_nextevent(Midiseq *midi, Ticks until, MidiseqCell *cell, Error *err)
 int Midiseq_fastfwrd(Midiseq *midi, long t, Error *err);
 Midiseq *Midiseq_fromfile(const char *fullpath, Error *err);
 
-struct Track_t;
-typedef struct
+// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+struct Pad_t
 {
     // ** PERSISTED **
     t_symbol *trackName;
     int padIndex;
     Midiseq *sequence;
-
     bool chokeGroupGlobal;
     int chokeGroupInstrument;
     int chokeGroupIndex;
-
     // ** not persisted **
     int64_t chokeGroup;
     bool noteReleasePending;
     bool inEndgroup;
-    struct Track_t *track;
-} Pad;
-
-#define Pad_chokeGroup(pad)           (pad)->chokeGroup
-#define Pad_chokeGroupGlobal(pad)     (pad)->chokeGroupGlobal
-#define Pad_chokeGroupInstrument(pad) (pad)->chokeGroupInstrument
-#define Pad_chokeGroupIndex(pad)      (pad)->chokeGroupIndex
-static inline Midiseq *Pad_sequence(Pad *pad) {return pad->sequence;}
-void Pad_setSequence(Pad *pad, Midiseq *midi);
-#define Pad_trackName(pad)  (pad)->trackName
-#define Pad_track(pad)      (pad)->track
-#define Pad_padIndex(pad)   (pad)->padIndex
-#define Pad_noteReleasePending(pad)  (pad)->noteReleasePending
-#define Pad_inEndgroup(pad) (pad)->inEndgroup
-
+    Track *track;
+};
 #define Pad_newUninitialized() ((Pad*)sysmem_newptrclear(sizeof(Pad)))
+static inline t_symbol *Pad_trackName(Pad *self){return self->trackName;}
+static inline void Pad_setTrackName(Pad *self, t_symbol *value){self->trackName = value;}
+static inline int Pad_padIndex(Pad *self){return self->padIndex;}
+static inline void Pad_setPadIndex(Pad *self, int value){self->padIndex = value;}
+static inline Midiseq *Pad_sequence(Pad *self){return self->sequence;}
+void Pad_setSequence(Pad *self, Midiseq *value);
+static inline bool Pad_chokeGroupGlobal(Pad *self){return self->chokeGroupGlobal;}
+static inline void Pad_setChokeGroupGlobal(Pad *self, bool value){self->chokeGroupGlobal = value;}
+static inline int Pad_chokeGroupInstrument(Pad *self){return self->chokeGroupInstrument;}
+static inline void Pad_setChokeGroupInstrument(Pad *self, int value){self->chokeGroupInstrument = value;}
+static inline int Pad_chokeGroupIndex(Pad *self){return self->chokeGroupIndex;}
+static inline void Pad_setChokeGroupIndex(Pad *self, int value){self->chokeGroupIndex = value;}
+static inline int64_t Pad_chokeGroup(Pad *self){return self->chokeGroup;}
+static inline void Pad_setChokeGroup(Pad *self, int64_t value){self->chokeGroup = value;}
+static inline bool Pad_noteReleasePending(Pad *self){return self->noteReleasePending;}
+static inline void Pad_setNoteReleasePending(Pad *self, bool value){self->noteReleasePending = value;}
+static inline bool Pad_inEndgroup(Pad *self){return self->inEndgroup;}
+static inline void Pad_setInEndgroup(Pad *self, bool value){self->inEndgroup = value;}
+static inline Track *Pad_track(Pad *self){return self->track;}
+static inline void Pad_setTrack(Pad *self, Track *value){self->track = value;}
 Pad *Pad_new();
 void Pad_init(Pad *pad);
 void Pad_free(Pad *pad);
 void Pad_clear(Pad *pad);
-void Pad_setSequence(Pad *pad, Midiseq *midi);
 void Pad_toBinFile(Pad *pad, BinFile *bf, Error *err);
 Pad *Pad_fromBinFile(BinFile *bf, Error *err);
 void Pad_fromBinFileUninitialized(Pad *pad, BinFile *bf, Error *err);
 void Pad_computeChokeGroup(Pad *pad);
 
-typedef struct PendingNoteOff_t 
+// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+struct PendingNoteOff_t 
 {
     struct PendingNoteOff_t *next;
     union {
@@ -180,8 +225,8 @@ typedef struct PendingNoteOff_t
         int padIndex;
     } ticksOrPadIndex;
     int pitch;
-} PendingNoteOff;
-
+};
+#define PendingNoteOff_newUninitialized() ((PendingNoteOff*)sysmem_newptrclear(sizeof(PendingNoteOff)))
 #define PendingNoteOff_next(pno)      (pno)->next
 #define PendingNoteOff_timestamp(pno) (pno)->ticksOrPadIndex.timestamp
 #define PendingNoteOff_padIndex(pno)  (pno)->ticksOrPadIndex.padIndex 
@@ -191,7 +236,6 @@ typedef struct PendingNoteOff_t
         (pno) = PendingNoteOff_next(pno); \
     } \
 } while (0)
-
 PendingNoteOff *PendingNoteOff_new();
 void PendingNoteOff_free(PendingNoteOff *node);
 bool PendingNoteOff_removePitch(PendingNoteOff **head, int pitch);
@@ -201,18 +245,27 @@ void PendingNoteOff_insertPadIndexed(PendingNoteOff **head, int pitch, int padIn
 void PendingNoteOff_pop(PendingNoteOff **head);
 void PendingNoteOff_freeAll(PendingNoteOff *start);
 
-typedef struct NoteManager_t
+// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+struct NoteManager_t
 {
+    // ** not persisted **
     PendingNoteOff *pending;
     PendingNoteOff *endgroups;
     Port *output;
     t_atom *atoms;
     int *removedPitches;
-} NoteManager;
-
-#define NoteManager_pending(noteManager) (noteManager)->pending
-#define NoteManager_endgroups(noteManager) (noteManager)->endgroups
-
+};
+#define NoteManager_newUninitialized() ((NoteManager*)sysmem_newptrclear(sizeof(NoteManager)))
+static inline PendingNoteOff *NoteManager_pending(NoteManager *self){return self->pending;}
+static inline void NoteManager_setPending(NoteManager *self, PendingNoteOff *value){self->pending = value;}
+static inline PendingNoteOff *NoteManager_endgroups(NoteManager *self){return self->endgroups;}
+static inline void NoteManager_setEndgroups(NoteManager *self, PendingNoteOff *value){self->endgroups = value;}
+static inline Port *NoteManager_output(NoteManager *self){return self->output;}
+static inline void NoteManager_setOutput(NoteManager *self, Port *value){self->output = value;}
+static inline t_atom *NoteManager_atoms(NoteManager *self){return self->atoms;}
+static inline void NoteManager_setAtoms(NoteManager *self, t_atom *value){self->atoms = value;}
+static inline int *NoteManager_removedPitches(NoteManager *self){return self->removedPitches;}
+static inline void NoteManager_setRemovedPitches(NoteManager *self, int *value){self->removedPitches = value;}
 NoteManager *NoteManager_new(Port *port);
 void NoteManager_free(NoteManager *nm);
 bool NoteManager_insertNoteOff(NoteManager *manager, Ticks timestamp, int pitch, int padIndexForEndgroup);
@@ -223,28 +276,40 @@ Ticks NoteManager_scheduleOffs(NoteManager *manager, Ticks current);
 void NoteManager_midievent(NoteManager *manager, MidiseqCell cell, int padIndexForEndgroup);
 void NoteManager_padNoteOff(NoteManager *manager, int padIndex);
 
-
-typedef struct
+// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+struct PortFindCell_t
 {
+    // ** not persisted **
     Port *reciever;
     t_symbol *varname;
-} PortFindCell;
+};
+#define PortFindCell_newUninitialized() ((PortFindCell*)sysmem_newptrclear(sizeof(PortFindCell)))
+static inline Port *PortFindCell_reciever(PortFindCell *self){return self->reciever;}
+static inline void PortFindCell_setReciever(PortFindCell *self, Port *value){self->reciever = value;}
+static inline t_symbol *PortFindCell_varname(PortFindCell *self){return self->varname;}
+static inline void PortFindCell_setVarname(PortFindCell *self, t_symbol *value){self->varname = value;}
 
-typedef struct PortFind_t
+// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+struct PortFind_t
 {
+    // ** not persisted **
     PortFindCell *objectsFound;
     void *hub;
     Port_anythingDispatchFunc anythingDispatch;
     Port_intDispatchFunc intDispatch;
-} PortFind;
-
-#define PortFind_hub(p)              ((p)->hub)
-#define PortFind_anythingDispatch(p) ((p)->anythingDispatch)
-#define PortFind_intDispatch(p)      ((p)->intDispatch)
-
+};
+#define PortFind_newUninitialized() ((PortFind*)sysmem_newptrclear(sizeof(PortFind)))
+static inline PortFindCell *PortFind_objectsFound(PortFind *self){return self->objectsFound;}
+static inline void PortFind_setObjectsFound(PortFind *self, PortFindCell *value){self->objectsFound = value;}
+static inline void *PortFind_hub(PortFind *self){return self->hub;}
+static inline void PortFind_setHub(PortFind *self, void *value){self->hub = value;}
+static inline Port_anythingDispatchFunc PortFind_anythingDispatch(PortFind *self){return self->anythingDispatch;}
+static inline void PortFind_setAnythingDispatch(PortFind *self, Port_anythingDispatchFunc value){self->anythingDispatch = value;}
+static inline Port_intDispatchFunc PortFind_intDispatch(PortFind *self){return self->intDispatch;}
+static inline void PortFind_setIntDispatch(PortFind *self, Port_intDispatchFunc value){self->intDispatch = value;}
+#define PortFind_declare(name) PortFind _##name = {0}; PortFind *name = &_##name			
 long PortFind_iterator(PortFind *pf, t_object *targetBox);
 int PortFind_discover(PortFind *pf, t_object *sourceMaxObject, void *hub, Error *err);
-#define PortFind_declare(name) PortFind _##name = {0}; PortFind *name = &_##name
 void PortFind_clear(PortFind *pf);
 Port *PortFind_findByVarname(PortFind *pf, t_symbol *symbol);
 Port *PortFind_findByTrack(PortFind *pf, t_symbol *symbol);
@@ -252,20 +317,28 @@ Port *PortFind_findById(PortFind *pf, t_symbol *symbol);
 int PortFind_portCount(PortFind *pf);
 Port *PortFind_findByIndex(PortFind *pf, int index, Error *err);
 
-
-typedef struct {int index;} PadListIterator;
+// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+struct PadListIterator_t
+{
+    int index;
+};
+#define PadListIterator_newUninitialized() ((PadListIterator*)sysmem_newptrclear(sizeof(PadListIterator)))
 #define PadListIterator_declare(name) PadListIterator _##name = {-1}; PadListIterator *name = &_##name
+static inline int PadListIterator_index(PadListIterator *self){return self->index;}
+static inline void PadListIterator_setIndex(PadListIterator *self, int value){self->index = value;}
 
-typedef struct
+// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+struct PadList_t
 {
     Pad *pads;
     Pad **running;
-} PadList;
-
-#define PadList_pads(plst)    ((plst)->pads)
-#define PadList_running(plst) ((plst)->running)
-
-#define PadList_newUninitialized() (PadList*)sysmem_newptrclear(sizeof(PadList))
+};
+#define PadList_newUninitialized() ((PadList*)sysmem_newptrclear(sizeof(PadList)))
+#define PadListIterator_declare(name) PadListIterator _##name = {-1}; PadListIterator *name = &_##name
+static inline Pad *PadList_pads(PadList *self){return self->pads;}
+static inline void PadList_setPads(PadList *self, Pad *value){self->pads = value;}
+static inline Pad **PadList_running(PadList *self){return self->running;}
+static inline void PadList_setRunning(PadList *self, Pad **value){self->running = value;}
 PadList *PadList_new(int npads);
 void PadList_free(PadList *llst);
 int PadList_play(PadList *llst, int padIndex, Ticks startTime, Ticks currentTime, bool useMasterClock, Error *err);
@@ -275,25 +348,27 @@ bool PadList_iterateRunning(PadList *llst, PadListIterator *iterator, Pad **pad)
 void PadList_clearRunning(PadList *llst, PadListIterator *iterator);
 int PadList_padsLength(PadList *llst);
 Pad *PadList_pad(PadList *llst, int index, Error *err);
-struct TrackList_t;
-void PadList_assignTrack(PadList *llst, struct TrackList_t *tl);
+void PadList_assignTrack(PadList *llst, TrackList *tl);
 void PadList_toBinFile(PadList *llst, BinFile *bf, Error *err);
 PadList *PadList_fromBinFile(BinFile *bf, Error *err);
 void PadList_fromBinFileUninitialized(PadList *llst, BinFile *bf, Error *err);
 
-
-typedef struct Track_t
+// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+struct Track_t
 {
     t_symbol *name;
     NoteManager *noteManager;
-} Track;
-#define Track_noteManager(t) ((t)->noteManager)
-#define Track_name(t) ((t)->name)
+};
+#define Track_newUninitialized() ((Track*)sysmem_newptrclear(sizeof(Track)))
+static inline t_symbol *Track_name(Track *self){return self->name;}
+static inline void Track_setName(Track *self, t_symbol *value){self->name = value;}
+static inline NoteManager *Track_noteManager(Track *self){return self->noteManager;}
+static inline void Track_setNoteManager(Track *self, NoteManager *value){self->noteManager = value;}
 
-typedef struct TrackList_t {} TrackList;
-
-Track *TrackList_findTrackByName(TrackList *tl_in, t_symbol *name);
-Track *TrackList_findTrackByIndex(TrackList *tl_in, int index, Error *err);
+// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+struct TrackList_t
+{
+};
 TrackList *TrackList_new(PortFind *pf);
 void TrackList_free(TrackList *tl_in);
 Track *TrackList_findTrackByName(TrackList *tl_in, t_symbol *name);
@@ -302,113 +377,108 @@ Track *TrackList_findTrackByIndex(TrackList *tl_in, int index, Error *err);
 TrackList *TrackList_fromBinFile(BinFile *bf, Error *err);
 void TrackList_toBinFile(TrackList *tl, BinFile *bf, Error *err);
 
-//
-// P O R T   R E F
-//
-typedef struct PortRef_t 
+// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+struct PortRef_t
 {
     Port *port;
     int outlet;
-} PortRef;
-
-#define PortRef_port(pr)   (pr)->port
-#define PortRef_outlet(pr) (pr)->outlet
-
+};
+static inline Port *PortRef_port(PortRef *self){return self->port;}
+static inline void PortRef_setPort(PortRef *self, Port *value){self->port = value;}
+static inline int PortRef_outlet(PortRef *self){return self->outlet;}
+static inline void PortRef_setOutlet(PortRef *self, int value){self->outlet = value;}
 #define PortRef_noNew 1
 #define PortRef_noInit 1
 #define PortRef_noFree 1
-
 #define PortRef_declare(name, port, outlet)    PortRef _##name = {port, outlet}; PortRef *name = &_##name
-#define PortRef_set(pr, portIn, outletIn) (pr)->port = (portIn); (pr)->outlet = (outletIn)
-#define PortRef_value(pr)                      (*pr)
-#define PortRef_clear(pr)                      /**/
+static inline void PortRef_set(PortRef *pr, Port *port, int outlet) {
+	pr->port   = port;
+	pr->outlet = outlet;
+}
+//#define PortRef_value(pr)                      (*pr)
+//#define PortRef_clear(pr)                      /**/
 #define PortRef_send(pr, argc, argv, err)      Port_send(PortRef_port(pr), PortRef_outlet(pr), argc, argv, err)
 #define PortRef_sendInteger(pr, value, err)    Port_sendInteger(PortRef_port(pr), PortRef_outlet(pr), value, err)
 
-//
-// D R O P   D O W N
-//
-
-typedef struct DropDown_t
+// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+struct DropDown_t
 {
     t_symbol **table;
     int selected;
     PortRef portRef;
-} DropDown;
-
+};
+#define DropDown_newUninitialized() ((DropDown*)sysmem_newptrclear(sizeof(DropDown)))
+static inline t_symbol **DropDown_table(DropDown *self){return self->table;}
+static inline void DropDown_setTable(DropDown *self, t_symbol **value){self->table = value;}
+static inline int DropDown_selected(DropDown *self){return self->selected;}
 static inline PortRef *DropDown_portRef(DropDown *dd) {
     return &dd->portRef;
 }
-
-#define DropDown_setPortRef(dd, pr) (dd)->portRef = *pr
-#define DropDown_table(dd)          (dd)->table
-
-static inline int DropDown_selected(DropDown *dd) {
-    return dd->selected;
+static inline void DropDown_setPortRef(DropDown *dd, PortRef *pr) {
+	dd->portRef = *pr;
 }
-
-void DropDown_setSelected(DropDown *dd, int selected, Error *err);
 DropDown *DropDown_new(const char **table, PortRef *pr);
 void DropDown_init(DropDown *dd, const char **table, PortRef *pr);
-void DropDown_clear(DropDown *dd);
-void DropDown_free(DropDown *dd);
-void DropDown_updateSelected(DropDown *dd, Error *err);
-void DropDown_initializeMenu(DropDown *dd, Error *err);
 void DropDown_initCGLocalGlobal(DropDown *dd, PortRef *pr);
 void DropDown_initCGInstrument(DropDown *dd, PortRef *pr);
 void DropDown_initCGIndex(DropDown *dd, PortRef *pr);
+void DropDown_clear(DropDown *dd);
+void DropDown_free(DropDown *dd);
+void DropDown_updateSelected(DropDown *dd, Error *err);
+void DropDown_setSelected(DropDown *dd, int selected, Error *err);
+void DropDown_initializeMenu(DropDown *dd, Error *err);
 
-//
-// H U B
-//
-typedef struct 
+// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+struct Hub_t
 {
     PadList *padList;
     TrackList *trackList;
-
     Port *currBankPort;
     Port *currFramePort;
     Port *selBankPort;
     Port *selFramePort;
     Port *selPadPort;
-
     Port *chokeGroupPort;
-    
     DropDown cgLocalGlobalMenu;
     DropDown cgInstrumentMenu;
     DropDown cgIndexMenu;
-
-
-    // bank varies from 0 - infinity
+    // bank varies from 0-infinity
     int bank;
-
-    // frame varies from 0 - 7
+    // frame varies from 0-7
     int frame;
-
     // true if the next padIndex tapped should be written into selectedPad
     bool grabNextTappedPad;
-
     // which pad has been selected
     int selectedPad;
-
-    
-} Hub;
-
-#define Hub_padList(hub)           ((hub)->padList)
-#define Hub_trackList(hub)         ((hub)->trackList)
-#define Hub_bank(hub)              ((hub)->bank)
-#define Hub_frame(hub)             ((hub)->frame)
-#define Hub_selectedPad(hub)       ((hub)->selectedPad)
-#define Hub_grabNextTappedPad(hub) ((hub)->grabNextTappedPad)
-#define Hub_currBankPort(hub)  (hub)->currBankPort
-#define Hub_currFramePort(hub) (hub)->currFramePort
-#define Hub_selBankPort(hub)   (hub)->selBankPort
-#define Hub_selFramePort(hub)  (hub)->selFramePort
-#define Hub_selPadPort(hub)    (hub)->selPadPort
-#define Hub_cgLocalGlobalMenu(hub) &((hub)->cgLocalGlobalMenu)
-#define Hub_cgInstrumentMenu(hub)  &((hub)->cgInstrumentMenu)
-#define Hub_cgIndexMenu(hub)       &((hub)->cgIndexMenu)
-
+};
+#define Hub_newUninitialized() ((Hub*)sysmem_newptrclear(sizeof(Hub)))
+static inline PadList *Hub_padList(Hub *self){return self->padList;}
+static inline void Hub_setPadList(Hub *self, PadList *value){self->padList = value;}
+static inline TrackList *Hub_trackList(Hub *self){return self->trackList;}
+static inline void Hub_setTrackList(Hub *self, TrackList *value){self->trackList = value;}
+static inline Port *Hub_currBankPort(Hub *self){return self->currBankPort;}
+static inline void Hub_setCurrBankPort(Hub *self, Port *value){self->currBankPort = value;}
+static inline Port *Hub_currFramePort(Hub *self){return self->currFramePort;}
+static inline void Hub_setCurrFramePort(Hub *self, Port *value){self->currFramePort = value;}
+static inline Port *Hub_selBankPort(Hub *self){return self->selBankPort;}
+static inline void Hub_setSelBankPort(Hub *self, Port *value){self->selBankPort = value;}
+static inline Port *Hub_selFramePort(Hub *self){return self->selFramePort;}
+static inline void Hub_setSelFramePort(Hub *self, Port *value){self->selFramePort = value;}
+static inline Port *Hub_selPadPort(Hub *self){return self->selPadPort;}
+static inline void Hub_setSelPadPort(Hub *self, Port *value){self->selPadPort = value;}
+static inline Port *Hub_chokeGroupPort(Hub *self){return self->chokeGroupPort;}
+static inline void Hub_setChokeGroupPort(Hub *self, Port *value){self->chokeGroupPort = value;}
+static inline DropDown *Hub_cgLocalGlobalMenu(Hub *self){return &self->cgLocalGlobalMenu;}
+static inline DropDown *Hub_cgInstrumentMenu(Hub *self){return &self->cgInstrumentMenu;}
+static inline DropDown *Hub_cgIndexMenu(Hub *self){return &self->cgIndexMenu;}
+static inline int Hub_bank(Hub *self){return self->bank;}
+static inline void Hub_setBank(Hub *self, int value){self->bank = value;}
+static inline int Hub_frame(Hub *self){return self->frame;}
+static inline void Hub_setFrame(Hub *self, int value){self->frame = value;}
+static inline bool Hub_grabNextTappedPad(Hub *self){return self->grabNextTappedPad;}
+static inline void Hub_setGrabNextTappedPad(Hub *self, bool value){self->grabNextTappedPad = value;}
+static inline int Hub_selectedPad(Hub *self){return self->selectedPad;}
+static inline void Hub_setSelectedPad(Hub *self, int value){self->selectedPad = value;}
 #define Hub_padsPerFrame           24
 #define Hub_framesPerBank           8
 #define Hub_padsPerBank            (Hub_padsPerFrame*Hub_framesPerBank)
@@ -423,17 +493,19 @@ typedef struct
 #define Hub_relativeSelectedPad(hub) hub_padIndexToRelativePad(Hub_selectedPad(hub))
 
 #define Hub_padIndexFromInNote(hub, inputNote) (Hub_bank(hub)*Hub_padsPerBank + Hub_frame(hub)*Hub_padsPerFrame + (inputNote - Hub_firstMidiNote))
-
 Hub *Hub_new(PortFind *pf, Error *err);
 void Hub_init(Hub *hub, PortFind *pf, Error *err);
 void Hub_free(Hub *hub);
 void Hub_incrementFrame(Hub *hub);
 void Hub_decrementFrame(Hub *hub);
 void Hub_selectNextPushedPad(Hub *hub);
-void Hub_anythingDispatch(void *hub_in, struct Port_t *port, t_symbol *msg, long argc, t_atom *argv);
-void Hub_intDispatch(void *hub, struct Port_t *port, long value, long inlet);
+void Hub_updateGuiCurrentCoordinates(Hub *hub);
+void Hub_midiFileDrop(Hub *hub, t_atom *pathAtom);
+void Hub_manageChokeGroups(Hub *hub, long value, long inlet, Error *err);
+void Hub_changeSelectedPad(Hub *hub, int selectedPadIndex, Error *err);
+void Hub_anythingDispatch(void *hub_in, Port *port, t_symbol *msg, long argc, t_atom *argv);
+void Hub_intDispatch(void *hub_in, Port *port, long value, long inlet);
 void Hub_toBinFile(Hub *hub, BinFile *bf, Error *err);
 Hub *Hub_fromBinFile(BinFile *bf, Error *err);
 void Hub_fromBinFileUninitialized(Hub *hub, BinFile *bf, Error *err);
-void Hub_updateGuiCurrentCoordinates(Hub *hub);
 
