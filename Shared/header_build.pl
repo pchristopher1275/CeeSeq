@@ -27,7 +27,7 @@ ${elemName} *${typeName}_data(${typeName} *arr, Error *err) {
 
 void ${typeName}_set(${typeName} *arr, int index, ${elemName} value, Error *err) {
 	Array_setCheck(arr, index, err);
-   	*${typeName}_get(arr, index, err) = value;
+   	${typeName}_set(arr, index, &value, err);
 }
 
 int ${typeName}_len(${typeName} *arr) {
@@ -60,6 +60,10 @@ int ${typeName}_remove(Array *arr, int index, Error *err) {
 int ${typeName}_removeN(Array *arr, int index, int N, Error *err) {
    Array_removeNCheck(arr, index, N, err);
    return Array_removeN((Array*)arr, index, N, err);  
+}
+
+void ${typeName}_fit(Array *arr) {
+   Array_fit((Array*)arr);
 }
 
 END
