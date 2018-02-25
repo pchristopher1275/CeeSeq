@@ -10,7 +10,7 @@
 #include "ext_obex.h"
 #include "ext_time.h"
 #include "ext_itm.h"
-#include "../../../../Shared/cseq/midiseq.c"
+#include "midiseq.c"
 
 typedef struct _CseqHub
 {
