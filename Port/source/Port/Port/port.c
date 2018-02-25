@@ -11,7 +11,7 @@
 #include "ext_obex.h"
 #include "ext_time.h"
 #include "ext_itm.h"
-#include "../../../../Shared/cseq/shared.c"
+#include "shared.c"
 
 #ifndef PORT_BUILD_NUMBER
 #define PORT_BUILD_NUMBER 0
