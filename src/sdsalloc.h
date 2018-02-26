@@ -47,7 +47,8 @@
 //          void sysmem_freeptr(void *ptr)	
 */
 
+#include "mem.c"
 
-#define s_malloc (void*)sysmem_newptr
-#define s_realloc (void*)sysmem_resizeptr
-#define s_free sysmem_freeptr
+#define s_malloc  Mem_malloc
+#define s_realloc Mem_realloc
+#define s_free    Mem_free

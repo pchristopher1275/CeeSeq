@@ -113,7 +113,9 @@ sub testsAndFiles {
     }
     return (\%files, \%tests);
 }
-
+sub compile {
+    my ($file) = @_;
+}
 sub main {
     my ($args, $opts)          = argsAndOpts();
     my ($testFiles, $testTags) = testsAndFiles();

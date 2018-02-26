@@ -3,7 +3,7 @@
 
 
 
-typedef Unit_t {
+typedef struct Unit_t {
 	// How many asserts tried in this test
 	int numAsserts;
 
@@ -45,9 +45,9 @@ Unit *Unit_instance = &Unit_instanceStruct;
 	}\
 } while (0)
 
-#define Unit_finish() do {\
+#define Unit_finalize() do {\
 	if (Unit_numTestFails > 0) {\
-		printf("FAILED TESTS in %s: %d test functions failed out of %d test functions", __FILE__, Unit_numTestFails, Unit_numTests);\
+		printf("FAILED TESTS in %s: %d test functions failed out of %d test functions\n", __FILE__, Unit_numTestFails, Unit_numTests);\
 	} else {\
 		printf("Test file %s ok\n", __FILE__);\
 	}\
@@ -62,7 +62,7 @@ Unit *Unit_instance = &Unit_instanceStruct;
 		func();\
 		if (Unit_numFails > 0) {\
 			Unit_numTestFails++;\
-			printf("    test %s had %d failures out of %d asserts", #func, Unit_numFails, Unit_numAsserts);\
+			printf("    test %s had %d failures out of %d asserts\n", #func, Unit_numFails, Unit_numAsserts);\
 		}\
 		Unit_numFails   = 0;\
 		Unit_numAsserts = 0;\
@@ -74,7 +74,7 @@ Unit *Unit_instance = &Unit_instanceStruct;
 	const char *m = (message);\
 	if (!(expr)) {\
 		Unit_numFails++;\
-		printf("        Assert %s failed (%s, %d)", #expr, __FILE__, __LINE__);\
+		printf("        %s %s failed (%s, %d)", fatal ? "Fatal assert" : "Assert", #expr, __FILE__, __LINE__);\
 		if (m != NULL) {\
 			printf(": %s\n", message);\
 		} else {\
