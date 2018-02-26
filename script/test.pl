@@ -1,6 +1,8 @@
 #!/usr/bin/perl
 use strict;
 my $gVerbose = 1;
+my $gTestDir  = "test";
+my $gBuildDir = "$gTestDir/build";
 
 sub run {
     my ($cmd, %opts) = @_;
@@ -52,7 +54,9 @@ sub argsAndOpts {
     return \@args, \%opts;
 }
 
-
+sub mkBuildDir {
+    run "mkdir -p $gTestDir";
+}
 
 sub xcodebuild {
     my ($buildNumber) = @_;
@@ -108,30 +112,79 @@ sub testsAndFiles {
     for my $file (keys(%t)) {
         $files{$file} = 1;
         for my $test (keys(%{$t{$file}})) {
-            $tests{$test} = 1;
+            my $subarr = $tests{$test};
+            $subarr = [] unless defined($subarr);
+            push @$subarr, $file;
+            $tests{$test} = subarr;
         }
     }
     return (\%files, \%tests);
 }
+
+sub exeFromSource {
+    my ($file) = @_;
+    my ($exe) = ($file =~ m[/([^/]+)\.c]);
+    die "Failed to find exe directory from file $file" unless defined($exe);
+    return $exe;
+}
+
 sub compile {
     my ($file) = @_;
+    my $exe = exeFromSource($file);
+    print "Compiling $file\n";
+    my $cmd = "gcc -o $gBuildDir/$exe $file";
+    return system $cmd;
 }
+
+sub runTests {
+    my ($file, $tags) = @_;
+    $tags = [] unless defined($tags);
+    my $arg = join(" ", @$tags);
+    my $exe = exeFromSource($file);
+    return system "$exe $arg";
+}
+
 sub main {
     my ($args, $opts)          = argsAndOpts();
     my ($testFiles, $testTags) = testsAndFiles();
-    my @tagsAndFiles = @$args;
-    if (@tagsAndFiles > 0) {
-
+    my @argFiles;
+    my @argTags;
+    if (@$args > 0) {
+        for my $arg (@$args) {
+            if ($testFiles->{$arg}) {
+                push @argFiles, $arg;
+            } else if ($testTags->{$arg}) {
+                push @argTags, $arg;
+            } else {
+                die "Failed to identify argument $arg"
+            }
+        }
+    } else {
+        @argFiles = keys(%$testFiles);
     }
 
-    my $noArgs        = @$args > 0 ? 0 : 1;
-    if ($noArgs || buildTagPresent($args, "port")) {
-        portSetGlobals();
-        build($opts);
+    my %filesRun;
+    for my $file (@argFiles) {
+        compile($file) && die "Failed to compile $file";
+        runTests($file);
+        $filesRun{$file} = 1;
     }
-    if ($noArgs || buildTagPresent($args, "cseq")) {
-        cseqHubSetGlobals();
-        build($opts);
+
+    my %file2TagArguments;
+    for my $tag (@argTags) {
+        my $filesWithTag = $testTags->{$tag};
+        for my $file (@$filesWithTag) {
+            next if $filesRun{$file};
+            my $arg = $file2TagArguments{$file};
+            $arg  = "" unless defined($arg);
+            $arg .= "$tag "
+            $file2TagArguments{$file} = $arg;
+        }
+    }
+
+    for my $file (keys(%file2TagArguments)) {
+        compile($file) && die "Failed to compile $file";
+        runTests($file, $file2TagArguments{$file});
     }
 }
 
