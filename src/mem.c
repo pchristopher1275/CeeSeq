@@ -1,7 +1,7 @@
 #include <stdlib.h>
 
 
-#ifdef TEST_SEQUENCER
+#ifdef TEST_BUILD
 // 
 // T e s t i n g   M e m o r y  F u n c t i o n s
 //

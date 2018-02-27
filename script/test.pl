@@ -1,8 +1,14 @@
 #!/usr/bin/perl
+use Data::Dumper;
+
 use strict;
 my $gVerbose = 1;
 my $gTestDir  = "test";
 my $gBuildDir = "$gTestDir/build";
+
+sub dumper {
+    print Dumper($_[0]), "\n";
+}
 
 sub run {
     my ($cmd, %opts) = @_;
@@ -29,11 +35,6 @@ sub backtick {
     }
 }
 
-my %legitArgs = (
-    create => 1,
-    test => 1,
-);
-
 sub argsAndOpts {
     my @args;
     my %opts;
@@ -46,38 +47,31 @@ sub argsAndOpts {
             push @args, $arg;            
         }
     }
-    for my $a (@args) {
-        die "Unknown argument tag '$a'" unless $legitArgs{$a};
+
+    if (@args < 1) {
+        die "Failed to specify a command to run";
     }
-
-
-    return \@args, \%opts;
+    my $command = shift @args;
+    return $command, \@args, \%opts;
 }
 
 sub mkBuildDir {
-    run "mkdir -p $gTestDir";
-}
-
-sub xcodebuild {
-    my ($buildNumber) = @_;
-    my $cmd = "(cd $gSourceDir && xcodebuild  GCC_PREPROCESSOR_DEFINITIONS='CSEQ_BUILD_NUMBER=$buildNumber')";
-    run($cmd);
+    run "mkdir -p $gBuildDir";
 }
 
 sub listOfTestFiles {
     my @lines = backtick "ls test/*.c";
     my @fileNames;
     for my $line (@lines) {
-        $line =~ s[^test/][];
-        $line =~ s/\.c$//;
+        $line =~ s[^\s*][];
+        $line =~ s[\s*$][];
         push @fileNames, $line;
     }
-    return \@fileNames;
+    return @fileNames;
 }
 
 sub testsForFile {
     my ($file) = @_;
-    $file = "test/$file.c";
     open my $fd, $file or die "Failed to open $file";
     my %tests;
     while (<$fd>) {
@@ -87,105 +81,150 @@ sub testsForFile {
         $tests{$name} = 1;
     }
     close($fd);
-    return [sort {$a cmp $b} keys(%tests)];
+    return sort {$a cmp $b} keys(%tests);
 }
 
-sub testsForAllFiles {
-    my @files = listOfTestFiles();
-    my %tests;
-    for my $file (@files) {
-        %tests{$file} = {};
-        my %subhash;
-        my $testsOfFile = testsForFile($file);
-        for my $t (@$testsOfFile) {
-            $subhash{$t} = 1;
-        }
-        $tests{$file} = \%subhash;
-    }
-    return %tests;
-}
 
-sub testsAndFiles {
-    my %t = testsForAllFiles();
-    my %files;
-    my %tests;
-    for my $file (keys(%t)) {
-        $files{$file} = 1;
-        for my $test (keys(%{$t{$file}})) {
-            my $subarr = $tests{$test};
-            $subarr = [] unless defined($subarr);
-            push @$subarr, $file;
-            $tests{$test} = subarr;
-        }
-    }
-    return (\%files, \%tests);
-}
-
-sub exeFromSource {
+sub baseFromSource {
     my ($file) = @_;
     my ($exe) = ($file =~ m[/([^/]+)\.c]);
-    die "Failed to find exe directory from file $file" unless defined($exe);
+    die "Failed to compute base for file '$file'" unless defined($exe);
     return $exe;
 }
 
+sub collectTagsAndFiles {
+    my @files = listOfTestFiles();
+    my %file2Tests;
+    for my $file (@files) {
+        $file2Tests{$file} = {};
+        my %subhash;
+        my @testsOfFile = testsForFile($file);
+        for my $test (@testsOfFile) {
+            $subhash{$test} = 1;
+        }
+        $file2Tests{$file} = \%subhash;
+    }
+
+    my %spec;
+    for my $file (keys(%file2Tests)) {
+        my $base = baseFromSource($file);
+        $spec{$base} = {file=>$file, base=>$base, tests=>$file2Tests{$file}};
+    }
+    return %spec;
+}
+
+sub filterSpecByFilesAndTests {
+    my ($spec, $bases, $tests) = @_;
+    
+    ## Add any file that is explicitly listed.
+    my %nspec;
+    for my $base (keys(%$spec)) {
+        if ($bases->{$base}) {
+            my $file = $spec->{$base}{file};
+            $nspec{$base} = {base=>$base, file=>$file};
+        }
+    }    
+
+    ## Add any file that has any tags that are requested.
+    for my $base (keys(%$spec)) {
+        my $specEntry = $nspec{$base};
+        next if defined($specEntry);
+        $specEntry = $spec->{$base};
+        my %ntests;
+        for my $test (keys(%{$specEntry->{tests}})) {
+            $ntests{$test} = 1 if ($tests->{$test});
+        }  
+        if (%ntests > 0) {
+            my $file = $spec->{$base}{file};
+            $nspec{$base} = {base=>$base, file=>$file, tests=>\%ntests};   
+        }
+    }
+
+    return %nspec;
+}
+
 sub compile {
-    my ($file) = @_;
-    my $exe = exeFromSource($file);
-    print "Compiling $file\n";
-    my $cmd = "gcc -o $gBuildDir/$exe $file";
+    my ($specEntry) = @_;
+    print "Compiling $specEntry->{file}\n";
+    my $exe = "$gBuildDir/$specEntry->{base}";
+    $specEntry->{exe} = $exe;
+
+    my $file = $specEntry->{file};
+    my $cmd  = "gcc -DTEST_BUILD -o $exe $file";
+    
     return system $cmd;
 }
 
 sub runTests {
-    my ($file, $tags) = @_;
-    $tags = [] unless defined($tags);
-    my $arg = join(" ", @$tags);
-    my $exe = exeFromSource($file);
+    my ($specEntry) = @_;
+    my $exe   = $specEntry->{exe};
+    my $tests = $specEntry->{tests};
+    $tests = {} unless defined($tests);
+    my $arg = join(" ", keys(%$tests));
     return system "$exe $arg";
 }
 
+sub matchFile {
+    my ($commandLineFile, $path) = @_;
+    return ($path =~ /$commandLineFile/);
+}
+
+
+
 sub main {
-    my ($args, $opts)          = argsAndOpts();
-    my ($testFiles, $testTags) = testsAndFiles();
-    my @argFiles;
-    my @argTags;
+    my ($command, $args, $opts) = argsAndOpts();
+    if ($command eq 'create') {
+        die "create is unimplemented";
+    } elsif ($command ne 'test') {
+        die "Unknown command '$command'";
+    }
+
+    my %spec          = collectTagsAndFiles();
+    
+    my %allTests;
+    for my $base (keys(%spec)) {
+        for my $test (keys(%{$spec{$base}{tests}})) {
+            $allTests{$test} = 1;
+        }
+    }
+
+    my %argBases;
+    my %argTests;
     if (@$args > 0) {
         for my $arg (@$args) {
-            if ($testFiles->{$arg}) {
-                push @argFiles, $arg;
-            } else if ($testTags->{$arg}) {
-                push @argTags, $arg;
+            if ($spec{$arg}) {
+                $argBases{$arg} = 1;
+            } elsif ($allTests{$arg}) {
+                $argTests{$arg} = 1;
             } else {
                 die "Failed to identify argument $arg"
             }
         }
     } else {
-        @argFiles = keys(%$testFiles);
-    }
-
-    my %filesRun;
-    for my $file (@argFiles) {
-        compile($file) && die "Failed to compile $file";
-        runTests($file);
-        $filesRun{$file} = 1;
-    }
-
-    my %file2TagArguments;
-    for my $tag (@argTags) {
-        my $filesWithTag = $testTags->{$tag};
-        for my $file (@$filesWithTag) {
-            next if $filesRun{$file};
-            my $arg = $file2TagArguments{$file};
-            $arg  = "" unless defined($arg);
-            $arg .= "$tag "
-            $file2TagArguments{$file} = $arg;
+        for my $base (keys(%spec)) {
+            $argBases{$base} = 1;
+        
         }
     }
 
-    for my $file (keys(%file2TagArguments)) {
-        compile($file) && die "Failed to compile $file";
-        runTests($file, $file2TagArguments{$file});
+    %spec = filterSpecByFilesAndTests(\%spec, \%argBases, \%argTests);
+
+    ## Compile the executables
+    mkBuildDir();
+    for my $base (keys(%spec)) {
+        compile($spec{$base}) && die "Failed to compile $spec{$base}{file}";
     }
+
+    ## Run tests
+    print "\n";
+    my $status = 0;
+    for my $base (keys(%spec)) {
+        if (runTests($spec{$base})) {
+            $status = 1;
+        }
+    }
+    print "THERE WHERE TEST FAILS!!!\n" if $status;
+    exit($status);
 }
 
 main();

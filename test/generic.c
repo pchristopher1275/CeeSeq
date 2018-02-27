@@ -11,8 +11,13 @@ Unit_declare(foo) {
 	printf("FOO BAR WOnt be seen\n");
 }
 
+Unit_declare(bar) {
+	chk(1 == 1);
+}
+
 int main(int argc, char *argv[]) {
 	Unit_initialize(argc, argv);
 	Unit_test(foo);
+	Unit_test(bar);
 	Unit_finalize();
 }
