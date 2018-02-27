@@ -1,5 +1,7 @@
 #include <stdlib.h>
 
+#ifndef MEM_C
+#define MEM_C
 
 #ifdef TEST_BUILD
 // 
@@ -48,3 +50,6 @@ void Mem_freeFull(void *ptr, const char *file, int line) {
 #define Mem_realloc(ptr, size) (void*)sysmem_resizeptr((ptr), (size))
 #define Mem_free(ptr)          sysmem_freeptr(ptr)
 #endif 
+
+// endif for ifndef MEM_C
+#endif

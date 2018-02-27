@@ -45,7 +45,12 @@ Unit *Unit_instance = &Unit_instanceStruct;
 			Unit_shouldRun = sdscat(Unit_shouldRun, " ");\
 		}\
 	}\
-	printf("Testing file %s with arguments '%s'\n", __FILE__, Unit_shouldRun);\
+	printf("Testing file %s with ", __FILE__);\
+	if (Unit_shouldRun != NULL) {\
+		printf("arguments '%s'\n", Unit_shouldRun);\
+	} else {\
+		printf("no arguments\n");\
+	}\
 } while (0)
 
 #define Unit_finalize() do {\
