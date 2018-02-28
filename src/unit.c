@@ -71,7 +71,7 @@ Unit *Unit_instance = &Unit_instanceStruct;
 			Unit_numTestFails++;\
 			printf(Unit_tab1 "FAILED %s had %d failures out of %d asserts\n", #func, Unit_numFails, Unit_numAsserts);\
 		} else {\
-			printf(Unit_tab1 "test %s ok\n", #func);\
+			printf(Unit_tab1 "test %s ... ok\n", #func);\
 		}\
 		Unit_numFails   = 0;\
 		Unit_numAsserts = 0;\

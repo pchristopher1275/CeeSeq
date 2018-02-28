@@ -152,7 +152,7 @@ char *Array_pushN(Array *arr, int N) {
    if (_index < 0 || _N < 1 || _index > _arr->len) {\
       /*Notice that it IS legal to insert at index == a->len. This just means push onto the end of the list*/ \
       Array_formatIndexError((err), _index, _N, _arr->len);\
-      return NULL;\
+      return;\
    }\
 } while (0)
 

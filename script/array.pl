@@ -93,9 +93,16 @@ static inline void ${TYPENAME}_pushp(${TYPENAME} *arr, ${ELEMNAME}*elem) {
 	return; 
 }
 
-static inline ${ELEMNAME}*${TYPENAME}_insert(${TYPENAME} *arr, int index, Error *err) {
+static inline void ${TYPENAME}_insert(${TYPENAME} *arr, int index, ${ELEMNAME}elem, Error *err) {
 	Array_insertNCheck(arr, index, 1, err);
-	return (${ELEMNAME}*)Array_insertN((Array*)arr, index, 1);
+	${ELEMNAME_NS} *p = (${ELEMNAME}*)Array_insertN((Array*)arr, index, 1);
+	*p = elem;
+}
+
+static inline void ${TYPENAME}_insertp(${TYPENAME} *arr, int index, ${ELEMNAME}*elem, Error *err) {
+	Array_insertNCheck(arr, index, 1, err);
+	${ELEMNAME_NS} *p = (${ELEMNAME}*)Array_insertN((Array*)arr, index, 1);
+	*p = *elem;
 }
 
 static inline void ${TYPENAME}_remove(${TYPENAME} *arr, int index, Error *err) {

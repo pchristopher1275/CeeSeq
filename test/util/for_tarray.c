@@ -66,9 +66,16 @@ static inline void FooArr_pushp(FooArr *arr, Foo *elem) {
     return; 
 }
 
-static inline Foo *FooArr_insert(FooArr *arr, int index, Error *err) {
+static inline void FooArr_insert(FooArr *arr, int index, Foo elem, Error *err) {
     Array_insertNCheck(arr, index, 1, err);
-    return (Foo *)Array_insertN((Array*)arr, index, 1);
+    Foo *p = (Foo *)Array_insertN((Array*)arr, index, 1);
+    *p = elem;
+}
+
+static inline void FooArr_insertp(FooArr *arr, int index, Foo *elem, Error *err) {
+    Array_insertNCheck(arr, index, 1, err);
+    Foo *p = (Foo *)Array_insertN((Array*)arr, index, 1);
+    *p = *elem;
 }
 
 static inline void FooArr_remove(FooArr *arr, int index, Error *err) {
@@ -173,9 +180,16 @@ static inline void FooPtrArr_pushp(FooPtrArr *arr, Foo **elem) {
     return; 
 }
 
-static inline Foo **FooPtrArr_insert(FooPtrArr *arr, int index, Error *err) {
+static inline void FooPtrArr_insert(FooPtrArr *arr, int index, Foo *elem, Error *err) {
     Array_insertNCheck(arr, index, 1, err);
-    return (Foo **)Array_insertN((Array*)arr, index, 1);
+    Foo * *p = (Foo **)Array_insertN((Array*)arr, index, 1);
+    *p = elem;
+}
+
+static inline void FooPtrArr_insertp(FooPtrArr *arr, int index, Foo **elem, Error *err) {
+    Array_insertNCheck(arr, index, 1, err);
+    Foo * *p = (Foo **)Array_insertN((Array*)arr, index, 1);
+    *p = *elem;
 }
 
 static inline void FooPtrArr_remove(FooPtrArr *arr, int index, Error *err) {
@@ -280,9 +294,16 @@ static inline void IntArr_pushp(IntArr *arr, int *elem) {
     return; 
 }
 
-static inline int *IntArr_insert(IntArr *arr, int index, Error *err) {
+static inline void IntArr_insert(IntArr *arr, int index, int elem, Error *err) {
     Array_insertNCheck(arr, index, 1, err);
-    return (int *)Array_insertN((Array*)arr, index, 1);
+    int *p = (int *)Array_insertN((Array*)arr, index, 1);
+    *p = elem;
+}
+
+static inline void IntArr_insertp(IntArr *arr, int index, int *elem, Error *err) {
+    Array_insertNCheck(arr, index, 1, err);
+    int *p = (int *)Array_insertN((Array*)arr, index, 1);
+    *p = *elem;
 }
 
 static inline void IntArr_remove(IntArr *arr, int index, Error *err) {
