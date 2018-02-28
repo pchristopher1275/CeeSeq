@@ -71,17 +71,59 @@ sub listOfTestFiles {
 }
 
 sub testsForFile {
-    my ($file) = @_;
+    my ($file, $supressDoubleCheck) = @_;
     open my $fd, $file or die "Failed to open $file";
     my %tests;
+    my %doubleCheck;
     while (<$fd>) {
-        next unless /Unit_declare\((.*)\)/;
-        my $name = $1;
-        $name =~ s/\s*//g;
-        $tests{$name} = 1;
+        if (/Unit_declare\((.*)\)/) {
+            my $name = $1;
+            $name =~ s/\s*//g;
+            $tests{$name} = 1;
+        } elsif (/Unit_test\((.*)\)/) {
+            my $name = $1;
+            $name =~ s/\s*//g;
+            $doubleCheck{$name} = 1;
+        }
     }
     close($fd);
-    return sort {$a cmp $b} keys(%tests);
+
+    my $err = 0;
+    if (!$supressDoubleCheck) {
+        my @notInTests;
+        my @notInDoubleCheck;
+        for my $key (keys(%doubleCheck)) {
+            if (!$tests{$key}) {
+                push @notInTests, $key;
+            }
+        }
+        for my $key (keys(%tests)) {
+            if (!$doubleCheck{$key}) {
+                push @notInDoubleCheck, $key;
+            }
+        }
+
+        @notInTests       = sort {$a cmp $b} @notInTests;
+        @notInDoubleCheck = sort {$a cmp $b} @notInDoubleCheck;
+
+        if (@notInDoubleCheck) {
+            print "There are missing Unit_test calls in $file:\n";
+            for my $t (@notInDoubleCheck) {
+                print "    Unit_test($t);\n"
+            }
+            $err = 1;
+        }
+        if (@notInTests) {
+            print "There are unmatched Unit_test calls in $file:\n";
+            for my $t (@notInTests) {
+                print "    Unit_declare($t)\n"
+            }   
+            $err = 1;
+        }
+    }
+
+
+    return $err, sort {$a cmp $b} keys(%tests);
 }
 
 
@@ -93,16 +135,22 @@ sub baseFromSource {
 }
 
 sub collectTagsAndFiles {
+    my (%opts) = @_;
     my @files = listOfTestFiles();
     my %file2Tests;
+    my $inconsistent = 0;
     for my $file (@files) {
         $file2Tests{$file} = {};
         my %subhash;
-        my @testsOfFile = testsForFile($file);
+        my ($error, @testsOfFile) = testsForFile($file, $opts{noDoubleCheck});
+        $inconsistent = 1 if $error;
         for my $test (@testsOfFile) {
             $subhash{$test} = 1;
         }
         $file2Tests{$file} = \%subhash;
+    }
+    if (!$opts{noDoubleCheck} && $inconsistent) {
+        die "Double check failed: run with -f to supress this warning";
     }
 
     my %spec;
@@ -172,14 +220,16 @@ sub matchFile {
 
 
 sub main {
-    my ($command, $args, $opts) = argsAndOpts();
+    my ($command, $args, $clineOpts) = argsAndOpts();
     if ($command eq 'create') {
         die "create is unimplemented";
     } elsif ($command ne 'test') {
         die "Unknown command '$command'";
     }
+    my %opts = (noDoubleCheck => $clineOpts->{f});
 
-    my %spec          = collectTagsAndFiles();
+
+    my %spec = collectTagsAndFiles(%opts);
     
     my %allTests;
     for my $base (keys(%spec)) {

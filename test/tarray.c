@@ -19,7 +19,7 @@ void record_clearer(Foo *left) {
 }
 
 
-#include "util/tarray.c"
+#include "util/for_tarray.c"
 
 #define Array_cap(arr) ((Array*)arr)->cap
 
@@ -210,6 +210,31 @@ Unit_declare(testPushAndGet) {
 
 }
 
+Unit_declare(testPushAndPop) {
+	{
+		Error_declare(err);
+		IntArr *arr1 = IntArr_new(0);
+		for (int i = 0; i < 10; i++) {
+			chk(IntArr_len(arr1) == i);
+			IntArr_push(arr1, i);
+		}
+		for (int i = 9; i >= 0; i--) {
+			chk(IntArr_len(arr1) == i+1);	
+			IntArr_pop(arr1, err);	
+			fatalm(!Error_iserror(err), Error_message(err));
+		}
+		IntArr_free(arr1);
+	}
+
+	{
+		Error_declare(err);
+		IntArr *arr1 = IntArr_new(0);
+		IntArr_pop(arr1, err);	
+		fatal(Error_iserror(err));
+		chk(strstr(Error_message(err), "Index out of range") != NULL);
+	}
+}
+
 
 int main(int argc, char *argv[]) {
 	Unit_initialize(argc, argv);
@@ -218,5 +243,6 @@ int main(int argc, char *argv[]) {
 	Unit_test(testInitSurvivesNegativeInit);
 	Unit_test(testTruncateAndClearer);
 	Unit_test(testPushAndGet);
+	Unit_test(testPushAndPop);
 	Unit_finalize();
 }

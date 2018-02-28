@@ -42,7 +42,7 @@ Unit *Unit_instance = &Unit_instanceStruct;
 			Unit_shouldRun = sdscat(Unit_shouldRun, " ");\
 		}\
 	}\
-	printf("Testing file %s with ", __FILE__);\
+	printf("starting file %s with ", __FILE__);\
 	if (Unit_shouldRun != NULL) {\
 		printf("arguments '%s'\n", Unit_shouldRun);\
 	} else {\
@@ -52,10 +52,10 @@ Unit *Unit_instance = &Unit_instanceStruct;
 
 #define Unit_finalize() do {\
 	if (Unit_numTestFails > 0) {\
-		printf(Unit_tab0 "FAILED TESTS in file %s: %d tests failed out of %d tests\n", __FILE__, Unit_numTestFails, Unit_numTests);\
+		printf(Unit_tab0 "FAILED tests in file %s: %d tests failed out of %d tests\n", __FILE__, Unit_numTestFails, Unit_numTests);\
 		exit(1);\
 	} else {\
-		printf(Unit_tab0 "Test file %s ok\n", __FILE__);\
+		printf(Unit_tab0 "test file %s ok\n", __FILE__);\
 		exit(0);\
 	}\
 } while (0)
@@ -65,13 +65,13 @@ Unit *Unit_instance = &Unit_instanceStruct;
 #define Unit_test(func) do {\
 	if (Unit_shouldRun == NULL || strstr(Unit_shouldRun, #func) != NULL) {\
 		Unit_numTests++;\
-		printf(Unit_tab1 "Testing function %s\n", #func);\
+		printf(Unit_tab1 "starting %s ....\n", #func);\
 		func();\
 		if (Unit_numFails > 0) {\
 			Unit_numTestFails++;\
-			printf(Unit_tab1 "Test %s had %d failures out of %d asserts\n", #func, Unit_numFails, Unit_numAsserts);\
+			printf(Unit_tab1 "FAILED %s had %d failures out of %d asserts\n", #func, Unit_numFails, Unit_numAsserts);\
 		} else {\
-			printf(Unit_tab1 "Test %s ok\n", #func);\
+			printf(Unit_tab1 "test %s ok\n", #func);\
 		}\
 		Unit_numFails   = 0;\
 		Unit_numAsserts = 0;\
@@ -83,7 +83,7 @@ Unit *Unit_instance = &Unit_instanceStruct;
 	const char *m = (message);\
 	if (!(expr)) {\
 		Unit_numFails++;\
-		printf(Unit_tab2 "%s %s failed (%s, %d)", fatal ? "Fatal assert" : "Assert", #expr, __FILE__, __LINE__);\
+		printf(Unit_tab2 "%s %s FAILED (%s, %d)", fatal ? "fatal assert" : "assert", #expr, __FILE__, __LINE__);\
 		if (m != NULL) {\
 			printf(": %s\n", message);\
 		} else {\

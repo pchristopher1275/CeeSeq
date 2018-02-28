@@ -120,7 +120,7 @@ void Array_set(Array *arr, int index, char *newElem) {
 #define Array_popNCheck(arr_in, N_in, err) do {\
    Array *_arr = (Array *)(arr_in);\
    int _N    = (N_in);\
-   if (_N < 1 || _N >= _arr->len) {\
+   if (_N < 1 || _N > _arr->len) {\
       Array_formatIndexError((err), 0, _N, _arr->len);\
       return;\
    }\
