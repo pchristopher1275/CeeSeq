@@ -1,7 +1,4 @@
 #include <stdio.h>
-#include "../src/sds.c"
-
-
 
 typedef struct Unit_t {
 	// How many asserts tried in this test

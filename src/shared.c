@@ -9,23 +9,23 @@
 #define APIF /**/
 #endif 
 
-sds stripBaseNameString = NULL;
-APIF sds stripBaseName(const char *path)
-{
-    if (stripBaseNameString != NULL) {
-        sdsfree(stripBaseNameString);
-    }
-    const char *p = strrchr(path, '/');
-    if (p == NULL) {
-        p = path;
-    }
-    else {
-        p++;
-    }
+// sds stripBaseNameString = NULL;
+// APIF sds stripBaseName(const char *path)
+// {
+//     if (stripBaseNameString != NULL) {
+//         sdsfree(stripBaseNameString);
+//     }
+//     const char *p = strrchr(path, '/');
+//     if (p == NULL) {
+//         p = path;
+//     }
+//     else {
+//         p++;
+//     }
 
-    stripBaseNameString = sdsnew(p);
-    return stripBaseNameString;
-}
+//     stripBaseNameString = sdsnew(p);
+//     return stripBaseNameString;
+// }
 
 
 //
@@ -37,129 +37,128 @@ APIF Ticks cseqHub_now()
     return (Ticks)itm_getticks(itm_getglobal());
 }
 
+// //
+// // E R R O R    C L A S S
+// //
+// typedef struct _Error
+// {
+//     bool iserror;
+//     sds message;
+// } Error;
 
-//
-// E R R O R    C L A S S
-//
-typedef struct _Error
-{
-    bool iserror;
-    sds message;
-} Error;
+// #define Error_declare(name) Error _##name = {false, NULL}; Error *name = &_##name
 
-#define Error_declare(name) Error _##name = {false, NULL}; Error *name = &_##name
-
-APIF static inline bool Error_iserror(Error *err)
-{
-    return err->iserror;
-}
-
-
-APIF sds Error_message(Error *err)
-{
-    if (err->iserror) {
-        return err->message;
-    }
-    return NULL;
-}
+// APIF static inline bool Error_iserror(Error *err)
+// {
+//     return err->iserror;
+// }
 
 
-APIF void Error_clear(Error *err)
-{
-    if (err->message != NULL) {
-        sdsfree(err->message);
-    }
-    err->message = NULL;
-    err->iserror = false;
-}
+// APIF sds Error_message(Error *err)
+// {
+//     if (err->iserror) {
+//         return err->message;
+//     }
+//     return NULL;
+// }
 
 
-APIF void Error_formatFileLine(Error *dst, const char *file, int line, sds message)
-{
-    Error_clear(dst);
-    dst->message = sdscatprintf(sdsempty(), "[%s:%d] %s", stripBaseName(file), line, message);
-    dst->iserror = true;
-    sdsfree(message);
-}
+// APIF void Error_clear(Error *err)
+// {
+//     if (err->message != NULL) {
+//         sdsfree(err->message);
+//     }
+//     err->message = NULL;
+//     err->iserror = false;
+// }
 
 
-#define Error_format(dst, format, ...) Error_formatFileLine(dst, __FILE__, __LINE__, sdscatprintf(sdsempty(), (format), __VA_ARGS__))
-#define Error_format0(dst, format) Error_formatFileLine(dst, __FILE__, __LINE__, sdscatprintf(sdsempty(), (format)))
-
-APIF const char *Error_maxErrToString(t_max_err maxErr)
-{
-    const char *label = "UNKNOWN";
-    switch (maxErr) {
-        case MAX_ERR_NONE:
-            label = "NONE";
-        case MAX_ERR_GENERIC:
-            label = "GENERIC";
-        case MAX_ERR_INVALID_PTR:
-            label = "INVALID_PTR";
-        case MAX_ERR_DUPLICATE:
-            label = "DUPLICATE";
-        case MAX_ERR_OUT_OF_MEM:
-            label = "OUT_OF_MEM";
-    }
-    return label;
-}
+// APIF void Error_formatFileLine(Error *dst, const char *file, int line, sds message)
+// {
+//     Error_clear(dst);
+//     dst->message = sdscatprintf(sdsempty(), "[%s:%d] %s", stripBaseName(file), line, message);
+//     dst->iserror = true;
+//     sdsfree(message);
+// }
 
 
-APIF int Error_maypost(Error *err)
-{
-    int iserror = Error_iserror(err);
-    if (iserror) {
-        post("%s", Error_message(err));
-    }
-    Error_clear(err);
-    return iserror;
-}
+// #define Error_format(dst, format, ...) Error_formatFileLine(dst, __FILE__, __LINE__, sdscatprintf(sdsempty(), (format), __VA_ARGS__))
+// #define Error_format0(dst, format) Error_formatFileLine(dst, __FILE__, __LINE__, sdscatprintf(sdsempty(), (format)))
 
-#define Error_returnVoidOnError(err)           if (Error_iserror(err)) return
-#define Error_returnZeroOnError(err)           if (Error_iserror(err)) return 0
-#define Error_returnNullOnError(err)           if (Error_iserror(err)) return NULL
-#define Error_gotoLabelOnError(err, label)     if (Error_iserror(err)) goto label
-
-//
-// T E X T    L O G G I N G
-//
-
-FILE *dbLog_outputFd = NULL;
-
-APIF void DBLog_printSDS(const char *file, int line, sds message)
-{
-    if (dbLog_outputFd != NULL) {
-        fprintf(dbLog_outputFd, "[%s: %d] %s\n", stripBaseName(file), line, message);
-        fflush(dbLog_outputFd);
-    }
-    sdsfree(message);
-}
+// APIF const char *Error_maxErrToString(t_max_err maxErr)
+// {
+//     const char *label = "UNKNOWN";
+//     switch (maxErr) {
+//         case MAX_ERR_NONE:
+//             label = "NONE";
+//         case MAX_ERR_GENERIC:
+//             label = "GENERIC";
+//         case MAX_ERR_INVALID_PTR:
+//             label = "INVALID_PTR";
+//         case MAX_ERR_DUPLICATE:
+//             label = "DUPLICATE";
+//         case MAX_ERR_OUT_OF_MEM:
+//             label = "OUT_OF_MEM";
+//     }
+//     return label;
+// }
 
 
-#define dblog(format, ...) DBLog_printSDS(__FILE__, __LINE__, sdscatprintf(sdsempty(), format, __VA_ARGS__))
-#define dblog0(format) DBLog_printSDS(__FILE__, __LINE__, sdsnew(format))
+// APIF int Error_maypost(Error *err)
+// {
+//     int iserror = Error_iserror(err);
+//     if (iserror) {
+//         post("%s", Error_message(err));
+//     }
+//     Error_clear(err);
+//     return iserror;
+// }
 
-APIF void DBLog_init(const char *tag, Error *err)
-{
-    if (dbLog_outputFd == NULL) {
-        const char *HOME = getenv("HOME");
-        if (HOME == NULL) {
-            Error_format0(err, "Failed to find $HOME");
-            return;
-        }
-        sds outputFile = sdscatprintf(sdsempty(), "%s/CeeSeq/%s_DBLog.txt", HOME, tag);
-        dbLog_outputFd = fopen(outputFile, "w");
-        if (dbLog_outputFd == NULL) {
-            Error_format(err, "DBLog_init failed to open log file %s", outputFile);
-        }
-        else {
-            time_t ltime;                         /* calendar time */
-            ltime=time(NULL);                     /* get current cal time */
-            dblog("DBLog starting at %s", asctime(localtime(&ltime)));
-        }
-        sdsfree(outputFile);
-    }
-}
+// #define Error_returnVoidOnError(err)           if (Error_iserror(err)) return
+// #define Error_returnZeroOnError(err)           if (Error_iserror(err)) return 0
+// #define Error_returnNullOnError(err)           if (Error_iserror(err)) return NULL
+// #define Error_gotoLabelOnError(err, label)     if (Error_iserror(err)) goto label
+
+// //
+// // T E X T    L O G G I N G
+// //
+
+// FILE *dbLog_outputFd = NULL;
+
+// APIF void DBLog_printSDS(const char *file, int line, sds message)
+// {
+//     if (dbLog_outputFd != NULL) {
+//         fprintf(dbLog_outputFd, "[%s: %d] %s\n", stripBaseName(file), line, message);
+//         fflush(dbLog_outputFd);
+//     }
+//     sdsfree(message);
+// }
+
+
+// #define dblog(format, ...) DBLog_printSDS(__FILE__, __LINE__, sdscatprintf(sdsempty(), format, __VA_ARGS__))
+// #define dblog0(format) DBLog_printSDS(__FILE__, __LINE__, sdsnew(format))
+
+// APIF void DBLog_init(const char *tag, Error *err)
+// {
+//     if (dbLog_outputFd == NULL) {
+//         const char *HOME = getenv("HOME");
+//         if (HOME == NULL) {
+//             Error_format0(err, "Failed to find $HOME");
+//             return;
+//         }
+//         sds outputFile = sdscatprintf(sdsempty(), "%s/CeeSeq/%s_DBLog.txt", HOME, tag);
+//         dbLog_outputFd = fopen(outputFile, "w");
+//         if (dbLog_outputFd == NULL) {
+//             Error_format(err, "DBLog_init failed to open log file %s", outputFile);
+//         }
+//         else {
+//             time_t ltime;                         /* calendar time */
+//             ltime=time(NULL);                     /* get current cal time */
+//             dblog("DBLog starting at %s", asctime(localtime(&ltime)));
+//         }
+//         sdsfree(outputFile);
+//     }
+// }
 
 
 //

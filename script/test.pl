@@ -75,7 +75,7 @@ sub testsForFile {
     open my $fd, $file or die "Failed to open $file";
     my %tests;
     while (<$fd>) {
-        next unless /Unit_test\((.*)\)/;
+        next unless /Unit_declare\((.*)\)/;
         my $name = $1;
         $name =~ s/\s*//g;
         $tests{$name} = 1;
@@ -197,7 +197,7 @@ sub main {
             } elsif ($allTests{$arg}) {
                 $argTests{$arg} = 1;
             } else {
-                die "Failed to identify argument $arg"
+                die "Failed to identify argument as a test or a file $arg"
             }
         }
     } else {

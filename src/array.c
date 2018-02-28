@@ -25,31 +25,6 @@ char *Array_insertN(Array *arr, int index, int N);
 void Array_removeN(Array *arr, int index, int N);
 void Array_fit(Array *arr);
 
-// typedef struct ArrayIter {
-//    Array *arr;
-//    int index;
-//    char *element;
-// } ArrayIter;
-
-// ArrayIter ArrayIter_create(Array *arr) {
-//    ArrayIter iter = {arr, 0, NULL};
-//    return iter;
-// }
-
-
-
-// bool ArrayIter_continue(ArrayIter *iterator) {
-//    if (iterator->index < 0 || iterator->index >= Array_len(iterator->arr)) {
-//       return false;
-//    }
-//    iterator->elem = Array_get(iterator->arr, iterator->index);
-//    iterator->index++;
-//    return true;
-// }
-
-// #define ArrayIter_declare(name) ArrayIter _##name = {0}; ArrayIter *name = &_##name
-
-
 // REMEMBER: when you specify a range of elements to operate on, always select the range as
 // [start, end) : here start is the first index of the subsequence, and end is ONE-PAST the last
 // index of the subsequence. With this, the number of elements in the subsequence is end-start.
@@ -64,8 +39,8 @@ Array *Array_new(int nelems, int elemSize, Array_clearElement clearer) {
 
 void Array_init(Array *arr, int nelems, int elemSize, Array_clearElement clearer) {
    arr->elemSize = elemSize;
-   arr->len      = nelems;
-   arr->cap      = nelems;
+   arr->len      = nelems > 0 ? nelems : 0;
+   arr->cap      = nelems > 0 ? nelems : 0;
    arr->clearer  = clearer;
    if (nelems > 0) {
       arr->data = (char*)Mem_malloc(nelems*elemSize); 
@@ -74,7 +49,10 @@ void Array_init(Array *arr, int nelems, int elemSize, Array_clearElement clearer
 
 void Array_clear(Array *arr) {
    Array_truncate(arr);
-   Mem_free(arr->data);
+   if (arr->cap > 0) {
+      Mem_free(arr->data);
+   }
+   memset(arr, 0, sizeof(Array));
 }
 
 void Array_free(Array *arr) {
@@ -82,46 +60,11 @@ void Array_free(Array *arr) {
    Mem_free(arr);
 }
 
-/*
-bool Array_nextIterator(Array *arr, ArrayIter *iterator, char **element) {
-   if (iterator->index >= Array_len(arr) || iterator->index < 0) {
-      *element = NULL;
-      return false;
-   }
-   *element = Array_get(arr, iterator->index);
-   iterator->index++;
-   return true;
-}
-
-// insert element before last next element
-bool Array_insertIterator(Array *arr, ArrayIter *iterator, char *element) {
-   if (iterator->index > Array_len(arr) || iterator->index < 1) {
-      return false;
-   }
-   //char *Array_insertN(Array *arr, int index, int N) 
-   char *p = Array_insertN(arr, iterator->index-1, 1);
-   memmove(p, element, arr->elemSize);
-   iterator->index++;// by doing this, the next time next is called, you'll look at the same element reguardless of if you insert or not
-   return true; 
-}
-
-bool Array_removeIterator(Array *arr, ArrayIter *iterator) {
-   if (iterator->index > Array_len(arr) || iterator->index < 1) {
-      return false;
-   }
-   //void Array_removeN(Array *arr, int index, int N) 
-   Array_removeN(arr, iteator->index, 1);
-   iterator->index--;
-   return true;
-}
-*/
-
-
 void Array_truncate(Array *arr) {
    if (arr->clearer != NULL) {
       char *start = arr->data;
-      char *end   = arr->data + arr->len;
-      for (char *p = start; p != end; p += arr->elemSize) {
+      char *end   = arr->data + arr->len*arr->elemSize;
+      for (char *p = start; p < end; p += arr->elemSize) {
          arr->clearer(p);
       }
    }
@@ -136,34 +79,34 @@ void Array_mayGrow(Array *arr, int increment) {
    if (arr->len + increment >= arr->cap) {
       int requiredBytes = (arr->len + increment)*arr->elemSize;
       int dblCurrBytes  = 2*arr->cap*arr->elemSize;
-      int szBytes       = dblCurrBytes < requiredBytes ? dblCurrBytes : requiredBytes;
+      int szBytes       = dblCurrBytes >= requiredBytes ? dblCurrBytes : requiredBytes;
       arr->data         = (char*)Mem_realloc(arr->data, szBytes);
    }
 }
 
 #define Array_at(arr, index) ((arr)->data + index*(arr)->elemSize)
 
-#define Array_getCheck(arr_in, index_in, err) do {\
-   Array *a   = (arr_in);\
-   int index  = (index_in);\
-   if (index < 0 || index >= a->len) {\
-      Array_formatIndexError((err), index, 0, a->len);\
-      return NULL;\
+#define Array_getCheck(arr_in, index_in, failedReturn, err) do {\
+   Array *_arr = (Array *)(arr_in);\
+   int _index  = (index_in);\
+   if (_index < 0 || _index >= _arr->len) {\
+      Array_formatIndexError((err), _index, 0, _arr->len);\
+      return failedReturn;\
    }\
-while (0)
+} while (0)
 
 char *Array_get(Array *arr, int index) {
    return (arr->data + index*arr->elemSize);
 }
 
 #define Array_setCheck(arr_in, index_in, err) do {\
-   Array *a   = (arr_in);\
-   int index  = (index_in);\
-   if (index < 0 || index >= a->len) {\
-      Array_formatIndexError((err), index, 0, a->len);\
+   Array *_arr   = (Array *)(arr_in);\
+   int _index  = (index_in);\
+   if (_index < 0 || _index >= _arr->len) {\
+      Array_formatIndexError((err), _index, 0, _arr->len);\
       return;\
    }\
-while (0)
+} while (0)
 
 void Array_set(Array *arr, int index, char *newElem) {
    char *p = arr->data + index*arr->elemSize;
@@ -175,13 +118,13 @@ void Array_set(Array *arr, int index, char *newElem) {
 
 
 #define Array_popNCheck(arr_in, N_in, err) do {\
-   Array *a = (arr_in);\
-   int N    = (N_in);\
-   if (N < 1 || N >= a->len) {\
-      Array_formatIndexError((err), 0, N, a->len);\
+   Array *_arr = (Array *)(arr_in);\
+   int _N    = (N_in);\
+   if (_N < 1 || _N >= _arr->len) {\
+      Array_formatIndexError((err), 0, _N, _arr->len);\
       return;\
    }\
-while (0)
+} while (0)
 
 void Array_popN(Array *arr, int N) {
    char *end   = arr->data + arr->len*arr->elemSize;
@@ -203,15 +146,15 @@ char *Array_pushN(Array *arr, int N) {
 }
 
 #define Array_insertNCheck(arr_in, index_in, N_in, err) do {\
-   Array *a   = (arr_in);\
-   int index  = (index_in);\
-   int N      = (N_in);\
-   if (index < 0 || N < 1 || index > a->len) {\
+   Array *_arr   = (Array *)(arr_in);\
+   int _index  = (index_in);\
+   int _N      = (N_in);\
+   if (_index < 0 || _N < 1 || _index > _arr->len) {\
       /*Notice that it IS legal to insert at index == a->len. This just means push onto the end of the list*/ \
-      Array_formatIndexError((err), index, N, a->len);\
+      Array_formatIndexError((err), _index, _N, _arr->len);\
       return NULL;\
    }\
-while (0)
+} while (0)
 
 char *Array_insertN(Array *arr, int index, int N) {
    Array_mayGrow(arr, N);
@@ -226,14 +169,14 @@ char *Array_insertN(Array *arr, int index, int N) {
 }
 
 #define Array_removeNCheck(arr_in, index_in, N_in, err) do {\
-   Array *a   = (arr_in);\
-   int index  = (index_in);\
-   int N      = (N_in);\
-   if (index < 0 || N < 1 || (index + N) >= arr->len || N >= arr->len) {\
-      Array_formatIndexError((err), index, N, a->len);\
+   Array *_arr = (Array *)(arr_in);\
+   int _index  = (index_in);\
+   int _N      = (N_in);\
+   if (_index < 0 || _N < 1 || (_index + _N) >= _arr->len || _N >= _arr->len) {\
+      Array_formatIndexError((err), _index, _N, _arr->len);\
       return;\
    }\
-while (0)
+} while (0)
 
 void Array_removeN(Array *arr, int index, int N) {
    char *subStart   = arr->data + index*arr->elemSize;
@@ -254,8 +197,64 @@ void Array_removeN(Array *arr, int index, int N) {
 }
 
 void Array_fit(Array *arr) {
-   int szBytes       = arr->len*arr->elemSize;
-   arr->data         = (char*)Mem_realloc(arr->data, szBytes);
-   arr->cap          = arr->len;
+   int szBytes = arr->len*arr->elemSize;
+   arr->data   = (char*)Mem_realloc(arr->data, szBytes);
+   arr->cap    = arr->len;
+}
+
+int Array_elemSize(Array *arr){
+   return arr->elemSize;
+}
+
+typedef struct ArrayIter {
+   Array *arr;
+   int index;
+   bool last;
+   char *element;
+} ArrayIter;
+
+bool ArrayIter_next(ArrayIter *iterator) {
+   if (iterator->index < 0) {
+      iterator->index = -1;
+   }
+   if (iterator->index+1 >= Array_len(iterator->arr)) {
+      return false;
+   }
+   iterator->index++;
+   iterator->element = Array_get(iterator->arr, iterator->index);
+   iterator->last    = iterator->index+1 >= Array_len(iterator->arr);
+   return true;
+}
+
+bool ArrayIter_nextValue(ArrayIter *iterator, char *value) {
+   if (ArrayIter_next(iterator)) {
+      memmove(value, iterator->element, iterator->arr->elemSize);
+      return true;
+   }
+   return false;
+}
+
+// insert element before last next element
+bool ArrayIter_insert(ArrayIter *iterator, char *element) {
+   // Note it IS LEGAL to pass an iterator that is pointing 1 past the end of the array. 
+   // In this case, the insert is the same thing as a push
+   if (iterator->index > Array_len(iterator->arr) || iterator->index < 0) {
+      return false;
+   }
+   //char *Array_insertN(Array *arr, int index, int N) 
+   char *p = Array_insertN(iterator->arr, iterator->index, 1);
+   memmove(p, element, iterator->arr->elemSize);
+   iterator->index++;// this makes index point to the same element after the insert, as before the insert
+   return true; 
+}
+
+bool ArrayIter_remove(ArrayIter *iterator) {
+   if (iterator->index > Array_len(iterator->arr) || iterator->index < 1) {
+      return false;
+   }
+
+   Array_removeN(iterator->arr, iterator->index, 1);
+   iterator->index--;
+   return true;
 }
 
