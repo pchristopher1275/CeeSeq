@@ -10,11 +10,17 @@ typedef struct Foo_t {
 #define Foo_newUninitialized() Mem_malloc(sizeof(Foo))
 const int maxNumRecorded = 10;
 int numRecorded          = 0;
-Foo *recorded[maxNumRecorded] = {NULL};
+Foo recorded[maxNumRecorded] = {0};
+
+
+void record_zero() {
+	numRecorded = 0;
+	memset(recorded, 0, sizeof(Foo)*maxNumRecorded);
+}
 
 void record_clearer(Foo *left) {
 	if (numRecorded < maxNumRecorded) {
-		recorded[numRecorded++] = left;
+		recorded[numRecorded++] = *left;
 	}
 }
 
@@ -75,7 +81,7 @@ Unit_declare(testInitSurvivesNegativeInit) {
 	}
 }
 
-Unit_declare(testTruncateAndClearer) {
+Unit_declare(testTruncateClearerAndFit) {
 	{
 		IntArr *arr = IntArr_new(10);
 		chk(IntArr_len(arr) == 10);
@@ -83,18 +89,95 @@ Unit_declare(testTruncateAndClearer) {
 		IntArr_truncate(arr);
 		chk(IntArr_len(arr) == 0);
 		chk(((Array*)arr)->cap == 10);
+		IntArr_free(arr);
 	}
 
 	{
-		numRecorded = 0;
+		Error_declare(err);
+		IntArr *arr = IntArr_new(0);
+		for (int i = 0; i < 5; i++) {
+			IntArr_push(arr, i);
+		}
+		
+		chk(IntArr_len(arr) == 5);
+		chk(((Array*)arr)->cap >= 5);
+		IntArr_pop(arr, err);
+		fatal(!Error_iserror(err));
+
+		IntArr_pop(arr, err);
+		fatal(!Error_iserror(err));
+		chk(IntArr_len(arr) == 3);
+		chk(((Array*)arr)->cap >= 5);
+
+		IntArr_fit(arr);
+		chk(IntArr_len(arr) == 3);
+		chk(((Array*)arr)->cap == 3);
+		for (int i = 0; i < 3; i++) {
+			int k = IntArr_get(arr, i, err);
+			fatal(!Error_iserror(err));
+			chk(k == i);
+		}
+	}
+
+	{
+		Error_declare(err);
 		FooArr *arr = FooArr_new(5);
 		chk(FooArr_len(arr) == 5);
 		chk(((Array*)arr)->cap == 5);
+		FooArr_pop(arr, err);
+		fatal(!Error_iserror(err));
+		FooArr_pop(arr, err);
+		fatal(!Error_iserror(err));
+		chk(FooArr_len(arr) == 3);
+		chk(((Array*)arr)->cap == 5);
+		FooArr_fit(arr);
+		chk(FooArr_len(arr) == 3);
+		chk(((Array*)arr)->cap == 3);
+	}
+
+
+	{
+		Error_declare(err);
+		record_zero();
+		FooArr *arr = FooArr_new(0);
+		for (int i = 0; i < 5; i++) {
+			Foo foo = {i, 2*i};
+			FooArr_push(arr, foo);	
+		}
+		chk(FooArr_len(arr) == 5);
+		chk(((Array*)arr)->cap >= 5);
 		chk(numRecorded == 0);
 		FooArr_truncate(arr);
 		chk(numRecorded == 5);
+		for (int i = 0; i < numRecorded; i++) {
+			Foo foo = recorded[i];
+			chk(foo.i == i);
+			chk(foo.d == (double)2*i);
+		}
+
 		chk(FooArr_len(arr) == 0);
+		chk(((Array*)arr)->cap >= 5);
+		FooArr_fit(arr);
+		chk(FooArr_len(arr) == 0);
+		chk(((Array*)arr)->cap == 0);
+		chk(((Array*)arr)->data == NULL);
+		
+		for (int i = 0; i < 5; i++) {
+			Foo foo = {i, 4*i};
+			FooArr_push(arr, foo);	
+		}
+		chk(FooArr_len(arr) == 5);
+		chk(((Array*)arr)->cap > 5);
+		FooArr_fit(arr);
+		chk(FooArr_len(arr) == 5);
 		chk(((Array*)arr)->cap == 5);
+		for (int i = 0; i < 5; i++) {
+			Foo foo = FooArr_get(arr, i, err);
+			fatal(!Error_iserror(err));
+			chk(foo.i == i);
+			chk(foo.d == (double)4*i);
+		}
+		FooArr_free(arr);
 	}
 }
 
@@ -426,23 +509,90 @@ Unit_declare(testInsert) {
 
 		FooArr_insert(arr1, 100, foo, err);
 		fatal(Error_iserror(err));
-		chk(strstr(Error_message(err), "Index out of range"));
+		chk(strstr(Error_message(err), "Index out of range") != NULL);
 
 		FooArr_insert(arr1, -1, foo, err);
 		fatal(Error_iserror(err));
-		chk(strstr(Error_message(err), "Index out of range"));
+		chk(strstr(Error_message(err), "Index out of range") != NULL);
 
 		FooArr_insertp(arr1, 100, &foo, err);
 		fatal(Error_iserror(err));
-		chk(strstr(Error_message(err), "Index out of range"));
+		chk(strstr(Error_message(err), "Index out of range") != NULL);
 
 		FooArr_insertp(arr1, -1, &foo, err);
 		fatal(Error_iserror(err));
-		chk(strstr(Error_message(err), "Index out of range"));
+		chk(strstr(Error_message(err), "Index out of range") != NULL);
 
 		FooArr_free(arr1);
 	}
 
+}
+
+Unit_declare(testRemove){
+	{
+		Error_declare(err);
+		IntArr *arr1 = IntArr_new(0);
+		for (int i = 0; i < 10; i++) {
+			IntArr_push(arr1, i);
+		}
+		chk(IntArr_len(arr1) == 10);
+
+		IntArr_remove(arr1, 9, err); // last index
+		fatal(!Error_iserror(err));
+
+		IntArr_remove(arr1, 7, err);
+		fatal(!Error_iserror(err));
+
+		IntArr_remove(arr1, 5, err);
+		fatal(!Error_iserror(err));
+
+		IntArr_remove(arr1, 3, err);
+		fatal(!Error_iserror(err));
+
+		IntArr_remove(arr1, 1, err);
+		fatal(!Error_iserror(err));
+
+		fatal(IntArr_len(arr1) == 5);
+		for (int i = 0; i < 5; i++) {
+			int k = IntArr_get(arr1, i, err);
+			fatal(!Error_iserror(err));
+			chk(k == 2*i);
+		}
+	}
+
+	{
+		Error_declare(err);
+		FooArr *arr1 = FooArr_new(0);
+		for (int i = 0; i < 10; i++) {
+			Foo foo = {2*i, 4*i};
+			FooArr_push(arr1, foo);
+		}
+		chk(FooArr_len(arr1) == 10);
+
+		FooArr_remove(arr1, 9, err); // last index
+		fatal(!Error_iserror(err));
+
+		FooArr_remove(arr1, 7, err);
+		fatal(!Error_iserror(err));
+
+		FooArr_remove(arr1, 5, err);
+		fatal(!Error_iserror(err));
+
+		FooArr_remove(arr1, 3, err);
+		fatal(!Error_iserror(err));
+
+		FooArr_remove(arr1, 1, err);
+		fatal(!Error_iserror(err));
+
+		fatal(FooArr_len(arr1) == 5);
+		for (int i = 0; i < 5; i++) {
+			Foo foo = FooArr_get(arr1, i, err);
+			fatal(!Error_iserror(err));
+			chk(foo.i == 4*i);
+			chk(foo.d == (double)8*i);
+		}
+		FooArr_free(arr1);
+	}
 }
 
 int main(int argc, char *argv[]) {
@@ -450,10 +600,11 @@ int main(int argc, char *argv[]) {
 	Unit_test(testNewFree);
 	Unit_test(testLenInitClear);
 	Unit_test(testInitSurvivesNegativeInit);
-	Unit_test(testTruncateAndClearer);
+	Unit_test(testTruncateClearerAndFit);
 	Unit_test(testPushAndGet);
 	Unit_test(testPushAndPop);
 	Unit_test(testSet);
 	Unit_test(testInsert);
+	Unit_test(testRemove);
 	Unit_finalize();
 }

@@ -198,18 +198,21 @@ sub compile {
     $specEntry->{exe} = $exe;
 
     my $file = $specEntry->{file};
-    my $cmd  = "gcc -DTEST_BUILD -o $exe $file";
-    
+    my $cmd  = "gcc -g -DTEST_BUILD -o $exe $file";
     return system $cmd;
 }
 
 sub runTests {
-    my ($specEntry) = @_;
+    my ($specEntry, $backtrace) = @_;
     my $exe   = $specEntry->{exe};
     my $tests = $specEntry->{tests};
     $tests = {} unless defined($tests);
     my $arg = join(" ", keys(%$tests));
-    return system "$exe $arg";
+    if ($backtrace) {
+        return system "bash -c 'lldb -s <(echo run $arg; echo bt; echo exit) $exe'";
+    } else {
+        return system "$exe $arg";
+    }
 }
 
 sub matchFile {
@@ -226,7 +229,7 @@ sub main {
     } elsif ($command ne 'test') {
         die "Unknown command '$command'";
     }
-    my %opts = (noDoubleCheck => $clineOpts->{f});
+    my %opts = (noDoubleCheck => $clineOpts->{f}, runInDebugger=>$clineOpts->{d});
 
 
     my %spec = collectTagsAndFiles(%opts);
@@ -269,7 +272,7 @@ sub main {
     print "\n";
     my $status = 0;
     for my $base (keys(%spec)) {
-        if (runTests($spec{$base})) {
+        if (runTests($spec{$base}, $opts{runInDebugger})) {
             $status = 1;
         }
     }

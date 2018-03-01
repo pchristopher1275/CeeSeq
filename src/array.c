@@ -41,6 +41,7 @@ void Array_init(Array *arr, int nelems, int elemSize, Array_clearElement clearer
    arr->elemSize = elemSize;
    arr->len      = nelems > 0 ? nelems : 0;
    arr->cap      = nelems > 0 ? nelems : 0;
+   arr->data     = NULL;
    arr->clearer  = clearer;
    if (nelems > 0) {
       arr->data = (char*)Mem_malloc(nelems*elemSize); 
@@ -80,6 +81,7 @@ void Array_mayGrow(Array *arr, int increment) {
       int requiredBytes = (arr->len + increment)*arr->elemSize;
       int dblCurrBytes  = 2*arr->cap*arr->elemSize;
       int szBytes       = dblCurrBytes >= requiredBytes ? dblCurrBytes : requiredBytes;
+      arr->cap          = szBytes/arr->elemSize;
       arr->data         = (char*)Mem_realloc(arr->data, szBytes);
    }
 }
@@ -129,7 +131,7 @@ void Array_set(Array *arr, int index, char *newElem) {
 void Array_popN(Array *arr, int N) {
    char *end   = arr->data + arr->len*arr->elemSize;
    arr->len   -= N;
-   char *start = arr->data + (arr->len-1)*arr->elemSize;
+   char *start = arr->data + arr->len*arr->elemSize;
    if (arr->clearer != NULL) {
       for (char *p = start; p != end; p += arr->elemSize) {
             arr->clearer(p);
@@ -172,31 +174,42 @@ char *Array_insertN(Array *arr, int index, int N) {
    Array *_arr = (Array *)(arr_in);\
    int _index  = (index_in);\
    int _N      = (N_in);\
-   if (_index < 0 || _N < 1 || (_index + _N) >= _arr->len || _N >= _arr->len) {\
+   if (_index < 0 || _N < 1 || (_index + _N-1) >= _arr->len) {\
       Array_formatIndexError((err), _index, _N, _arr->len);\
       return;\
    }\
 } while (0)
 
 void Array_removeN(Array *arr, int index, int N) {
-   char *subStart   = arr->data + index*arr->elemSize;
-   char *subEnd     = arr->data + (index+N)*arr->elemSize;
-   arr->len        -= N;
-   char *arrayStart = arr->data + (arr->len-N)*arr->elemSize; 
-   char *arrayEnd   = arr->data + arr->len*arr->elemSize;
-   
+   char *removeStart = arr->data + index*arr->elemSize;
+   char *removeEnd   = arr->data + (index+N)*arr->elemSize;
+   char *clearStart  = arr->data + (arr->len-N)*arr->elemSize; 
+   char *clearEnd    = arr->data + arr->len*arr->elemSize;
+   arr->len         -= N;
+
+
    if (arr->clearer != NULL) {
-      for (char *p = subStart; p != subEnd; p += arr->elemSize) {
+      for (char *p = removeStart; p < removeEnd; p += arr->elemSize) {
             arr->clearer(p);
       }
    }
 
-   memmove(subStart, subEnd, (size_t)(arrayEnd-subEnd));
-   memset(arrayStart, 0,     (size_t)(arrayEnd-arrayStart));
+   memmove(removeStart,  removeEnd, (size_t)(clearEnd-removeEnd));
+   memset(clearStart,    0,         (size_t)(clearEnd-clearStart));
    return;
 }
 
 void Array_fit(Array *arr) {
+   if (arr->len <= 0) {
+      if (arr->cap > 0) {
+         Mem_free(arr->data);
+      }
+      arr->data = NULL;
+      arr->len  = 0;
+      arr->cap  = 0;
+      return;
+   }
+
    int szBytes = arr->len*arr->elemSize;
    arr->data   = (char*)Mem_realloc(arr->data, szBytes);
    arr->cap    = arr->len;
