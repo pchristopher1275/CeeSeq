@@ -697,8 +697,85 @@ Unit_declare(testForeach) {
 			}
 			chk(count == -1);	
 		}
-
+		IntArr_free(arr);
 	}
+
+	{
+		FooArr *arr = FooArr_new(0);
+		for (int i = 0; i < 5; i++) {
+			Foo foo = {3*i, 6*i};
+			FooArr_push(arr, foo);
+		}
+
+		int count = 0;
+		FooArr_foreach(it, arr) {
+			chk(it.var->i == 3*count);
+			chk(it.var->d == 6*count);
+			count++;
+			if (count == 5) {
+				chk(it.last);
+			} else {
+				chk(!it.last);
+			}
+		}
+		chk(count == 5);
+
+		count = 5-1;
+		FooArr_rforeach(it, arr) {
+			chk(it.var->i == 3*count);
+			chk(it.var->d == 6*count);
+			if (count == 0) {
+				chk(it.last);
+			} else {
+				chk(!it.last);
+			}
+			count--;
+		}
+
+
+		FooArr_foreach(it, arr) {
+			it.var->i += 17;
+		}
+
+		count = 0;
+		FooArr_foreach(it, arr) {
+			chk(it.var->i == 3*count + 17);
+			count++;
+		}
+		chk(count == 5);
+
+		{
+			count = 0;
+			FooArr_loop(it, arr) {
+				chk(it.var->i == 3*count+17);
+				count++;
+				break;
+			}
+			while (FooArrIter_next(&it)) {
+				count++;
+			}
+			chk(count == 5);
+		}
+
+		{
+			count = 5-1;
+			FooArr_rloop(it, arr) {
+				chk(it.var->i == 3*count+17);
+				count--;
+				break;
+			}
+			while (FooArrIter_previous(&it)) {
+				chk(it.var->i == 3*count+17);
+				count--;
+			}
+			chk(count == -1);	
+		}
+		FooArr_free(arr);
+	}	
+}
+
+Unit_declare(testForeachInsert) {
+
 }
 
 int main(int argc, char *argv[]) {
@@ -713,5 +790,6 @@ int main(int argc, char *argv[]) {
 	Unit_test(testInsert);
 	Unit_test(testRemove);
 	Unit_test(testForeach);
+	Unit_test(testForeachInsert);
 	Unit_finalize();
 }
