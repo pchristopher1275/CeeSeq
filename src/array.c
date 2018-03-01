@@ -239,12 +239,17 @@ bool ArrayIter_next(ArrayIter *iterator) {
    return true;
 }
 
-bool ArrayIter_nextValue(ArrayIter *iterator, char *value) {
-   if (ArrayIter_next(iterator)) {
-      memmove(value, iterator->element, iterator->arr->elemSize);
-      return true;
+bool ArrayIter_previous(ArrayIter *iterator) {
+   if (iterator->index >= Array_len(iterator->arr)) {
+      iterator->index = Array_len(iterator->arr);
    }
-   return false;
+   if (iterator->index-1 < 0) {
+      return false;
+   }
+   iterator->index--;
+   iterator->element = Array_get(iterator->arr, iterator->index);
+   iterator->last    = iterator->index == 0;
+   return true;
 }
 
 // insert element before last next element

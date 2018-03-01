@@ -114,16 +114,23 @@ static inline void ${TYPENAME}_fit(${TYPENAME} *arr) {
 	Array_fit((Array*)arr);
 }
 
+static inline int ${TYPENAME}_last(${TYPENAME} *arr) {
+	return Array_len((Array*)arr)-1;
+}
+
 typedef struct ${TYPENAME}Iter_t {
    ${TYPENAME} *arr;
    int index;
    bool last;
-   ${ELEMNAME}*pvalue;
-   ${ELEMNAME}value;
+   ${ELEMNAME}*var;
 } ${TYPENAME}Iter;
 
 static inline bool ${TYPENAME}Iter_next(${TYPENAME}Iter *iterator) {
-	return ArrayIter_nextValue((ArrayIter*)iterator, (char*)&iterator->value);
+	return ArrayIter_next((ArrayIter*)iterator);
+}
+
+static inline bool ${TYPENAME}Iter_previous(${TYPENAME}Iter *iterator) {
+	return ArrayIter_previous((ArrayIter*)iterator);
 }
 
 static inline bool ${TYPENAME}Iter_insert(${TYPENAME}Iter *iterator, ${ELEMNAME_NS} value) {
@@ -134,9 +141,12 @@ static inline bool ${TYPENAME}Iter_remove(${TYPENAME}Iter *iterator) {
 	return ArrayIter_remove((ArrayIter*)iterator);
 }
 
-#define ${TYPENAME}Iter_declare(var, arr)  ${TYPENAME}Iter var = {arr, -1, false, NULL, ${ELEMZERO}}
+#define ${TYPENAME}Iter_declare(var, arr)  ${TYPENAME}Iter var = {arr, -1, false, NULL}
+#define ${TYPENAME}Iter_rdeclare(var, arr)  ${TYPENAME}Iter var = {arr, ${TYPENAME}_len(arr), false, NULL}
 #define ${TYPENAME}_foreach(var, arr)  for (${TYPENAME}Iter_declare(var, arr); ${TYPENAME}Iter_next(&var); )
+#define ${TYPENAME}_rforeach(var, arr)  for (${TYPENAME}Iter_rdeclare(var, arr); ${TYPENAME}Iter_previous(&var); )
 #define ${TYPENAME}_loop(var, arr)    ${TYPENAME}Iter_declare(var, arr); while (${TYPENAME}Iter_next(&var)) 
+#define ${TYPENAME}_rloop(var, arr)    ${TYPENAME}Iter_rdeclare(var, arr); while (${TYPENAME}Iter_previous(&var)) 
 
 
 END

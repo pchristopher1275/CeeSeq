@@ -87,16 +87,23 @@ static inline void FooArr_fit(FooArr *arr) {
     Array_fit((Array*)arr);
 }
 
+static inline int FooArr_last(FooArr *arr) {
+    return Array_len((Array*)arr)-1;
+}
+
 typedef struct FooArrIter_t {
    FooArr *arr;
    int index;
    bool last;
-   Foo *pvalue;
-   Foo value;
+   Foo *var;
 } FooArrIter;
 
 static inline bool FooArrIter_next(FooArrIter *iterator) {
-    return ArrayIter_nextValue((ArrayIter*)iterator, (char*)&iterator->value);
+    return ArrayIter_next((ArrayIter*)iterator);
+}
+
+static inline bool FooArrIter_previous(FooArrIter *iterator) {
+    return ArrayIter_previous((ArrayIter*)iterator);
 }
 
 static inline bool FooArrIter_insert(FooArrIter *iterator, Foo value) {
@@ -107,9 +114,12 @@ static inline bool FooArrIter_remove(FooArrIter *iterator) {
     return ArrayIter_remove((ArrayIter*)iterator);
 }
 
-#define FooArrIter_declare(var, arr)  FooArrIter var = {arr, -1, false, NULL, {0}}
+#define FooArrIter_declare(var, arr)  FooArrIter var = {arr, -1, false, NULL}
+#define FooArrIter_rdeclare(var, arr)  FooArrIter var = {arr, FooArr_len(arr), false, NULL}
 #define FooArr_foreach(var, arr)  for (FooArrIter_declare(var, arr); FooArrIter_next(&var); )
+#define FooArr_rforeach(var, arr)  for (FooArrIter_rdeclare(var, arr); FooArrIter_previous(&var); )
 #define FooArr_loop(var, arr)    FooArrIter_declare(var, arr); while (FooArrIter_next(&var)) 
+#define FooArr_rloop(var, arr)    FooArrIter_rdeclare(var, arr); while (FooArrIter_previous(&var)) 
 
 
 typedef struct FooPtrArr_t {
@@ -201,16 +211,23 @@ static inline void FooPtrArr_fit(FooPtrArr *arr) {
     Array_fit((Array*)arr);
 }
 
+static inline int FooPtrArr_last(FooPtrArr *arr) {
+    return Array_len((Array*)arr)-1;
+}
+
 typedef struct FooPtrArrIter_t {
    FooPtrArr *arr;
    int index;
    bool last;
-   Foo **pvalue;
-   Foo *value;
+   Foo **var;
 } FooPtrArrIter;
 
 static inline bool FooPtrArrIter_next(FooPtrArrIter *iterator) {
-    return ArrayIter_nextValue((ArrayIter*)iterator, (char*)&iterator->value);
+    return ArrayIter_next((ArrayIter*)iterator);
+}
+
+static inline bool FooPtrArrIter_previous(FooPtrArrIter *iterator) {
+    return ArrayIter_previous((ArrayIter*)iterator);
 }
 
 static inline bool FooPtrArrIter_insert(FooPtrArrIter *iterator, Foo * value) {
@@ -221,9 +238,12 @@ static inline bool FooPtrArrIter_remove(FooPtrArrIter *iterator) {
     return ArrayIter_remove((ArrayIter*)iterator);
 }
 
-#define FooPtrArrIter_declare(var, arr)  FooPtrArrIter var = {arr, -1, false, NULL, {0}}
+#define FooPtrArrIter_declare(var, arr)  FooPtrArrIter var = {arr, -1, false, NULL}
+#define FooPtrArrIter_rdeclare(var, arr)  FooPtrArrIter var = {arr, FooPtrArr_len(arr), false, NULL}
 #define FooPtrArr_foreach(var, arr)  for (FooPtrArrIter_declare(var, arr); FooPtrArrIter_next(&var); )
+#define FooPtrArr_rforeach(var, arr)  for (FooPtrArrIter_rdeclare(var, arr); FooPtrArrIter_previous(&var); )
 #define FooPtrArr_loop(var, arr)    FooPtrArrIter_declare(var, arr); while (FooPtrArrIter_next(&var)) 
+#define FooPtrArr_rloop(var, arr)    FooPtrArrIter_rdeclare(var, arr); while (FooPtrArrIter_previous(&var)) 
 
 
 typedef struct IntArr_t {
@@ -315,16 +335,23 @@ static inline void IntArr_fit(IntArr *arr) {
     Array_fit((Array*)arr);
 }
 
+static inline int IntArr_last(IntArr *arr) {
+    return Array_len((Array*)arr)-1;
+}
+
 typedef struct IntArrIter_t {
    IntArr *arr;
    int index;
    bool last;
-   int *pvalue;
-   int value;
+   int *var;
 } IntArrIter;
 
 static inline bool IntArrIter_next(IntArrIter *iterator) {
-    return ArrayIter_nextValue((ArrayIter*)iterator, (char*)&iterator->value);
+    return ArrayIter_next((ArrayIter*)iterator);
+}
+
+static inline bool IntArrIter_previous(IntArrIter *iterator) {
+    return ArrayIter_previous((ArrayIter*)iterator);
 }
 
 static inline bool IntArrIter_insert(IntArrIter *iterator, int value) {
@@ -335,8 +362,11 @@ static inline bool IntArrIter_remove(IntArrIter *iterator) {
     return ArrayIter_remove((ArrayIter*)iterator);
 }
 
-#define IntArrIter_declare(var, arr)  IntArrIter var = {arr, -1, false, NULL, 0}
+#define IntArrIter_declare(var, arr)  IntArrIter var = {arr, -1, false, NULL}
+#define IntArrIter_rdeclare(var, arr)  IntArrIter var = {arr, IntArr_len(arr), false, NULL}
 #define IntArr_foreach(var, arr)  for (IntArrIter_declare(var, arr); IntArrIter_next(&var); )
+#define IntArr_rforeach(var, arr)  for (IntArrIter_rdeclare(var, arr); IntArrIter_previous(&var); )
 #define IntArr_loop(var, arr)    IntArrIter_declare(var, arr); while (IntArrIter_next(&var)) 
+#define IntArr_rloop(var, arr)    IntArrIter_rdeclare(var, arr); while (IntArrIter_previous(&var)) 
 
 

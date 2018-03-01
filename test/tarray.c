@@ -427,6 +427,10 @@ Unit_declare(testInsert) {
 		IntArr_insertp(arr1, 4, &k, err);
 		fatal(!Error_iserror(err));
 
+		// Insert at last index
+		IntArr_insert(arr1, IntArr_len(arr1), 111, err);
+		fatal(!Error_iserror(err));
+
 		chk(IntArr_get(arr1, 0, err) == 1);
 		fatal(!Error_iserror(err));
 
@@ -445,6 +449,9 @@ Unit_declare(testInsert) {
 		chk(IntArr_get(arr1, 5, err) == 0);
 		fatal(!Error_iserror(err));
 		
+		chk(IntArr_get(arr1, IntArr_last(arr1), err) == 111);
+		fatal(!Error_iserror(err));
+
 		IntArr_free(arr1);
 	}
 
@@ -466,6 +473,12 @@ Unit_declare(testInsert) {
 		foo.i = 3;
 		foo.d = 3.0;
 		FooArr_insertp(arr1, 4, &foo, err);
+		fatal(!Error_iserror(err));
+
+
+		foo.i = 111;
+		foo.d = 111.0;
+		FooArr_insertp(arr1, FooArr_len(arr1), &foo, err);
 		fatal(!Error_iserror(err));
 
 
@@ -499,6 +512,12 @@ Unit_declare(testInsert) {
 		chk(foo.i == 0);
 		chk(foo.d == 0.0);
 		
+		foo = FooArr_get(arr1, FooArr_last(arr1), err);
+		fatal(!Error_iserror(err));
+		chk(foo.i == 111);
+		chk(foo.d == 111.0);
+
+
 		FooArr_free(arr1);
 	}
 
@@ -558,6 +577,13 @@ Unit_declare(testRemove){
 			fatal(!Error_iserror(err));
 			chk(k == 2*i);
 		}
+
+		for (int i = 0; i < 5; i++) {
+			IntArr_remove(arr1, IntArr_last(arr1), err);
+			fatal(!Error_iserror(err));			
+			chk(IntArr_len(arr1) == 5-1-i);
+		}
+		IntArr_free(arr1);
 	}
 
 	{
@@ -591,7 +617,87 @@ Unit_declare(testRemove){
 			chk(foo.i == 4*i);
 			chk(foo.d == (double)8*i);
 		}
+
+		for (int i = 0; i < 5; i++) {
+			FooArr_remove(arr1, FooArr_last(arr1), err);
+			fatal(!Error_iserror(err));			
+			chk(FooArr_len(arr1) == 5-1-i);
+		}
+
 		FooArr_free(arr1);
+	}
+}
+
+Unit_declare(testForeach) {
+	{
+		IntArr *arr = IntArr_new(0);
+		for (int i = 0; i < 5; i++) {
+			IntArr_push(arr, 3*i);
+		}
+
+		int count = 0;
+		IntArr_foreach(it, arr) {
+			chk(*it.var == 3*count);
+			count++;
+			if (count == 5) {
+				chk(it.last);
+			} else {
+				chk(!it.last);
+			}
+		}
+		chk(count == 5);
+
+		count = 5-1;
+		IntArr_rforeach(it, arr) {
+			chk(*it.var == 3*count);
+			
+			if (count == 0) {
+				chk(it.last);
+			} else {
+				chk(!it.last);
+			}
+			count--;
+		}
+
+
+		IntArr_foreach(it, arr) {
+			*it.var += 17;
+		}
+
+		count = 0;
+		IntArr_foreach(it, arr) {
+			chk(*it.var == 3*count + 17);
+			count++;
+		}
+		chk(count == 5);
+
+		{
+			count = 0;
+			IntArr_loop(it, arr) {
+				chk(*it.var == 3*count+17);
+				count++;
+				break;
+			}
+			while (IntArrIter_next(&it)) {
+				count++;
+			}
+			chk(count == 5);
+		}
+
+		{
+			count = 5-1;
+			IntArr_rloop(it, arr) {
+				chk(*it.var == 3*count+17);
+				count--;
+				break;
+			}
+			while (IntArrIter_previous(&it)) {
+				chk(*it.var == 3*count+17);
+				count--;
+			}
+			chk(count == -1);	
+		}
+
 	}
 }
 
@@ -606,5 +712,6 @@ int main(int argc, char *argv[]) {
 	Unit_test(testSet);
 	Unit_test(testInsert);
 	Unit_test(testRemove);
+	Unit_test(testForeach);
 	Unit_finalize();
 }
