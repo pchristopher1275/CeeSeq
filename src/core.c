@@ -158,13 +158,8 @@ APIF int Error_maypost(Error *err)
 //
 APIF void DBLog_init(const char *tag, Error *err)
 {
-    if (dbLog_outputFd == NULL) {
-        const char *HOME = getenv("HOME");
-        if (HOME == NULL) {
-            Error_format0(err, "Failed to find $HOME");
-            return;
-        }
-        sds outputFile = sdscatprintf(sdsempty(), "%s/CeeSeq/%s_DBLog.txt", HOME, tag);
+    if (dbLog_outputFd == NULL) {        
+        sds outputFile = sdscatprintf(sdsempty(), "%s/%s_DBLog.txt", CSEQ_HOME, tag);
         dbLog_outputFd = fopen(outputFile, "w");
         if (dbLog_outputFd == NULL) {
             Error_format(err, "DBLog_init failed to open log file %s", outputFile);
@@ -177,6 +172,27 @@ APIF void DBLog_init(const char *tag, Error *err)
         sdsfree(outputFile);
     }
 }
+
+//
+// S Y M B O L
+//
+#ifdef TEST_BUILD
+typedef struct Symbol_t {sds name;} Symbol;
+static inline const char *Symbol_cstr(Symbol *s) {
+    return s->name;
+}
+static inline Symbol *Symbol_gen(const char *word) {
+    Symbol *s = Mem_malloc(sizeof(Symbol));
+    s->name = sdsnew(word);
+    return s;
+}
+
+#else
+#define Symbol t_symbol
+#define Symbol_gen gensym
+#define Symbol_cstr(s) (s->s_name)
+#endif
+
 
 
 

@@ -105,6 +105,7 @@ static inline void ${TYPENAME}_insertp(${TYPENAME} *arr, int index, ${ELEMNAME}*
 	*p = *elem;
 }
 
+
 static inline void ${TYPENAME}_remove(${TYPENAME} *arr, int index, Error *err) {
 	Array_removeNCheck(arr, index, 1, err);
 	Array_removeN((Array*)arr, index, 1);
@@ -131,14 +132,6 @@ static inline bool ${TYPENAME}Iter_next(${TYPENAME}Iter *iterator) {
 
 static inline bool ${TYPENAME}Iter_previous(${TYPENAME}Iter *iterator) {
 	return ArrayIter_previous((ArrayIter*)iterator);
-}
-
-static inline bool ${TYPENAME}Iter_insert(${TYPENAME}Iter *iterator, ${ELEMNAME_NS} value) {
-	return ArrayIter_insert((ArrayIter*)iterator, (char*)&value);
-}
-
-static inline bool ${TYPENAME}Iter_remove(${TYPENAME}Iter *iterator) {
-	return ArrayIter_remove((ArrayIter*)iterator);
 }
 
 #define ${TYPENAME}Iter_declare(var, arr)  ${TYPENAME}Iter var = {arr, -1, false, NULL}

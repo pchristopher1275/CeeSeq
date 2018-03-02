@@ -32,7 +32,7 @@ typedef struct _CseqHub
 #define CseqHub_grabNextTappedPad(cseq) Hub_grabNextTappedPad(CseqHub_hub(cseq))
 #define CseqHub_padIndexFromInNote(cseq, inputNote) Hub_padIndexFromInNote(CseqHub_hub(cseq), inputNote)
 
-void *CseqHub_new(t_symbol *s, long argc, t_atom *argv);
+void *CseqHub_new(Symbol *s, long argc, t_atom *argv);
 void CseqHub_free(CseqHub *x);
 void CseqHub_assist(CseqHub *x, void *b, long m, long a, char *s);
 void CseqHub_int(CseqHub *x, long n);
@@ -74,7 +74,7 @@ void ext_main(void *r)
 
 // initial optional arg is delay time
 
-void *CseqHub_new(t_symbol *s, long argc, t_atom *argv)
+void *CseqHub_new(Symbol *s, long argc, t_atom *argv)
 {
     Error_declare(err);
     CseqHub *x = (CseqHub *)object_alloc(CseqHub_class);
@@ -96,15 +96,8 @@ void *CseqHub_new(t_symbol *s, long argc, t_atom *argv)
 
     Hub_init(hub, pf, err);    
     
-
-    const char *HOME = getenv("HOME");
-    if (HOME == NULL) {
-        post("Failed to find HOME");
-        HOME = "foobar";
-    }
-
-    // t_symbol *pianoName = gensym("piano");
-    t_symbol *organName = gensym("organ");
+    // Symbol *pianoName = gensym("piano");
+    Symbol *organName = gensym("organ");
     const int npads = Hub_padsPerBank;
     Hub_setPadList(CseqHub_hub(x), PadList_new(npads));
     
@@ -126,7 +119,6 @@ void *CseqHub_new(t_symbol *s, long argc, t_atom *argv)
         Midiseq *midi = Midiseq_newNote(pitch);
         Pad_setSequence(pad, midi);        
     }
-    dblog0("POINT end of loop");
 
     // START TRANSPORT
     itm_resume(time_getitm(x->schedular));
@@ -136,7 +128,6 @@ void *CseqHub_new(t_symbol *s, long argc, t_atom *argv)
 
     Hub_changeSelectedPad(hub, 0, err);
     Error_maypost(err);
-    dblog0("POINT end");
     return x;
 }
 

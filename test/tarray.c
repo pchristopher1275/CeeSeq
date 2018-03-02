@@ -774,10 +774,6 @@ Unit_declare(testForeach) {
 	}	
 }
 
-Unit_declare(testForeachInsert) {
-
-}
-
 int main(int argc, char *argv[]) {
 	Unit_initialize(argc, argv);
 	Unit_test(testNewFree);
@@ -790,6 +786,5 @@ int main(int argc, char *argv[]) {
 	Unit_test(testInsert);
 	Unit_test(testRemove);
 	Unit_test(testForeach);
-	Unit_test(testForeachInsert);
 	Unit_finalize();
 }

@@ -78,7 +78,7 @@ sub copyCodeToSource {
 
 sub xcodebuild {
     my ($buildNumber) = @_;
-    my $cmd = "(cd $gSourceDir && xcodebuild  GCC_PREPROCESSOR_DEFINITIONS='CSEQ_BUILD_NUMBER=$buildNumber')";
+    my $cmd = "(cd $gSourceDir && xcodebuild OTHER_CFLAGS='-DCSEQ_BUILD_NUMBER=$buildNumber -DCSEQ_HOME=\"\\\"$gHome\\\"\"')";
     run($cmd);
 }
 

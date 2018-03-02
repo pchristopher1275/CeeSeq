@@ -238,19 +238,14 @@ APIF MidiseqCell *Midiseq_get(Midiseq *midi, int index, Error *err)
 bool Midiseq_pathsAllocated = false;
 sds Midiseq_midiCsvExecPath = NULL;
 sds Midiseq_csvMidiExecPath = NULL;
+
 APIF void Midiseq_setMidicsvExecPath()
 {
     if (!Midiseq_pathsAllocated) {
-        const char *HOME = getenv("HOME");
-        if (HOME == NULL) {
-            post("Failed to find HOME variable");
-            return;
-        }
-        Midiseq_midiCsvExecPath = sdscatprintf(sdsempty(), "%s/CeeSeq/Shared/midicsv-1.1/midicsv", HOME);
-        Midiseq_csvMidiExecPath = sdscatprintf(sdsempty(), "%s/CeeSeq/Shared/midicsv-1.1/csvmidi", HOME);
+        Midiseq_midiCsvExecPath = sdscatprintf(sdsempty(), "%s/packages/midicsv-1.1/midicsv", CSEQ_HOME);
+        Midiseq_csvMidiExecPath = sdscatprintf(sdsempty(), "%s/packages/midicsv-1.1/csvmidi", CSEQ_HOME);
         Midiseq_pathsAllocated = true;
     }
-
 }
 
 
@@ -292,7 +287,7 @@ APIF long PortFind_iterator(PortFind *pf, t_object *targetBox)
         return 0;
     }
 
-    t_symbol *varname = object_attr_getsym(targetBox, gensym("varname"));
+    Symbol *varname = object_attr_getsym(targetBox, gensym("varname"));
     if (varname == NULL) {
         varname = gensym("unknown");
     }
@@ -340,7 +335,7 @@ APIF void PortFind_clear(PortFind *pf)
 }
 
 
-APIF Port *PortFind_findByVarname(PortFind *pf, t_symbol *symbol)
+APIF Port *PortFind_findByVarname(PortFind *pf, Symbol *symbol)
 {
     for (int i = 0; i < sb_count(pf->objectsFound); i++) {
         PortFindCell *pfc = pf->objectsFound + i;
@@ -352,7 +347,7 @@ APIF Port *PortFind_findByVarname(PortFind *pf, t_symbol *symbol)
 }
 
 
-APIF Port *PortFind_findByTrack(PortFind *pf, t_symbol *symbol)
+APIF Port *PortFind_findByTrack(PortFind *pf, Symbol *symbol)
 {
     for (int i = 0; i < sb_count(pf->objectsFound); i++) {
         PortFindCell *pfc = pf->objectsFound + i;
@@ -364,7 +359,7 @@ APIF Port *PortFind_findByTrack(PortFind *pf, t_symbol *symbol)
 }
 
 
-APIF Port *PortFind_findById(PortFind *pf, t_symbol *symbol)
+APIF Port *PortFind_findById(PortFind *pf, Symbol *symbol)
 {
     for (int i = 0; i < sb_count(pf->objectsFound); i++) {
         PortFindCell *pfc = pf->objectsFound + i;
@@ -1129,7 +1124,7 @@ APIF void TrackList_free(TrackList *tl_in)
 }
 
 
-APIF Track *TrackList_findTrackByName(TrackList *tl_in, t_symbol *name)
+APIF Track *TrackList_findTrackByName(TrackList *tl_in, Symbol *name)
 {
     Track *tl = (Track*)tl_in;
     for (int i = 0; i < sb_count(tl); i++) {
@@ -1186,10 +1181,10 @@ APIF DropDown *DropDown_new(const char **table, PortRef *pr) {
 }
 
 APIF void DropDown_init(DropDown *dd, const char **table, PortRef *pr) {
-    t_symbol **l     = NULL;
+    Symbol **l     = NULL;
     const char **ptr = table;
     while (*ptr) {
-        t_symbol *s = gensym(*ptr);
+        Symbol *s = gensym(*ptr);
         sb_push(l, s);
         ptr++;
     }
@@ -1680,12 +1675,12 @@ APIF void Hub_midiFileDrop(Hub *hub, t_atom *pathAtom) {
         post("midiFileDrop requires at least 1 symbol argument");
         return;
     }
-    t_symbol *path = atom_getsym(pathAtom);
+    Symbol *path = atom_getsym(pathAtom);
     if (path == gensym("")) {
         post("midiFileDrop requires at least 1 symbol argument");
         return;
     }
-    const char *colon = strchr(path->s_name, ':');
+    const char *colon = strchr(Symbol_cstr(path), ':');
     if (colon == NULL) {
         post("midiFileDrop expected to find colon (:) in filename");
         return;
@@ -1764,7 +1759,7 @@ APIF void Hub_changeSelectedPad(Hub *hub, int selectedPadIndex, Error *err) {
 
 }
 
-APIF void Hub_anythingDispatch(void *hub_in, Port *port, t_symbol *msg, long argc, t_atom *argv)
+APIF void Hub_anythingDispatch(void *hub_in, Port *port, Symbol *msg, long argc, t_atom *argv)
 {
     Hub *hub = (Hub*)hub_in;
     if (Port_id(port) == gensym("guiBottom")) {
@@ -2133,12 +2128,12 @@ APIF sds BinFile_readString(BinFile *bf, Error *err) {
     return sdsdup(BinFile_buffer(bf));
 }
 
-APIF void BinFile_writeSymbol(BinFile *bf, t_symbol *value, Error *err) {
-    BinFile_writeString(bf, value->s_name, err);
+APIF void BinFile_writeSymbol(BinFile *bf, Symbol *value, Error *err) {
+    BinFile_writeString(bf, Symbol_cstr(value), err);
     return;
 }
 
-APIF t_symbol *BinFile_readSymbol(BinFile *bf, Error *err) {
+APIF Symbol *BinFile_readSymbol(BinFile *bf, Error *err) {
     long length = BinFile_readLength(bf, err);
     Error_returnNullOnError(err);
 

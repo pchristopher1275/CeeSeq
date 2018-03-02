@@ -252,6 +252,7 @@ bool ArrayIter_previous(ArrayIter *iterator) {
    return true;
 }
 
+/*
 // insert element before last next element
 bool ArrayIter_insert(ArrayIter *iterator, char *element) {
    // Note it IS LEGAL to pass an iterator that is pointing 1 past the end of the array. 
@@ -275,4 +276,4 @@ bool ArrayIter_remove(ArrayIter *iterator) {
    iterator->index--;
    return true;
 }
-
+*/

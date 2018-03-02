@@ -19,8 +19,8 @@
 
 static t_class *Port_class = NULL;
 
-void *Port_new(t_symbol *s, long argc, t_atom *argv);
-void Port_anything(Port *port, t_symbol *msg, long argc, t_atom *argv);
+void *Port_new(Symbol *s, long argc, t_atom *argv);
+void Port_anything(Port *port, Symbol *msg, long argc, t_atom *argv);
 void Port_free(Port *x);
 void Port_int(Port *port, long value);
 
@@ -51,7 +51,7 @@ void ext_main(void *r)
 }
 
 
-void *Port_new(t_symbol *s, long argc, t_atom *argv)
+void *Port_new(Symbol *s, long argc, t_atom *argv)
 {
     Port *port = (Port *)object_alloc(Port_class);
     attr_args_process(port, argc, argv);
@@ -114,7 +114,7 @@ void *Port_new(t_symbol *s, long argc, t_atom *argv)
 }
 
 
-void Port_anything(Port *port, t_symbol *msg, long argc, t_atom *argv)
+void Port_anything(Port *port, Symbol *msg, long argc, t_atom *argv)
 {
     if (Port_anythingDispatch(port) != NULL) {
         Port_anythingDispatch(port)(Port_hub(port), port, msg, argc, argv);

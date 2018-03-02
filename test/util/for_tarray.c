@@ -78,6 +78,7 @@ static inline void FooArr_insertp(FooArr *arr, int index, Foo *elem, Error *err)
     *p = *elem;
 }
 
+
 static inline void FooArr_remove(FooArr *arr, int index, Error *err) {
     Array_removeNCheck(arr, index, 1, err);
     Array_removeN((Array*)arr, index, 1);
@@ -104,14 +105,6 @@ static inline bool FooArrIter_next(FooArrIter *iterator) {
 
 static inline bool FooArrIter_previous(FooArrIter *iterator) {
     return ArrayIter_previous((ArrayIter*)iterator);
-}
-
-static inline bool FooArrIter_insert(FooArrIter *iterator, Foo value) {
-    return ArrayIter_insert((ArrayIter*)iterator, (char*)&value);
-}
-
-static inline bool FooArrIter_remove(FooArrIter *iterator) {
-    return ArrayIter_remove((ArrayIter*)iterator);
 }
 
 #define FooArrIter_declare(var, arr)  FooArrIter var = {arr, -1, false, NULL}
@@ -202,6 +195,7 @@ static inline void FooPtrArr_insertp(FooPtrArr *arr, int index, Foo **elem, Erro
     *p = *elem;
 }
 
+
 static inline void FooPtrArr_remove(FooPtrArr *arr, int index, Error *err) {
     Array_removeNCheck(arr, index, 1, err);
     Array_removeN((Array*)arr, index, 1);
@@ -228,14 +222,6 @@ static inline bool FooPtrArrIter_next(FooPtrArrIter *iterator) {
 
 static inline bool FooPtrArrIter_previous(FooPtrArrIter *iterator) {
     return ArrayIter_previous((ArrayIter*)iterator);
-}
-
-static inline bool FooPtrArrIter_insert(FooPtrArrIter *iterator, Foo * value) {
-    return ArrayIter_insert((ArrayIter*)iterator, (char*)&value);
-}
-
-static inline bool FooPtrArrIter_remove(FooPtrArrIter *iterator) {
-    return ArrayIter_remove((ArrayIter*)iterator);
 }
 
 #define FooPtrArrIter_declare(var, arr)  FooPtrArrIter var = {arr, -1, false, NULL}
@@ -326,6 +312,7 @@ static inline void IntArr_insertp(IntArr *arr, int index, int *elem, Error *err)
     *p = *elem;
 }
 
+
 static inline void IntArr_remove(IntArr *arr, int index, Error *err) {
     Array_removeNCheck(arr, index, 1, err);
     Array_removeN((Array*)arr, index, 1);
@@ -352,14 +339,6 @@ static inline bool IntArrIter_next(IntArrIter *iterator) {
 
 static inline bool IntArrIter_previous(IntArrIter *iterator) {
     return ArrayIter_previous((ArrayIter*)iterator);
-}
-
-static inline bool IntArrIter_insert(IntArrIter *iterator, int value) {
-    return ArrayIter_insert((ArrayIter*)iterator, (char*)&value);
-}
-
-static inline bool IntArrIter_remove(IntArrIter *iterator) {
-    return ArrayIter_remove((ArrayIter*)iterator);
 }
 
 #define IntArrIter_declare(var, arr)  IntArrIter var = {arr, -1, false, NULL}
