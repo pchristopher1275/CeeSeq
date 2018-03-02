@@ -1,74 +1,5 @@
 #!/usr/bin/perl
 use strict;
-
-sub writeArrayDefn {
-	my ($out, $arrConfig) = @_;
-	my $typeName = $arrConfig->{typeName};
-	my $elemName = $arrConfig->{elemName};
-	print {$out}<<END;
-
-typedef struct ${typeName}_t $typeName;
-struct ${typeName}_t {Array a;};
-
-${typeName} *${typeName}_new(int nelems) {
-   return (${typeName}*)Array_new(nelems, sizeof(${elemName}));
-}
-
-${elemName} *${typeName}_get(${typeName} *arr, int index, Error *err) {
-	Array_getCheck(arr, index, err);
-  	return (${elemName}*)Array_get((Array*)arr, index);
-
-}
-
-${elemName} *${typeName}_data(${typeName} *arr, Error *err) {
-	Array_getCheck(a, 0, err);
-	return (${elemName}*)Array_get((Array*)arr, 0, err));
-}
-
-void ${typeName}_set(${typeName} *arr, int index, ${elemName} value, Error *err) {
-	Array_setCheck(arr, index, err);
-   	${typeName}_set(arr, index, &value, err);
-}
-
-int ${typeName}_len(${typeName} *arr) {
-   return Array_len((Array*)arr);
-}
-
-${elemName} *${typeName}_push(${typeName} *arr) {
-   return (${elemName}*)Array_pushN((Array*)arr, 1);
-}
-
-${elemName} *${typeName}_pushN(${typeName} *arr, int N) {
-   return (${elemName}*)Array_pushN((Array*)arr, N);
-}
-
-${elemName} *${typeName}_insert(${typeName} *arr, int index, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    return (${elemName}*)Array_insertN((Array*)arr, index, 1, err);
-}
-
-${elemName} *${typeName}_insertN(${typeName} *arr, int index, int N, Error *err) {
-    Array_insertNCheck(arr, index, N, err);
-    return (${elemName}*)Array_insertN((Array*)arr, index, N, err);
-}
-
-int ${typeName}_remove(Array *arr, int index, Error *err) {
-   Array_removeNCheck(arr, index, 1, err);
-   return Array_removeN((Array*)arr, index, 1, err);  
-}
-
-int ${typeName}_removeN(Array *arr, int index, int N, Error *err) {
-   Array_removeNCheck(arr, index, N, err);
-   return Array_removeN((Array*)arr, index, N, err);  
-}
-
-void ${typeName}_fit(Array *arr) {
-   Array_fit((Array*)arr);
-}
-
-END
-}
-
 sub writeWarning {
 	my ($out) = @_;
 	print {$out} "// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***\n";
@@ -675,10 +606,6 @@ sub main {
 		writeAPIFForType($apif, $out, $class->{typeName});
 		print {$out} "\n";
 	}	
-
-
-	## ARRAY
-	#writeArrayDefn($out, {typeName=>"BarArr", elemName=>"Bar"});
 }	
 
 main();
