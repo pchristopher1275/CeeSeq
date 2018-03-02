@@ -48,7 +48,7 @@ APIF Midiseq *Midiseq_new()
     Midiseq *midi = Midiseq_newUninitialized();
     midi->sequenceLength = 480*4;
     sb_add(midi->data, 2);
-    MidiseqCell cell = {0};
+    MEvent cell = {0};
     cell.t = 0;
     cell.type = Midiseq_endgrptype;
     midi->data[0] = cell;
@@ -75,14 +75,14 @@ APIF void Midiseq_toBinFile(Midiseq *mseq, BinFile *bf, Error *err) {
     Error_returnVoidOnError(err);
 
     for (int i = 0; i < sb_count(Midiseq_data(mseq)); i++) {
-        MidiseqCell cell = Midiseq_data(mseq)[i];
-        if (fprintf(BinFile_stream(bf), " %u %u %lld", MidiseqCell_type(cell), MidiseqCell_bendValue(cell), MidiseqCell_t(cell)) < 0) {
+        MEvent cell = Midiseq_data(mseq)[i];
+        if (fprintf(BinFile_stream(bf), " %u %u %lld", MEvent_type(cell), MEvent_bendValue(cell), MEvent_t(cell)) < 0) {
             Error_format(err, "Midiseq_toBinFile failed at fprintf[1] while writing %s", BinFile_filename(bf));
             return;
         }
 
-        if (MidiseqCell_type(cell) == Midiseq_notetype) {
-            if (fprintf(BinFile_stream(bf), " %lld", MidiseqCell_noteDuration(cell)) < 0) {
+        if (MEvent_type(cell) == Midiseq_notetype) {
+            if (fprintf(BinFile_stream(bf), " %lld", MEvent_noteDuration(cell)) < 0) {
                 Error_format(err, "Midiseq_toBinFile failed at fprintf[2] while writing %s", BinFile_filename(bf));
                 return;       
             }
@@ -119,20 +119,20 @@ APIF void Midiseq_fromBinFileUnititialized(Midiseq *mseq, BinFile *bf, Error *er
     BinFile_verifyTag(bf, "midiseq_start_data", err);
     Error_returnVoidOnError(err);
 
-    MidiseqCell *data = NULL;
+    MEvent *data = NULL;
     sb_add(data, length);
     for (int i = 0; i < length; i++) {
-        MidiseqCell cell = {0};
+        MEvent cell = {0};
         unsigned int type = 0, bendVal = 0;
-        if (fscanf(BinFile_stream(bf), " %u %u %lld", &type, &bendVal, &MidiseqCell_t(cell)) != 3) {
+        if (fscanf(BinFile_stream(bf), " %u %u %lld", &type, &bendVal, &MEvent_t(cell)) != 3) {
             Error_format(err, "Midiseq_fromBinFile failed at fscanf[1] while reading %s", BinFile_filename(bf));
             goto END;
         }
-        MidiseqCell_type(cell)      = type;
-        MidiseqCell_bendValue(cell) = bendVal;
+        MEvent_type(cell)      = type;
+        MEvent_bendValue(cell) = bendVal;
 
-        if (MidiseqCell_type(cell) == Midiseq_notetype) {
-            if (fscanf(BinFile_stream(bf), " %lld", &MidiseqCell_noteDuration(cell)) != 1) {
+        if (MEvent_type(cell) == Midiseq_notetype) {
+            if (fscanf(BinFile_stream(bf), " %lld", &MEvent_noteDuration(cell)) != 1) {
                 Error_format(err, "Midiseq_fromBinFile failed at fscanf[2] while reading %s", BinFile_filename(bf));
                 goto END;
             }
@@ -156,28 +156,28 @@ APIF Midiseq *Midiseq_newNote(int pitch)
     Midiseq *midi = (Midiseq*)sysmem_newptrclear(sizeof(Midiseq));
     midi->sequenceLength = 480*4;
 
-    MidiseqCell zero = {
+    MEvent zero = {
         0
     }
     , cell = {
         0
     };
 
-    MidiseqCell_t(cell)    = 0;
-    MidiseqCell_type(cell) = Midiseq_endgrptype;
+    MEvent_t(cell)    = 0;
+    MEvent_type(cell) = Midiseq_endgrptype;
     sb_push(midi->data, cell);
 
     cell = zero;
-    MidiseqCell_t(cell)            = 0;
-    MidiseqCell_type(cell)         = Midiseq_notetype;
-    MidiseqCell_notePitch(cell)    = pitch;
-    MidiseqCell_noteVelocity(cell) = 90;
-    MidiseqCell_noteDuration(cell) = 480;
+    MEvent_t(cell)            = 0;
+    MEvent_type(cell)         = Midiseq_notetype;
+    MEvent_notePitch(cell)    = pitch;
+    MEvent_noteVelocity(cell) = 90;
+    MEvent_noteDuration(cell) = 480;
     sb_push(midi->data, cell);
 
     cell                   = zero;
-    MidiseqCell_t(cell)    = midi->sequenceLength;
-    MidiseqCell_type(cell) = Midiseq_cycletype;
+    MEvent_t(cell)    = midi->sequenceLength;
+    MEvent_type(cell) = Midiseq_cycletype;
     sb_push(midi->data, cell);
 
     return midi;
@@ -219,13 +219,13 @@ APIF int Midiseq_len(Midiseq *midi)
 }
 
 
-APIF void Midiseq_push(Midiseq *midi, MidiseqCell cell)
+APIF void Midiseq_push(Midiseq *midi, MEvent cell)
 {
     sb_push(midi->data, cell);
 }
 
 
-APIF MidiseqCell *Midiseq_get(Midiseq *midi, int index, Error *err)
+APIF MEvent *Midiseq_get(Midiseq *midi, int index, Error *err)
 {
     if (index < 0 || index >= Midiseq_len(midi)) {
         Error_format(err, "Index out of range (%d, %d)", index, Midiseq_len(midi));
@@ -253,23 +253,23 @@ APIF void Midiseq_dblog(Midiseq *midi)
 {
     dblog("Midiseq %p", midi);
     for (int i = 0; i < Midiseq_len(midi); i++) {
-        MidiseqCell cell = midi->data[i];
-        switch (MidiseqCell_type(cell)) {
+        MEvent cell = midi->data[i];
+        switch (MEvent_type(cell)) {
             case Midiseq_notetype:
-                dblog("    %15lld note %15ld %15ld %15ld", MidiseqCell_t(cell),
-                    (long)MidiseqCell_notePitch(cell), (long)MidiseqCell_noteVelocity(cell), (long)MidiseqCell_noteDuration(cell));
+                dblog("    %15lld note %15ld %15ld %15ld", MEvent_t(cell),
+                    (long)MEvent_notePitch(cell), (long)MEvent_noteVelocity(cell), (long)MEvent_noteDuration(cell));
                 break;
             case Midiseq_bendtype:
-                dblog("    %15lld bend", MidiseqCell_t(cell));
+                dblog("    %15lld bend", MEvent_t(cell));
                 break;
             case Midiseq_cctype:
-                dblog("    %15lld cc", MidiseqCell_t(cell));
+                dblog("    %15lld cc", MEvent_t(cell));
                 break;
             case Midiseq_endgrptype:
-                dblog("    %15lld endgroup", MidiseqCell_t(cell));
+                dblog("    %15lld endgroup", MEvent_t(cell));
                 break;
             case Midiseq_cycletype:
-                dblog("    %15lld cycle", MidiseqCell_t(cell));
+                dblog("    %15lld cycle", MEvent_t(cell));
                 break;
         }
     }
@@ -434,7 +434,7 @@ APIF int Midiseq_assignLength(Midiseq *midi)
 }
 
 
-APIF int Midiseq_insertCell(Midiseq *midi, MidiseqCell cell, int index, Error *err)
+APIF int Midiseq_insertCell(Midiseq *midi, MEvent cell, int index, Error *err)
 {
     if (index < 0 || index > Midiseq_len(midi)) {
         Error_format(err, "Index out of range (%d, %d)", index, Midiseq_len(midi));
@@ -457,7 +457,7 @@ APIF int Midiseq_insertCell(Midiseq *midi, MidiseqCell cell, int index, Error *e
 
 APIF int Midiseq_insertEndgroup(Midiseq *midi, Error *err)
 {
-    MidiseqCell cell = {0};
+    MEvent cell = {0};
     cell.type = Midiseq_endgrptype;
 
     for (int i = Midiseq_len(midi)-1; i >= 0; i--) {
@@ -516,7 +516,7 @@ enum
 // Midiseq_nextevent always writes the current cell into the cell pointer. If the event
 // stored in cell happened before until, then (a) the sequence is advanced and (b) the
 // function returns 1. Otherwise 0 is returned and the sequence is left alone.
-APIF int Midiseq_nextevent(Midiseq *midi, Ticks until, MidiseqCell *cell, Error *err)
+APIF int Midiseq_nextevent(Midiseq *midi, Ticks until, MEvent *cell, Error *err)
 {
     if (midi->startTime == 0) {
         Error_format0(err, "Called nextevent on stoped sequence");
@@ -624,7 +624,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
             goto END;
         }
 
-        MidiseqCell cell = {0};
+        MEvent cell = {0};
         cell.t = (long)(tickFactor*convertInt(fields[1], err));
         if (Error_iserror(err)) {
             goto END;
@@ -670,7 +670,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
                     Error_format0(err, "INTERNAL ERROR");
                     goto END;
                 }
-                MidiseqCell *c = Midiseq_get(midi, index, err);
+                MEvent *c = Midiseq_get(midi, index, err);
                 if (Error_iserror(err)) {
                     goto END;
                 }
@@ -726,7 +726,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
 
     // Compute length and install cycle and end group
     Midiseq_assignLength(midi);
-    MidiseqCell cycle = {0};
+    MEvent cycle = {0};
     cycle.t = midi->sequenceLength;
     cycle.type = Midiseq_cycletype;
     Midiseq_push(midi, cycle);
@@ -1546,12 +1546,12 @@ APIF Ticks NoteManager_scheduleOffs(NoteManager *manager, Ticks current)
 
 
 // padIndexForEndgroup should be -1 if this cell is not in an endgroup
-APIF void NoteManager_midievent(NoteManager *manager, MidiseqCell cell, int padIndexForEndgroup)
+APIF void NoteManager_midievent(NoteManager *manager, MEvent cell, int padIndexForEndgroup)
 {
-    if (MidiseqCell_type(cell) == Midiseq_notetype) {
-        int pitch     = MidiseqCell_notePitch(cell);
-        int velocity  = MidiseqCell_noteVelocity(cell);
-        Ticks offtime = MidiseqCell_t(cell) + MidiseqCell_noteDuration(cell);
+    if (MEvent_type(cell) == Midiseq_notetype) {
+        int pitch     = MEvent_notePitch(cell);
+        int velocity  = MEvent_noteVelocity(cell);
+        Ticks offtime = MEvent_t(cell) + MEvent_noteDuration(cell);
 
         if (NoteManager_insertNoteOff(manager, offtime, pitch, padIndexForEndgroup)) {
             NoteManager_sendNoteOn(manager, pitch, 0);

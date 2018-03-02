@@ -216,10 +216,10 @@ sub BinFile_define {
 	return \%config;	
 }
 
-sub MidiseqCell_manualStruct {
+sub MEvent_manualStruct {
 	my ($out) = @_;
 	print {$out} <<END;
-struct MidiseqCell_t
+struct MEvent_t
 {
     uint8_t type;
     union
@@ -233,25 +233,25 @@ struct MidiseqCell_t
 END
 }
 
-sub MidiseqCell_preAccessor {
+sub MEvent_preAccessor {
 	my ($out) = @_;
 	print {$out}<<END;
-#define MidiseqCell_type(cell) ((cell).type)
-#define MidiseqCell_t(cell) ((cell).t)
-#define MidiseqCell_notePitch(cell) ((cell).b.b[0])
-#define MidiseqCell_noteVelocity(cell) ((cell).b.b[1])
-#define MidiseqCell_noteDuration(cell) ((cell).duration)
-#define MidiseqCell_ccNumber(cell) ((cell).b.b[0])
-#define MidiseqCell_ccValue(cell) ((cell).b.b[1])
-#define MidiseqCell_bendValue(cell) ((cell).b.bend)
+#define MEvent_type(cell) ((cell).type)
+#define MEvent_t(cell) ((cell).t)
+#define MEvent_notePitch(cell) ((cell).b.b[0])
+#define MEvent_noteVelocity(cell) ((cell).b.b[1])
+#define MEvent_noteDuration(cell) ((cell).duration)
+#define MEvent_ccNumber(cell) ((cell).b.b[0])
+#define MEvent_ccValue(cell) ((cell).b.b[1])
+#define MEvent_bendValue(cell) ((cell).b.bend)
 END
 }
 
-sub MidiseqCell_define {
+sub MEvent_define {
 	my %config = (
-		typeName => "MidiseqCell",
-		manualStruct => \&MidiseqCell_manualStruct,
-		preAccessor => \&MidiseqCell_preAccessor,
+		typeName => "MEvent",
+		manualStruct => \&MEvent_manualStruct,
+		preAccessor => \&MEvent_preAccessor,
 	);
 	return \%config;
 }
@@ -276,7 +276,7 @@ sub Midiseq_define {
 			{group=>"persist",},
 			{name=>"useMasterClock", type=>"bool",},
 			{name=>"sequenceLength", type=>"Ticks",},
-			{name=>"data",           type=>"MidiseqCell *",},
+			{name=>"data",           type=>"MEvent *",},
 			
 			{group=>"noPersist",},
 			{
@@ -565,7 +565,7 @@ sub main {
 	my @classes = (
 		BinFilePayload_define(),
 		BinFile_define(),
-		MidiseqCell_define(),
+		MEvent_define(),
 		Midiseq_define(),
 		Pad_define(),
 		PendingNoteOff_define(),

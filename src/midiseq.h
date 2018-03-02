@@ -7,8 +7,8 @@ struct BinFilePayload_t;
 typedef struct BinFilePayload_t BinFilePayload;
 struct BinFile_t;
 typedef struct BinFile_t BinFile;
-struct MidiseqCell_t;
-typedef struct MidiseqCell_t MidiseqCell;
+struct MEvent_t;
+typedef struct MEvent_t MEvent;
 struct Midiseq_t;
 typedef struct Midiseq_t Midiseq;
 struct Pad_t;
@@ -97,7 +97,7 @@ void BinFile_writeTag(BinFile *bf, const char *tag, Error *err);
 void BinFile_verifyTag(BinFile *bf, const char *tag, Error *err);
 
 // *** DO NOT MODIFY THIS FILE (see header.pl) ***
-struct MidiseqCell_t
+struct MEvent_t
 {
     uint8_t type;
     union
@@ -108,15 +108,15 @@ struct MidiseqCell_t
     Ticks t;
     Ticks duration;
 };
-#define MidiseqCell_newUninitialized() ((MidiseqCell*)sysmem_newptrclear(sizeof(MidiseqCell)))
-#define MidiseqCell_type(cell) ((cell).type)
-#define MidiseqCell_t(cell) ((cell).t)
-#define MidiseqCell_notePitch(cell) ((cell).b.b[0])
-#define MidiseqCell_noteVelocity(cell) ((cell).b.b[1])
-#define MidiseqCell_noteDuration(cell) ((cell).duration)
-#define MidiseqCell_ccNumber(cell) ((cell).b.b[0])
-#define MidiseqCell_ccValue(cell) ((cell).b.b[1])
-#define MidiseqCell_bendValue(cell) ((cell).b.bend)
+#define MEvent_newUninitialized() ((MEvent*)sysmem_newptrclear(sizeof(MEvent)))
+#define MEvent_type(cell) ((cell).type)
+#define MEvent_t(cell) ((cell).t)
+#define MEvent_notePitch(cell) ((cell).b.b[0])
+#define MEvent_noteVelocity(cell) ((cell).b.b[1])
+#define MEvent_noteDuration(cell) ((cell).duration)
+#define MEvent_ccNumber(cell) ((cell).b.b[0])
+#define MEvent_ccValue(cell) ((cell).b.b[1])
+#define MEvent_bendValue(cell) ((cell).b.bend)
 
 // *** DO NOT MODIFY THIS FILE (see header.pl) ***
 struct Midiseq_t
@@ -124,7 +124,7 @@ struct Midiseq_t
     // ** PERSISTED **
     bool useMasterClock;
     Ticks sequenceLength;
-    MidiseqCell *data;
+    MEvent *data;
     // ** not persisted **
     // startTime is the time offset that t = 0 that is stored in the sequence corresponds too.
     // Specifically, if useMasterClock is true, the startTime is updated whenever the ptr rolls
@@ -142,8 +142,8 @@ static inline bool Midiseq_useMasterClock(Midiseq *self){return self->useMasterC
 static inline void Midiseq_setUseMasterClock(Midiseq *self, bool value){self->useMasterClock = value;}
 static inline Ticks Midiseq_sequenceLength(Midiseq *self){return self->sequenceLength;}
 static inline void Midiseq_setSequenceLength(Midiseq *self, Ticks value){self->sequenceLength = value;}
-static inline MidiseqCell *Midiseq_data(Midiseq *self){return self->data;}
-static inline void Midiseq_setData(Midiseq *self, MidiseqCell *value){self->data = value;}
+static inline MEvent *Midiseq_data(Midiseq *self){return self->data;}
+static inline void Midiseq_setData(Midiseq *self, MEvent *value){self->data = value;}
 static inline Ticks Midiseq_startTime(Midiseq *self){return self->startTime;}
 static inline void Midiseq_setStartTime(Midiseq *self, Ticks value){self->startTime = value;}
 static inline int Midiseq_ptr(Midiseq *self){return self->ptr;}
@@ -157,16 +157,16 @@ void Midiseq_init(Midiseq *midi);
 void Midiseq_clear(Midiseq *midi);
 void Midiseq_free(Midiseq *midi);
 int Midiseq_len(Midiseq *midi);
-void Midiseq_push(Midiseq *midi, MidiseqCell cell);
-MidiseqCell *Midiseq_get(Midiseq *midi, int index, Error *err);
+void Midiseq_push(Midiseq *midi, MEvent cell);
+MEvent *Midiseq_get(Midiseq *midi, int index, Error *err);
 void Midiseq_setMidicsvExecPath();
 void Midiseq_dblog(Midiseq *midi);
 int Midiseq_assignLength(Midiseq *midi);
-int Midiseq_insertCell(Midiseq *midi, MidiseqCell cell, int index, Error *err);
+int Midiseq_insertCell(Midiseq *midi, MEvent cell, int index, Error *err);
 int Midiseq_insertEndgroup(Midiseq *midi, Error *err);
 int Midiseq_start(Midiseq *midi, Ticks startTime, Ticks currentTime, bool useMasterClock, Error *err);
 void Midiseq_stop(Midiseq *midi);
-int Midiseq_nextevent(Midiseq *midi, Ticks until, MidiseqCell *cell, Error *err);
+int Midiseq_nextevent(Midiseq *midi, Ticks until, MEvent *cell, Error *err);
 int Midiseq_fastfwrd(Midiseq *midi, long t, Error *err);
 Midiseq *Midiseq_fromfile(const char *fullpath, Error *err);
 
@@ -273,7 +273,7 @@ void NoteManager_sendNoteOn(NoteManager *manager, int pitch, int velocity);
 void NoteManager_flushOffs(NoteManager *manager);
 void NoteManager_dblogPending(NoteManager *manager, Ticks current);
 Ticks NoteManager_scheduleOffs(NoteManager *manager, Ticks current);
-void NoteManager_midievent(NoteManager *manager, MidiseqCell cell, int padIndexForEndgroup);
+void NoteManager_midievent(NoteManager *manager, MEvent cell, int padIndexForEndgroup);
 void NoteManager_padNoteOff(NoteManager *manager, int padIndex);
 
 // *** DO NOT MODIFY THIS FILE (see header.pl) ***

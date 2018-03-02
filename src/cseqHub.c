@@ -186,7 +186,7 @@ void CseqHub_playnotes(CseqHub *x)
 {
     Error_declare(err);
     Ticks now = cseqHub_now();
-    MidiseqCell cell = {0};
+    MEvent cell = {0};
     int status = 0;
     Ticks smallestDelta = -1;
     for (int i = 0; i < TrackList_count(CseqHub_trackList(x)); i++) {
@@ -211,7 +211,7 @@ void CseqHub_playnotes(CseqHub *x)
         Midiseq *midi            = Pad_sequence(pad);
         NoteManager *noteManager = Track_noteManager(Pad_track(pad));
         while ( (status = Midiseq_nextevent(midi, now, &cell, err)) == Midiseq_nextEventContinue) {
-            if (MidiseqCell_type(cell) == Midiseq_endgrptype) {
+            if (MEvent_type(cell) == Midiseq_endgrptype) {
                 Pad_setInEndgroup(pad, true);
             }
 
