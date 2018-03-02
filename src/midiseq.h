@@ -1,4 +1,4 @@
-// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+// *** DO NOT MODIFY THIS FILE (see header.pl) ***
 #define APIF /**/
 sds stripBaseName(const char *path);
 
@@ -37,7 +37,7 @@ struct Hub_t;
 typedef struct Hub_t Hub;
 
 
-// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+// *** DO NOT MODIFY THIS FILE (see header.pl) ***
 struct BinFilePayload_t
 {
     // ** not persisted **
@@ -45,7 +45,7 @@ struct BinFilePayload_t
 };
 #define BinFilePayload_newUninitialized() ((BinFilePayload*)sysmem_newptrclear(sizeof(BinFilePayload)))
 
-// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+// *** DO NOT MODIFY THIS FILE (see header.pl) ***
 struct BinFile_t
 {
     // ** not persisted **
@@ -87,8 +87,8 @@ void BinFile_writeInteger(BinFile *bf, long value, Error *err);
 long BinFile_readInteger(BinFile *bf, Error *err);
 void BinFile_writeString(BinFile *bf, sds value, Error *err);
 sds BinFile_readString(BinFile *bf, Error *err);
-void BinFile_writeSymbol(BinFile *bf, t_symbol *value, Error *err);
-t_symbol *BinFile_readSymbol(BinFile *bf, Error *err);
+void BinFile_writeSymbol(BinFile *bf, Symbol *value, Error *err);
+Symbol *BinFile_readSymbol(BinFile *bf, Error *err);
 void BinFile_writeTicks(BinFile *bf, Ticks value, Error *err);
 Ticks BinFile_readTicks(BinFile *bf, Error *err);
 void BinFile_writeBool(BinFile *bf, bool value, Error *err);
@@ -96,7 +96,7 @@ bool BinFile_readBool(BinFile *bf, Error *err);
 void BinFile_writeTag(BinFile *bf, const char *tag, Error *err);
 void BinFile_verifyTag(BinFile *bf, const char *tag, Error *err);
 
-// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+// *** DO NOT MODIFY THIS FILE (see header.pl) ***
 struct MidiseqCell_t
 {
     uint8_t type;
@@ -118,7 +118,7 @@ struct MidiseqCell_t
 #define MidiseqCell_ccValue(cell) ((cell).b.b[1])
 #define MidiseqCell_bendValue(cell) ((cell).b.bend)
 
-// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+// *** DO NOT MODIFY THIS FILE (see header.pl) ***
 struct Midiseq_t
 {
     // ** PERSISTED **
@@ -170,7 +170,7 @@ int Midiseq_nextevent(Midiseq *midi, Ticks until, MidiseqCell *cell, Error *err)
 int Midiseq_fastfwrd(Midiseq *midi, long t, Error *err);
 Midiseq *Midiseq_fromfile(const char *fullpath, Error *err);
 
-// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+// *** DO NOT MODIFY THIS FILE (see header.pl) ***
 struct Pad_t
 {
     // ** PERSISTED **
@@ -216,7 +216,7 @@ Pad *Pad_fromBinFile(BinFile *bf, Error *err);
 void Pad_fromBinFileUninitialized(Pad *pad, BinFile *bf, Error *err);
 void Pad_computeChokeGroup(Pad *pad);
 
-// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+// *** DO NOT MODIFY THIS FILE (see header.pl) ***
 struct PendingNoteOff_t 
 {
     struct PendingNoteOff_t *next;
@@ -245,7 +245,7 @@ void PendingNoteOff_insertPadIndexed(PendingNoteOff **head, int pitch, int padIn
 void PendingNoteOff_pop(PendingNoteOff **head);
 void PendingNoteOff_freeAll(PendingNoteOff *start);
 
-// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+// *** DO NOT MODIFY THIS FILE (see header.pl) ***
 struct NoteManager_t
 {
     // ** not persisted **
@@ -276,7 +276,7 @@ Ticks NoteManager_scheduleOffs(NoteManager *manager, Ticks current);
 void NoteManager_midievent(NoteManager *manager, MidiseqCell cell, int padIndexForEndgroup);
 void NoteManager_padNoteOff(NoteManager *manager, int padIndex);
 
-// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+// *** DO NOT MODIFY THIS FILE (see header.pl) ***
 struct PortFindCell_t
 {
     // ** not persisted **
@@ -289,7 +289,7 @@ static inline void PortFindCell_setReciever(PortFindCell *self, Port *value){sel
 static inline t_symbol *PortFindCell_varname(PortFindCell *self){return self->varname;}
 static inline void PortFindCell_setVarname(PortFindCell *self, t_symbol *value){self->varname = value;}
 
-// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+// *** DO NOT MODIFY THIS FILE (see header.pl) ***
 struct PortFind_t
 {
     // ** not persisted **
@@ -311,13 +311,13 @@ static inline void PortFind_setIntDispatch(PortFind *self, Port_intDispatchFunc 
 long PortFind_iterator(PortFind *pf, t_object *targetBox);
 int PortFind_discover(PortFind *pf, t_object *sourceMaxObject, void *hub, Error *err);
 void PortFind_clear(PortFind *pf);
-Port *PortFind_findByVarname(PortFind *pf, t_symbol *symbol);
-Port *PortFind_findByTrack(PortFind *pf, t_symbol *symbol);
-Port *PortFind_findById(PortFind *pf, t_symbol *symbol);
+Port *PortFind_findByVarname(PortFind *pf, Symbol *symbol);
+Port *PortFind_findByTrack(PortFind *pf, Symbol *symbol);
+Port *PortFind_findById(PortFind *pf, Symbol *symbol);
 int PortFind_portCount(PortFind *pf);
 Port *PortFind_findByIndex(PortFind *pf, int index, Error *err);
 
-// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+// *** DO NOT MODIFY THIS FILE (see header.pl) ***
 struct PadListIterator_t
 {
     int index;
@@ -327,7 +327,7 @@ struct PadListIterator_t
 static inline int PadListIterator_index(PadListIterator *self){return self->index;}
 static inline void PadListIterator_setIndex(PadListIterator *self, int value){self->index = value;}
 
-// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+// *** DO NOT MODIFY THIS FILE (see header.pl) ***
 struct PadList_t
 {
     Pad *pads;
@@ -353,7 +353,7 @@ void PadList_toBinFile(PadList *llst, BinFile *bf, Error *err);
 PadList *PadList_fromBinFile(BinFile *bf, Error *err);
 void PadList_fromBinFileUninitialized(PadList *llst, BinFile *bf, Error *err);
 
-// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+// *** DO NOT MODIFY THIS FILE (see header.pl) ***
 struct Track_t
 {
     t_symbol *name;
@@ -365,19 +365,19 @@ static inline void Track_setName(Track *self, t_symbol *value){self->name = valu
 static inline NoteManager *Track_noteManager(Track *self){return self->noteManager;}
 static inline void Track_setNoteManager(Track *self, NoteManager *value){self->noteManager = value;}
 
-// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+// *** DO NOT MODIFY THIS FILE (see header.pl) ***
 struct TrackList_t
 {
 };
 TrackList *TrackList_new(PortFind *pf);
 void TrackList_free(TrackList *tl_in);
-Track *TrackList_findTrackByName(TrackList *tl_in, t_symbol *name);
+Track *TrackList_findTrackByName(TrackList *tl_in, Symbol *name);
 int TrackList_count(TrackList *tl_in);
 Track *TrackList_findTrackByIndex(TrackList *tl_in, int index, Error *err);
 TrackList *TrackList_fromBinFile(BinFile *bf, Error *err);
 void TrackList_toBinFile(TrackList *tl, BinFile *bf, Error *err);
 
-// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+// *** DO NOT MODIFY THIS FILE (see header.pl) ***
 struct PortRef_t
 {
     Port *port;
@@ -400,7 +400,7 @@ static inline void PortRef_set(PortRef *pr, Port *port, int outlet) {
 #define PortRef_send(pr, argc, argv, err)      Port_send(PortRef_port(pr), PortRef_outlet(pr), argc, argv, err)
 #define PortRef_sendInteger(pr, value, err)    Port_sendInteger(PortRef_port(pr), PortRef_outlet(pr), value, err)
 
-// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+// *** DO NOT MODIFY THIS FILE (see header.pl) ***
 struct DropDown_t
 {
     t_symbol **table;
@@ -428,7 +428,7 @@ void DropDown_updateSelected(DropDown *dd, Error *err);
 void DropDown_setSelected(DropDown *dd, int selected, Error *err);
 void DropDown_initializeMenu(DropDown *dd, Error *err);
 
-// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***
+// *** DO NOT MODIFY THIS FILE (see header.pl) ***
 struct Hub_t
 {
     PadList *padList;
@@ -503,7 +503,7 @@ void Hub_updateGuiCurrentCoordinates(Hub *hub);
 void Hub_midiFileDrop(Hub *hub, t_atom *pathAtom);
 void Hub_manageChokeGroups(Hub *hub, long value, long inlet, Error *err);
 void Hub_changeSelectedPad(Hub *hub, int selectedPadIndex, Error *err);
-void Hub_anythingDispatch(void *hub_in, Port *port, t_symbol *msg, long argc, t_atom *argv);
+void Hub_anythingDispatch(void *hub_in, Port *port, Symbol *msg, long argc, t_atom *argv);
 void Hub_intDispatch(void *hub_in, Port *port, long value, long inlet);
 void Hub_toBinFile(Hub *hub, BinFile *bf, Error *err);
 Hub *Hub_fromBinFile(BinFile *bf, Error *err);

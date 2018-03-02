@@ -2,7 +2,7 @@
 use strict;
 sub writeWarning {
 	my ($out) = @_;
-	print {$out} "// *** DO NOT MODIFY THIS FILE (see header_build.pl) ***\n";
+	print {$out} "// *** DO NOT MODIFY THIS FILE (see header.pl) ***\n";
 }
 
 sub writeStruct {
@@ -561,7 +561,7 @@ sub Hub_define {
 
 sub main {
 	my $out = \*STDOUT;
-	my $apif = scanAPIF("cseq/midiseq.c");
+	my $apif = scanAPIF("src/midiseq.c");
 	my @classes = (
 		BinFilePayload_define(),
 		BinFile_define(),

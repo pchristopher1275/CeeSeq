@@ -82,6 +82,10 @@ sub xcodebuild {
     run($cmd);
 }
 
+sub buildHeaders {
+    run "script/header.pl > $gHome/src/midiseq.h";
+}
+
 sub findBuildNumber {
     my @lines = backtick "ls '$gExternalDest'";
     chomp(@lines);
@@ -113,6 +117,7 @@ sub build {
     if ($opts->{p}) {
         $buildNumber = 0;
     }
+
     copyCodeToSource();
     xcodebuild($buildNumber);
     if ($buildNumber != 0) {
@@ -127,6 +132,7 @@ sub build {
 sub main {
     my ($args, $opts) = argsAndOpts();
     my $noArgs        = @$args > 0 ? 0 : 1;
+    buildHeaders();
     if ($noArgs || buildTagPresent($args, "port")) {
         portSetGlobals();
         build($opts);
