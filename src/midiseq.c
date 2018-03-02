@@ -1,8 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <inttypes.h>
-#include "shared.c"
-#include "midiseq.h"
 
 //
 // Memory allocation Notes. These are the functions that are used in sdsalloc.h
@@ -47,14 +45,19 @@ APIF Midiseq *Midiseq_new()
 {
     Midiseq *midi = Midiseq_newUninitialized();
     midi->sequenceLength = 480*4;
-    sb_add(midi->data, 2);
+    MEventAr_init(&midi->events, 0);
+
     MEvent cell = {0};
     cell.t = 0;
     cell.type = Midiseq_endgrptype;
-    midi->data[0] = cell;
+    MEventAr_push(&midi->events, cell);
+    
     cell.t = midi->sequenceLength;
     cell.type = Midiseq_cycletype;
-    midi->data[1] = cell;
+    MEventAr_push(&midi->events, cell);
+
+    MEventAr_fit(&midi->events);
+
     return midi;
 }
 
@@ -68,14 +71,14 @@ APIF void Midiseq_toBinFile(Midiseq *mseq, BinFile *bf, Error *err) {
     BinFile_writeTicks(bf, Midiseq_sequenceLength(mseq), err);
     Error_returnVoidOnError(err);
 
-    BinFile_writeInteger(bf, sb_count(Midiseq_data(mseq)), err);
+    BinFile_writeInteger(bf, MEventAr_len(&mseq->events), err);
     Error_returnVoidOnError(err);
 
     BinFile_writeTag(bf, "midiseq_start_data", err);
     Error_returnVoidOnError(err);
 
-    for (int i = 0; i < sb_count(Midiseq_data(mseq)); i++) {
-        MEvent cell = Midiseq_data(mseq)[i];
+    MEventAr_foreach(it, &mseq->events) {
+        MEvent cell = *it.var;
         if (fprintf(BinFile_stream(bf), " %u %u %lld", MEvent_type(cell), MEvent_bendValue(cell), MEvent_t(cell)) < 0) {
             Error_format(err, "Midiseq_toBinFile failed at fprintf[1] while writing %s", BinFile_filename(bf));
             return;
@@ -119,8 +122,7 @@ APIF void Midiseq_fromBinFileUnititialized(Midiseq *mseq, BinFile *bf, Error *er
     BinFile_verifyTag(bf, "midiseq_start_data", err);
     Error_returnVoidOnError(err);
 
-    MEvent *data = NULL;
-    sb_add(data, length);
+    MEventAr_init(&mseq->events, 0);
     for (int i = 0; i < length; i++) {
         MEvent cell = {0};
         unsigned int type = 0, bendVal = 0;
@@ -137,25 +139,23 @@ APIF void Midiseq_fromBinFileUnititialized(Midiseq *mseq, BinFile *bf, Error *er
                 goto END;
             }
         }
-        data[i] = cell;
+        MEventAr_push(&mseq->events, cell);
     }
-    
+    MEventAr_fit(&mseq->events);
     BinFile_verifyTag(bf, "midiseq_end_data", err);
     Error_gotoLabelOnError(err, END);
-
-    Midiseq_setData(mseq, data);
     return;
 
   END:
-    sb_free(data);
+    MEventAr_clear(&mseq->events);
     return;
 }
 
 APIF Midiseq *Midiseq_newNote(int pitch)
 {
-    Midiseq *midi = (Midiseq*)sysmem_newptrclear(sizeof(Midiseq));
-    midi->sequenceLength = 480*4;
-
+    Midiseq *mseq = Midiseq_newUninitialized();
+    mseq->sequenceLength = 480*4;
+    MEventAr_init(&mseq->events, 0);
     MEvent zero = {
         0
     }
@@ -165,7 +165,7 @@ APIF Midiseq *Midiseq_newNote(int pitch)
 
     MEvent_t(cell)    = 0;
     MEvent_type(cell) = Midiseq_endgrptype;
-    sb_push(midi->data, cell);
+    MEventAr_push(&mseq->events, cell);
 
     cell = zero;
     MEvent_t(cell)            = 0;
@@ -173,32 +173,35 @@ APIF Midiseq *Midiseq_newNote(int pitch)
     MEvent_notePitch(cell)    = pitch;
     MEvent_noteVelocity(cell) = 90;
     MEvent_noteDuration(cell) = 480;
-    sb_push(midi->data, cell);
+    MEventAr_push(&mseq->events, cell);
 
-    cell                   = zero;
-    MEvent_t(cell)    = midi->sequenceLength;
+    cell              = zero;
+    MEvent_t(cell)    = mseq->sequenceLength;
     MEvent_type(cell) = Midiseq_cycletype;
-    sb_push(midi->data, cell);
+    MEventAr_push(&mseq->events, cell);
 
-    return midi;
+    MEventAr_fit(&mseq->events);
+
+    return mseq;
 }
 
 
-APIF void Midiseq_init(Midiseq *midi)
+APIF void Midiseq_init(Midiseq *mseq)
 {
-    if (midi != NULL) {
+    if (mseq != NULL) {
         Midiseq zero = {0};
-        *midi = zero;
+        *mseq = zero;
+        MEventAr_init(&mseq->events, 0);
     }
 }
 
 
-APIF void Midiseq_clear(Midiseq *midi)
+APIF void Midiseq_clear(Midiseq *mseq)
 {
-    if (midi != NULL) {
-        sb_free(midi->data);
+    if (mseq != NULL) {
+        MEventAr_clear(&mseq->events);
         Midiseq zero = {0};
-        *midi = zero;
+        *mseq = zero;
     }
 }
 
@@ -207,31 +210,27 @@ APIF void Midiseq_free(Midiseq *midi)
 {
     if (midi != NULL) {
         Midiseq_clear(midi);
-        sysmem_freeptr(midi);
+        Mem_free(midi);
     }
 }
 
 
-APIF int Midiseq_len(Midiseq *midi)
+APIF int Midiseq_len(Midiseq *mseq)
 {
     // REMEMBER: because of cycle and endgroup, every midi sequence has at least 2 elements.
-    return sb_count(midi->data);
+    return MEventAr_len(&mseq->events);
 }
 
 
-APIF void Midiseq_push(Midiseq *midi, MEvent cell)
+APIF void Midiseq_push(Midiseq *mseq, MEvent cell)
 {
-    sb_push(midi->data, cell);
+    MEventAr_push(&mseq->events, cell);
 }
 
 
-APIF MEvent *Midiseq_get(Midiseq *midi, int index, Error *err)
+APIF MEvent *Midiseq_get(Midiseq *mseq, int index, Error *err)
 {
-    if (index < 0 || index >= Midiseq_len(midi)) {
-        Error_format(err, "Index out of range (%d, %d)", index, Midiseq_len(midi));
-        return NULL;
-    }
-    return midi->data+index;
+    return MEventAr_getp(&mseq->events, index, err);
 }
 
 
@@ -249,11 +248,11 @@ APIF void Midiseq_setMidicsvExecPath()
 }
 
 
-APIF void Midiseq_dblog(Midiseq *midi)
+APIF void Midiseq_dblog(Midiseq *mseq)
 {
-    dblog("Midiseq %p", midi);
-    for (int i = 0; i < Midiseq_len(midi); i++) {
-        MEvent cell = midi->data[i];
+    dblog("Midiseq %p", mseq);
+    MEventAr_foreach(it, &mseq->events) {
+        MEvent cell = *it.var;
         switch (MEvent_type(cell)) {
             case Midiseq_notetype:
                 dblog("    %15lld note %15ld %15ld %15ld", MEvent_t(cell),
@@ -276,6 +275,505 @@ APIF void Midiseq_dblog(Midiseq *midi)
     return;
 }
 
+
+// //
+// // P A T C H E R    F I N D
+// //
+// APIF long PortFind_iterator(PortFind *pf, t_object *targetBox)
+// {
+//     t_object *obj = jbox_get_object(targetBox);
+//     if (gensym("Port") != object_classname(obj)) {
+//         return 0;
+//     }
+
+//     Symbol *varname = object_attr_getsym(targetBox, gensym("varname"));
+//     if (varname == NULL) {
+//         varname = gensym("unknown");
+//     }
+
+//     PortFindCell pfc = {0};
+//     Port *port          = (Port*)obj;
+//     pfc.reciever        = port;
+//     pfc.varname         = varname;
+//     sb_push(pf->objectsFound, pfc);
+
+//     Port_hub(port)              = PortFind_hub(pf);
+//     Port_anythingDispatch(port) = PortFind_anythingDispatch(pf);
+//     Port_intDispatch(port)      = PortFind_intDispatch(pf);
+
+//     return 0;
+// }
+
+
+// APIF int PortFind_discover(PortFind *pf, t_object *sourceMaxObject, void *hub, Error *err)
+// {
+//     PortFind_setHub(pf, hub);
+//     PortFind_setAnythingDispatch(pf, Hub_anythingDispatch);
+//     PortFind_setIntDispatch(pf, Hub_intDispatch);
+
+//     t_object *patcher = NULL;
+//     long result       = 0;
+//     t_max_err maxErr = object_obex_lookup(sourceMaxObject, gensym("#P"), &patcher);
+//     if (maxErr != MAX_ERR_NONE) {
+//         Error_format(err, "Failed object_obex_lookup (%s)", Error_maxErrToString(maxErr));
+//         return 0;
+//     }
+//     object_method(patcher, gensym("iterate"), PortFind_iterator, (void *)pf, PI_WANTBOX | PI_DEEP, &result);
+
+//     PortFind_setHub(pf, NULL);
+//     PortFind_setAnythingDispatch(pf, NULL);
+//     PortFind_setIntDispatch(pf, NULL);
+
+//     return 0;
+// }
+
+// APIF void PortFind_clear(PortFind *pf)
+// {
+//     sb_free(pf->objectsFound);
+//     pf->objectsFound = NULL;
+// }
+
+
+// APIF Port *PortFind_findByVarname(PortFind *pf, Symbol *symbol)
+// {
+//     for (int i = 0; i < sb_count(pf->objectsFound); i++) {
+//         PortFindCell *pfc = pf->objectsFound + i;
+//         if (pfc->varname == symbol) {
+//             return pfc->reciever;
+//         }
+//     }
+//     return Port_null;
+// }
+
+
+// APIF Port *PortFind_findByTrack(PortFind *pf, Symbol *symbol)
+// {
+//     for (int i = 0; i < sb_count(pf->objectsFound); i++) {
+//         PortFindCell *pfc = pf->objectsFound + i;
+//         if (pfc->reciever->track == symbol) {
+//             return pfc->reciever;
+//         }
+//     }
+//     return Port_null;
+// }
+
+
+// APIF Port *PortFind_findById(PortFind *pf, Symbol *symbol)
+// {
+//     for (int i = 0; i < sb_count(pf->objectsFound); i++) {
+//         PortFindCell *pfc = pf->objectsFound + i;
+//         if (Port_id(pfc->reciever) == symbol) {
+//             return pfc->reciever;
+//         }
+//     }
+//     return Port_null;
+// }
+
+
+// APIF int PortFind_portCount(PortFind *pf)
+// {
+//     return sb_count(pf->objectsFound);
+// }
+
+
+// APIF Port *PortFind_findByIndex(PortFind *pf, int index, Error *err)
+// {
+//     if (index < 0 || index >= PortFind_portCount(pf)) {
+//         Error_format(err, "Index out of range (%d, %d)", index, PortFind_portCount(pf));
+//         return Port_null;
+//     }
+//     return pf->objectsFound[index].reciever;
+// }
+
+
+//
+// F R O M     F I L E
+//
+APIF int midiseq_tokenize(FILE *fd, int *nfields, sds **fields, Error *err)
+{
+    char line[Midiseq_maxLineLength] = "";
+    char *flag = fgets(line, Midiseq_maxLineLength, fd);
+    if (flag == NULL) {
+        if (!feof(fd)) {
+            Error_format0(err, "Bad IO");
+            return 1;
+        }
+        return -1;
+    }
+    *fields = sdssplitlen(line, strlen(line), ",", 1, nfields);
+    for (int i = 0; i < *nfields; i++) {
+        (*fields)[i] = sdstrim((*fields)[i], " ");
+    }
+    return 0;
+}
+
+
+APIF int Midiseq_assignLength(Midiseq *mseq)
+{
+    const long ppqn = 480;
+    const long measureLength = ppqn*4;
+    if (Midiseq_len(mseq) == 0) {
+        mseq->sequenceLength = measureLength;
+        return 0;
+    }
+
+    Ticks end = 0;
+    MEventAr_foreach(it, &mseq->events) {
+        long t = it.var->t;
+        if (it.var->type == Midiseq_notetype) {
+            t += it.var->duration;
+        }
+        if (t > end) {
+            end = t;
+        }
+    }
+
+    mseq->sequenceLength = (end/measureLength)*measureLength + (end % measureLength == 0 ? 0 : measureLength);
+    return 0;
+}
+
+
+APIF int Midiseq_insertCell(Midiseq *mseq, MEvent cell, int index, Error *err)
+{
+    MEventAr_insert(&mseq->events, index, cell, err);
+    if (Error_iserror(err)) {
+        return 1;
+    }
+    return 0;
+}
+
+
+APIF void Midiseq_insertEndgroup(Midiseq *mseq, Error *err)
+{
+    MEvent cell = {0};
+    cell.type = Midiseq_endgrptype;
+
+    if (MEventAr_len(&mseq->events) < 2) {
+        cell.t = mseq->sequenceLength;
+        MEventAr_rforeach(it, &mseq->events) {
+            if (it.var->type == Midiseq_notetype) {
+                cell.t = it.var->t;
+                MEventAr_insert(&mseq->events, 0, cell, err);
+                return;   
+            }
+        }
+        MEventAr_push(&mseq->events, cell);
+        return;
+    }
+
+    MEventAr_rforeach(it, &mseq->events) {
+        if (it.var->type == Midiseq_notetype) {
+            cell.t = it.var->t;
+            while (MEventArIter_previous(&it)) {
+                if (cell.t != it.var->t) {
+                    break;
+                }
+            }
+            int index = it.index;
+            if (index < 0) {
+                index = 0;
+            }
+            Midiseq_insertCell(mseq, cell, index, err);
+            return;
+        }
+    }
+
+    MEvent e = MEventAr_get(&mseq->events, 0, err);
+    Error_returnVoidOnError(err);
+    cell.t = e.t;
+    Midiseq_insertCell(mseq, cell, 0, err);
+    Error_returnVoidOnError(err);
+    return;
+}
+
+
+APIF int Midiseq_start(Midiseq *mseq, Ticks startTime, Ticks currentTime, bool useMasterClock, Error *err)
+{
+    if (startTime > currentTime) {
+        Error_format0(err, "INTERNAL ERROR");
+        return 1;
+    }
+    Ticks adj            = mseq->sequenceLength*((currentTime-startTime)/mseq->sequenceLength);
+    mseq->startTime      = startTime + adj;
+    mseq->useMasterClock = useMasterClock;
+    mseq->ptr            = 0;
+    if (useMasterClock) {
+        if (Midiseq_fastfwrd(mseq, currentTime, err)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+
+APIF void Midiseq_stop(Midiseq *mseq)
+{
+    mseq->startTime = 0;
+    return;
+}
+
+
+enum
+{
+    Midiseq_nextEventErrored  = 1,
+    Midiseq_nextEventComplete = 2,
+    Midiseq_nextEventContinue = 3,
+    Midiseq_nextEventBreak    = 4,
+};
+
+// Midiseq_nextevent always writes the current cell into the cell pointer. If the event
+// stored in cell happened before until, then (a) the sequence is advanced and (b) the
+// function returns 1. Otherwise 0 is returned and the sequence is left alone.
+APIF int Midiseq_nextevent(Midiseq *mseq, Ticks until, MEvent *cell, Error *err)
+{
+    if (mseq->startTime == 0) {
+        Error_format0(err, "Called nextevent on stoped sequence");
+        return Midiseq_nextEventErrored;
+    }
+    if (mseq->ptr >= Midiseq_len(mseq)) {
+        // This is the case when the entire sequence has been played, and this
+        // is NOT a useMasterClock sequence. If useMasterClock is true mseq->ptr should
+        // never satisfy the if criterion.
+        *cell = MEventAr_get(&mseq->events, MEventAr_last(&mseq->events), err);
+        if (Error_iserror(err)) {
+            return Midiseq_nextEventErrored;
+        }
+        return Midiseq_nextEventComplete;
+    }
+
+    MEvent c = MEventAr_get(&mseq->events, mseq->ptr, err);
+    if (Error_iserror(err)) {
+        return Midiseq_nextEventErrored;
+    }
+
+    Ticks t = c.t + mseq->startTime;
+    Ticks diff = t-until >= 0 ? t-until : until-t;
+
+    if ( (diff-1)/mseq->sequenceLength > 0) {
+        Error_format(err, "INTERNAL ERROR %lld %lld %lld", diff, mseq->sequenceLength, diff/mseq->sequenceLength);
+        return Midiseq_nextEventErrored;
+    }
+
+    *cell = c;
+    cell->t = t;
+    if (t > until) {
+        return Midiseq_nextEventBreak;
+    }
+
+    mseq->ptr++;
+    if (mseq->ptr >= Midiseq_len(mseq) && mseq->useMasterClock) {
+        mseq->ptr        = 0;
+        mseq->startTime += mseq->sequenceLength;
+    }
+    return Midiseq_nextEventContinue;
+}
+
+
+APIF int Midiseq_fastfwrd(Midiseq *mseq, long t, Error *err)
+{
+    if (mseq->startTime == 0) {
+        return 1;
+    }
+
+    MEventAr_foreach(it, &mseq->events) {
+        if (it.var->t + mseq->startTime >= t) {
+            mseq->ptr = it.index;
+            return 0;
+        }
+    }
+
+    mseq->ptr = 0;
+    return 0;
+}
+
+
+APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
+{
+    char tempfile[] = "/tmp/MidiseqMaxMSPXXXXXX";
+    sds buffer = sdsempty();
+    FILE *fd = NULL;
+    int nfields = 0;
+    sds *fields = NULL;
+    bool allOK = false;
+    Midiseq *mseq = (Midiseq*)sysmem_newptrclear(sizeof(Midiseq));
+    Midiseq_init(mseq);
+
+    // Call midicsv. To do this we create a new destination file, then route our output to it
+    int tempFd = mkstemp(tempfile);
+    if (tempFd < 0) {
+        Error_format0(err, "Failed to create temp file");
+        goto END;
+    }
+    close(tempFd);
+
+    buffer = sdscatprintf(buffer, "'%s' '%s' > '%s'", Midiseq_midiCsvExecPath, fullpath, tempfile);
+    int exitCode = system(buffer);
+    if (exitCode != 0) {
+        Error_format(err, "Failed '%s' with exit code %d", buffer, exitCode);
+        goto END;
+    }
+
+    // Open the result file and parse away
+    fd = fopen(tempfile, "r");
+    if (fd == NULL) {
+        Error_format(err, "Failed to open temp file '%s'", tempfile);
+        goto END;
+    }
+
+    int desiredPPQN = 480;
+    float tickFactor = 1.0;
+
+    // ons[i] holds the index-1 of the last note-on of pitch i. Or zero if there is no pending note-on
+    int ons[128] = {0};
+    int linenum = 0;
+    while (true) {
+        int q = midiseq_tokenize(fd, &nfields, &fields, err);
+        if (q != 0) {
+            if (Error_iserror(err)) {
+                goto END;
+            }
+            break;
+        }
+        linenum++;
+
+        if (nfields < 3) {
+            Error_format(err, "Not enough fields in midicsv file '%s' line %d", tempfile, linenum);
+            goto END;
+        }
+
+        MEvent cell = {0};
+        cell.t = (long)(tickFactor*convertInt(fields[1], err));
+        if (Error_iserror(err)) {
+            goto END;
+        }
+
+        const char *typ = fields[2];
+
+        bool isOn = strcmp(typ, "Note_on_c") == 0;
+        bool isOff = strcmp(typ, "Note_off_c") == 0;
+        if ( isOn || isOff ) {
+            if (nfields < 6) {
+                Error_format(err, "Bad Note_on_c file '%s' line %d", tempfile, linenum);
+                goto END;
+            }
+            long pitch    = convertInt(fields[4], err);
+            long velocity = convertInt(fields[5], err);
+            if (Error_iserror(err)) {
+                goto END;
+            }
+            if (velocity == 0) {
+                isOn = false;
+                isOff = true;
+            }
+
+            if (isOn) {
+                cell.type = Midiseq_notetype;
+                cell.b.b[0]  = (uint8)pitch;
+                cell.b.b[1]  = (uint8)velocity;
+                if (ons[pitch] != 0) {
+                    Error_format(err, "Found an unbalanced NOTE-ON: while working on` file '%s' line %d", tempfile, linenum);
+                    goto END;
+                }
+                Midiseq_push(mseq, cell);
+                ons[pitch] = Midiseq_len(mseq);
+            }
+            else {
+                if (ons[pitch] == 0) {
+                    Error_format(err, "Found an unmatched note-off: while working on` file '%s' line %d", tempfile, linenum);
+                    goto END;
+                }
+                int index = ons[pitch]-1;
+                if (index >= Midiseq_len(mseq)) {
+                    Error_format0(err, "INTERNAL ERROR");
+                    goto END;
+                }
+                MEvent *c = Midiseq_get(mseq, index, err);
+                if (Error_iserror(err)) {
+                    goto END;
+                }
+                c->duration = cell.t - c->t;
+                ons[pitch] = 0;
+            }
+        }
+        else if (strcmp(typ, "Pitch_bend_c") == 0) {
+            if (nfields < 5) {
+                Error_format(err, "Bad Pitch_bend_c file '%s' line %d", tempfile, linenum);
+                goto END;
+            }
+            long value = convertInt(fields[4], err);
+            if (Error_iserror(err)) {
+                goto END;
+            }
+            cell.type   = Midiseq_bendtype;
+            cell.b.bend = value;
+            Midiseq_push(mseq, cell);
+        }
+        else if (strcmp(typ, "Control_c") == 0) {
+            if (nfields < 5) {
+                Error_format(err, "Bad Control_c file '%s' line %d", tempfile, linenum);
+                goto END;
+            }
+            long cc = convertInt(fields[4], err);
+            long val  = convertInt(fields[5], err);
+            if (Error_iserror(err)) {
+                goto END;
+            }
+            cell.type = Midiseq_cctype;
+            cell.b.b[0]  = (uint8)cc;
+            cell.b.b[1]  = (uint8)val;
+            Midiseq_push(mseq, cell);
+        }
+        else if (strcmp(typ, "Header") == 0) {
+            if (nfields < 6) {
+                Error_format(err, "Bad Header file '%s' line %d", tempfile, linenum);
+                goto END;
+            }
+            long ppqn = convertInt(fields[5], err);
+            if (Error_iserror(err)) {
+                goto END;
+            }
+            tickFactor = (float)(desiredPPQN)/(float)(ppqn);
+        }
+
+        // Free anything left over from tokenization
+        sdsfreesplitres(fields, nfields);
+        fields = NULL;
+        nfields = 0;
+    }
+
+    // Compute length and install cycle and end group
+    Midiseq_assignLength(mseq);
+    MEvent cycle = {0};
+    cycle.t = mseq->sequenceLength;
+    cycle.type = Midiseq_cycletype;
+    Midiseq_push(mseq, cycle);
+    Midiseq_insertEndgroup(mseq, err);
+    if (Error_iserror(err)) {
+        Error_clear(err);
+        goto END;
+    }
+    allOK = true;
+
+    END:
+    if (buffer != NULL) {
+        sdsfree(buffer);
+    }
+    if (fields != NULL) {
+        sdsfreesplitres(fields, nfields);
+    }
+    if (fd != NULL) {
+        fclose(fd);
+    }
+    unlink(tempfile);
+
+    if (allOK) {
+        return mseq;
+    }
+
+    // Error state
+    Midiseq_free(mseq);
+    return NULL;
+}
 
 //
 // P A T C H E R    F I N D
@@ -385,377 +883,6 @@ APIF Port *PortFind_findByIndex(PortFind *pf, int index, Error *err)
     }
     return pf->objectsFound[index].reciever;
 }
-
-
-//
-// F R O M     F I L E
-//
-APIF int midiseq_tokenize(FILE *fd, int *nfields, sds **fields, Error *err)
-{
-    char line[Midiseq_maxLineLength] = "";
-    char *flag = fgets(line, Midiseq_maxLineLength, fd);
-    if (flag == NULL) {
-        if (!feof(fd)) {
-            Error_format0(err, "Bad IO");
-            return 1;
-        }
-        return -1;
-    }
-    *fields = sdssplitlen(line, strlen(line), ",", 1, nfields);
-    for (int i = 0; i < *nfields; i++) {
-        (*fields)[i] = sdstrim((*fields)[i], " ");
-    }
-    return 0;
-}
-
-
-APIF int Midiseq_assignLength(Midiseq *midi)
-{
-    const long ppqn = 480;
-    const long measureLength = ppqn*4;
-    if (Midiseq_len(midi) == 0) {
-        midi->sequenceLength = measureLength;
-        return 0;
-    }
-
-    long end = 0;
-    for (int i = 0; i < sb_count(midi->data); i++) {
-        long t = midi->data[i].t;
-        if (midi->data[i].type == Midiseq_notetype) {
-            t += midi->data[i].duration;
-        }
-        if (t > end) {
-            end = t;
-        }
-    }
-
-    midi->sequenceLength = (end/measureLength)*measureLength + (end % measureLength == 0 ? 0 : measureLength);
-    return 0;
-}
-
-
-APIF int Midiseq_insertCell(Midiseq *midi, MEvent cell, int index, Error *err)
-{
-    if (index < 0 || index > Midiseq_len(midi)) {
-        Error_format(err, "Index out of range (%d, %d)", index, Midiseq_len(midi));
-        return 1;
-    }
-
-    sb_add(midi->data, 1);
-    if (Midiseq_len(midi) == 1) {
-        midi->data[0] = cell;
-        return 0;
-    }
-
-    for (int i = Midiseq_len(midi)-2; i >= index; i--) {
-        midi->data[i+1] = midi->data[i];
-    }
-    midi->data[index] = cell;
-    return 0;
-}
-
-
-APIF int Midiseq_insertEndgroup(Midiseq *midi, Error *err)
-{
-    MEvent cell = {0};
-    cell.type = Midiseq_endgrptype;
-
-    for (int i = Midiseq_len(midi)-1; i >= 0; i--) {
-        if (midi->data[i].type == Midiseq_notetype) {
-            cell.t = midi->data[i].t;
-            if (Midiseq_insertCell(midi, cell, i, err)) {
-                return 1;
-            }
-            return 0;
-        }
-    }
-
-    cell.t = midi->data[0].t;
-    if (Midiseq_insertCell(midi, cell, 0, err)) {
-        return 1;
-    }
-
-    return 0;
-}
-
-
-APIF int Midiseq_start(Midiseq *midi, Ticks startTime, Ticks currentTime, bool useMasterClock, Error *err)
-{
-    if (startTime > currentTime) {
-        Error_format0(err, "INTERNAL ERROR");
-        return 1;
-    }
-    Ticks adj            = midi->sequenceLength*((currentTime-startTime)/midi->sequenceLength);
-    midi->startTime      = startTime + adj;
-    midi->useMasterClock = useMasterClock;
-    midi->ptr            = 0;
-    if (useMasterClock) {
-        if (Midiseq_fastfwrd(midi, currentTime, err)) {
-            return 1;
-        }
-    }
-    return 0;
-}
-
-
-APIF void Midiseq_stop(Midiseq *midi)
-{
-    midi->startTime = 0;
-    return;
-}
-
-
-enum
-{
-    Midiseq_nextEventErrored  = 1,
-    Midiseq_nextEventComplete = 2,
-    Midiseq_nextEventContinue = 3,
-    Midiseq_nextEventBreak    = 4,
-};
-
-// Midiseq_nextevent always writes the current cell into the cell pointer. If the event
-// stored in cell happened before until, then (a) the sequence is advanced and (b) the
-// function returns 1. Otherwise 0 is returned and the sequence is left alone.
-APIF int Midiseq_nextevent(Midiseq *midi, Ticks until, MEvent *cell, Error *err)
-{
-    if (midi->startTime == 0) {
-        Error_format0(err, "Called nextevent on stoped sequence");
-        return Midiseq_nextEventErrored;
-    }
-    if (midi->ptr >= Midiseq_len(midi)) {
-        // This is the case when the entire sequence has been played, and this
-        // is NOT a useMasterClock sequence. If useMasterClock is true midi->ptr should
-        // never satisfy the if criterion.
-        *cell = sb_last(midi->data);
-        return Midiseq_nextEventComplete;
-    }
-
-    Ticks t = midi->data[midi->ptr].t + midi->startTime;
-    Ticks diff = t-until >= 0 ? t-until : until-t;
-
-    if ( (diff-1)/midi->sequenceLength > 0) {
-        Error_format(err, "INTERNAL ERROR %lld %lld %lld", diff, midi->sequenceLength, diff/midi->sequenceLength);
-        return Midiseq_nextEventErrored;
-    }
-
-    *cell = midi->data[midi->ptr];
-    cell->t = t;
-    if (t > until) {
-        return Midiseq_nextEventBreak;
-    }
-
-    midi->ptr++;
-    if (midi->ptr >= Midiseq_len(midi) && midi->useMasterClock) {
-        midi->ptr        = 0;
-        midi->startTime += midi->sequenceLength;
-    }
-    return Midiseq_nextEventContinue;
-}
-
-
-APIF int Midiseq_fastfwrd(Midiseq *midi, long t, Error *err)
-{
-    if (midi->startTime == 0) {
-        return 1;
-    }
-
-    for (int i = 0; i < Midiseq_len(midi); i++) {
-        if (midi->data[i].t + midi->startTime >= t) {
-            midi->ptr = i;
-            return 0;
-        }
-    }
-
-    midi->ptr = 0;
-    return 0;
-}
-
-
-APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
-{
-    char tempfile[] = "/tmp/MidiseqMaxMSPXXXXXX";
-    Midiseq *midi = (Midiseq*)sysmem_newptrclear(sizeof(Midiseq));
-    sds buffer = sdsempty();
-    FILE *fd = NULL;
-    int nfields = 0;
-    sds *fields = NULL;
-    bool allOK = false;
-
-    // Call midicsv. To do this we create a new destination file, then route our output to it
-    int tempFd = mkstemp(tempfile);
-    if (tempFd < 0) {
-        Error_format0(err, "Failed to create temp file");
-        goto END;
-    }
-    close(tempFd);
-
-    buffer = sdscatprintf(buffer, "'%s' '%s' > '%s'", Midiseq_midiCsvExecPath, fullpath, tempfile);
-    int exitCode = system(buffer);
-    if (exitCode != 0) {
-        Error_format(err, "Failed '%s' with exit code %d", buffer, exitCode);
-        goto END;
-    }
-
-    // Open the result file and parse away
-    fd = fopen(tempfile, "r");
-    if (fd == NULL) {
-        Error_format(err, "Failed to open temp file '%s'", tempfile);
-        goto END;
-    }
-
-    int desiredPPQN = 480;
-    float tickFactor = 1.0;
-
-    // ons[i] holds the index-1 of the last note-on of pitch i. Or zero if there is no pending note-on
-    int ons[128] = {0};
-    int linenum = 0;
-    while (true) {
-        int q = midiseq_tokenize(fd, &nfields, &fields, err);
-        if (q != 0) {
-            if (Error_iserror(err)) {
-                goto END;
-            }
-            break;
-        }
-        linenum++;
-
-        if (nfields < 3) {
-            Error_format(err, "Not enough fields in midicsv file '%s' line %d", tempfile, linenum);
-            goto END;
-        }
-
-        MEvent cell = {0};
-        cell.t = (long)(tickFactor*convertInt(fields[1], err));
-        if (Error_iserror(err)) {
-            goto END;
-        }
-
-        const char *typ = fields[2];
-
-        bool isOn = strcmp(typ, "Note_on_c") == 0;
-        bool isOff = strcmp(typ, "Note_off_c") == 0;
-        if ( isOn || isOff ) {
-            if (nfields < 6) {
-                Error_format(err, "Bad Note_on_c file '%s' line %d", tempfile, linenum);
-                goto END;
-            }
-            long pitch    = convertInt(fields[4], err);
-            long velocity = convertInt(fields[5], err);
-            if (Error_iserror(err)) {
-                goto END;
-            }
-            if (velocity == 0) {
-                isOn = false;
-                isOff = true;
-            }
-
-            if (isOn) {
-                cell.type = Midiseq_notetype;
-                cell.b.b[0]  = (uint8)pitch;
-                cell.b.b[1]  = (uint8)velocity;
-                if (ons[pitch] != 0) {
-                    Error_format(err, "Found an unbalanced NOTE-ON: while working on` file '%s' line %d", tempfile, linenum);
-                    goto END;
-                }
-                Midiseq_push(midi, cell);
-                ons[pitch] = Midiseq_len(midi);
-            }
-            else {
-                if (ons[pitch] == 0) {
-                    Error_format(err, "Found an unmatched note-off: while working on` file '%s' line %d", tempfile, linenum);
-                    goto END;
-                }
-                int index = ons[pitch]-1;
-                if (index >= Midiseq_len(midi)) {
-                    Error_format0(err, "INTERNAL ERROR");
-                    goto END;
-                }
-                MEvent *c = Midiseq_get(midi, index, err);
-                if (Error_iserror(err)) {
-                    goto END;
-                }
-                c->duration = cell.t - c->t;
-                ons[pitch] = 0;
-            }
-        }
-        else if (strcmp(typ, "Pitch_bend_c") == 0) {
-            if (nfields < 5) {
-                Error_format(err, "Bad Pitch_bend_c file '%s' line %d", tempfile, linenum);
-                goto END;
-            }
-            long value = convertInt(fields[4], err);
-            if (Error_iserror(err)) {
-                goto END;
-            }
-            cell.type   = Midiseq_bendtype;
-            cell.b.bend = value;
-            Midiseq_push(midi, cell);
-        }
-        else if (strcmp(typ, "Control_c") == 0) {
-            if (nfields < 5) {
-                Error_format(err, "Bad Control_c file '%s' line %d", tempfile, linenum);
-                goto END;
-            }
-            long cc = convertInt(fields[4], err);
-            long val  = convertInt(fields[5], err);
-            if (Error_iserror(err)) {
-                goto END;
-            }
-            cell.type = Midiseq_cctype;
-            cell.b.b[0]  = (uint8)cc;
-            cell.b.b[1]  = (uint8)val;
-            Midiseq_push(midi, cell);
-        }
-        else if (strcmp(typ, "Header") == 0) {
-            if (nfields < 6) {
-                Error_format(err, "Bad Header file '%s' line %d", tempfile, linenum);
-                goto END;
-            }
-            long ppqn = convertInt(fields[5], err);
-            if (Error_iserror(err)) {
-                goto END;
-            }
-            tickFactor = (float)(desiredPPQN)/(float)(ppqn);
-        }
-
-        // Free anything left over from tokenization
-        sdsfreesplitres(fields, nfields);
-        fields = NULL;
-        nfields = 0;
-    }
-
-    // Compute length and install cycle and end group
-    Midiseq_assignLength(midi);
-    MEvent cycle = {0};
-    cycle.t = midi->sequenceLength;
-    cycle.type = Midiseq_cycletype;
-    Midiseq_push(midi, cycle);
-    if (Midiseq_insertEndgroup(midi, err)) {
-        goto END;
-    }
-    allOK = true;
-
-    END:
-    if (buffer != NULL) {
-        sdsfree(buffer);
-    }
-    if (fields != NULL) {
-        sdsfreesplitres(fields, nfields);
-    }
-    if (fd != NULL) {
-        fclose(fd);
-    }
-    unlink(tempfile);
-
-    if (allOK) {
-        return midi;
-    }
-
-    // Error state
-    Midiseq_free(midi);
-    return NULL;
-}
-
 
 //
 // P A D

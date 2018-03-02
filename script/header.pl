@@ -247,11 +247,19 @@ sub MEvent_preAccessor {
 END
 }
 
+sub MEvent_postAccessor {
+	my ($out) = @_;
+	print {$out}<<END;
+#include "mEventAr.h"
+END
+}
+
 sub MEvent_define {
 	my %config = (
 		typeName => "MEvent",
 		manualStruct => \&MEvent_manualStruct,
 		preAccessor => \&MEvent_preAccessor,
+		postAccessor => \&MEvent_postAccessor,
 	);
 	return \%config;
 }
@@ -276,8 +284,7 @@ sub Midiseq_define {
 			{group=>"persist",},
 			{name=>"useMasterClock", type=>"bool",},
 			{name=>"sequenceLength", type=>"Ticks",},
-			{name=>"data",           type=>"MEvent *",},
-			
+			{name=>"events",         type=>"MEventAr"},
 			{group=>"noPersist",},
 			{
 				name=>"startTime", 

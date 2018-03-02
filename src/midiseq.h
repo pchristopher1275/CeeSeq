@@ -117,6 +117,7 @@ struct MEvent_t
 #define MEvent_ccNumber(cell) ((cell).b.b[0])
 #define MEvent_ccValue(cell) ((cell).b.b[1])
 #define MEvent_bendValue(cell) ((cell).b.bend)
+#include "mEventAr.h"
 
 // *** DO NOT MODIFY THIS FILE (see header.pl) ***
 struct Midiseq_t
@@ -124,7 +125,7 @@ struct Midiseq_t
     // ** PERSISTED **
     bool useMasterClock;
     Ticks sequenceLength;
-    MEvent *data;
+    MEventAr events;
     // ** not persisted **
     // startTime is the time offset that t = 0 that is stored in the sequence corresponds too.
     // Specifically, if useMasterClock is true, the startTime is updated whenever the ptr rolls
@@ -142,8 +143,8 @@ static inline bool Midiseq_useMasterClock(Midiseq *self){return self->useMasterC
 static inline void Midiseq_setUseMasterClock(Midiseq *self, bool value){self->useMasterClock = value;}
 static inline Ticks Midiseq_sequenceLength(Midiseq *self){return self->sequenceLength;}
 static inline void Midiseq_setSequenceLength(Midiseq *self, Ticks value){self->sequenceLength = value;}
-static inline MEvent *Midiseq_data(Midiseq *self){return self->data;}
-static inline void Midiseq_setData(Midiseq *self, MEvent *value){self->data = value;}
+static inline MEventAr Midiseq_events(Midiseq *self){return self->events;}
+static inline void Midiseq_setEvents(Midiseq *self, MEventAr value){self->events = value;}
 static inline Ticks Midiseq_startTime(Midiseq *self){return self->startTime;}
 static inline void Midiseq_setStartTime(Midiseq *self, Ticks value){self->startTime = value;}
 static inline int Midiseq_ptr(Midiseq *self){return self->ptr;}
@@ -153,21 +154,21 @@ void Midiseq_toBinFile(Midiseq *mseq, BinFile *bf, Error *err);
 Midiseq *Midiseq_fromBinFile(BinFile *bf, Error *err);
 void Midiseq_fromBinFileUnititialized(Midiseq *mseq, BinFile *bf, Error *err);
 Midiseq *Midiseq_newNote(int pitch);
-void Midiseq_init(Midiseq *midi);
-void Midiseq_clear(Midiseq *midi);
+void Midiseq_init(Midiseq *mseq);
+void Midiseq_clear(Midiseq *mseq);
 void Midiseq_free(Midiseq *midi);
-int Midiseq_len(Midiseq *midi);
-void Midiseq_push(Midiseq *midi, MEvent cell);
-MEvent *Midiseq_get(Midiseq *midi, int index, Error *err);
+int Midiseq_len(Midiseq *mseq);
+void Midiseq_push(Midiseq *mseq, MEvent cell);
+MEvent *Midiseq_get(Midiseq *mseq, int index, Error *err);
 void Midiseq_setMidicsvExecPath();
-void Midiseq_dblog(Midiseq *midi);
-int Midiseq_assignLength(Midiseq *midi);
-int Midiseq_insertCell(Midiseq *midi, MEvent cell, int index, Error *err);
-int Midiseq_insertEndgroup(Midiseq *midi, Error *err);
-int Midiseq_start(Midiseq *midi, Ticks startTime, Ticks currentTime, bool useMasterClock, Error *err);
-void Midiseq_stop(Midiseq *midi);
-int Midiseq_nextevent(Midiseq *midi, Ticks until, MEvent *cell, Error *err);
-int Midiseq_fastfwrd(Midiseq *midi, long t, Error *err);
+void Midiseq_dblog(Midiseq *mseq);
+int Midiseq_assignLength(Midiseq *mseq);
+int Midiseq_insertCell(Midiseq *mseq, MEvent cell, int index, Error *err);
+void Midiseq_insertEndgroup(Midiseq *mseq, Error *err);
+int Midiseq_start(Midiseq *mseq, Ticks startTime, Ticks currentTime, bool useMasterClock, Error *err);
+void Midiseq_stop(Midiseq *mseq);
+int Midiseq_nextevent(Midiseq *mseq, Ticks until, MEvent *cell, Error *err);
+int Midiseq_fastfwrd(Midiseq *mseq, long t, Error *err);
 Midiseq *Midiseq_fromfile(const char *fullpath, Error *err);
 
 // *** DO NOT MODIFY THIS FILE (see header.pl) ***

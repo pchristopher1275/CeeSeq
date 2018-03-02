@@ -39,6 +39,8 @@ static inline void ${TYPENAME}_init(${TYPENAME} *arr, int nelems) {
 
 static inline void ${TYPENAME}_clear(${TYPENAME} *arr) {
 	Array_clear((Array*)arr);
+	$TYPENAME zero = {{0}};
+	*arr = zero;
 }
 
 static inline void ${TYPENAME}_free(${TYPENAME} *arr) {
