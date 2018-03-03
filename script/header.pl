@@ -304,6 +304,13 @@ sub Midiseq_define {
 }
 
 
+sub Pad_postAccessor {
+	my ($out) = @_;
+	print {$out} <<END;
+#include "padAr.h"
+#include "padPtrAr.h"
+END
+}
 
 sub Pad_define {
 	my %config = (
@@ -323,7 +330,7 @@ sub Pad_define {
 			{name=>"inEndgroup",           type=>"bool",},
 			{name=>"track",                type=>"Track *",},
 		],
-
+		postAccessor => \&Pad_postAccessor,
 	);
 	return \%config;
 }
@@ -423,32 +430,13 @@ END
 	return \%config;
 }
 
-sub PadListIterator_preAccessor {
-	my ($out) = @_;
-	print {$out}<<END;
-#define PadListIterator_declare(name) PadListIterator _##name = {-1}; PadListIterator *name = &_##name
-END
-}
-
-sub PadListIterator_define {
-	my %config = (
-		typeName => "PadListIterator",
-		fields => [
-			{name=>"index", type=>"int"},
-		],
-		preAccessor => \&PadListIterator_preAccessor,
-	);
-	return \%config;
-}
-
 sub PadList_define {
 	my %config = (
 		typeName => "PadList",
 		fields => [
-			{name=>"pads",    type=>"Pad *"},
-			{name=>"running", type=>"Pad **"},
+			{name=>"pads",      type=>"PadAr",    getterReturn=>"pointer", setter=>"none"},
+			{name=>"running",   type=>"PadPtrAr", getterReturn=>"pointer", setter=>"none"},
 		],
-		preAccessor => \&PadListIterator_preAccessor,
 	);
 	return \%config;
 }
@@ -587,7 +575,6 @@ sub main {
 		NoteManager_define(),
 		PortFindCell_define(),
 		PortFind_define(),
-		PadListIterator_define(),
 		PadList_define(),
 		Track_define(),
 		TrackList_define(),

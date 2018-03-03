@@ -1009,94 +1009,67 @@ APIF void Pad_computeChokeGroup(Pad *pad) {
 //
 APIF PadList *PadList_new(int npads)
 {
-    PadList *llst = PadList_newUninitialized();
-    sb_add(llst->pads, npads);
-
-    for (int i = 0; i < npads; i++) {
-        Pad_init(llst->pads + i);
-    }
-    return llst;
+    PadList *pl = PadList_newUninitialized();
+    PadList_init(pl, npads);
+    return pl;
 }
 
+APIF void PadList_init(PadList *pl, int npads) {
+    PadAr_init(&pl->pads, npads);
+    PadAr_foreach(it, &pl->pads) {
+        Pad_init(it.var);
+    }
+    PadPtrAr_init(&pl->running, 0);
+}
 
-APIF void PadList_free(PadList *llst)
-{
-    if (llst != NULL) {
-        for (int i = 0; i < sb_count(llst->pads); i++) {
-            Pad_clear(llst->pads + i);
+APIF void PadList_clear(PadList *pl) {
+    if (pl != NULL) {
+        PadAr_foreach(it, &pl->pads) {
+            Pad_clear(it.var);
         }
-        sb_free(llst->pads);
-        sb_free(llst->running);
-        sysmem_freeptr(llst);
+        PadAr_clear(&pl->pads);
+        PadPtrAr_clear(&pl->running);
+    }   
+}
+
+APIF void PadList_free(PadList *pl)
+{
+    if (pl != NULL) {
+        PadList_clear(pl);
+        Mem_free(pl);
     }
 }
 
 
-APIF int PadList_play(PadList *llst, int padIndex, Ticks startTime, Ticks currentTime, bool useMasterClock, Error *err)
+APIF void PadList_play(PadList *pl, int padIndex, Ticks startTime, Ticks currentTime, bool useMasterClock, Error *err)
 {
-    int padsLength = sb_count(llst->pads);
-    if (padIndex < 0 || padIndex >= padsLength) {
-        Error_format(err, "Index out of range (%d, %d)", padIndex, padsLength);
-        return 1;
-    }
-    Pad *pad = llst->pads + padIndex;
+    Pad *pad = PadAr_getp(&pl->pads, padIndex, err);
+    Error_returnVoidOnError(err);
+
     // Since we're starting to play, we just recieved a Note-on for this pad. Reset the pad
     Pad_setInEndgroup(pad, false);
     Pad_setNoteReleasePending(pad, true);
 
     // Now let's find a place to stick this pad into the running array
-    int runningLength = sb_count(llst->running);
-    int chokeIndex  = -1;
-    int insertIndex = -1;
-    for (int i = 0; i < runningLength; i++) {
-        Pad *p = llst->running[i];
-        if (p == NULL) {
-            if (insertIndex < 0) {
-                insertIndex = i;
-            }
-            continue;
-        }
-        if (chokeIndex < 0 && Pad_chokeGroup(pad) != 0 && Pad_chokeGroup(pad) == Pad_chokeGroup(p)) {
-            chokeIndex = i;
-            if (insertIndex < 0) {
-                insertIndex = i;
-            }
-        }
-
-        if (insertIndex >= 0 && chokeIndex >= 0) {
+    PadPtrAr_foreach(it, &pl->running) {
+        Pad *p = *it.var;
+        if (Pad_chokeGroup(pad) != 0 && Pad_chokeGroup(pad) == Pad_chokeGroup(p)) {
+            PadPtrAr_remove(&pl->running, it.index, err);
+            Error_returnVoidOnError(err);
             break;
         }
     }
 
-    if (chokeIndex >= 0) {
-        // Remove choked Pad
-        llst->running[chokeIndex] = NULL;
-    }
-    if (insertIndex < 0) {
-        sb_add(llst->running, 1);
-        insertIndex = sb_count(llst->running)-1;
-    }
-    llst->running[insertIndex] = pad;
-    for (int i = runningLength-1; i >= 0; i--) {
-        if (llst->running[i] == NULL) {
-            sb_pop(llst->running);
-        }
-        else {
-            break;
-        }
-    }
+    PadPtrAr_push(&pl->running, pad);
 
-    return Midiseq_start(Pad_sequence(llst->running[insertIndex]), startTime, currentTime, false, err);
+   Midiseq_start(Pad_sequence(pad), startTime, currentTime, false, err);
 }
 
 
-APIF void PadList_markReleasePending(PadList *llst, int padIndex, bool pending, Error *err)
+APIF void PadList_markReleasePending(PadList *pl, int padIndex, bool pending, Error *err)
 {
-    if (padIndex < 0 || padIndex >= PadList_padsLength(llst)) {
-        Error_format(err, "Index out of range (%d, %d)", padIndex, PadList_padsLength(llst));
-        return;
-    }
-    Pad *pad = llst->pads + padIndex;
+    Pad *pad = PadAr_getp(&pl->pads, padIndex, err);
+    Error_returnVoidOnError(err);
     Pad_setNoteReleasePending(pad, pending);
     if (!pending) {
         // We recieved a note-off. So cancel any pending endgroups
@@ -1104,77 +1077,29 @@ APIF void PadList_markReleasePending(PadList *llst, int padIndex, bool pending, 
     }
 }
 
-
-APIF int PadList_runningLength(PadList *llst)
+APIF Pad *PadList_pad(PadList *pl, int index, Error *err)
 {
-    return sb_count(llst->running);
-}
-
-// iterator always points at the same element that is saved in the pad argument. This is done so that the iterator
-// is left in a state that can be sent to PadList_clearRunning.
-APIF bool PadList_iterateRunning(PadList *llst, PadListIterator *iterator, Pad **pad)
-{
-    *pad = NULL;
-    if (iterator->index < -1) {
-        return false;
-    }
-    while (iterator->index+1 < PadList_runningLength(llst)) {
-        iterator->index++;
-        *pad = llst->running[iterator->index];
-        if (*pad != NULL) {
-            return true;
-        }
-
-    }
-    return false;
+    return PadAr_getp(&pl->pads, index, err);
 }
 
 
-APIF void PadList_clearRunning(PadList *llst, PadListIterator *iterator)
+APIF void PadList_assignTrack(PadList *pl, TrackList *tl)
 {
-    if (iterator->index >= 0 && iterator->index < PadList_runningLength(llst)) {
-        llst->running[iterator->index] = NULL;
-    }
-    return;
-}
-
-
-APIF int PadList_padsLength(PadList *llst)
-{
-    return sb_count(llst->pads);
-}
-
-
-APIF Pad *PadList_pad(PadList *llst, int index, Error *err)
-{
-    if (index < 0 || index >= sb_count(llst->pads)) {
-        Error_format(err, "Index out of range (%d, %d)", index, sb_count(llst->pads));
-        return NULL;
-    }
-    return llst->pads + index;
-}
-
-
-APIF void PadList_assignTrack(PadList *llst, TrackList *tl)
-{
-    for (int i = 0; i < sb_count(llst->pads); i++) {
-        Pad *pad = llst->pads + i;
+    PadAr_foreach(it, &pl->pads) {
+        Pad *pad = it.var;
         Pad_setTrack(pad, TrackList_findTrackByName(tl, Pad_trackName(pad)));
     }
 }
 
-APIF void PadList_toBinFile(PadList *llst, BinFile *bf, Error *err) {
+APIF void PadList_toBinFile(PadList *pl, BinFile *bf, Error *err) {
     BinFile_writeTag(bf, "padlist_start", err);
     Error_returnVoidOnError(err);
 
-    BinFile_writeInteger(bf, PadList_padsLength(llst), err);
+    BinFile_writeInteger(bf, PadAr_len(&pl->pads), err);
     Error_returnVoidOnError(err);
 
-    for (int i = 0; i < PadList_padsLength(llst); i++) {
-        Pad *pad = PadList_pad(llst, i, err);
-        Error_returnVoidOnError(err);
-
-        Pad_toBinFile(pad, bf, err);
+    PadAr_foreach(it, &pl->pads) {
+        Pad_toBinFile(it.var, bf, err);
         Error_returnVoidOnError(err);                
     }
 
@@ -1183,34 +1108,31 @@ APIF void PadList_toBinFile(PadList *llst, BinFile *bf, Error *err) {
 }
 
 APIF PadList *PadList_fromBinFile(BinFile *bf, Error *err) {
-    PadList *llst = PadList_newUninitialized();
-    PadList_fromBinFileUninitialized(llst, bf, err);
+    PadList *pl = PadList_new(0);
+    PadList_fromBinFileInitialized(pl, bf, err);
     if (Error_iserror(err)) {
-        sysmem_freeptr(llst);
+        PadList_free(pl);
         return NULL;
     }
-    return llst;
+    return pl;
 }
 
 // Remember the rul is that if there is an error, the PadList passed in remains uninitialized.
-APIF void PadList_fromBinFileUninitialized(PadList *llst, BinFile *bf, Error *err) {
+APIF void PadList_fromBinFileInitialized(PadList *pl, BinFile *bf, Error *err) {
     BinFile_verifyTag(bf, "padlist_start", err);
     Error_returnVoidOnError(err);
 
     long len = BinFile_readInteger(bf, err);
     Error_returnVoidOnError(err);
             
-    Pad *pads = NULL;
-    sb_add(pads, len);
-
     for (int i = 0; i < len; i++) {
-        Pad_fromBinFileUninitialized(pads + i, bf, err);
+        Pad pad = {0};
+        Pad_fromBinFileUninitialized(&pad, bf, err);
         Error_returnVoidOnError(err);
+        PadAr_push(&pl->pads, pad);
     }
     BinFile_verifyTag(bf, "padlist_end", err);
-
-    PadList_setPads(llst, pads);
-    Error_returnVoidOnError(err);
+    PadAr_fit(&pl->pads);
 }
 
 //

@@ -104,24 +104,24 @@ void *CseqHub_new(Symbol *s, long argc, t_atom *argv)
     Symbol *organName = gensym("organ");
     const int npads = Hub_padsPerBank;
     Hub_setPadList(CseqHub_hub(x), PadList_new(npads));
-    
-    for (int i = 0; i < PadList_padsLength(CseqHub_padList(x)); i++) {
-        Pad *pad = PadList_pad(CseqHub_padList(x), i, err);
-        if (Error_maypost(err)) {
-            continue;
-        }
+    PadAr *pads = PadList_pads(CseqHub_padList(x));
+    PadAr_foreach(it, pads) {
+        Pad *pad = it.var;
+        Pad_setPadIndex(pad, it.index);
 
-        Pad_setPadIndex(pad, i);
-        Pad_setChokeGroupGlobal(pad, i % 5 == 0 ? true : false);
-        Pad_setChokeGroupInstrument(pad, i % 6);
-        Pad_setChokeGroupIndex(pad, i % 17); 
+        // Pad_setChokeGroupGlobal(pad, it.index % 5 == 0 ? true : false);
+        // Pad_setChokeGroupInstrument(pad, it.index % 6);
+        // Pad_setChokeGroupIndex(pad, it.index % 17); 
+
+        Pad_setChokeGroupGlobal(pad, 1);
+        Pad_setChokeGroupInstrument(pad, 1);
+        Pad_setChokeGroupIndex(pad, 1); 
+
         Pad_computeChokeGroup(pad);
-
-
         Pad_setTrackName(pad, organName);
-        int pitch = 48 + (i % 24);
-        Midiseq *midi = Midiseq_newNote(pitch);
-        Pad_setSequence(pad, midi);        
+        int pitch = 48 + (it.index % 24);
+        Midiseq *mseq = Midiseq_newNote(pitch);
+        Pad_setSequence(pad, mseq);        
     }
 
     // START TRANSPORT
@@ -154,7 +154,7 @@ void CseqHub_int(CseqHub *x, long val)
     }
 
     int padIndex = CseqHub_padIndexFromInNote(x, val);
-    if (padIndex >= PadList_padsLength(CseqHub_padList(x))) {
+    if (padIndex >= PadAr_len(PadList_pads(CseqHub_padList(x)))) {
         post("Bad padIndex %d", padIndex);
         return;
     }
@@ -205,16 +205,12 @@ void CseqHub_playnotes(CseqHub *x)
         }
     }
 
-    Pad *pad = NULL;
-    PadListIterator_declare(iterator);
-    while (PadList_iterateRunning(CseqHub_padList(x), iterator, &pad)) {
-        if (pad == NULL) {
-            post("Yup that bitch is null");
-            break;
-        }
-        Midiseq *midi            = Pad_sequence(pad);
+    PadPtrAr *running = PadList_running(CseqHub_padList(x));
+    PadPtrAr_foreach(it, running) {
+        Pad *pad                 = *it.var;
+        Midiseq *mseq            = Pad_sequence(pad);
         NoteManager *noteManager = Track_noteManager(Pad_track(pad));
-        while ( (status = Midiseq_nextevent(midi, now, &cell, err)) == Midiseq_nextEventContinue) {
+        while ( (status = Midiseq_nextevent(mseq, now, &cell, err)) == Midiseq_nextEventContinue) {
             if (MEvent_type(cell) == Midiseq_endgrptype) {
                 Pad_setInEndgroup(pad, true);
             }
@@ -234,7 +230,11 @@ void CseqHub_playnotes(CseqHub *x)
             }
         }
         else if (status == Midiseq_nextEventComplete) {
-            PadList_clearRunning(CseqHub_padList(x), iterator);
+            PadPtrAr_remove(running, it.index, err);
+            if (Error_maypost(err)) {
+                continue;
+            }            
+            it.index--;             
         }
     }
     if (smallestDelta >= 0) {

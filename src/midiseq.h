@@ -21,8 +21,6 @@ struct PortFindCell_t;
 typedef struct PortFindCell_t PortFindCell;
 struct PortFind_t;
 typedef struct PortFind_t PortFind;
-struct PadListIterator_t;
-typedef struct PadListIterator_t PadListIterator;
 struct PadList_t;
 typedef struct PadList_t PadList;
 struct Track_t;
@@ -208,6 +206,8 @@ static inline bool Pad_inEndgroup(Pad *self){return self->inEndgroup;}
 static inline void Pad_setInEndgroup(Pad *self, bool value){self->inEndgroup = value;}
 static inline Track *Pad_track(Pad *self){return self->track;}
 static inline void Pad_setTrack(Pad *self, Track *value){self->track = value;}
+#include "padAr.h"
+#include "padPtrAr.h"
 Pad *Pad_new();
 void Pad_init(Pad *pad);
 void Pad_free(Pad *pad);
@@ -321,40 +321,25 @@ int PortFind_portCount(PortFind *pf);
 Port *PortFind_findByIndex(PortFind *pf, int index, Error *err);
 
 // *** DO NOT MODIFY THIS FILE (see header.pl) ***
-struct PadListIterator_t
-{
-    int index;
-};
-#define PadListIterator_newUninitialized() ((PadListIterator*)sysmem_newptrclear(sizeof(PadListIterator)))
-#define PadListIterator_declare(name) PadListIterator _##name = {-1}; PadListIterator *name = &_##name
-static inline int PadListIterator_index(PadListIterator *self){return self->index;}
-static inline void PadListIterator_setIndex(PadListIterator *self, int value){self->index = value;}
-
-// *** DO NOT MODIFY THIS FILE (see header.pl) ***
 struct PadList_t
 {
-    Pad *pads;
-    Pad **running;
+    PadAr pads;
+    PadPtrAr running;
 };
 #define PadList_newUninitialized() ((PadList*)sysmem_newptrclear(sizeof(PadList)))
-#define PadListIterator_declare(name) PadListIterator _##name = {-1}; PadListIterator *name = &_##name
-static inline Pad *PadList_pads(PadList *self){return self->pads;}
-static inline void PadList_setPads(PadList *self, Pad *value){self->pads = value;}
-static inline Pad **PadList_running(PadList *self){return self->running;}
-static inline void PadList_setRunning(PadList *self, Pad **value){self->running = value;}
+static inline PadAr *PadList_pads(PadList *self){return &self->pads;}
+static inline PadPtrAr *PadList_running(PadList *self){return &self->running;}
 PadList *PadList_new(int npads);
-void PadList_free(PadList *llst);
-int PadList_play(PadList *llst, int padIndex, Ticks startTime, Ticks currentTime, bool useMasterClock, Error *err);
-void PadList_markReleasePending(PadList *llst, int padIndex, bool pending, Error *err);
-int PadList_runningLength(PadList *llst);
-bool PadList_iterateRunning(PadList *llst, PadListIterator *iterator, Pad **pad);
-void PadList_clearRunning(PadList *llst, PadListIterator *iterator);
-int PadList_padsLength(PadList *llst);
-Pad *PadList_pad(PadList *llst, int index, Error *err);
-void PadList_assignTrack(PadList *llst, TrackList *tl);
-void PadList_toBinFile(PadList *llst, BinFile *bf, Error *err);
+void PadList_init(PadList *pl, int npads);
+void PadList_clear(PadList *pl);
+void PadList_free(PadList *pl);
+void PadList_play(PadList *pl, int padIndex, Ticks startTime, Ticks currentTime, bool useMasterClock, Error *err);
+void PadList_markReleasePending(PadList *pl, int padIndex, bool pending, Error *err);
+Pad *PadList_pad(PadList *pl, int index, Error *err);
+void PadList_assignTrack(PadList *pl, TrackList *tl);
+void PadList_toBinFile(PadList *pl, BinFile *bf, Error *err);
 PadList *PadList_fromBinFile(BinFile *bf, Error *err);
-void PadList_fromBinFileUninitialized(PadList *llst, BinFile *bf, Error *err);
+void PadList_fromBinFileInitialized(PadList *pl, BinFile *bf, Error *err);
 
 // *** DO NOT MODIFY THIS FILE (see header.pl) ***
 struct Track_t

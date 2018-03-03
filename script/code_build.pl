@@ -86,6 +86,8 @@ sub buildHeaders {
     run "$gHome/script/header.pl > $gHome/src/midiseq.h";
     run "$gHome/script/array.pl $gHome/src/mEventAr.json > $gHome/src/mEventAr.h";
     run "$gHome/script/array.pl $gHome/src/portFindCellAr.json > $gHome/src/portFindCellAr.h";
+    run "$gHome/script/array.pl $gHome/src/padAr.json > $gHome/src/padAr.h";
+    run "$gHome/script/array.pl $gHome/src/padPtrAr.json > $gHome/src/padPtrAr.h";
 }
 
 sub findBuildNumber {
