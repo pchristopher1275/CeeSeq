@@ -90,6 +90,7 @@ sub buildHeaders {
     run "$gHome/script/array.pl $gHome/src/padPtrAr.json > $gHome/src/padPtrAr.h";
     run "$gHome/script/array.pl $gHome/src/trackAr.json > $gHome/src/trackAr.h";
     run "$gHome/script/array.pl $gHome/src/symbolPtrAr.json > $gHome/src/symbolPtrAr.h";
+    run "$gHome/script/array.pl $gHome/src/intAr.json > $gHome/src/intAr.h";
 }
 
 sub findBuildNumber {

@@ -383,7 +383,7 @@ sub NoteManager_define {
 			{name=>"endgroups",        type=>"PendingNoteOff *",},
 			{name=>"output",           type=>"Port *",},
 			{name=>"atoms",            type=>"t_atom *",},
-			{name=>"removedPitches",   type=>"int *",},
+			{name=>"removedPitches",   type=>"IntAr",},
 		],
 	);
 	return \%config;
@@ -452,7 +452,7 @@ sub Track_define {
 	my %config = (
 		typeName => "Track",
 		fields => [
-			{name=>"name",        type=>"t_symbol *"},
+			{name=>"name",        type=>"Symbol *"},
 			{name=>"noteManager", type=>"NoteManager *"},
 		],
 		postAccessor => \&Track_postAccessor,

@@ -15,6 +15,7 @@
 #include "core.c"
 #include "array.c"
 #include "symbolPtrAr.h"
+#include "intAr.h"
 #include "shared.c"
 #include "midiseq.h"
 #include "midiseq.c"

@@ -1303,15 +1303,15 @@ APIF bool PendingNoteOff_removePitch(PendingNoteOff **head, int pitch)
 }
 
 
-APIF void PendingNoteOff_removePadIndexed(PendingNoteOff **head, int padIndex, int **pitchesRemoved)
+APIF void PendingNoteOff_removePadIndexed(PendingNoteOff **head, int padIndex, IntAr *pitchesRemoved)
 {
     // First remove the pitch from endgroups
-    sb_clear(*pitchesRemoved);
+    IntAr_truncate(pitchesRemoved);
     PendingNoteOff *p    = *head;
     PendingNoteOff *last = NULL;
     while (p != NULL) {
         if (PendingNoteOff_padIndex(p) == padIndex) {
-            sb_push(*pitchesRemoved, PendingNoteOff_pitch(p));
+            IntAr_push(pitchesRemoved, PendingNoteOff_pitch(p));
             PendingNoteOff *n = PendingNoteOff_next(p);
             if (last == NULL) {
                 *head = n;
@@ -1398,8 +1398,9 @@ const int NoteManager_atomcount = 4;
 APIF NoteManager *NoteManager_new(Port *port)
 {
     NoteManager *nm = (NoteManager*)sysmem_newptrclear(sizeof(NoteManager));
-    nm->atoms       = (t_atom*)sysmem_newptrclear(sizeof(t_atom) * NoteManager_atomcount);
+    nm->atoms       = (t_atom*)Mem_malloc(sizeof(t_atom) * NoteManager_atomcount);
     nm->output      = port;
+    IntAr_init(&nm->removedPitches, 0);
     return nm;
 }
 
@@ -1407,13 +1408,13 @@ APIF NoteManager *NoteManager_new(Port *port)
 APIF void NoteManager_free(NoteManager *nm)
 {
     PendingNoteOff_freeAll(NoteManager_pending(nm));
-    sb_free(nm->removedPitches);
+    IntAr_clear(&nm->removedPitches);
     sb_free(nm->pending);
     sb_free(nm->endgroups);
     NoteManager zero = {0};
-    sysmem_freeptr(nm->atoms);
+    Mem_free(nm->atoms);
     *nm = zero;
-    sysmem_freeptr(nm);
+    Mem_free(nm);
 }
 
 
@@ -1521,8 +1522,8 @@ APIF void NoteManager_midievent(NoteManager *manager, MEvent cell, int padIndexF
 APIF void NoteManager_padNoteOff(NoteManager *manager, int padIndex)
 {
     PendingNoteOff_removePadIndexed(&manager->endgroups, padIndex, &manager->removedPitches);
-    for (int i = 0; i < sb_count(manager->removedPitches); i++) {
-        NoteManager_sendNoteOn(manager, manager->removedPitches[i], 0);
+    IntAr_foreach(it, &manager->removedPitches) {
+        NoteManager_sendNoteOn(manager, *it.var, 0);
     }
 }
 

@@ -240,7 +240,7 @@ struct PendingNoteOff_t
 PendingNoteOff *PendingNoteOff_new();
 void PendingNoteOff_free(PendingNoteOff *node);
 bool PendingNoteOff_removePitch(PendingNoteOff **head, int pitch);
-void PendingNoteOff_removePadIndexed(PendingNoteOff **head, int padIndex, int **pitchesRemoved);
+void PendingNoteOff_removePadIndexed(PendingNoteOff **head, int padIndex, IntAr *pitchesRemoved);
 void PendingNoteOff_insertTimestamped(PendingNoteOff **head, int pitch, Ticks timestamp);
 void PendingNoteOff_insertPadIndexed(PendingNoteOff **head, int pitch, int padIndex);
 void PendingNoteOff_pop(PendingNoteOff **head);
@@ -254,7 +254,7 @@ struct NoteManager_t
     PendingNoteOff *endgroups;
     Port *output;
     t_atom *atoms;
-    int *removedPitches;
+    IntAr removedPitches;
 };
 #define NoteManager_newUninitialized() ((NoteManager*)sysmem_newptrclear(sizeof(NoteManager)))
 static inline PendingNoteOff *NoteManager_pending(NoteManager *self){return self->pending;}
@@ -265,8 +265,8 @@ static inline Port *NoteManager_output(NoteManager *self){return self->output;}
 static inline void NoteManager_setOutput(NoteManager *self, Port *value){self->output = value;}
 static inline t_atom *NoteManager_atoms(NoteManager *self){return self->atoms;}
 static inline void NoteManager_setAtoms(NoteManager *self, t_atom *value){self->atoms = value;}
-static inline int *NoteManager_removedPitches(NoteManager *self){return self->removedPitches;}
-static inline void NoteManager_setRemovedPitches(NoteManager *self, int *value){self->removedPitches = value;}
+static inline IntAr NoteManager_removedPitches(NoteManager *self){return self->removedPitches;}
+static inline void NoteManager_setRemovedPitches(NoteManager *self, IntAr value){self->removedPitches = value;}
 NoteManager *NoteManager_new(Port *port);
 void NoteManager_free(NoteManager *nm);
 bool NoteManager_insertNoteOff(NoteManager *manager, Ticks timestamp, int pitch, int padIndexForEndgroup);
@@ -344,12 +344,12 @@ void PadList_fromBinFileInitialized(PadList *pl, BinFile *bf, Error *err);
 // *** DO NOT MODIFY THIS FILE (see header.pl) ***
 struct Track_t
 {
-    t_symbol *name;
+    Symbol *name;
     NoteManager *noteManager;
 };
 #define Track_newUninitialized() ((Track*)sysmem_newptrclear(sizeof(Track)))
-static inline t_symbol *Track_name(Track *self){return self->name;}
-static inline void Track_setName(Track *self, t_symbol *value){self->name = value;}
+static inline Symbol *Track_name(Track *self){return self->name;}
+static inline void Track_setName(Track *self, Symbol *value){self->name = value;}
 static inline NoteManager *Track_noteManager(Track *self){return self->noteManager;}
 static inline void Track_setNoteManager(Track *self, NoteManager *value){self->noteManager = value;}
 #include "trackAr.h"
