@@ -289,26 +289,28 @@ static inline Port *PortFindCell_reciever(PortFindCell *self){return self->recie
 static inline void PortFindCell_setReciever(PortFindCell *self, Port *value){self->reciever = value;}
 static inline t_symbol *PortFindCell_varname(PortFindCell *self){return self->varname;}
 static inline void PortFindCell_setVarname(PortFindCell *self, t_symbol *value){self->varname = value;}
+#include "portFindCellAr.h"
 
 // *** DO NOT MODIFY THIS FILE (see header.pl) ***
 struct PortFind_t
 {
     // ** not persisted **
-    PortFindCell *objectsFound;
+    PortFindCellAr objects;
     void *hub;
     Port_anythingDispatchFunc anythingDispatch;
     Port_intDispatchFunc intDispatch;
 };
 #define PortFind_newUninitialized() ((PortFind*)sysmem_newptrclear(sizeof(PortFind)))
-static inline PortFindCell *PortFind_objectsFound(PortFind *self){return self->objectsFound;}
-static inline void PortFind_setObjectsFound(PortFind *self, PortFindCell *value){self->objectsFound = value;}
+static inline PortFindCellAr PortFind_objects(PortFind *self){return self->objects;}
+static inline void PortFind_setObjects(PortFind *self, PortFindCellAr value){self->objects = value;}
 static inline void *PortFind_hub(PortFind *self){return self->hub;}
 static inline void PortFind_setHub(PortFind *self, void *value){self->hub = value;}
 static inline Port_anythingDispatchFunc PortFind_anythingDispatch(PortFind *self){return self->anythingDispatch;}
 static inline void PortFind_setAnythingDispatch(PortFind *self, Port_anythingDispatchFunc value){self->anythingDispatch = value;}
 static inline Port_intDispatchFunc PortFind_intDispatch(PortFind *self){return self->intDispatch;}
 static inline void PortFind_setIntDispatch(PortFind *self, Port_intDispatchFunc value){self->intDispatch = value;}
-#define PortFind_declare(name) PortFind _##name = {0}; PortFind *name = &_##name			
+#define PortFind_declare(name) PortFind _##name; PortFind *name = &_##name; memset(name, 0, sizeof(PortFind)); PortFind_init(name)			
+void PortFind_init(PortFind *pf);
 long PortFind_iterator(PortFind *pf, t_object *targetBox);
 int PortFind_discover(PortFind *pf, t_object *sourceMaxObject, void *hub, Error *err);
 void PortFind_clear(PortFind *pf);

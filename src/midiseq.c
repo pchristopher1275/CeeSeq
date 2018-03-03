@@ -778,10 +778,15 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
 //
 // P A T C H E R    F I N D
 //
+
+APIF void PortFind_init(PortFind *pf) {
+    PortFindCellAr_init(&pf->objects, 0);
+}
+
 APIF long PortFind_iterator(PortFind *pf, t_object *targetBox)
 {
     t_object *obj = jbox_get_object(targetBox);
-    if (gensym("Port") != object_classname(obj)) {
+    if (Symbol_gen("Port") != object_classname(obj)) {
         return 0;
     }
 
@@ -794,7 +799,7 @@ APIF long PortFind_iterator(PortFind *pf, t_object *targetBox)
     Port *port          = (Port*)obj;
     pfc.reciever        = port;
     pfc.varname         = varname;
-    sb_push(pf->objectsFound, pfc);
+    PortFindCellAr_push(&pf->objects, pfc);
 
     Port_hub(port)              = PortFind_hub(pf);
     Port_anythingDispatch(port) = PortFind_anythingDispatch(pf);
@@ -828,17 +833,15 @@ APIF int PortFind_discover(PortFind *pf, t_object *sourceMaxObject, void *hub, E
 
 APIF void PortFind_clear(PortFind *pf)
 {
-    sb_free(pf->objectsFound);
-    pf->objectsFound = NULL;
+    PortFindCellAr_clear(&pf->objects);
 }
 
 
 APIF Port *PortFind_findByVarname(PortFind *pf, Symbol *symbol)
 {
-    for (int i = 0; i < sb_count(pf->objectsFound); i++) {
-        PortFindCell *pfc = pf->objectsFound + i;
-        if (pfc->varname == symbol) {
-            return pfc->reciever;
+    PortFindCellAr_foreach(it, &pf->objects){
+        if (it.var->varname == symbol) {
+            return it.var->reciever;
         }
     }
     return Port_null;
@@ -847,10 +850,9 @@ APIF Port *PortFind_findByVarname(PortFind *pf, Symbol *symbol)
 
 APIF Port *PortFind_findByTrack(PortFind *pf, Symbol *symbol)
 {
-    for (int i = 0; i < sb_count(pf->objectsFound); i++) {
-        PortFindCell *pfc = pf->objectsFound + i;
-        if (pfc->reciever->track == symbol) {
-            return pfc->reciever;
+    PortFindCellAr_foreach(it, &pf->objects){
+        if (it.var->reciever->track == symbol) {
+            return it.var->reciever;
         }
     }
     return Port_null;
@@ -859,10 +861,9 @@ APIF Port *PortFind_findByTrack(PortFind *pf, Symbol *symbol)
 
 APIF Port *PortFind_findById(PortFind *pf, Symbol *symbol)
 {
-    for (int i = 0; i < sb_count(pf->objectsFound); i++) {
-        PortFindCell *pfc = pf->objectsFound + i;
-        if (Port_id(pfc->reciever) == symbol) {
-            return pfc->reciever;
+    PortFindCellAr_foreach(it, &pf->objects){
+        if (Port_id(it.var->reciever) == symbol) {
+            return it.var->reciever;
         }
     }
     return Port_null;
@@ -871,17 +872,18 @@ APIF Port *PortFind_findById(PortFind *pf, Symbol *symbol)
 
 APIF int PortFind_portCount(PortFind *pf)
 {
-    return sb_count(pf->objectsFound);
+    return PortFindCellAr_len(&pf->objects);
 }
 
 
 APIF Port *PortFind_findByIndex(PortFind *pf, int index, Error *err)
 {
-    if (index < 0 || index >= PortFind_portCount(pf)) {
-        Error_format(err, "Index out of range (%d, %d)", index, PortFind_portCount(pf));
+    PortFindCell cell = PortFindCellAr_get(&pf->objects, index, err);
+    if (Error_iserror(err)) {
         return Port_null;
     }
-    return pf->objectsFound[index].reciever;
+    
+    return cell.reciever;
 }
 
 //

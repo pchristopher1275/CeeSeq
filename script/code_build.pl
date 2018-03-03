@@ -84,7 +84,8 @@ sub xcodebuild {
 
 sub buildHeaders {
     run "$gHome/script/header.pl > $gHome/src/midiseq.h";
-    run "$gHome/script/array.pl src/mEventAr.json > $gHome/src/mEventAr.h";
+    run "$gHome/script/array.pl $gHome/src/mEventAr.json > $gHome/src/mEventAr.h";
+    run "$gHome/script/array.pl $gHome/src/portFindCellAr.json > $gHome/src/portFindCellAr.h";
 }
 
 sub findBuildNumber {

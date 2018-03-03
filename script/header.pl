@@ -382,6 +382,13 @@ sub NoteManager_define {
 	return \%config;
 }
 
+sub PortFindCell_postAccessor {
+	my ($out) = @_;
+	print {$out} <<END;
+#include "portFindCellAr.h"
+END
+}
+
 sub PortFindCell_define {
 	my %config = (
 		typeName => "PortFindCell",
@@ -390,6 +397,7 @@ sub PortFindCell_define {
 			{name=>"reciever", type=>"Port *",},
 			{name=>"varname",  type=>"t_symbol *",},
 		],
+		postAccessor => \&PortFindCell_postAccessor,
 	);
 	return \%config;
 }
@@ -399,7 +407,7 @@ sub PortFind_define {
 		typeName => "PortFind",
 		fields => [
 			{group=>"noPersist",},
-			{name=>"objectsFound",     type=>"PortFindCell *",},
+			{name=>"objects",          type=>"PortFindCellAr"},
 			{name=>"hub",              type=>"void *",},
 			{name=>"anythingDispatch", type=>"Port_anythingDispatchFunc",},
 			{name=>"intDispatch",      type=>"Port_intDispatchFunc",},
@@ -408,7 +416,7 @@ sub PortFind_define {
 		postAccessor => sub {
 			my ($out) = @_;
 			print {$out} <<END;
-#define PortFind_declare(name) PortFind _##name = {0}; PortFind *name = &_##name			
+#define PortFind_declare(name) PortFind _##name; PortFind *name = &_##name; memset(name, 0, sizeof(PortFind)); PortFind_init(name)			
 END
 		},
 	);
