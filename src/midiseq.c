@@ -1136,14 +1136,13 @@ APIF DropDown *DropDown_new(const char **table, PortRef *pr) {
 }
 
 APIF void DropDown_init(DropDown *dd, const char **table, PortRef *pr) {
-    Symbol **l     = NULL;
+    SymbolPtrAr_init(&dd->table, 0);
     const char **ptr = table;
     while (*ptr) {
         Symbol *s = gensym(*ptr);
-        sb_push(l, s);
+        SymbolPtrAr_push(&dd->table, s);
         ptr++;
     }
-    DropDown_setTable(dd, l);
     DropDown_setPortRef(dd, pr);
     return;
 }
@@ -1195,24 +1194,27 @@ APIF void DropDown_initCGIndex(DropDown *dd, PortRef *pr) {
 }
 
 APIF void DropDown_clear(DropDown *dd) {
-    sb_free(DropDown_table(dd));
+    SymbolPtrAr_clear(&dd->table);
 }
 
 APIF void DropDown_free(DropDown *dd) {
     DropDown_clear(dd);
-    sysmem_freeptr(dd);
+    Mem_free(dd);
 }
 
 APIF void DropDown_updateSelected(DropDown *dd, Error *err) {
+    Symbol *s = SymbolPtrAr_get(&dd->table, dd->selected, err);
+    Error_returnVoidOnError(err);
+
     t_atom a[2] = {{0}};
     atom_setsym(a + 0, gensym("set"));
-    atom_setsym(a + 1, DropDown_table(dd)[DropDown_selected(dd)]);
+    atom_setsym(a + 1, s);
     PortRef_send(DropDown_portRef(dd), 2, a, err);
 }
 
 APIF void DropDown_setSelected(DropDown *dd, int selected, Error *err) {
-    if (selected < 0 && selected >= sb_count(DropDown_table(dd))) {
-        Error_format(err, "Index out of range (%d, %d)", selected, sb_count(DropDown_table(dd)));
+    if (selected < 0 || selected >= SymbolPtrAr_len(&dd->table)) {
+        Error_format(err, "Index out of range (%d, %d)", selected, SymbolPtrAr_len(&dd->table));
         return;
     }
     dd->selected = selected;
@@ -1224,13 +1226,13 @@ APIF void DropDown_initializeMenu(DropDown *dd, Error *err) {
     atom_setsym(&clear, gensym("clear"));
     atom_setsym(&append, gensym("append"));
 
-    PortRef_send(DropDown_portRef(dd), 1, &clear, err);
+    PortRef_send(&dd->portRef, 1, &clear, err);
     Error_returnVoidOnError(err);
 
-    for (int i = 0; i < sb_count(DropDown_table(dd)); i++) {
+    SymbolPtrAr_foreach(it, &dd->table) {
         t_atom a[2] = {append, {0}};
-        atom_setsym(a+1, DropDown_table(dd)[i]);
-        PortRef_send(DropDown_portRef(dd), 2, a, err);
+        atom_setsym(a+1, *it.var);
+        PortRef_send(&dd->portRef, 2, a, err);
         Error_returnVoidOnError(err);        
     }
 }

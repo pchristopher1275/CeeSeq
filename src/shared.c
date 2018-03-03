@@ -1,8 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include "stretchy_buffer.h"
-#include "core.c"
 
 
 #ifndef APIF

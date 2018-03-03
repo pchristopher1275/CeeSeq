@@ -1,0 +1,5 @@
+{
+  "config": [
+	{"typename": "SymbolPtrAr", "elemname": "Symbol *"}
+   ]
+}

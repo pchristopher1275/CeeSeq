@@ -397,13 +397,12 @@ static inline void PortRef_set(PortRef *pr, Port *port, int outlet) {
 // *** DO NOT MODIFY THIS FILE (see header.pl) ***
 struct DropDown_t
 {
-    t_symbol **table;
+    SymbolPtrAr table;
     int selected;
     PortRef portRef;
 };
 #define DropDown_newUninitialized() ((DropDown*)sysmem_newptrclear(sizeof(DropDown)))
-static inline t_symbol **DropDown_table(DropDown *self){return self->table;}
-static inline void DropDown_setTable(DropDown *self, t_symbol **value){self->table = value;}
+static inline SymbolPtrAr *DropDown_table(DropDown *self){return &self->table;}
 static inline int DropDown_selected(DropDown *self){return self->selected;}
 static inline PortRef *DropDown_portRef(DropDown *dd) {
     return &dd->portRef;

@@ -11,8 +11,11 @@
 #include "ext_time.h"
 #include "ext_itm.h"
 
-#include "shared.c"
+#include "stretchy_buffer.h"
+#include "core.c"
 #include "array.c"
+#include "symbolPtrAr.h"
+#include "shared.c"
 #include "midiseq.h"
 #include "midiseq.c"
 

@@ -515,7 +515,7 @@ sub DropDown_define {
 	my %config = (
 		typeName => "DropDown",
 		fields => [
-			{name=>"table",   type=>"t_symbol **"},
+			{name=>"table",    type=>"SymbolPtrAr", getterReturn => "pointer", setter=>"none"},
 			{name=>"selected", type=>"int", setter=>"none"},
 			{name=>"portRef", type=>"PortRef", getter=>"none", setter=>"none"},
 		],
