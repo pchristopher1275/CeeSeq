@@ -441,6 +441,13 @@ sub PadList_define {
 	return \%config;
 }
 
+sub Track_postAccessor {
+	my ($out) = @_;
+	print {$out} <<END;
+#include "trackAr.h"
+END
+}
+
 sub Track_define {
 	my %config = (
 		typeName => "Track",
@@ -448,6 +455,7 @@ sub Track_define {
 			{name=>"name",        type=>"t_symbol *"},
 			{name=>"noteManager", type=>"NoteManager *"},
 		],
+		postAccessor => \&Track_postAccessor,
 	);
 	return \%config;
 }
@@ -455,8 +463,9 @@ sub Track_define {
 sub TrackList_define {
 	my %config = (
 		typeName => "TrackList",
-		fields => [],
-		noNewUnitialized => 1,
+		fields => [
+			{name => "list", type=>"TrackAr", getterReturn=>"pointer", setter=>"none"},
+		],
 	);
 	return \%config;	
 }

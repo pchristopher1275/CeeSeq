@@ -275,117 +275,6 @@ APIF void Midiseq_dblog(Midiseq *mseq)
     return;
 }
 
-
-// //
-// // P A T C H E R    F I N D
-// //
-// APIF long PortFind_iterator(PortFind *pf, t_object *targetBox)
-// {
-//     t_object *obj = jbox_get_object(targetBox);
-//     if (gensym("Port") != object_classname(obj)) {
-//         return 0;
-//     }
-
-//     Symbol *varname = object_attr_getsym(targetBox, gensym("varname"));
-//     if (varname == NULL) {
-//         varname = gensym("unknown");
-//     }
-
-//     PortFindCell pfc = {0};
-//     Port *port          = (Port*)obj;
-//     pfc.reciever        = port;
-//     pfc.varname         = varname;
-//     sb_push(pf->objectsFound, pfc);
-
-//     Port_hub(port)              = PortFind_hub(pf);
-//     Port_anythingDispatch(port) = PortFind_anythingDispatch(pf);
-//     Port_intDispatch(port)      = PortFind_intDispatch(pf);
-
-//     return 0;
-// }
-
-
-// APIF int PortFind_discover(PortFind *pf, t_object *sourceMaxObject, void *hub, Error *err)
-// {
-//     PortFind_setHub(pf, hub);
-//     PortFind_setAnythingDispatch(pf, Hub_anythingDispatch);
-//     PortFind_setIntDispatch(pf, Hub_intDispatch);
-
-//     t_object *patcher = NULL;
-//     long result       = 0;
-//     t_max_err maxErr = object_obex_lookup(sourceMaxObject, gensym("#P"), &patcher);
-//     if (maxErr != MAX_ERR_NONE) {
-//         Error_format(err, "Failed object_obex_lookup (%s)", Error_maxErrToString(maxErr));
-//         return 0;
-//     }
-//     object_method(patcher, gensym("iterate"), PortFind_iterator, (void *)pf, PI_WANTBOX | PI_DEEP, &result);
-
-//     PortFind_setHub(pf, NULL);
-//     PortFind_setAnythingDispatch(pf, NULL);
-//     PortFind_setIntDispatch(pf, NULL);
-
-//     return 0;
-// }
-
-// APIF void PortFind_clear(PortFind *pf)
-// {
-//     sb_free(pf->objectsFound);
-//     pf->objectsFound = NULL;
-// }
-
-
-// APIF Port *PortFind_findByVarname(PortFind *pf, Symbol *symbol)
-// {
-//     for (int i = 0; i < sb_count(pf->objectsFound); i++) {
-//         PortFindCell *pfc = pf->objectsFound + i;
-//         if (pfc->varname == symbol) {
-//             return pfc->reciever;
-//         }
-//     }
-//     return Port_null;
-// }
-
-
-// APIF Port *PortFind_findByTrack(PortFind *pf, Symbol *symbol)
-// {
-//     for (int i = 0; i < sb_count(pf->objectsFound); i++) {
-//         PortFindCell *pfc = pf->objectsFound + i;
-//         if (pfc->reciever->track == symbol) {
-//             return pfc->reciever;
-//         }
-//     }
-//     return Port_null;
-// }
-
-
-// APIF Port *PortFind_findById(PortFind *pf, Symbol *symbol)
-// {
-//     for (int i = 0; i < sb_count(pf->objectsFound); i++) {
-//         PortFindCell *pfc = pf->objectsFound + i;
-//         if (Port_id(pfc->reciever) == symbol) {
-//             return pfc->reciever;
-//         }
-//     }
-//     return Port_null;
-// }
-
-
-// APIF int PortFind_portCount(PortFind *pf)
-// {
-//     return sb_count(pf->objectsFound);
-// }
-
-
-// APIF Port *PortFind_findByIndex(PortFind *pf, int index, Error *err)
-// {
-//     if (index < 0 || index >= PortFind_portCount(pf)) {
-//         Error_format(err, "Index out of range (%d, %d)", index, PortFind_portCount(pf));
-//         return Port_null;
-//     }
-//     return pf->objectsFound[index].reciever;
-// }
-
-
 //
 // F R O M     F I L E
 //
@@ -1141,67 +1030,82 @@ APIF void PadList_fromBinFileInitialized(PadList *pl, BinFile *bf, Error *err) {
 
 APIF TrackList *TrackList_new(PortFind *pf)
 {
-    Error_declare(err);
-    Track *tl = NULL;
+    TrackList *tl = TrackList_newUninitialized();
+    TrackList_init(tl, pf);
+    return tl;
+}
+
+APIF void TrackList_init(TrackList *tl, PortFind *pf) {
+
+    TrackAr_init(&tl->list, 0);
+
     {
         // Insert the null track at position 1 of the tracklist
         Track t = {0};
         t.name  = gensym("null");
         t.noteManager = NoteManager_new(Port_null);
-        sb_push(tl, t);
+        TrackAr_push(&tl->list, t);
     }
 
+    Error_declare(err);
     for (int i = 0; i < PortFind_portCount(pf); i++) {
         // Notice I don't handle any error that occures. I assume none do since I bound findByIndex by portCount
         Port *p = PortFind_findByIndex(pf, i, err);
+        if (Error_maypost(err)) {
+            continue;
+        }
         Track t = {0};
         Track_setName(&t, Port_track(p));
         Track_setNoteManager(&t, NoteManager_new(p));
-        sb_push(tl, t);
+        TrackAr_push(&tl->list, t);
     }
-
     Error_clear(err);
-    return (TrackList*)tl;
+    return;
 }
 
 
-APIF void TrackList_free(TrackList *tl_in)
+APIF void TrackList_clear(TrackList *tl)
 {
-    Track *tl = (Track*)tl_in;
-    for (int i = 0; i < sb_count(tl); i++) {
-        NoteManager_free(tl[i].noteManager);
+    TrackAr_foreach(it, &tl->list) {
+        NoteManager_free(it.var->noteManager);
     }
-    sb_free(tl);
+    TrackList zero = {{{0}}};
+    *tl = zero;
+    return;
+}
+
+APIF void TrackList_free(TrackList *tl) {
+    TrackList_clear(tl);
+    Mem_free(tl);
 }
 
 
-APIF Track *TrackList_findTrackByName(TrackList *tl_in, Symbol *name)
+
+APIF Track *TrackList_findTrackByName(TrackList *tl, Symbol *name)
 {
-    Track *tl = (Track*)tl_in;
-    for (int i = 0; i < sb_count(tl); i++) {
-        if (tl[i].name == name) {
-            return tl + i;
+    TrackAr_foreach(it, &tl->list) {
+        if (it.var->name == name) {
+            return it.var;
         }
     }
-    return tl + 0;                                // Always return the Null track if didn't find.
+
+    // Always return the Null track if didn't find.
+    Error_declare(err);
+    Track *t = TrackAr_getp(&tl->list, 0, err);
+    Error_clear(err);
+    return t;        
 }
 
 
-APIF int TrackList_count(TrackList *tl_in)
+APIF int TrackList_count(TrackList *tl)
 {
-    Track *tl = (Track*)tl_in;
-    return sb_count(tl);
+    return TrackAr_len(&tl->list);
 }
 
 
-APIF Track *TrackList_findTrackByIndex(TrackList *tl_in, int index, Error *err)
+APIF Track *TrackList_findTrackByIndex(TrackList *tl, int index, Error *err)
 {
-    Track *tl = (Track*)tl_in;
-    if (index < 0 || index >= sb_count(tl)) {
-        Error_format(err, "Index out of range (%d, %d)", index, sb_count(tl));
-        return tl + 0;
-    }
-    return tl + index;
+    return TrackAr_getp(&tl->list, index, err);
 }
 
 // NOTE: currently nothing is actually stored in the output file. The complete tracklist comes from a port find payload in the BinFile instance.

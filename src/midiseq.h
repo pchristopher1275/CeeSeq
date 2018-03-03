@@ -352,16 +352,22 @@ static inline t_symbol *Track_name(Track *self){return self->name;}
 static inline void Track_setName(Track *self, t_symbol *value){self->name = value;}
 static inline NoteManager *Track_noteManager(Track *self){return self->noteManager;}
 static inline void Track_setNoteManager(Track *self, NoteManager *value){self->noteManager = value;}
+#include "trackAr.h"
 
 // *** DO NOT MODIFY THIS FILE (see header.pl) ***
 struct TrackList_t
 {
+    TrackAr list;
 };
+#define TrackList_newUninitialized() ((TrackList*)sysmem_newptrclear(sizeof(TrackList)))
+static inline TrackAr *TrackList_list(TrackList *self){return &self->list;}
 TrackList *TrackList_new(PortFind *pf);
-void TrackList_free(TrackList *tl_in);
-Track *TrackList_findTrackByName(TrackList *tl_in, Symbol *name);
-int TrackList_count(TrackList *tl_in);
-Track *TrackList_findTrackByIndex(TrackList *tl_in, int index, Error *err);
+void TrackList_init(TrackList *tl, PortFind *pf);
+void TrackList_clear(TrackList *tl);
+void TrackList_free(TrackList *tl);
+Track *TrackList_findTrackByName(TrackList *tl, Symbol *name);
+int TrackList_count(TrackList *tl);
+Track *TrackList_findTrackByIndex(TrackList *tl, int index, Error *err);
 TrackList *TrackList_fromBinFile(BinFile *bf, Error *err);
 void TrackList_toBinFile(TrackList *tl, BinFile *bf, Error *err);
 
