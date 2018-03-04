@@ -12,6 +12,8 @@ static inline void FooArr_init(FooArr *arr, int nelems) {
 
 static inline void FooArr_clear(FooArr *arr) {
     Array_clear((Array*)arr);
+    FooArr zero = {{0}};
+    *arr = zero;
 }
 
 static inline void FooArr_free(FooArr *arr) {
@@ -92,6 +94,10 @@ static inline int FooArr_last(FooArr *arr) {
     return Array_len((Array*)arr)-1;
 }
 
+static inline void FooArr_changeLength(FooArr *arr, int newLength) {
+    Array_changeLength((Array*)arr, newLength);
+}
+
 typedef struct FooArrIter_t {
    FooArr *arr;
    int index;
@@ -114,6 +120,37 @@ static inline bool FooArrIter_previous(FooArrIter *iterator) {
 #define FooArr_loop(var, arr)    FooArrIter_declare(var, arr); while (FooArrIter_next(&var)) 
 #define FooArr_rloop(var, arr)    FooArrIter_rdeclare(var, arr); while (FooArrIter_previous(&var)) 
 
+static inline void FooArr_binInsert(FooArr *arr, Foo elem) {
+    Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)Foo_cmp);
+}
+
+static inline void FooArr_binRemove(FooArr *arr, Foo elem) {
+    Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)Foo_cmp);
+}
+
+static inline Foo *FooArr_binSearch(FooArr *arr, Foo elem) {
+    return (Foo *)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)Foo_cmp);
+}
+
+static inline void FooArr_sort(FooArr *arr) {
+    Array_sort((Array*)arr, (Array_compare)Foo_cmp);
+}
+
+static inline void FooArr_binInsertBoth(FooArr *arr, Foo elem) {
+    Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)Foo_cmpBoth);
+}
+
+static inline void FooArr_binRemoveBoth(FooArr *arr, Foo elem) {
+    Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)Foo_cmpBoth);
+}
+
+static inline Foo *FooArr_binSearchBoth(FooArr *arr, Foo elem) {
+    return (Foo *)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)Foo_cmpBoth);
+}
+
+static inline void FooArr_sortBoth(FooArr *arr) {
+    Array_sort((Array*)arr, (Array_compare)Foo_cmpBoth);
+}
 
 typedef struct FooPtrArr_t {
     Array body;
@@ -129,6 +166,8 @@ static inline void FooPtrArr_init(FooPtrArr *arr, int nelems) {
 
 static inline void FooPtrArr_clear(FooPtrArr *arr) {
     Array_clear((Array*)arr);
+    FooPtrArr zero = {{0}};
+    *arr = zero;
 }
 
 static inline void FooPtrArr_free(FooPtrArr *arr) {
@@ -209,6 +248,10 @@ static inline int FooPtrArr_last(FooPtrArr *arr) {
     return Array_len((Array*)arr)-1;
 }
 
+static inline void FooPtrArr_changeLength(FooPtrArr *arr, int newLength) {
+    Array_changeLength((Array*)arr, newLength);
+}
+
 typedef struct FooPtrArrIter_t {
    FooPtrArr *arr;
    int index;
@@ -231,7 +274,6 @@ static inline bool FooPtrArrIter_previous(FooPtrArrIter *iterator) {
 #define FooPtrArr_loop(var, arr)    FooPtrArrIter_declare(var, arr); while (FooPtrArrIter_next(&var)) 
 #define FooPtrArr_rloop(var, arr)    FooPtrArrIter_rdeclare(var, arr); while (FooPtrArrIter_previous(&var)) 
 
-
 typedef struct IntArr_t {
     Array body;
 } IntArr;
@@ -246,6 +288,8 @@ static inline void IntArr_init(IntArr *arr, int nelems) {
 
 static inline void IntArr_clear(IntArr *arr) {
     Array_clear((Array*)arr);
+    IntArr zero = {{0}};
+    *arr = zero;
 }
 
 static inline void IntArr_free(IntArr *arr) {
@@ -326,6 +370,10 @@ static inline int IntArr_last(IntArr *arr) {
     return Array_len((Array*)arr)-1;
 }
 
+static inline void IntArr_changeLength(IntArr *arr, int newLength) {
+    Array_changeLength((Array*)arr, newLength);
+}
+
 typedef struct IntArrIter_t {
    IntArr *arr;
    int index;
@@ -347,5 +395,4 @@ static inline bool IntArrIter_previous(IntArrIter *iterator) {
 #define IntArr_rforeach(var, arr)  for (IntArrIter_rdeclare(var, arr); IntArrIter_previous(&var); )
 #define IntArr_loop(var, arr)    IntArrIter_declare(var, arr); while (IntArrIter_next(&var)) 
 #define IntArr_rloop(var, arr)    IntArrIter_rdeclare(var, arr); while (IntArrIter_previous(&var)) 
-
 

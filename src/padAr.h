@@ -94,6 +94,10 @@ static inline int PadAr_last(PadAr *arr) {
     return Array_len((Array*)arr)-1;
 }
 
+static inline int PadAr_changeLength(PadAr *arr, int newLength) {
+    return Array_changeLength((Array*)arr, newLength);
+}
+
 typedef struct PadArIter_t {
    PadAr *arr;
    int index;
@@ -115,5 +119,3 @@ static inline bool PadArIter_previous(PadArIter *iterator) {
 #define PadAr_rforeach(var, arr)  for (PadArIter_rdeclare(var, arr); PadArIter_previous(&var); )
 #define PadAr_loop(var, arr)    PadArIter_declare(var, arr); while (PadArIter_next(&var)) 
 #define PadAr_rloop(var, arr)    PadArIter_rdeclare(var, arr); while (PadArIter_previous(&var)) 
-
-

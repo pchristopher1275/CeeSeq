@@ -1397,10 +1397,12 @@ const int NoteManager_atomcount = 4;
 
 APIF NoteManager *NoteManager_new(Port *port)
 {
-    NoteManager *nm = (NoteManager*)sysmem_newptrclear(sizeof(NoteManager));
+    NoteManager *nm = (NoteManager*)Mem_malloc(sizeof(NoteManager));
     nm->atoms       = (t_atom*)Mem_malloc(sizeof(t_atom) * NoteManager_atomcount);
     nm->output      = port;
     IntAr_init(&nm->removedPitches, 0);
+    TimedOffAr_init(&nm->pending, 0);
+    IndexedOffAr_init(&nm->endgroups, 0);
     return nm;
 }
 
@@ -1409,10 +1411,10 @@ APIF void NoteManager_free(NoteManager *nm)
 {
     PendingNoteOff_freeAll(NoteManager_pending(nm));
     IntAr_clear(&nm->removedPitches);
-    sb_free(nm->pending);
-    sb_free(nm->endgroups);
-    NoteManager zero = {0};
+    TimedOffAr_clear(&nm->pending);
+    IndexedOffAr_clear(&nm->endgroups);
     Mem_free(nm->atoms);
+    NoteManager zero = {0};
     *nm = zero;
     Mem_free(nm);
 }
@@ -1421,9 +1423,26 @@ APIF void NoteManager_free(NoteManager *nm)
 // insert a note off, and remove any single pitch that is already there. Return true if a note-off was removed
 APIF bool NoteManager_insertNoteOff(NoteManager *manager, Ticks timestamp, int pitch, int padIndexForEndgroup)
 {
-    bool removedPitch = PendingNoteOff_removePitch(&manager->endgroups, pitch);
-    bool q            = PendingNoteOff_removePitch(&manager->pending, pitch);
-    removedPitch      = removedPitch || q;
+    Error_error(ignored);
+    bool q = false;
+    IndexedOffAr_foreach(it, &manager->endgroups) {
+        if (it.var->pitch == pitch) {
+            IndexedOffAr_remove(&manager->endgroups, it.index, ignored);
+            it.index -= 1;
+            q = true;
+        }
+    }
+
+    TimedOffAr_foreach(it, &manager->pending) {
+        if (it.var->pitch == pitch) {
+            IndexedOffAr_remove(&manager->endgroups, it.index, ignored);
+            q = true;
+            // Only one note-off allowed for a given pitch
+            break;
+        }   
+    }
+
+
     if (padIndexForEndgroup >= 0) {
         // Mark this pitch as endgroup
         PendingNoteOff_insertPadIndexed(&manager->endgroups, pitch, padIndexForEndgroup);
@@ -1432,7 +1451,7 @@ APIF bool NoteManager_insertNoteOff(NoteManager *manager, Ticks timestamp, int p
         PendingNoteOff_insertTimestamped(&manager->pending, pitch, timestamp);
     }
 
-    return removedPitch;
+    return q;
 }
 
 

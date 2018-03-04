@@ -13,6 +13,10 @@ struct Midiseq_t;
 typedef struct Midiseq_t Midiseq;
 struct Pad_t;
 typedef struct Pad_t Pad;
+struct IndexedOff_t;
+typedef struct IndexedOff_t IndexedOff;
+struct TimedOff_t;
+typedef struct TimedOff_t TimedOff;
 struct PendingNoteOff_t;
 typedef struct PendingNoteOff_t PendingNoteOff;
 struct NoteManager_t;
@@ -218,6 +222,32 @@ void Pad_fromBinFileUninitialized(Pad *pad, BinFile *bf, Error *err);
 void Pad_computeChokeGroup(Pad *pad);
 
 // *** DO NOT MODIFY THIS FILE (see header.pl) ***
+struct IndexedOff_t
+{
+    Ticks time;
+    int pitch;
+};
+#define IndexedOff_newUninitialized() ((IndexedOff*)sysmem_newptrclear(sizeof(IndexedOff)))
+static inline Ticks IndexedOff_time(IndexedOff *self){return self->time;}
+static inline void IndexedOff_setTime(IndexedOff *self, Ticks value){self->time = value;}
+static inline int IndexedOff_pitch(IndexedOff *self){return self->pitch;}
+static inline void IndexedOff_setPitch(IndexedOff *self, int value){self->pitch = value;}
+#include "indexedOffAr.h"
+
+// *** DO NOT MODIFY THIS FILE (see header.pl) ***
+struct TimedOff_t
+{
+    int padIndex;
+    int pitch;
+};
+#define TimedOff_newUninitialized() ((TimedOff*)sysmem_newptrclear(sizeof(TimedOff)))
+static inline int TimedOff_padIndex(TimedOff *self){return self->padIndex;}
+static inline void TimedOff_setPadIndex(TimedOff *self, int value){self->padIndex = value;}
+static inline int TimedOff_pitch(TimedOff *self){return self->pitch;}
+static inline void TimedOff_setPitch(TimedOff *self, int value){self->pitch = value;}
+#include "timedOffAr.h"
+
+// *** DO NOT MODIFY THIS FILE (see header.pl) ***
 struct PendingNoteOff_t 
 {
     struct PendingNoteOff_t *next;
@@ -250,17 +280,17 @@ void PendingNoteOff_freeAll(PendingNoteOff *start);
 struct NoteManager_t
 {
     // ** not persisted **
-    PendingNoteOff *pending;
-    PendingNoteOff *endgroups;
+    TimedOffAr pending;
+    IndexedOffAr endgroups;
     Port *output;
     t_atom *atoms;
     IntAr removedPitches;
 };
 #define NoteManager_newUninitialized() ((NoteManager*)sysmem_newptrclear(sizeof(NoteManager)))
-static inline PendingNoteOff *NoteManager_pending(NoteManager *self){return self->pending;}
-static inline void NoteManager_setPending(NoteManager *self, PendingNoteOff *value){self->pending = value;}
-static inline PendingNoteOff *NoteManager_endgroups(NoteManager *self){return self->endgroups;}
-static inline void NoteManager_setEndgroups(NoteManager *self, PendingNoteOff *value){self->endgroups = value;}
+static inline TimedOffAr NoteManager_pending(NoteManager *self){return self->pending;}
+static inline void NoteManager_setPending(NoteManager *self, TimedOffAr value){self->pending = value;}
+static inline IndexedOffAr NoteManager_endgroups(NoteManager *self){return self->endgroups;}
+static inline void NoteManager_setEndgroups(NoteManager *self, IndexedOffAr value){self->endgroups = value;}
 static inline Port *NoteManager_output(NoteManager *self){return self->output;}
 static inline void NoteManager_setOutput(NoteManager *self, Port *value){self->output = value;}
 static inline t_atom *NoteManager_atoms(NoteManager *self){return self->atoms;}

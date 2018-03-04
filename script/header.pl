@@ -374,13 +374,51 @@ sub PendingNoteOff_define {
 	return \%config;
 }
 
+sub IndexedOff_postAccessor {
+	my ($out) = @_;
+	print {$out} <<END;
+#include "indexedOffAr.h"
+END
+}
+
+sub IndexedOff_define {
+	my %config = (
+		typeName => "IndexedOff",
+		fields => [
+			{name => "time",     type => "Ticks"},
+			{name => "pitch", type => "int"},
+		],
+		postAccessor => \&IndexedOff_postAccessor,
+	);
+	return \%config;
+}
+
+sub TimedOff_postAccessor {
+	my ($out) = @_;
+	print {$out} <<END;
+#include "timedOffAr.h"
+END
+}
+
+sub TimedOff_define {
+	my %config = (
+		typeName => "TimedOff",
+		fields => [
+			{name => "padIndex", type => "int"},
+			{name => "pitch",    type => "int"},
+		],
+		postAccessor => \&TimedOff_postAccessor,
+	);
+	return \%config;
+}
+
 sub NoteManager_define {
 	my %config = (
 		typeName => "NoteManager",
 		fields => [
 			{group=>"noPersist",},
-			{name=>"pending",          type=>"PendingNoteOff *",},
-			{name=>"endgroups",        type=>"PendingNoteOff *",},
+			{name=>"pending",          type=>"TimedOffAr"},
+			{name=>"endgroups",        type=>"IndexedOffAr"},
 			{name=>"output",           type=>"Port *",},
 			{name=>"atoms",            type=>"t_atom *",},
 			{name=>"removedPitches",   type=>"IntAr",},
@@ -580,6 +618,8 @@ sub main {
 		MEvent_define(),
 		Midiseq_define(),
 		Pad_define(),
+		IndexedOff_define(),
+		TimedOff_define(),
 		PendingNoteOff_define(),
 		NoteManager_define(),
 		PortFindCell_define(),

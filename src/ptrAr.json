@@ -1,0 +1,5 @@
+{
+  "config": [
+	{"typename": "PtrAr", "elemname": "void *"}
+  ]   
+}

@@ -69,7 +69,30 @@ void Array_truncate(Array *arr) {
          arr->clearer(p);
       }
    }
+   memset(arr->data, 0, arr->len*arr->elemSize);
    arr->len = 0;
+}
+
+void Array_changeLength(Array *arr, int newLength) {
+   if (newLength == arr->len) {
+      return;
+   } else if (newLength < arr->len) {
+      if (arr->clearer != NULL) {
+         char *start = arr->data + newLength*arr->elemSize;
+         char *end   = arr->data + arr->len*arr->elemSize;
+         for (char *p = start; p < end; p += arr->elemSize) {
+            arr->clearer(p);
+         }
+      }
+      memset(arr->data + newLength*arr->elemSize, 0, (arr->len-newLength)*arr->elemSize);
+      arr->len = newLength;
+      return;
+   } 
+
+   if (arr->cap < newLength) {
+      Array_mayGrow(arr, newLength-arr->len);
+   }
+   arr->len = newLength;
 }
 
 int Array_len(Array *arr) {
@@ -251,29 +274,105 @@ bool ArrayIter_previous(ArrayIter *iterator) {
    iterator->last    = iterator->index == 0;
    return true;
 }
+typedef int (*Array_compare)(void *left, void *right);
 
-/*
-// insert element before last next element
-bool ArrayIter_insert(ArrayIter *iterator, char *element) {
-   // Note it IS LEGAL to pass an iterator that is pointing 1 past the end of the array. 
-   // In this case, the insert is the same thing as a push
-   if (iterator->index > Array_len(iterator->arr) || iterator->index < 0) {
-      return false;
+// void *bsearch(const void *key, const void *base, size_t num, size_t size, int (*cmp)(const void *key, const void *elt))
+// {
+//    const char *pivot;
+//    int result;
+  
+//    while (num > 0) {
+//       pivot  = base + (num >> 1) * size; // num/2 * size
+//       result = cmp(key, pivot);
+
+//       if (result == 0) {
+//          return (void *)pivot;
+//       }
+
+//       if (result > 0) {
+//          // key > pivot so move the base to pivot + 1 element
+//          base = pivot + size;
+
+
+//          num--;
+//       }
+//       num >>= 1;
+//    }
+
+//    return NULL;
+// }
+
+int Array_binSearchWithInsert(Array *arr, const char *key, int *insert, Array_compare comparer) {  
+   const char *base  = arr->data;
+   size_t num        = arr->len;
+   size_t size       = arr->elemSize;
+   const char *high  = NULL;
+   while (num > 0) {
+      const char *pivot = base + (num >> 1) * size;
+      int result        = comparer((void*)key, (void*)pivot);
+
+      if (result == 0) {
+         return (int)(((size_t)(pivot-arr->data))/size);
+      }
+
+      if (result > 0) {
+         // key > elt: push base to 1 element greater than pivot
+         base = pivot + size;
+         num--;
+      } else {
+         // key < elt: we set high to point to the smallest element which compares key < elt
+         high = pivot;
+      }
+
+      num >>= 1;
    }
-   //char *Array_insertN(Array *arr, int index, int N) 
-   char *p = Array_insertN(iterator->arr, iterator->index, 1);
-   memmove(p, element, iterator->arr->elemSize);
-   iterator->index++;// this makes index point to the same element after the insert, as before the insert
-   return true; 
+
+   if (high == NULL) {
+      // high == NULL implies that NO elements in the array where such that key <= elt, which implies that you should insert at the
+      // end of the array.
+      *insert = arr->len;
+   } else {
+      *insert = (int)(((size_t)(high-arr->data))/size);
+   }
+   return -1;
 }
 
-bool ArrayIter_remove(ArrayIter *iterator) {
-   if (iterator->index > Array_len(iterator->arr) || iterator->index < 1) {
-      return false;
+void Array_sort(Array *arr, Array_compare comparer) {
+   qsort(arr->data, arr->len, arr->elemSize, (void*)comparer);
+}
+
+void Array_binInsert(Array *arr, char *elem, Array_compare comparer) {
+   int insert = -1;
+   int index  = Array_binSearchWithInsert(arr, elem, &insert, comparer);
+   if (index < 0) {
+      Error_declare(err);
+      char *d = Array_insertN(arr, insert, 1);
+      memmove(d, elem, arr->elemSize);
+      Error_clear(err);
+      return;
+   }
+   if (arr->clearer) {
+      arr->clearer(Array_get(arr, index));
+   }
+   memmove(Array_get(arr, index), elem, arr->elemSize);
+   return;
+}
+
+void Array_binRemove(Array *arr, char *elem, Array_compare comparer) {
+   int insert = -1;
+   int index  = Array_binSearchWithInsert(arr, elem, &insert, comparer);
+   if (index < 0) {
+      return;
    }
 
-   Array_removeN(iterator->arr, iterator->index, 1);
-   iterator->index--;
-   return true;
+   Array_removeN(arr, index, 1);
 }
-*/
+
+char *Array_binSearch(Array *arr, char *elem, Array_compare comparer) {
+   int insert = -1;
+   int index  = Array_binSearchWithInsert(arr, elem, &insert, comparer);
+   if (index < 0) {
+      return NULL;
+   } 
+   return Array_get(arr, index);
+}

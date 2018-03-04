@@ -1,0 +1,12 @@
+{
+  "config": [
+	{
+		"typename": "FooArr", 
+		"elemname": "Foo", 
+		"clearer": "record_clearer", 
+	 	"binarySearch": [{"compare": "Foo_cmp"}, {"compare": "Foo_cmpBoth", "tag": "Both"}]
+	},
+	{"typename": "FooPtrArr", "elemname": "Foo *"},
+	{"typename": "IntArr", "elemname": "int"}
+   ]
+}

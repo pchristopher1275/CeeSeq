@@ -7,6 +7,32 @@ typedef struct Foo_t {
 	int i;
 	double d;
 } Foo;
+
+int Foo_cmp(Foo *left, Foo *right) {
+	if (left->i < right->i) {
+		return -1;
+	} else if (left->i > right->i) {
+		return 1;
+	}
+	return 0;
+}
+
+int Foo_cmpBoth(Foo *left, Foo *right) {
+	int q = Foo_cmp(left, right);
+	if (q) {
+		return q;
+	}
+
+	if (left->d < right->d) {
+		return -1;
+	} else if (left->d > right->d) {
+		return 1;
+	}
+
+	return 0;
+}
+
+
 #define Foo_newUninitialized() Mem_malloc(sizeof(Foo))
 const int maxNumRecorded = 10;
 int numRecorded          = 0;
@@ -178,6 +204,44 @@ Unit_declare(testTruncateClearerAndFit) {
 			chk(foo.d == (double)4*i);
 		}
 		FooArr_free(arr);
+	}
+}
+
+Unit_declare(testChangeLength) {
+	{
+		IntArr *arr = IntArr_new(0);
+		IntArr_changeLength(arr, 10);
+		chk(IntArr_len(arr) == 10);
+		IntArr_changeLength(arr, 100);
+		chk(IntArr_len(arr) == 100);
+		IntArr_changeLength(arr, 2);
+		chk(IntArr_len(arr) == 2);
+		IntArr_free(arr);
+	}
+
+	{
+		record_zero();
+		FooArr *arr = FooArr_new(0);
+		FooArr_changeLength(arr, 5);
+		chk(FooArr_len(arr) == 5);
+		chk(((Array*)arr)->cap >= 5);
+		chk(numRecorded == 0);
+		FooArr_changeLength(arr, 3);
+
+		chk(numRecorded == 2);
+		for (int i = 0; i < numRecorded; i++) {
+			Foo foo = recorded[i];
+			chk(foo.i == 0);
+			chk(foo.d == (double)0);
+		}
+
+		FooArr_changeLength(arr, 100);
+		chk(FooArr_len(arr) == 100);
+		chk(((Array*)arr)->cap >= 100);
+		FooArr_changeLength(arr, 2);
+		chk(FooArr_len(arr) == 2);
+		chk(((Array*)arr)->cap >= 100);
+		FooArr_free(arr);	
 	}
 }
 
@@ -774,17 +838,112 @@ Unit_declare(testForeach) {
 	}	
 }
 
+Unit_declare(testSort) {
+	{
+		Error_declare(err);
+		FooArr *arr = FooArr_new(0);
+		for (int i = 0; i < 5; i ++) {
+			Foo foo = {5-i-1, i};
+			FooArr_push(arr, foo);
+		}
+		FooArr_foreach(it, arr) {
+			chk(it.var->i == 5-it.index-1);
+		}
+		FooArr_sort(arr);
+		FooArr_foreach(it, arr) {
+			chk(it.var->i == it.index);
+		}
+		FooArr_free(arr);
+	}
+}
+
+Unit_declare(testBinSearch) {
+	{
+		Error_declare(err);
+		FooArr *arr = FooArr_new(0);
+		for (int i = 0; i < 5; i ++) {
+			Foo foo = {i, 2*i};
+			FooArr_push(arr, foo);
+		}
+		FooArr_sort(arr);
+		
+		
+		Foo key1 = {2};
+		Foo *res1 = FooArr_binSearch(arr, key1);
+		fatal(res1 != NULL);
+		chk(res1->i == 2);
+		chk(res1->d == 4.0);
+		
+
+		
+		Foo key2 = {5};
+		Foo *res2 = FooArr_binSearch(arr, key2);
+		chk(res2 == NULL);
+		Foo foo2 = {5, 5};
+		FooArr_binInsert(arr, foo2);
+
+		Foo key3 = {5};
+		Foo *res3 = FooArr_binSearch(arr, key3);
+		fatal(res3 != NULL);		
+		chk(res3->i == 5);
+		chk(res3->d == 5.0);
+
+		Foo foo4 = {5, 10};
+		chk(FooArr_len(arr) == 6);
+		FooArr_binInsert(arr, foo4);
+		chk(FooArr_len(arr) == 6);
+		Foo key4 = {5};
+		Foo *res4 = FooArr_binSearch(arr, key4);
+		fatal(res4 != NULL);
+		chk(res4->i == 5);
+		chk(res4->d == 10.0);
+
+		Foo foo5 = {-1, -10};
+		FooArr_binInsert(arr, foo5);
+		chk(FooArr_len(arr) == 7);
+		Foo key5 = {-1};
+		Foo *res5 = FooArr_binSearch(arr, key5);
+		fatal(res5 != NULL);
+		chk(res5->i == -1);
+		chk(res5->d == -10);
+
+		Foo key6a = key5;
+		Foo key6b = {5};
+		chk(FooArr_len(arr) == 7);
+		FooArr_binRemove(arr, key6a);
+		FooArr_binRemove(arr, key6b);
+		chk(FooArr_len(arr) == 5);
+		FooArr_foreach(it, arr) {
+			chk(it.var->i >= 0 && it.var->i < 5);
+		}
+
+		Foo key7a = {1};
+		FooArr_binRemove(arr, key7a);
+		Foo key7b = {2};
+		FooArr_binRemove(arr, key7b);
+		chk(FooArr_len(arr) == 3);
+		FooArr_foreach(it, arr) {
+			chk(it.var->i != 1 && it.var->i != 2);
+		}			
+		
+		FooArr_free(arr);
+	}
+}
+
 int main(int argc, char *argv[]) {
 	Unit_initialize(argc, argv);
 	Unit_test(testNewFree);
 	Unit_test(testLenInitClear);
 	Unit_test(testInitSurvivesNegativeInit);
 	Unit_test(testTruncateClearerAndFit);
+	Unit_test(testChangeLength);
 	Unit_test(testPushAndGet);
 	Unit_test(testPushAndPop);
 	Unit_test(testSet);
 	Unit_test(testInsert);
 	Unit_test(testRemove);
 	Unit_test(testForeach);
+	Unit_test(testSort);
+	Unit_test(testBinSearch);
 	Unit_finalize();
 }

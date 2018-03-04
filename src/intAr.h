@@ -94,6 +94,10 @@ static inline int IntAr_last(IntAr *arr) {
     return Array_len((Array*)arr)-1;
 }
 
+static inline int IntAr_changeLength(IntAr *arr, int newLength) {
+    return Array_changeLength((Array*)arr, newLength);
+}
+
 typedef struct IntArIter_t {
    IntAr *arr;
    int index;
@@ -115,5 +119,3 @@ static inline bool IntArIter_previous(IntArIter *iterator) {
 #define IntAr_rforeach(var, arr)  for (IntArIter_rdeclare(var, arr); IntArIter_previous(&var); )
 #define IntAr_loop(var, arr)    IntArIter_declare(var, arr); while (IntArIter_next(&var)) 
 #define IntAr_rloop(var, arr)    IntArIter_rdeclare(var, arr); while (IntArIter_previous(&var)) 
-
-

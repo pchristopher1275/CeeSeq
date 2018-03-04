@@ -94,6 +94,10 @@ static inline int MEventAr_last(MEventAr *arr) {
     return Array_len((Array*)arr)-1;
 }
 
+static inline int MEventAr_changeLength(MEventAr *arr, int newLength) {
+    return Array_changeLength((Array*)arr, newLength);
+}
+
 typedef struct MEventArIter_t {
    MEventAr *arr;
    int index;
@@ -115,5 +119,3 @@ static inline bool MEventArIter_previous(MEventArIter *iterator) {
 #define MEventAr_rforeach(var, arr)  for (MEventArIter_rdeclare(var, arr); MEventArIter_previous(&var); )
 #define MEventAr_loop(var, arr)    MEventArIter_declare(var, arr); while (MEventArIter_next(&var)) 
 #define MEventAr_rloop(var, arr)    MEventArIter_rdeclare(var, arr); while (MEventArIter_previous(&var)) 
-
-

@@ -36,8 +36,8 @@ typedef struct Port_t
     t_object d_obj;
     int porttype;
     long inletnum;
-    void **proxy;
-    void **outlet;
+    PtrAr proxy;
+    PtrAr outlet;
     Symbol *track;
     Symbol *id;
     long intInlets;

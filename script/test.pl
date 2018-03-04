@@ -3,7 +3,8 @@ use Data::Dumper;
 
 use strict;
 my $gVerbose = 1;
-my $gTestDir  = "test";
+my $gHome     = "$ENV{HOME}/CeeSeq";
+my $gTestDir  = "$gHome/test";
 my $gBuildDir = "$gTestDir/build";
 
 sub dumper {
@@ -198,7 +199,7 @@ sub compile {
     $specEntry->{exe} = $exe;
 
     my $file = $specEntry->{file};
-    my $cmd  = "gcc -g -DTEST_BUILD -o $exe $file";
+    my $cmd  = "gcc -g -DTEST_BUILD -DCSEQ_HOME='\"$gHome\"' -o $exe $file";
     return system $cmd;
 }
 

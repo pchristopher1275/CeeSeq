@@ -91,6 +91,9 @@ sub buildHeaders {
     run "$gHome/script/array.pl $gHome/src/trackAr.json > $gHome/src/trackAr.h";
     run "$gHome/script/array.pl $gHome/src/symbolPtrAr.json > $gHome/src/symbolPtrAr.h";
     run "$gHome/script/array.pl $gHome/src/intAr.json > $gHome/src/intAr.h";
+    run "$gHome/script/array.pl $gHome/src/ptrAr.json > $gHome/src/ptrAr.h";
+    run "$gHome/script/array.pl $gHome/src/indexedOffAr.json > $gHome/src/indexedOffAr.h";
+    run "$gHome/script/array.pl $gHome/src/timedOffAr.json > $gHome/src/timedOffAr.h";
 }
 
 sub findBuildNumber {

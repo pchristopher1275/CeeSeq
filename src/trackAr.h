@@ -94,6 +94,10 @@ static inline int TrackAr_last(TrackAr *arr) {
     return Array_len((Array*)arr)-1;
 }
 
+static inline int TrackAr_changeLength(TrackAr *arr, int newLength) {
+    return Array_changeLength((Array*)arr, newLength);
+}
+
 typedef struct TrackArIter_t {
    TrackAr *arr;
    int index;
@@ -115,5 +119,3 @@ static inline bool TrackArIter_previous(TrackArIter *iterator) {
 #define TrackAr_rforeach(var, arr)  for (TrackArIter_rdeclare(var, arr); TrackArIter_previous(&var); )
 #define TrackAr_loop(var, arr)    TrackArIter_declare(var, arr); while (TrackArIter_next(&var)) 
 #define TrackAr_rloop(var, arr)    TrackArIter_rdeclare(var, arr); while (TrackArIter_previous(&var)) 
-
-

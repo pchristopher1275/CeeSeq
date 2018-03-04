@@ -11,6 +11,7 @@
 #include "ext_obex.h"
 #include "ext_time.h"
 #include "ext_itm.h"
+#include "ptrAr.h"
 #include "shared.c"
 
 #ifndef PORT_BUILD_NUMBER
@@ -63,21 +64,30 @@ void *Port_new(Symbol *s, long argc, t_atom *argv)
     }
 
     port->porttype              = Port_vstType;
-    port->proxy  = NULL;
-    port->outlet = NULL;
+    PtrAr_init(&port->proxy, 0);
+    PtrAr_init(&port->outlet, 0);
 
     int ev = port_parseEvSymbol(Port_id(port));
     if (ev >= 0) {
-        sb_add(port->proxy, 4);
-        sb_add(port->outlet, 4);
+
+        // sb_add(port->proxy, 4);
+        // sb_add(port->outlet, 4);
+        void *proxy[4];
+        void *outlet[4];
         for (int i = 3; i >= 0; i--) {
             void *p = NULL;
             if (i != 0) {
                 p = proxy_new(port, (long)i, &port->inletnum);
             }
-            port->proxy[i]  = p;
-            port->outlet[i] = intout(port);
+            proxy[i]  = p;
+            outlet[i] = intout(port);
         }
+
+        for (int i = 0; i < 4; i++) {
+            PtrAr_push(&port->proxy,  proxy[i]);
+            PtrAr_push(&port->outlet, outlet[i]);
+        }
+
     } else if (Port_intInlets(port) > 0 || Port_intOutlets(port) > 0) {
         if (Port_intInlets(port) <= 0) {
             Port_intInlets(port) = 1;

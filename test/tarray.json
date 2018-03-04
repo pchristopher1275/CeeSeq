@@ -1,7 +1,0 @@
-{
-  "config": [
-	{"typename": "FooArr", "elemname": "Foo", "clearer": "record_clearer"},
-	{"typename": "FooPtrArr", "elemname": "Foo *"},
-	{"typename": "IntArr", "elemname": "int"}
-   ]
-}

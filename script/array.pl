@@ -6,10 +6,10 @@ use Data::Dumper;
 
 sub template {
 	my ($out, $cfg) = @_;
-	my $TYPENAME   = $cfg->{typename};
+	my $TYPENAME    = $cfg->{typename};
 	my $ELEMNAME_NS = $cfg->{elemname};
-	my $CLEARER    = $cfg->{clearer};
-	my $ELEMNAME   = "";
+	my $CLEARER     = $cfg->{clearer};
+	my $ELEMNAME    = "";
 	if ($ELEMNAME_NS !~ /\*$/) {
 		$ELEMNAME = "$ELEMNAME_NS ";
 	} else {
@@ -121,6 +121,10 @@ static inline int ${TYPENAME}_last(${TYPENAME} *arr) {
 	return Array_len((Array*)arr)-1;
 }
 
+static inline void ${TYPENAME}_changeLength(${TYPENAME} *arr, int newLength) {
+	Array_changeLength((Array*)arr, newLength);
+}
+
 typedef struct ${TYPENAME}Iter_t {
    ${TYPENAME} *arr;
    int index;
@@ -143,11 +147,46 @@ static inline bool ${TYPENAME}Iter_previous(${TYPENAME}Iter *iterator) {
 #define ${TYPENAME}_loop(var, arr)    ${TYPENAME}Iter_declare(var, arr); while (${TYPENAME}Iter_next(&var)) 
 #define ${TYPENAME}_rloop(var, arr)    ${TYPENAME}Iter_rdeclare(var, arr); while (${TYPENAME}Iter_previous(&var)) 
 
-
 END
 	## change any tabs to spaces so that the spacing is rendered correctly
 	$templ =~ s/\t/    /g;
 	print {$out} $templ;
+
+	my $binarySearch = $cfg->{binarySearch};
+	if (defined($binarySearch)) {
+		my $usedEmpty = 0;
+		for my $b (@$binarySearch) {
+			my $COMPARE = $b->{compare} or die "Failed to define compare function for binarySearch";
+			my $TAG     = $b->{tag};
+			if (!$TAG) {
+				die "Too many binarySearch clauses without a tag" if $usedEmpty;
+				$usedEmpty = 1;
+				$TAG = "";
+			}
+			$templ = <<END;
+static inline void ${TYPENAME}_binInsert${TAG}(${TYPENAME} *arr, ${ELEMNAME}elem) {
+	Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)${COMPARE});
+}
+
+static inline void ${TYPENAME}_binRemove${TAG}(${TYPENAME} *arr, ${ELEMNAME}elem) {
+	Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)${COMPARE});
+}
+
+static inline ${ELEMNAME}*${TYPENAME}_binSearch${TAG}(${TYPENAME} *arr, ${ELEMNAME}elem) {
+	return (${ELEMNAME}*)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)${COMPARE});
+}
+
+static inline void ${TYPENAME}_sort${TAG}(${TYPENAME} *arr) {
+	Array_sort((Array*)arr, (Array_compare)${COMPARE});
+}
+
+END
+			$templ =~ s/\t/    /g;
+			print {$out} $templ;
+		}
+	}
+
+
 }
 
 sub from_jsonfile {
