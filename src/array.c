@@ -274,7 +274,7 @@ bool ArrayIter_previous(ArrayIter *iterator) {
    iterator->last    = iterator->index == 0;
    return true;
 }
-typedef int (*Array_compare)(void *left, void *right);
+typedef int (*Array_compare)(const void *left, const void *right);
 
 // void *bsearch(const void *key, const void *base, size_t num, size_t size, int (*cmp)(const void *key, const void *elt))
 // {
@@ -302,6 +302,7 @@ typedef int (*Array_compare)(void *left, void *right);
 //    return NULL;
 // }
 
+/*
 int Array_binSearchWithInsert(Array *arr, const char *key, int *insert, Array_compare comparer) {  
    const char *base  = arr->data;
    size_t num        = arr->len;
@@ -336,12 +337,95 @@ int Array_binSearchWithInsert(Array *arr, const char *key, int *insert, Array_co
    }
    return -1;
 }
+*/
+
+typedef struct ArraySlice_t {
+   int len;
+   char *data;
+   int index;
+   char *var;
+} ArraySlice;
+
+// #define ArraySlice_foreach(slice) for (slice.index=0, slice.var = slice.data + slice.index*sizeof(char); \
+                                          slice.index < slice.len; slice.index++, slice.var += sizeof(char))
+// #define ArraySlice_rforeach(slice) for (slice.index=slice.len-1, slice.var = slice.data + sizeof(char)*slice.index; \
+                                           slice.index < slice.len; slice.index--, slice.var -= sizeof(char))
+
+#define Array_binSearchWithInsert(arr, key, insert, comparer) Array_binSearchWithInsertMulti(arr, key, insert, comparer, NULL)
+
+int Array_binSearchWithInsertMulti(Array *arr, char *key, int *insert, Array_compare comparer, ArraySlice *multiSlice) {  
+   char *base  = arr->data;
+   size_t num        = arr->len;
+   size_t size       = arr->elemSize;
+   char *high  = NULL;
+   char *pivot = NULL;
+   int result        = 0;
+   while (num > 0) {
+      pivot  = base + (num >> 1) * size;
+      result = comparer((void*)key, (void*)pivot);
+
+      if (result == 0) {
+         if (multiSlice != NULL) {
+            break;
+         }
+         // Found a solution, find the right most element if this is a multi
+         char *end = arr->data + arr->len*size;
+         while (pivot+size < end && comparer(key, pivot+size) == 0) {
+            pivot += size;
+         }
+         return (int)(((size_t)(pivot-arr->data))/size);
+      }
+
+      if (result > 0) {
+         // key > elt: push base to 1 element greater than pivot
+         base = pivot + size;
+         num--;
+      } else {
+         // key < elt: we set high to point to the smallest element which compares key < elt
+         high = pivot;
+      }
+
+      num >>= 1;
+   }
+
+   if (result != 0) {
+      if (high == NULL) {
+         // high == NULL implies that NO elements in the array where such that key <= elt, which implies that you should insert at the
+         // end of the array.
+         *insert = arr->len;
+      } else {
+         *insert = (int)(((size_t)(high-arr->data))/size);
+      }
+      return -1;
+   }
+
+   // Linear search to find the bounds of the multi
+   char *lower = pivot;
+   char *upper = pivot;
+   char *start = arr->data;
+   char *end   = arr->data + arr->len*size;
+   while (lower-size >= start && comparer((void*)key, (void*)lower-size) == 0) {
+      lower -= size;
+   }
+   
+   while (upper+size < end && comparer((void*)key, (void*)upper+size) == 0) {
+      upper += size;
+   }
+
+   char *upperEnd    = upper + size;
+   multiSlice->len   = (int)(((size_t)(upperEnd-lower))/size);
+   multiSlice->index = (int)(((size_t)(lower-arr->data))/size);
+   multiSlice->var   = lower;
+   multiSlice->data  = lower;
+   return (int)(((size_t)(lower-arr->data))/size);
+}
+
 
 void Array_sort(Array *arr, Array_compare comparer) {
    qsort(arr->data, arr->len, arr->elemSize, (void*)comparer);
 }
 
-void Array_binInsert(Array *arr, char *elem, Array_compare comparer) {
+void Array_binInsert(Array *arr, char *elem, Array_compare comparer, bool append) {
    int insert = -1;
    int index  = Array_binSearchWithInsert(arr, elem, &insert, comparer);
    if (index < 0) {
@@ -354,23 +438,33 @@ void Array_binInsert(Array *arr, char *elem, Array_compare comparer) {
    if (arr->clearer) {
       arr->clearer(Array_get(arr, index));
    }
-   memmove(Array_get(arr, index), elem, arr->elemSize);
+   char *target = NULL;
+   if (append) {
+      target = Array_insertN(arr, index, 1);
+   } else {
+      target = Array_get(arr, index); 
+   }
+   memmove(target, elem, arr->elemSize);
    return;
 }
 
-void Array_binRemove(Array *arr, char *elem, Array_compare comparer) {
+void Array_binRemove(Array *arr, char *elem, Array_compare comparer, bool all) {
    int insert = -1;
-   int index  = Array_binSearchWithInsert(arr, elem, &insert, comparer);
+   ArraySlice slice = {0};
+   int index  = Array_binSearchWithInsertMulti(arr, elem, &insert, comparer, all ? &slice : NULL);
    if (index < 0) {
       return;
    }
-
-   Array_removeN(arr, index, 1);
+   if (all) {
+      Array_removeN(arr, index-(slice.len-1), slice.len);
+   } else {
+      Array_removeN(arr, index, 1);
+   }
 }
 
-char *Array_binSearch(Array *arr, char *elem, Array_compare comparer) {
+char *Array_binSearch(Array *arr, char *elem, Array_compare comparer, ArraySlice *slice) {
    int insert = -1;
-   int index  = Array_binSearchWithInsert(arr, elem, &insert, comparer);
+   int index  = Array_binSearchWithInsertMulti(arr, elem, &insert, comparer, slice);
    if (index < 0) {
       return NULL;
    } 

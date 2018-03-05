@@ -154,26 +154,53 @@ END
 
 	my $binarySearch = $cfg->{binarySearch};
 	if (defined($binarySearch)) {
+		my $needslice = 0;
+		for my $b (@$binarySearch) {
+			if ($b->{multi}) {
+				$needslice = 1;
+				last;
+			}
+		}
+		if ($needslice) {
+			$templ = <<END;
+typedef struct ${ELEMNAME}Slice_t {
+	int len;
+	${ELEMNAME}*data;
+	int index;
+	${ELEMNAME}*var;
+} ${ELEMNAME}Slice;
+#define ${TYPENAME}_sliceEmpty(slice) (slice.data == NULL)
+#define ${TYPENAME}_sliceForeach(slice) for (slice.index=0, slice.var = slice.data; slice.index < slice.len; slice.index++, slice.var += sizeof(${ELEMNAME}))
+
+#define ${TYPENAME}_rsliceForeach(slice) for (slice.index=slice.len-1, slice.var = slice.data + slice.index*sizeof(${ELEMNAME}); \
+											  slice.index >= 0; slice.index--, slice.var -= sizeof(${ELEMNAME}))
+
+END
+			$templ =~ s/\t/    /g;
+			print {$out} $templ;
+		}
+
+
+
 		my $usedEmpty = 0;
 		for my $b (@$binarySearch) {
 			my $COMPARE = $b->{compare} or die "Failed to define compare function for binarySearch";
 			my $TAG     = $b->{tag};
+			my $domulti = $b->{multi};
 			if (!$TAG) {
 				die "Too many binarySearch clauses without a tag" if $usedEmpty;
 				$usedEmpty = 1;
 				$TAG = "";
 			}
+			my $MULTI = $domulti ? "true" : "false";
+
 			$templ = <<END;
 static inline void ${TYPENAME}_binInsert${TAG}(${TYPENAME} *arr, ${ELEMNAME}elem) {
-	Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)${COMPARE});
+	Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)${COMPARE}, ${MULTI});
 }
 
 static inline void ${TYPENAME}_binRemove${TAG}(${TYPENAME} *arr, ${ELEMNAME}elem) {
-	Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)${COMPARE});
-}
-
-static inline ${ELEMNAME}*${TYPENAME}_binSearch${TAG}(${TYPENAME} *arr, ${ELEMNAME}elem) {
-	return (${ELEMNAME}*)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)${COMPARE});
+	Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)${COMPARE}, ${MULTI});
 }
 
 static inline void ${TYPENAME}_sort${TAG}(${TYPENAME} *arr) {
@@ -181,6 +208,25 @@ static inline void ${TYPENAME}_sort${TAG}(${TYPENAME} *arr) {
 }
 
 END
+			$templ =~ s/\t/    /g;
+			print {$out} $templ;
+
+			if ($domulti) {
+
+				$templ = <<END;
+static inline ${ELEMNAME}Slice ${TYPENAME}_binSearch${TAG}(${TYPENAME} *arr, ${ELEMNAME}elem) {
+	${ELEMNAME}Slice slice = {0};
+	Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)${COMPARE}, &slice);
+	return slice;
+}
+END
+			} else {
+				$templ = <<END;
+static inline ${ELEMNAME}*${TYPENAME}_binSearch${TAG}(${TYPENAME} *arr, ${ELEMNAME}elem) {
+	return (${ELEMNAME}*)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)${COMPARE}, NULL);
+}
+END
+			}
 			$templ =~ s/\t/    /g;
 			print {$out} $templ;
 		}

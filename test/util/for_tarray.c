@@ -121,37 +121,35 @@ static inline bool FooArrIter_previous(FooArrIter *iterator) {
 #define FooArr_rloop(var, arr)    FooArrIter_rdeclare(var, arr); while (FooArrIter_previous(&var)) 
 
 static inline void FooArr_binInsert(FooArr *arr, Foo elem) {
-    Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)Foo_cmp);
+    Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)Foo_cmp, false);
 }
 
 static inline void FooArr_binRemove(FooArr *arr, Foo elem) {
-    Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)Foo_cmp);
-}
-
-static inline Foo *FooArr_binSearch(FooArr *arr, Foo elem) {
-    return (Foo *)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)Foo_cmp);
+    Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)Foo_cmp, false);
 }
 
 static inline void FooArr_sort(FooArr *arr) {
     Array_sort((Array*)arr, (Array_compare)Foo_cmp);
 }
 
+static inline Foo *FooArr_binSearch(FooArr *arr, Foo elem) {
+    return (Foo *)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)Foo_cmp, NULL);
+}
 static inline void FooArr_binInsertBoth(FooArr *arr, Foo elem) {
-    Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)Foo_cmpBoth);
+    Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)Foo_cmpBoth, false);
 }
 
 static inline void FooArr_binRemoveBoth(FooArr *arr, Foo elem) {
-    Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)Foo_cmpBoth);
-}
-
-static inline Foo *FooArr_binSearchBoth(FooArr *arr, Foo elem) {
-    return (Foo *)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)Foo_cmpBoth);
+    Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)Foo_cmpBoth, false);
 }
 
 static inline void FooArr_sortBoth(FooArr *arr) {
     Array_sort((Array*)arr, (Array_compare)Foo_cmpBoth);
 }
 
+static inline Foo *FooArr_binSearchBoth(FooArr *arr, Foo elem) {
+    return (Foo *)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)Foo_cmpBoth, NULL);
+}
 typedef struct FooPtrArr_t {
     Array body;
 } FooPtrArr;
