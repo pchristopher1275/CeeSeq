@@ -930,6 +930,52 @@ Unit_declare(testBinSearch) {
 	}
 }
 
+Unit_declare(testBinMulti) {
+	Error_declare(err);
+	FooArr *arr = FooArr_new(0);
+	for (int i = 0; i < 5; i++) {
+		if (i == 2) {
+			for (int j = 0; j < 4; j++) {
+				Foo foo = {i, j};
+				FooArr_binInsertMulti(arr, foo);
+			}
+		} else {
+			Foo foo = {i, -i};
+			FooArr_binInsertMulti(arr, foo);
+		}
+	}
+
+	chk(FooArr_len(arr) == 8);
+
+	FooArr_declareSlice(slice);
+	Foo foo1 = {-1, 0};
+	slice = FooArr_binSearchMulti(arr, foo1);
+	fatal(FooArr_sliceEmpty(slice));
+
+	Foo foo2 = {1, 0};
+	slice = FooArr_binSearchMulti(arr, foo2);
+	fatal(!FooArr_sliceEmpty(slice));
+	int count = 0;
+	FooArr_sliceForeach(slice) {
+		chk(slice.var->i == 1);
+		count++;
+	}
+	chk(count == 1);
+	
+	Foo foo3 = {2, 0};
+	slice = FooArr_binSearchMulti(arr, foo3);
+	fatal(!FooArr_sliceEmpty(slice));
+	count = 0;
+	FooArr_sliceForeach(slice) {
+		chk(slice.var->i == 2);
+		chk(slice.var->d == slice.index);
+		count++;
+	}
+	chk(count == 4);
+
+	FooArr_free(arr);
+}
+
 int main(int argc, char *argv[]) {
 	Unit_initialize(argc, argv);
 	Unit_test(testNewFree);
@@ -945,5 +991,6 @@ int main(int argc, char *argv[]) {
 	Unit_test(testForeach);
 	Unit_test(testSort);
 	Unit_test(testBinSearch);
+	Unit_test(testBinMulti);
 	Unit_finalize();
 }

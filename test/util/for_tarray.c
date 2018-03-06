@@ -120,6 +120,19 @@ static inline bool FooArrIter_previous(FooArrIter *iterator) {
 #define FooArr_loop(var, arr)    FooArrIter_declare(var, arr); while (FooArrIter_next(&var)) 
 #define FooArr_rloop(var, arr)    FooArrIter_rdeclare(var, arr); while (FooArrIter_previous(&var)) 
 
+typedef struct FooArrSlice_t {
+    int len;
+    Foo *data;
+    int index;
+    Foo *var;
+} FooArrSlice;
+#define FooArr_declareSlice(name) FooArrSlice name = {0}
+#define FooArr_sliceEmpty(slice) (slice.data == NULL)
+#define FooArr_sliceForeach(slice) for (slice.index=0, slice.var=slice.data; slice.index < slice.len; slice.index++, slice.var++)
+
+#define FooArr_rsliceForeach(slice) for (slice.index=slice.len-1, slice.var = slice.data + slice.index*sizeof(Foo); \
+                                              slice.index >= 0; slice.index--, slice.var--)
+
 static inline void FooArr_binInsert(FooArr *arr, Foo elem) {
     Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)Foo_cmp, false);
 }
@@ -149,6 +162,23 @@ static inline void FooArr_sortBoth(FooArr *arr) {
 
 static inline Foo *FooArr_binSearchBoth(FooArr *arr, Foo elem) {
     return (Foo *)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)Foo_cmpBoth, NULL);
+}
+static inline void FooArr_binInsertMulti(FooArr *arr, Foo elem) {
+    Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)Foo_cmp, true);
+}
+
+static inline void FooArr_binRemoveMulti(FooArr *arr, Foo elem) {
+    Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)Foo_cmp, true);
+}
+
+static inline void FooArr_sortMulti(FooArr *arr) {
+    Array_sort((Array*)arr, (Array_compare)Foo_cmp);
+}
+
+static inline FooArrSlice FooArr_binSearchMulti(FooArr *arr, Foo elem) {
+    FooArrSlice slice = {0};
+    Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)Foo_cmp, (ArraySlice*)&slice);
+    return slice;
 }
 typedef struct FooPtrArr_t {
     Array body;

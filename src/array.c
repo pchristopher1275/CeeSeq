@@ -351,21 +351,20 @@ typedef struct ArraySlice_t {
 // #define ArraySlice_rforeach(slice) for (slice.index=slice.len-1, slice.var = slice.data + sizeof(char)*slice.index; \
                                            slice.index < slice.len; slice.index--, slice.var -= sizeof(char))
 
-#define Array_binSearchWithInsert(arr, key, insert, comparer) Array_binSearchWithInsertMulti(arr, key, insert, comparer, NULL)
-
-int Array_binSearchWithInsertMulti(Array *arr, char *key, int *insert, Array_compare comparer, ArraySlice *multiSlice) {  
+int Array_binSearchWithInsertMulti(Array *arr, char *key, int *insert, Array_compare comparer, char **lowerBound, char **upperBound) {  
    char *base  = arr->data;
-   size_t num        = arr->len;
-   size_t size       = arr->elemSize;
+   size_t num  = arr->len;
+   size_t size = arr->elemSize;
    char *high  = NULL;
    char *pivot = NULL;
-   int result        = 0;
+   // If there are no elements in the incomming array, and lowerBound != NULL, this makes sure that the insert index is set.
+   int result = 1; 
    while (num > 0) {
       pivot  = base + (num >> 1) * size;
       result = comparer((void*)key, (void*)pivot);
 
       if (result == 0) {
-         if (multiSlice != NULL) {
+         if (lowerBound != NULL) {
             break;
          }
          // Found a solution, find the right most element if this is a multi
@@ -388,7 +387,7 @@ int Array_binSearchWithInsertMulti(Array *arr, char *key, int *insert, Array_com
       num >>= 1;
    }
 
-   if (result != 0) {
+   if (result != 0 || lowerBound == NULL) {
       if (high == NULL) {
          // high == NULL implies that NO elements in the array where such that key <= elt, which implies that you should insert at the
          // end of the array.
@@ -404,7 +403,7 @@ int Array_binSearchWithInsertMulti(Array *arr, char *key, int *insert, Array_com
    char *upper = pivot;
    char *start = arr->data;
    char *end   = arr->data + arr->len*size;
-   while (lower-size >= start && comparer((void*)key, (void*)lower-size) == 0) {
+   while (lower-size >= start && comparer(key, lower-size) == 0) {
       lower -= size;
    }
    
@@ -412,11 +411,10 @@ int Array_binSearchWithInsertMulti(Array *arr, char *key, int *insert, Array_com
       upper += size;
    }
 
-   char *upperEnd    = upper + size;
-   multiSlice->len   = (int)(((size_t)(upperEnd-lower))/size);
-   multiSlice->index = (int)(((size_t)(lower-arr->data))/size);
-   multiSlice->var   = lower;
-   multiSlice->data  = lower;
+   // Remember that lowerBound and upperBound can be NULL
+   *lowerBound = lower;
+   *upperBound = upper+size; // NOTE: upperBound points 1 PAST the end of the sequence
+   
    return (int)(((size_t)(lower-arr->data))/size);
 }
 
@@ -427,7 +425,7 @@ void Array_sort(Array *arr, Array_compare comparer) {
 
 void Array_binInsert(Array *arr, char *elem, Array_compare comparer, bool append) {
    int insert = -1;
-   int index  = Array_binSearchWithInsert(arr, elem, &insert, comparer);
+   int index  = Array_binSearchWithInsertMulti(arr, elem, &insert, comparer, NULL, NULL);
    if (index < 0) {
       Error_declare(err);
       char *d = Array_insertN(arr, insert, 1);
@@ -435,14 +433,15 @@ void Array_binInsert(Array *arr, char *elem, Array_compare comparer, bool append
       Error_clear(err);
       return;
    }
-   if (arr->clearer) {
-      arr->clearer(Array_get(arr, index));
-   }
+
    char *target = NULL;
    if (append) {
-      target = Array_insertN(arr, index, 1);
+      target = Array_insertN(arr, index+1, 1);
    } else {
       target = Array_get(arr, index); 
+      if (arr->clearer) {
+         arr->clearer(target);
+      }
    }
    memmove(target, elem, arr->elemSize);
    return;
@@ -450,13 +449,15 @@ void Array_binInsert(Array *arr, char *elem, Array_compare comparer, bool append
 
 void Array_binRemove(Array *arr, char *elem, Array_compare comparer, bool all) {
    int insert = -1;
-   ArraySlice slice = {0};
-   int index  = Array_binSearchWithInsertMulti(arr, elem, &insert, comparer, all ? &slice : NULL);
+   char *lower = NULL;
+   char *upper = NULL;
+   int index  = Array_binSearchWithInsertMulti(arr, elem, &insert, comparer, &lower, &upper);
    if (index < 0) {
       return;
    }
    if (all) {
-      Array_removeN(arr, index-(slice.len-1), slice.len);
+      size_t N = (size_t)(upper-lower);
+      Array_removeN(arr, index-(N-1), N);
    } else {
       Array_removeN(arr, index, 1);
    }
@@ -464,9 +465,17 @@ void Array_binRemove(Array *arr, char *elem, Array_compare comparer, bool all) {
 
 char *Array_binSearch(Array *arr, char *elem, Array_compare comparer, ArraySlice *slice) {
    int insert = -1;
-   int index  = Array_binSearchWithInsertMulti(arr, elem, &insert, comparer, slice);
+   char *lower = NULL;
+   char *upper = NULL;
+   int index  = Array_binSearchWithInsertMulti(arr, elem, &insert, comparer, &lower, &upper);
    if (index < 0) {
       return NULL;
-   } 
-   return Array_get(arr, index);
+   }
+   if (slice != NULL) {
+      slice->index = 0;
+      slice->var   = upper;
+      slice->len   = (int)(upper-lower)/arr->elemSize;
+      slice->data  = lower;
+   }
+   return lower;
 }
