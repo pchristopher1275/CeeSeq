@@ -4,7 +4,12 @@
 		"typename": "FooArr", 
 		"elemname": "Foo", 
 		"clearer": "record_clearer", 
-	 	"binarySearch": [{"compare": "Foo_cmp"}, {"compare": "Foo_cmpBoth", "tag": "Both"}, {"compare": "Foo_cmp", "tag": "Multi", "multi": true}]
+	 	"binarySearch": [
+			{"compare": "Foo_cmp"}, 
+			{"compare": "Foo_cmpBoth", "tag": "Both"}, 
+			{"compare": "Foo_cmp", "tag": "Multi", "multi": true},
+			{"compare": "Foo_cmpBoth", "tag": "BothMulti", "multi": true}
+		]
 	},
 	{"typename": "FooPtrArr", "elemname": "Foo *"},
 	{"typename": "IntArr", "elemname": "int"}

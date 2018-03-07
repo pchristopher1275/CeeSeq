@@ -406,8 +406,7 @@ int Array_binSearchWithInsertMulti(Array *arr, char *key, int *insert, Array_com
    while (lower-size >= start && comparer(key, lower-size) == 0) {
       lower -= size;
    }
-   
-   while (upper+size < end && comparer((void*)key, (void*)upper+size) == 0) {
+   while (upper+size < end && comparer(key, upper+size) == 0) {
       upper += size;
    }
 
@@ -415,7 +414,7 @@ int Array_binSearchWithInsertMulti(Array *arr, char *key, int *insert, Array_com
    *lowerBound = lower;
    *upperBound = upper+size; // NOTE: upperBound points 1 PAST the end of the sequence
    
-   return (int)(((size_t)(lower-arr->data))/size);
+   return (int)(((size_t)(upper-arr->data))/size);
 }
 
 
@@ -456,8 +455,9 @@ void Array_binRemove(Array *arr, char *elem, Array_compare comparer, bool all) {
       return;
    }
    if (all) {
-      size_t N = (size_t)(upper-lower);
-      Array_removeN(arr, index-(N-1), N);
+      size_t N = (size_t)(upper-lower)/arr->elemSize;
+      size_t ind = (lower-arr->data)/arr->elemSize;
+      Array_removeN(arr, ind, N);
    } else {
       Array_removeN(arr, index, 1);
    }

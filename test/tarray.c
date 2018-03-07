@@ -973,8 +973,53 @@ Unit_declare(testBinMulti) {
 	}
 	chk(count == 4);
 
+	Foo foo4  = {2, 0};
+	Foo *res4 = FooArr_binSearch(arr, foo4);
+	fatal(res4 != NULL);
+	chk(res4 == slice.data);
+
+	Foo foo5 = {1, 0};
+	Foo *res5 = FooArr_binSearch(arr, foo5);
+	chk(res5 != NULL);
+	FooArr_binRemove(arr, foo5);
+	res5 = FooArr_binSearch(arr, foo5);
+	chk(res5 == NULL);
+
+	Foo foo6 = {2, 0};
+	FooArr_declareSlice(res6);
+	res6 = FooArr_binSearchMulti(arr, foo6);
+	chk(!FooArr_sliceEmpty(res6));
+	FooArr_binRemoveMulti(arr, foo6);
+	res6 = FooArr_binSearchMulti(arr, foo6);
+	chk(FooArr_sliceEmpty(res6));
+	
+
 	FooArr_free(arr);
 }
+
+Unit_declare(testMixedBinary) {
+	FooArr *arr = FooArr_new(0);
+	for (int i = 0; i < 10; i++) {
+		Foo foo = {0, -i};
+		// Insert into the table using both i and d
+		FooArr_binInsertBoth(arr, foo);
+	}
+
+	FooArr_declareSlice(slice);
+	Foo foo1 = {0, 0};
+	// Do a search using just i, and verify that all the elements come out.
+	slice = FooArr_binSearchMulti(arr, foo1);
+	fatal(!FooArr_sliceEmpty(slice));
+	int count = 9;
+	FooArr_sliceForeach(slice) {
+		chk(slice.var->i == 0);
+		chk(slice.var->d == -count);
+		count--;
+	}
+
+	FooArr_free(arr);
+}	
+
 
 int main(int argc, char *argv[]) {
 	Unit_initialize(argc, argv);
@@ -992,5 +1037,6 @@ int main(int argc, char *argv[]) {
 	Unit_test(testSort);
 	Unit_test(testBinSearch);
 	Unit_test(testBinMulti);
+	Unit_test(testMixedBinary);
 	Unit_finalize();
 }

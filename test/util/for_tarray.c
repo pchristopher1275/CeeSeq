@@ -180,6 +180,23 @@ static inline FooArrSlice FooArr_binSearchMulti(FooArr *arr, Foo elem) {
     Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)Foo_cmp, (ArraySlice*)&slice);
     return slice;
 }
+static inline void FooArr_binInsertBothMulti(FooArr *arr, Foo elem) {
+    Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)Foo_cmpBoth, true);
+}
+
+static inline void FooArr_binRemoveBothMulti(FooArr *arr, Foo elem) {
+    Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)Foo_cmpBoth, true);
+}
+
+static inline void FooArr_sortBothMulti(FooArr *arr) {
+    Array_sort((Array*)arr, (Array_compare)Foo_cmpBoth);
+}
+
+static inline FooArrSlice FooArr_binSearchBothMulti(FooArr *arr, Foo elem) {
+    FooArrSlice slice = {0};
+    Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)Foo_cmpBoth, (ArraySlice*)&slice);
+    return slice;
+}
 typedef struct FooPtrArr_t {
     Array body;
 } FooPtrArr;
