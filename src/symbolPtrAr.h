@@ -86,6 +86,11 @@ static inline void SymbolPtrAr_remove(SymbolPtrAr *arr, int index, Error *err) {
     Array_removeN((Array*)arr, index, 1);
 }
 
+static inline void SymbolPtrAr_removeN(SymbolPtrAr *arr, int index, int N, Error *err) {
+    Array_removeNCheck(arr, index, N, err);
+    Array_removeN((Array*)arr, index, N);
+}
+
 static inline void SymbolPtrAr_fit(SymbolPtrAr *arr) {
     Array_fit((Array*)arr);
 }
@@ -94,8 +99,8 @@ static inline int SymbolPtrAr_last(SymbolPtrAr *arr) {
     return Array_len((Array*)arr)-1;
 }
 
-static inline int SymbolPtrAr_changeLength(SymbolPtrAr *arr, int newLength) {
-    return Array_changeLength((Array*)arr, newLength);
+static inline void SymbolPtrAr_changeLength(SymbolPtrAr *arr, int newLength) {
+    Array_changeLength((Array*)arr, newLength);
 }
 
 typedef struct SymbolPtrArIter_t {
@@ -119,3 +124,4 @@ static inline bool SymbolPtrArIter_previous(SymbolPtrArIter *iterator) {
 #define SymbolPtrAr_rforeach(var, arr)  for (SymbolPtrArIter_rdeclare(var, arr); SymbolPtrArIter_previous(&var); )
 #define SymbolPtrAr_loop(var, arr)    SymbolPtrArIter_declare(var, arr); while (SymbolPtrArIter_next(&var)) 
 #define SymbolPtrAr_rloop(var, arr)    SymbolPtrArIter_rdeclare(var, arr); while (SymbolPtrArIter_previous(&var)) 
+

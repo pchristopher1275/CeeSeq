@@ -112,18 +112,16 @@ APIF static int Port_isNullType(Port *port)
 }
 
 
-APIF void Port_send(Port *port, int outlet, short argc, t_atom *argv, Error *err)
+APIF void Port_send(Port *port, int outletIndex, short argc, t_atom *argv, Error *err)
 {
     if (Port_isNullType(port)) {
         return;
     }
     else if (Port_isVstType(port)) {
-        if (outlet >= sb_count(&Port_outlet(port, 0))) {
-            Error_format(err, "Index out of range (%d, %d)", outlet, sb_count(&Port_outlet(port, 0)));
-            return;
-        }
         Symbol *selector = atom_getsym(argv + 0);
-        outlet_anything(Port_outlet(port, outlet), selector, argc-1, argv+1);
+        void *out = PtrAr_get(&port->outlet, outletIndex, err);
+        Error_returnVoidOnError(err);
+        outlet_anything(out, selector, argc-1, argv+1);
     }
     else {
         Error_format(err, "Port_send called on porttype = %s", Port_idString(port));
@@ -131,12 +129,22 @@ APIF void Port_send(Port *port, int outlet, short argc, t_atom *argv, Error *err
 }
 
 APIF void Port_sendInteger(Port *p, int outlet, long value) {
-    outlet_int(Port_outlet(p, outlet), value);   
+    Error_declare(err);
+    void *out = PtrAr_get(&p->outlet, outlet, err);
+    if (Error_maypost(err)) {
+        return;
+    }
+    outlet_int(out, value);   
 }
 
 APIF void Port_sendSelectorAndInteger(Port *port, Symbol *selector, int value)
 {
+    Error_declare(err);
     t_atom a = {0};
     atom_setlong(&a, value);
-    outlet_anything(Port_outlet(port, 0), selector, 1, &a);
+    void *outlet = PtrAr_get(&port->outlet, 0, err);
+    if (Error_maypost(err)) {
+        return;
+    }
+    outlet_anything(outlet, selector, 1, &a);
 }

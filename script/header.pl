@@ -63,6 +63,25 @@ typedef struct $config->{typeName}_t $config->{typeName};
 END
 }
 
+sub writeArgDeclare {
+	my ($out, $config) = @_;
+	my $args = "";
+	my $struct = "{";
+	for my $field (@{$config->{fields}}) {
+		if (defined($field->{group})) {
+			next;
+		}
+		$args   .= "$field->{name}, ";
+		$struct .= "($field->{name}), ";
+	}
+	$args   =~ s/,\s*$//;
+	$struct =~ s/,\s*$//;
+	$struct .= "}";
+	print {$out}<<END;
+#define $config->{typeName}_declare(name, $args) $config->{typeName} name = $struct
+END
+}
+
 sub spaceAdjustType {
 	my ($type) = @_;
 	return $type =~ /\*$/ ? $type : "$type ";
@@ -82,9 +101,6 @@ sub writeAccessor {
 		if (defined($field->{group})) {
 			next;
 		}
-
-
-		
 
 		my $getter       = $field->{getter}; 
 		my $getterReturn = $field->{getterReturn};
@@ -374,40 +390,29 @@ sub PendingNoteOff_define {
 	return \%config;
 }
 
-sub IndexedOff_postAccessor {
-	my ($out) = @_;
-	print {$out} <<END;
-#include "indexedOffAr.h"
-END
-}
-
 sub IndexedOff_define {
 	my %config = (
 		typeName => "IndexedOff",
 		fields => [
-			{name => "time",     type => "Ticks"},
+			{name => "padIndex", type => "int"},
 			{name => "pitch", type => "int"},
 		],
-		postAccessor => \&IndexedOff_postAccessor,
+		includes => ["indexedOffAr.h"],
+		argDeclare => 1,
 	);
 	return \%config;
 }
 
-sub TimedOff_postAccessor {
-	my ($out) = @_;
-	print {$out} <<END;
-#include "timedOffAr.h"
-END
-}
 
 sub TimedOff_define {
 	my %config = (
 		typeName => "TimedOff",
 		fields => [
-			{name => "padIndex", type => "int"},
+			{name => "time",     type => "Ticks"},
 			{name => "pitch",    type => "int"},
 		],
-		postAccessor => \&TimedOff_postAccessor,
+		includes => ["timedOffAr.h"],
+		argDeclare => 1,
 	);
 	return \%config;
 }
@@ -421,7 +426,6 @@ sub NoteManager_define {
 			{name=>"endgroups",        type=>"IndexedOffAr"},
 			{name=>"output",           type=>"Port *",},
 			{name=>"atoms",            type=>"t_atom *",},
-			{name=>"removedPitches",   type=>"IntAr",},
 		],
 	);
 	return \%config;
@@ -655,6 +659,14 @@ sub main {
 			$class->{postAccessor}($out);
 		}
 		writeAPIFForType($apif, $out, $class->{typeName});
+		if (defined($class->{argDeclare})) {
+			writeArgDeclare($out, $class);
+		}
+		if (defined($class->{includes})) {
+			for my $i (@{$class->{includes}}) {
+				printf {$out} "#include \"%s\"\n", $i;
+			}
+		}
 		print {$out} "\n";
 	}	
 }	

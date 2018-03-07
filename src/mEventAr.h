@@ -86,6 +86,11 @@ static inline void MEventAr_remove(MEventAr *arr, int index, Error *err) {
     Array_removeN((Array*)arr, index, 1);
 }
 
+static inline void MEventAr_removeN(MEventAr *arr, int index, int N, Error *err) {
+    Array_removeNCheck(arr, index, N, err);
+    Array_removeN((Array*)arr, index, N);
+}
+
 static inline void MEventAr_fit(MEventAr *arr) {
     Array_fit((Array*)arr);
 }
@@ -94,8 +99,8 @@ static inline int MEventAr_last(MEventAr *arr) {
     return Array_len((Array*)arr)-1;
 }
 
-static inline int MEventAr_changeLength(MEventAr *arr, int newLength) {
-    return Array_changeLength((Array*)arr, newLength);
+static inline void MEventAr_changeLength(MEventAr *arr, int newLength) {
+    Array_changeLength((Array*)arr, newLength);
 }
 
 typedef struct MEventArIter_t {
@@ -119,3 +124,4 @@ static inline bool MEventArIter_previous(MEventArIter *iterator) {
 #define MEventAr_rforeach(var, arr)  for (MEventArIter_rdeclare(var, arr); MEventArIter_previous(&var); )
 #define MEventAr_loop(var, arr)    MEventArIter_declare(var, arr); while (MEventArIter_next(&var)) 
 #define MEventAr_rloop(var, arr)    MEventArIter_rdeclare(var, arr); while (MEventArIter_previous(&var)) 
+

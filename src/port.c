@@ -11,6 +11,9 @@
 #include "ext_obex.h"
 #include "ext_time.h"
 #include "ext_itm.h"
+#include "mem.c"
+#include "core.c"
+#include "array.c"
 #include "ptrAr.h"
 #include "shared.c"
 
@@ -54,6 +57,7 @@ void ext_main(void *r)
 
 void *Port_new(Symbol *s, long argc, t_atom *argv)
 {
+    Error_declare(err);
     Port *port = (Port *)object_alloc(Port_class);
     attr_args_process(port, argc, argv);
     if (Port_id(port) == NULL) {
@@ -69,23 +73,21 @@ void *Port_new(Symbol *s, long argc, t_atom *argv)
 
     int ev = port_parseEvSymbol(Port_id(port));
     if (ev >= 0) {
-
-        // sb_add(port->proxy, 4);
-        // sb_add(port->outlet, 4);
-        void *proxy[4];
-        void *outlet[4];
+        PtrAr_changeLength(&port->proxy, 4);
+        PtrAr_changeLength(&port->outlet, 4);
         for (int i = 3; i >= 0; i--) {
             void *p = NULL;
             if (i != 0) {
                 p = proxy_new(port, (long)i, &port->inletnum);
             }
-            proxy[i]  = p;
-            outlet[i] = intout(port);
-        }
-
-        for (int i = 0; i < 4; i++) {
-            PtrAr_push(&port->proxy,  proxy[i]);
-            PtrAr_push(&port->outlet, outlet[i]);
+            PtrAr_set(&port->proxy, i, p, err);
+            if (Error_maypost(err)) {
+                break;
+            }
+            PtrAr_set(&port->outlet, i, intout(port), err);
+            if (Error_maypost(err)) {
+                break;
+            }
         }
 
     } else if (Port_intInlets(port) > 0 || Port_intOutlets(port) > 0) {
@@ -95,24 +97,27 @@ void *Port_new(Symbol *s, long argc, t_atom *argv)
         if (Port_intOutlets(port) <= 0) {
             Port_intOutlets(port) = 1;
         } 
-
-        sb_add(port->proxy, Port_intInlets(port));
-        sb_add(port->outlet, Port_intOutlets(port));
-
+        PtrAr_changeLength(&port->proxy,  Port_intInlets(port));
+        PtrAr_changeLength(&port->outlet, Port_intOutlets(port));
         for (int i = Port_intInlets(port)-1; i >= 0; i--) {
             void *p = NULL;
             if (i != 0) {
                 p = proxy_new(port, (long)i, &Port_inletnum(port));
             }
-            Port_proxy(port, i) = p;
+            PtrAr_set(&port->proxy, i, p, err);
+            if (Error_maypost(err)) {
+                break;
+            }
         }
         for (int i = Port_intOutlets(port)-1; i >= 0; i--) {
-            Port_outlet(port, i) = outlet_new(port, NULL);
+            PtrAr_set(&port->outlet, i, outlet_new(port, NULL), err);
+            if (Error_maypost(err)) {
+                break;
+            }   
         }
     }
     else {
-        void *out = outlet_new(port, NULL);
-        sb_push(port->outlet, out);
+        PtrAr_push(&port->outlet, outlet_new(port, NULL));
     }
 
     Port_hub(port)              = NULL;
@@ -143,10 +148,11 @@ void Port_int(Port *port, long value)
 
 void Port_free(Port *port)
 {
-    for (int i = 0; i < sb_count(port->proxy); i++) {
-        object_free(port->proxy[i]);
+    if (port != NULL) {
+        PtrAr_foreach(it, &port->proxy) {
+            object_free(it.var);
+        }
+        PtrAr_clear(&port->proxy);
+        PtrAr_clear(&port->outlet);
     }
-    sb_free(port->proxy);
-    sb_free(port->outlet);
-
 }

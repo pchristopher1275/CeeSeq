@@ -1,5 +1,11 @@
 {
   "config": [
-	{"typename": "TimedOffAr", "elemname": "TimedOff"}
+	{
+		"typename": "TimedOffAr", 
+		"elemname": "TimedOff",
+		"binarySearch": [
+			{"compare": "TimedOff_cmpTime", "multi": false, "tag": "Time"}
+		]
+	}
    ]
 }

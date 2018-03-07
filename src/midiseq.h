@@ -224,27 +224,31 @@ void Pad_computeChokeGroup(Pad *pad);
 // *** DO NOT MODIFY THIS FILE (see header.pl) ***
 struct IndexedOff_t
 {
-    Ticks time;
+    int padIndex;
     int pitch;
 };
 #define IndexedOff_newUninitialized() ((IndexedOff*)sysmem_newptrclear(sizeof(IndexedOff)))
-static inline Ticks IndexedOff_time(IndexedOff *self){return self->time;}
-static inline void IndexedOff_setTime(IndexedOff *self, Ticks value){self->time = value;}
+static inline int IndexedOff_padIndex(IndexedOff *self){return self->padIndex;}
+static inline void IndexedOff_setPadIndex(IndexedOff *self, int value){self->padIndex = value;}
 static inline int IndexedOff_pitch(IndexedOff *self){return self->pitch;}
 static inline void IndexedOff_setPitch(IndexedOff *self, int value){self->pitch = value;}
+int IndexedOff_cmpPadIndex(IndexedOff *left, IndexedOff *right);
+#define IndexedOff_declare(name, padIndex, pitch) IndexedOff name = {(padIndex), (pitch)}
 #include "indexedOffAr.h"
 
 // *** DO NOT MODIFY THIS FILE (see header.pl) ***
 struct TimedOff_t
 {
-    int padIndex;
+    Ticks time;
     int pitch;
 };
 #define TimedOff_newUninitialized() ((TimedOff*)sysmem_newptrclear(sizeof(TimedOff)))
-static inline int TimedOff_padIndex(TimedOff *self){return self->padIndex;}
-static inline void TimedOff_setPadIndex(TimedOff *self, int value){self->padIndex = value;}
+static inline Ticks TimedOff_time(TimedOff *self){return self->time;}
+static inline void TimedOff_setTime(TimedOff *self, Ticks value){self->time = value;}
 static inline int TimedOff_pitch(TimedOff *self){return self->pitch;}
 static inline void TimedOff_setPitch(TimedOff *self, int value){self->pitch = value;}
+int TimedOff_cmpTime(TimedOff *left, TimedOff *right);
+#define TimedOff_declare(name, time, pitch) TimedOff name = {(time), (pitch)}
 #include "timedOffAr.h"
 
 // *** DO NOT MODIFY THIS FILE (see header.pl) ***
@@ -284,7 +288,6 @@ struct NoteManager_t
     IndexedOffAr endgroups;
     Port *output;
     t_atom *atoms;
-    IntAr removedPitches;
 };
 #define NoteManager_newUninitialized() ((NoteManager*)sysmem_newptrclear(sizeof(NoteManager)))
 static inline TimedOffAr NoteManager_pending(NoteManager *self){return self->pending;}
@@ -295,8 +298,6 @@ static inline Port *NoteManager_output(NoteManager *self){return self->output;}
 static inline void NoteManager_setOutput(NoteManager *self, Port *value){self->output = value;}
 static inline t_atom *NoteManager_atoms(NoteManager *self){return self->atoms;}
 static inline void NoteManager_setAtoms(NoteManager *self, t_atom *value){self->atoms = value;}
-static inline IntAr NoteManager_removedPitches(NoteManager *self){return self->removedPitches;}
-static inline void NoteManager_setRemovedPitches(NoteManager *self, IntAr value){self->removedPitches = value;}
 NoteManager *NoteManager_new(Port *port);
 void NoteManager_free(NoteManager *nm);
 bool NoteManager_insertNoteOff(NoteManager *manager, Ticks timestamp, int pitch, int padIndexForEndgroup);

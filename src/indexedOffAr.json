@@ -1,5 +1,11 @@
 {
   "config": [
-	{"typename": "IndexedOffAr", "elemname": "IndexedOff"}
+	{
+		"typename": "IndexedOffAr", 
+		"elemname": "IndexedOff",
+		"binarySearch": [
+			{"compare": "IndexedOff_cmpPadIndex", "multi": true, "tag": "PadIndex"}
+		]
+	}
    ]
 }

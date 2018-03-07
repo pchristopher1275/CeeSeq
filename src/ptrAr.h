@@ -86,6 +86,11 @@ static inline void PtrAr_remove(PtrAr *arr, int index, Error *err) {
     Array_removeN((Array*)arr, index, 1);
 }
 
+static inline void PtrAr_removeN(PtrAr *arr, int index, int N, Error *err) {
+    Array_removeNCheck(arr, index, N, err);
+    Array_removeN((Array*)arr, index, N);
+}
+
 static inline void PtrAr_fit(PtrAr *arr) {
     Array_fit((Array*)arr);
 }
@@ -94,8 +99,8 @@ static inline int PtrAr_last(PtrAr *arr) {
     return Array_len((Array*)arr)-1;
 }
 
-static inline int PtrAr_changeLength(PtrAr *arr, int newLength) {
-    return Array_changeLength((Array*)arr, newLength);
+static inline void PtrAr_changeLength(PtrAr *arr, int newLength) {
+    Array_changeLength((Array*)arr, newLength);
 }
 
 typedef struct PtrArIter_t {
@@ -119,3 +124,4 @@ static inline bool PtrArIter_previous(PtrArIter *iterator) {
 #define PtrAr_rforeach(var, arr)  for (PtrArIter_rdeclare(var, arr); PtrArIter_previous(&var); )
 #define PtrAr_loop(var, arr)    PtrArIter_declare(var, arr); while (PtrArIter_next(&var)) 
 #define PtrAr_rloop(var, arr)    PtrArIter_rdeclare(var, arr); while (PtrArIter_previous(&var)) 
+

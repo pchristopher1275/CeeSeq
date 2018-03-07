@@ -86,6 +86,11 @@ static inline void IndexedOffAr_remove(IndexedOffAr *arr, int index, Error *err)
     Array_removeN((Array*)arr, index, 1);
 }
 
+static inline void IndexedOffAr_removeN(IndexedOffAr *arr, int index, int N, Error *err) {
+    Array_removeNCheck(arr, index, N, err);
+    Array_removeN((Array*)arr, index, N);
+}
+
 static inline void IndexedOffAr_fit(IndexedOffAr *arr) {
     Array_fit((Array*)arr);
 }
@@ -94,8 +99,8 @@ static inline int IndexedOffAr_last(IndexedOffAr *arr) {
     return Array_len((Array*)arr)-1;
 }
 
-static inline int IndexedOffAr_changeLength(IndexedOffAr *arr, int newLength) {
-    return Array_changeLength((Array*)arr, newLength);
+static inline void IndexedOffAr_changeLength(IndexedOffAr *arr, int newLength) {
+    Array_changeLength((Array*)arr, newLength);
 }
 
 typedef struct IndexedOffArIter_t {
@@ -119,3 +124,34 @@ static inline bool IndexedOffArIter_previous(IndexedOffArIter *iterator) {
 #define IndexedOffAr_rforeach(var, arr)  for (IndexedOffArIter_rdeclare(var, arr); IndexedOffArIter_previous(&var); )
 #define IndexedOffAr_loop(var, arr)    IndexedOffArIter_declare(var, arr); while (IndexedOffArIter_next(&var)) 
 #define IndexedOffAr_rloop(var, arr)    IndexedOffArIter_rdeclare(var, arr); while (IndexedOffArIter_previous(&var)) 
+
+typedef struct IndexedOffArSlice_t {
+    int len;
+    IndexedOff *data;
+    int index;
+    IndexedOff *var;
+} IndexedOffArSlice;
+#define IndexedOffAr_declareSlice(name) IndexedOffArSlice name = {0}
+#define IndexedOffAr_sliceEmpty(slice) (slice.data == NULL)
+#define IndexedOffAr_sliceForeach(slice) for (slice.index=0, slice.var=slice.data; slice.index < slice.len; slice.index++, slice.var++)
+
+#define IndexedOffAr_rsliceForeach(slice) for (slice.index=slice.len-1, slice.var = slice.data + slice.index*sizeof(IndexedOff); \
+                                              slice.index >= 0; slice.index--, slice.var--)
+
+static inline void IndexedOffAr_binInsertPadIndex(IndexedOffAr *arr, IndexedOff elem) {
+    Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)IndexedOff_cmpPadIndex, true);
+}
+
+static inline void IndexedOffAr_binRemovePadIndex(IndexedOffAr *arr, IndexedOff elem) {
+    Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)IndexedOff_cmpPadIndex, true);
+}
+
+static inline void IndexedOffAr_sortPadIndex(IndexedOffAr *arr) {
+    Array_sort((Array*)arr, (Array_compare)IndexedOff_cmpPadIndex);
+}
+
+static inline IndexedOffArSlice IndexedOffAr_binSearchPadIndex(IndexedOffAr *arr, IndexedOff elem) {
+    IndexedOffArSlice slice = {0};
+    Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)IndexedOff_cmpPadIndex, (ArraySlice*)&slice);
+    return slice;
+}

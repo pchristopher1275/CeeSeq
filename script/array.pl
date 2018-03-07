@@ -113,6 +113,11 @@ static inline void ${TYPENAME}_remove(${TYPENAME} *arr, int index, Error *err) {
 	Array_removeN((Array*)arr, index, 1);
 }
 
+static inline void ${TYPENAME}_removeN(${TYPENAME} *arr, int index, int N, Error *err) {
+	Array_removeNCheck(arr, index, N, err);
+	Array_removeN((Array*)arr, index, N);
+}
+
 static inline void ${TYPENAME}_fit(${TYPENAME} *arr) {
 	Array_fit((Array*)arr);
 }

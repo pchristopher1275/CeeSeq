@@ -86,6 +86,11 @@ static inline void IntAr_remove(IntAr *arr, int index, Error *err) {
     Array_removeN((Array*)arr, index, 1);
 }
 
+static inline void IntAr_removeN(IntAr *arr, int index, int N, Error *err) {
+    Array_removeNCheck(arr, index, N, err);
+    Array_removeN((Array*)arr, index, N);
+}
+
 static inline void IntAr_fit(IntAr *arr) {
     Array_fit((Array*)arr);
 }
@@ -94,8 +99,8 @@ static inline int IntAr_last(IntAr *arr) {
     return Array_len((Array*)arr)-1;
 }
 
-static inline int IntAr_changeLength(IntAr *arr, int newLength) {
-    return Array_changeLength((Array*)arr, newLength);
+static inline void IntAr_changeLength(IntAr *arr, int newLength) {
+    Array_changeLength((Array*)arr, newLength);
 }
 
 typedef struct IntArIter_t {
@@ -119,3 +124,4 @@ static inline bool IntArIter_previous(IntArIter *iterator) {
 #define IntAr_rforeach(var, arr)  for (IntArIter_rdeclare(var, arr); IntArIter_previous(&var); )
 #define IntAr_loop(var, arr)    IntArIter_declare(var, arr); while (IntArIter_next(&var)) 
 #define IntAr_rloop(var, arr)    IntArIter_rdeclare(var, arr); while (IntArIter_previous(&var)) 
+

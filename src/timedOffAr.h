@@ -86,6 +86,11 @@ static inline void TimedOffAr_remove(TimedOffAr *arr, int index, Error *err) {
     Array_removeN((Array*)arr, index, 1);
 }
 
+static inline void TimedOffAr_removeN(TimedOffAr *arr, int index, int N, Error *err) {
+    Array_removeNCheck(arr, index, N, err);
+    Array_removeN((Array*)arr, index, N);
+}
+
 static inline void TimedOffAr_fit(TimedOffAr *arr) {
     Array_fit((Array*)arr);
 }
@@ -94,8 +99,8 @@ static inline int TimedOffAr_last(TimedOffAr *arr) {
     return Array_len((Array*)arr)-1;
 }
 
-static inline int TimedOffAr_changeLength(TimedOffAr *arr, int newLength) {
-    return Array_changeLength((Array*)arr, newLength);
+static inline void TimedOffAr_changeLength(TimedOffAr *arr, int newLength) {
+    Array_changeLength((Array*)arr, newLength);
 }
 
 typedef struct TimedOffArIter_t {
@@ -119,3 +124,19 @@ static inline bool TimedOffArIter_previous(TimedOffArIter *iterator) {
 #define TimedOffAr_rforeach(var, arr)  for (TimedOffArIter_rdeclare(var, arr); TimedOffArIter_previous(&var); )
 #define TimedOffAr_loop(var, arr)    TimedOffArIter_declare(var, arr); while (TimedOffArIter_next(&var)) 
 #define TimedOffAr_rloop(var, arr)    TimedOffArIter_rdeclare(var, arr); while (TimedOffArIter_previous(&var)) 
+
+static inline void TimedOffAr_binInsertTime(TimedOffAr *arr, TimedOff elem) {
+    Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)TimedOff_cmpTime, false);
+}
+
+static inline void TimedOffAr_binRemoveTime(TimedOffAr *arr, TimedOff elem) {
+    Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)TimedOff_cmpTime, false);
+}
+
+static inline void TimedOffAr_sortTime(TimedOffAr *arr) {
+    Array_sort((Array*)arr, (Array_compare)TimedOff_cmpTime);
+}
+
+static inline TimedOff *TimedOffAr_binSearchTime(TimedOffAr *arr, TimedOff elem) {
+    return (TimedOff *)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)TimedOff_cmpTime, NULL);
+}

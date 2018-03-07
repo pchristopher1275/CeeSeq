@@ -86,6 +86,11 @@ static inline void PadAr_remove(PadAr *arr, int index, Error *err) {
     Array_removeN((Array*)arr, index, 1);
 }
 
+static inline void PadAr_removeN(PadAr *arr, int index, int N, Error *err) {
+    Array_removeNCheck(arr, index, N, err);
+    Array_removeN((Array*)arr, index, N);
+}
+
 static inline void PadAr_fit(PadAr *arr) {
     Array_fit((Array*)arr);
 }
@@ -94,8 +99,8 @@ static inline int PadAr_last(PadAr *arr) {
     return Array_len((Array*)arr)-1;
 }
 
-static inline int PadAr_changeLength(PadAr *arr, int newLength) {
-    return Array_changeLength((Array*)arr, newLength);
+static inline void PadAr_changeLength(PadAr *arr, int newLength) {
+    Array_changeLength((Array*)arr, newLength);
 }
 
 typedef struct PadArIter_t {
@@ -119,3 +124,4 @@ static inline bool PadArIter_previous(PadArIter *iterator) {
 #define PadAr_rforeach(var, arr)  for (PadArIter_rdeclare(var, arr); PadArIter_previous(&var); )
 #define PadAr_loop(var, arr)    PadArIter_declare(var, arr); while (PadArIter_next(&var)) 
 #define PadAr_rloop(var, arr)    PadArIter_rdeclare(var, arr); while (PadArIter_previous(&var)) 
+

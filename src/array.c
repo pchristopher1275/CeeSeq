@@ -302,43 +302,6 @@ typedef int (*Array_compare)(const void *left, const void *right);
 //    return NULL;
 // }
 
-/*
-int Array_binSearchWithInsert(Array *arr, const char *key, int *insert, Array_compare comparer) {  
-   const char *base  = arr->data;
-   size_t num        = arr->len;
-   size_t size       = arr->elemSize;
-   const char *high  = NULL;
-   while (num > 0) {
-      const char *pivot = base + (num >> 1) * size;
-      int result        = comparer((void*)key, (void*)pivot);
-
-      if (result == 0) {
-         return (int)(((size_t)(pivot-arr->data))/size);
-      }
-
-      if (result > 0) {
-         // key > elt: push base to 1 element greater than pivot
-         base = pivot + size;
-         num--;
-      } else {
-         // key < elt: we set high to point to the smallest element which compares key < elt
-         high = pivot;
-      }
-
-      num >>= 1;
-   }
-
-   if (high == NULL) {
-      // high == NULL implies that NO elements in the array where such that key <= elt, which implies that you should insert at the
-      // end of the array.
-      *insert = arr->len;
-   } else {
-      *insert = (int)(((size_t)(high-arr->data))/size);
-   }
-   return -1;
-}
-*/
-
 typedef struct ArraySlice_t {
    int len;
    char *data;
@@ -346,10 +309,6 @@ typedef struct ArraySlice_t {
    char *var;
 } ArraySlice;
 
-// #define ArraySlice_foreach(slice) for (slice.index=0, slice.var = slice.data + slice.index*sizeof(char); \
-                                          slice.index < slice.len; slice.index++, slice.var += sizeof(char))
-// #define ArraySlice_rforeach(slice) for (slice.index=slice.len-1, slice.var = slice.data + sizeof(char)*slice.index; \
-                                           slice.index < slice.len; slice.index--, slice.var -= sizeof(char))
 
 int Array_binSearchWithInsertMulti(Array *arr, char *key, int *insert, Array_compare comparer, char **lowerBound, char **upperBound) {  
    char *base  = arr->data;

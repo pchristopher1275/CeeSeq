@@ -86,6 +86,11 @@ static inline void PortFindCellAr_remove(PortFindCellAr *arr, int index, Error *
     Array_removeN((Array*)arr, index, 1);
 }
 
+static inline void PortFindCellAr_removeN(PortFindCellAr *arr, int index, int N, Error *err) {
+    Array_removeNCheck(arr, index, N, err);
+    Array_removeN((Array*)arr, index, N);
+}
+
 static inline void PortFindCellAr_fit(PortFindCellAr *arr) {
     Array_fit((Array*)arr);
 }
@@ -94,8 +99,8 @@ static inline int PortFindCellAr_last(PortFindCellAr *arr) {
     return Array_len((Array*)arr)-1;
 }
 
-static inline int PortFindCellAr_changeLength(PortFindCellAr *arr, int newLength) {
-    return Array_changeLength((Array*)arr, newLength);
+static inline void PortFindCellAr_changeLength(PortFindCellAr *arr, int newLength) {
+    Array_changeLength((Array*)arr, newLength);
 }
 
 typedef struct PortFindCellArIter_t {
@@ -119,3 +124,4 @@ static inline bool PortFindCellArIter_previous(PortFindCellArIter *iterator) {
 #define PortFindCellAr_rforeach(var, arr)  for (PortFindCellArIter_rdeclare(var, arr); PortFindCellArIter_previous(&var); )
 #define PortFindCellAr_loop(var, arr)    PortFindCellArIter_declare(var, arr); while (PortFindCellArIter_next(&var)) 
 #define PortFindCellAr_rloop(var, arr)    PortFindCellArIter_rdeclare(var, arr); while (PortFindCellArIter_previous(&var)) 
+

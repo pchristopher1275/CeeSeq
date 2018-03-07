@@ -14,6 +14,7 @@
 #include "stretchy_buffer.h"
 #include "core.c"
 #include "array.c"
+#include "ptrAr.h"
 #include "symbolPtrAr.h"
 #include "intAr.h"
 #include "shared.c"

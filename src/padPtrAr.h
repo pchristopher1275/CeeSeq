@@ -86,6 +86,11 @@ static inline void PadPtrAr_remove(PadPtrAr *arr, int index, Error *err) {
     Array_removeN((Array*)arr, index, 1);
 }
 
+static inline void PadPtrAr_removeN(PadPtrAr *arr, int index, int N, Error *err) {
+    Array_removeNCheck(arr, index, N, err);
+    Array_removeN((Array*)arr, index, N);
+}
+
 static inline void PadPtrAr_fit(PadPtrAr *arr) {
     Array_fit((Array*)arr);
 }
@@ -94,8 +99,8 @@ static inline int PadPtrAr_last(PadPtrAr *arr) {
     return Array_len((Array*)arr)-1;
 }
 
-static inline int PadPtrAr_changeLength(PadPtrAr *arr, int newLength) {
-    return Array_changeLength((Array*)arr, newLength);
+static inline void PadPtrAr_changeLength(PadPtrAr *arr, int newLength) {
+    Array_changeLength((Array*)arr, newLength);
 }
 
 typedef struct PadPtrArIter_t {
@@ -119,3 +124,4 @@ static inline bool PadPtrArIter_previous(PadPtrArIter *iterator) {
 #define PadPtrAr_rforeach(var, arr)  for (PadPtrArIter_rdeclare(var, arr); PadPtrArIter_previous(&var); )
 #define PadPtrAr_loop(var, arr)    PadPtrArIter_declare(var, arr); while (PadPtrArIter_next(&var)) 
 #define PadPtrAr_rloop(var, arr)    PadPtrArIter_rdeclare(var, arr); while (PadPtrArIter_previous(&var)) 
+

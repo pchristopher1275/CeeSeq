@@ -1392,6 +1392,29 @@ APIF void PendingNoteOff_freeAll(PendingNoteOff *start)
     }
 }
 
+//
+// I N D E X E D    O F F
+//
+
+APIF int IndexedOff_cmpPadIndex(IndexedOff *left, IndexedOff *right) {
+    if (left->padIndex < right->padIndex) {
+        return -1;
+    } else if (left->padIndex > right->padIndex) {
+        return 1;
+    }
+    return 0;
+}
+
+APIF int TimedOff_cmpTime(TimedOff *left, TimedOff *right) {
+    if (left->time < right->time) {
+        return -1;
+    } else if (left->time > right->time) {
+        return 1;
+    }
+    return 0;   
+}
+
+
 
 const int NoteManager_atomcount = 4;
 
@@ -1400,7 +1423,6 @@ APIF NoteManager *NoteManager_new(Port *port)
     NoteManager *nm = (NoteManager*)Mem_malloc(sizeof(NoteManager));
     nm->atoms       = (t_atom*)Mem_malloc(sizeof(t_atom) * NoteManager_atomcount);
     nm->output      = port;
-    IntAr_init(&nm->removedPitches, 0);
     TimedOffAr_init(&nm->pending, 0);
     IndexedOffAr_init(&nm->endgroups, 0);
     return nm;
@@ -1409,12 +1431,10 @@ APIF NoteManager *NoteManager_new(Port *port)
 
 APIF void NoteManager_free(NoteManager *nm)
 {
-    PendingNoteOff_freeAll(NoteManager_pending(nm));
-    IntAr_clear(&nm->removedPitches);
     TimedOffAr_clear(&nm->pending);
     IndexedOffAr_clear(&nm->endgroups);
     Mem_free(nm->atoms);
-    NoteManager zero = {0};
+    NoteManager zero = {{{0}}};
     *nm = zero;
     Mem_free(nm);
 }
@@ -1423,21 +1443,20 @@ APIF void NoteManager_free(NoteManager *nm)
 // insert a note off, and remove any single pitch that is already there. Return true if a note-off was removed
 APIF bool NoteManager_insertNoteOff(NoteManager *manager, Ticks timestamp, int pitch, int padIndexForEndgroup)
 {
-    Error_error(ignored);
+    Error_declare(ignored);
     bool q = false;
     IndexedOffAr_foreach(it, &manager->endgroups) {
         if (it.var->pitch == pitch) {
             IndexedOffAr_remove(&manager->endgroups, it.index, ignored);
-            it.index -= 1;
             q = true;
+            break;
         }
     }
 
     TimedOffAr_foreach(it, &manager->pending) {
         if (it.var->pitch == pitch) {
-            IndexedOffAr_remove(&manager->endgroups, it.index, ignored);
+            TimedOffAr_remove(&manager->pending, it.index, ignored);
             q = true;
-            // Only one note-off allowed for a given pitch
             break;
         }   
     }
@@ -1445,11 +1464,15 @@ APIF bool NoteManager_insertNoteOff(NoteManager *manager, Ticks timestamp, int p
 
     if (padIndexForEndgroup >= 0) {
         // Mark this pitch as endgroup
-        PendingNoteOff_insertPadIndexed(&manager->endgroups, pitch, padIndexForEndgroup);
+        IndexedOff_declare(off, padIndexForEndgroup, pitch);
+        IndexedOffAr_binInsertPadIndex(&manager->endgroups, off);
     }
     else {
-        PendingNoteOff_insertTimestamped(&manager->pending, pitch, timestamp);
+        TimedOff_declare(off, timestamp, pitch);
+        TimedOffAr_binInsertTime(&manager->pending, off);
     }
+
+    Error_maypost(ignored);
 
     return q;
 }
@@ -1473,52 +1496,47 @@ APIF void NoteManager_sendNoteOn(NoteManager *manager, int pitch, int velocity)
 
 APIF void NoteManager_flushOffs(NoteManager *manager)
 {
-    PendingNoteOff *p = NoteManager_endgroups(manager);
-    while (p != NULL) {
-        NoteManager_sendNoteOn(manager, PendingNoteOff_pitch(p), 0);
-        PendingNoteOff *n = p;
-        p = PendingNoteOff_next(p);
-        PendingNoteOff_free(n);
+    IndexedOffAr_foreach(it, &manager->endgroups) {
+        NoteManager_sendNoteOn(manager, it.var->pitch, 0);
     }
-    NoteManager_setEndgroups(manager, NULL);
+    IndexedOffAr_truncate(&manager->endgroups);
 
-    p = NoteManager_pending(manager);
-    while (p != NULL) {
-        NoteManager_sendNoteOn(manager, PendingNoteOff_pitch(p), 0);
-        PendingNoteOff *n = p;
-        p = PendingNoteOff_next(p);
-        PendingNoteOff_free(n);
+    TimedOffAr_foreach(it, &manager->pending) {
+        NoteManager_sendNoteOn(manager, it.var->pitch, 0);   
     }
-    NoteManager_setPending(manager, NULL);
+    TimedOffAr_truncate(&manager->pending);
 }
 
 
 APIF void NoteManager_dblogPending(NoteManager *manager, Ticks current)
 {
     dblog("dbPending %lld:", current);
-    PendingNoteOff *p = NoteManager_pending(manager);
-    while (p != NULL) {
-        dblog("  %lld %d", PendingNoteOff_timestamp(p)-current, PendingNoteOff_pitch(p));
-        p = PendingNoteOff_next(p);
+    TimedOffAr_foreach(it, &manager->pending) {
+        dblog("  %lld %d", it.var->time-current, it.var->pitch); 
     }
 }
 
 
 APIF Ticks NoteManager_scheduleOffs(NoteManager *manager, Ticks current)
 {
-    while (NoteManager_pending(manager) != NULL) {
-        if (PendingNoteOff_timestamp(NoteManager_pending(manager)) > current) {
+    Error_declare(ignored);
+    int count = 0;
+    TimedOffAr_foreach(it, &manager->pending) {
+        if (it.var->time > current) {
             break;
         }
-        NoteManager_sendNoteOn(manager, PendingNoteOff_pitch(NoteManager_pending(manager)), 0);
-        PendingNoteOff_pop(&manager->pending);
+        NoteManager_sendNoteOn(manager, it.var->pitch , 0);
+        count++;
     }
-    if (NoteManager_pending(manager) != NULL) {
-        return PendingNoteOff_timestamp(NoteManager_pending(manager)) - current;
+    TimedOffAr_removeN(&manager->pending, 0, count, ignored);
+    Error_maypost(ignored);
+
+
+    TimedOffAr_foreach(it, &manager->pending) {
+        return it.var->time-current;
     }
-    else {
-        return -1;
-    }
+
+    return -1;
 }
 
 
@@ -1540,10 +1558,17 @@ APIF void NoteManager_midievent(NoteManager *manager, MEvent cell, int padIndexF
 
 APIF void NoteManager_padNoteOff(NoteManager *manager, int padIndex)
 {
-    PendingNoteOff_removePadIndexed(&manager->endgroups, padIndex, &manager->removedPitches);
-    IntAr_foreach(it, &manager->removedPitches) {
-        NoteManager_sendNoteOn(manager, *it.var, 0);
+    IndexedOffAr_declareSlice(slice);
+    IndexedOff_declare(off, padIndex, 0);
+    slice = IndexedOffAr_binSearchPadIndex(&manager->endgroups, off);
+    if (IndexedOffAr_sliceEmpty(slice)) {
+        return;
     }
+    IndexedOffAr_sliceForeach(slice) {
+        NoteManager_sendNoteOn(manager, slice.var->pitch, 0);
+    }
+    IndexedOffAr_binRemovePadIndex(&manager->endgroups, off);
+    return;
 }
 
 //
