@@ -351,45 +351,6 @@ sub Pad_define {
 	return \%config;
 }
 
-sub PendingNoteOff_manualStruct {
-	my ($out) = @_;
-	print {$out} <<END;
-struct PendingNoteOff_t 
-{
-    struct PendingNoteOff_t *next;
-    union {
-        Ticks timestamp;
-        int padIndex;
-    } ticksOrPadIndex;
-    int pitch;
-};
-END
-}
-
-sub PendingNoteOff_preAccessor {
-	my ($out) = @_;
-	print {$out} <<END;
-#define PendingNoteOff_next(pno)      (pno)->next
-#define PendingNoteOff_timestamp(pno) (pno)->ticksOrPadIndex.timestamp
-#define PendingNoteOff_padIndex(pno)  (pno)->ticksOrPadIndex.padIndex 
-#define PendingNoteOff_pitch(pno)     (pno)->pitch
-#define PendingNoteOff_increment(pno) do { \\
-    if (pno) { \\
-        (pno) = PendingNoteOff_next(pno); \\
-    } \\
-} while (0)
-END
-}
-
-sub PendingNoteOff_define {
-	my %config = (
-		typeName => "PendingNoteOff",
-		manualStruct => \&PendingNoteOff_manualStruct,
-		preAccessor => \&PendingNoteOff_preAccessor,
-	);
-	return \%config;
-}
-
 sub IndexedOff_define {
 	my %config = (
 		typeName => "IndexedOff",
@@ -624,7 +585,6 @@ sub main {
 		Pad_define(),
 		IndexedOff_define(),
 		TimedOff_define(),
-		PendingNoteOff_define(),
 		NoteManager_define(),
 		PortFindCell_define(),
 		PortFind_define(),

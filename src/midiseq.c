@@ -1238,162 +1238,7 @@ APIF void DropDown_initializeMenu(DropDown *dd, Error *err) {
 }
 
 //
-// N O T E    M A N A G E R
-//
-
-const int PendingNoteOff_nodepoolsize = 120;
-static PendingNoteOff *PendingNoteOff_freelist = NULL;
-
-// freecount is how many items are on the free list
-static int PendingNoteOff_freecount = 0;
-
-APIF PendingNoteOff *PendingNoteOff_new()
-{
-    if (PendingNoteOff_freecount <= 0) {
-        for (int i = 0; i <  PendingNoteOff_nodepoolsize; i++) {
-            PendingNoteOff *node = (PendingNoteOff*)sysmem_newptrclear(sizeof(PendingNoteOff));
-            PendingNoteOff_next(node) = PendingNoteOff_freelist;
-            PendingNoteOff_freelist = node;
-            PendingNoteOff_freecount++;
-        }
-    }
-    PendingNoteOff *r = PendingNoteOff_freelist;
-    PendingNoteOff_freelist = PendingNoteOff_next(r);
-    PendingNoteOff_freecount--;
-    PendingNoteOff_next(r) = NULL;
-    return r;
-}
-
-
-APIF void PendingNoteOff_free(PendingNoteOff *node)
-{
-    if (PendingNoteOff_freecount > PendingNoteOff_nodepoolsize) {
-        sysmem_freeptr(node);
-    }
-    else {
-        PendingNoteOff zero = {0};
-        *node = zero;
-        PendingNoteOff_next(node) = PendingNoteOff_freelist;
-        PendingNoteOff_freelist = node;
-        PendingNoteOff_freecount++;
-    }
-}
-
-
-APIF bool PendingNoteOff_removePitch(PendingNoteOff **head, int pitch)
-{
-    // First remove the pitch from endgroups
-    PendingNoteOff *p    = *head;
-    PendingNoteOff *last = NULL;
-    while (p != NULL) {
-        if (PendingNoteOff_pitch(p) == pitch) {
-            if (last == NULL) {
-                *head = PendingNoteOff_next(p);
-            }
-            else {
-                PendingNoteOff_next(last) = PendingNoteOff_next(p);
-            }
-            PendingNoteOff_free(p);
-            return true;
-        }
-        last = p;
-        p    = PendingNoteOff_next(p);
-    }
-    return false;
-}
-
-
-APIF void PendingNoteOff_removePadIndexed(PendingNoteOff **head, int padIndex, IntAr *pitchesRemoved)
-{
-    // First remove the pitch from endgroups
-    IntAr_truncate(pitchesRemoved);
-    PendingNoteOff *p    = *head;
-    PendingNoteOff *last = NULL;
-    while (p != NULL) {
-        if (PendingNoteOff_padIndex(p) == padIndex) {
-            IntAr_push(pitchesRemoved, PendingNoteOff_pitch(p));
-            PendingNoteOff *n = PendingNoteOff_next(p);
-            if (last == NULL) {
-                *head = n;
-            }
-            else {
-                PendingNoteOff_next(last) = n;
-            }
-            PendingNoteOff_free(p);
-            p = n;
-            continue;
-        }
-        last = p;
-        p    = PendingNoteOff_next(p);
-    }
-    return;
-}
-
-
-APIF void PendingNoteOff_insertTimestamped(PendingNoteOff **head, int pitch, Ticks timestamp)
-{
-    PendingNoteOff *node = PendingNoteOff_new();
-    PendingNoteOff_pitch(node)     = pitch;
-    PendingNoteOff_timestamp(node) = timestamp;
-
-    PendingNoteOff *p    = *head;
-    PendingNoteOff *last = NULL;
-    while (p != NULL) {
-        if (PendingNoteOff_timestamp(p) > timestamp) {
-            // This will make p point to the element AFTER node, and last be EITHER (a) the element BEFORE node, or (b) if last == NULL
-            // than node will be the first (and only) element of the list
-            break;
-        }
-        last = p;
-        p    = PendingNoteOff_next(p);
-    }
-
-    if (last == NULL) {
-        PendingNoteOff_next(node) = *head;
-        *head                     = node;
-    }
-    else {
-        PendingNoteOff_next(node) = p;
-        PendingNoteOff_next(last) = node;
-    }
-
-    return;
-}
-
-
-APIF void PendingNoteOff_insertPadIndexed(PendingNoteOff **head, int pitch, int padIndex)
-{
-    PendingNoteOff *node = PendingNoteOff_new();
-    PendingNoteOff_pitch(node)     = pitch;
-    PendingNoteOff_padIndex(node)  = padIndex;
-    PendingNoteOff_next(node)      = *head;
-    *head                          = node;
-}
-
-
-// pop the first element off the list
-APIF void PendingNoteOff_pop(PendingNoteOff **head)
-{
-    if (*head) {
-        PendingNoteOff *n = *head;
-        *head = PendingNoteOff_next(*head);
-        PendingNoteOff_free(n);
-    }
-}
-
-
-APIF void PendingNoteOff_freeAll(PendingNoteOff *start)
-{
-    PendingNoteOff *p = start;
-    while (p != NULL) {
-        PendingNoteOff *n = p;
-        p = PendingNoteOff_next(p);
-        PendingNoteOff_free(n);
-    }
-}
-
-//
-// I N D E X E D    O F F
+// I N D E X E D   AND   T I M E D   O F F
 //
 
 APIF int IndexedOff_cmpPadIndex(IndexedOff *left, IndexedOff *right) {
@@ -1415,6 +1260,10 @@ APIF int TimedOff_cmpTime(TimedOff *left, TimedOff *right) {
 }
 
 
+
+//
+// N O T E   M A N A G E R
+//
 
 const int NoteManager_atomcount = 4;
 

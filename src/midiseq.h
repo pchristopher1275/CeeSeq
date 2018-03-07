@@ -17,8 +17,6 @@ struct IndexedOff_t;
 typedef struct IndexedOff_t IndexedOff;
 struct TimedOff_t;
 typedef struct TimedOff_t TimedOff;
-struct PendingNoteOff_t;
-typedef struct PendingNoteOff_t PendingNoteOff;
 struct NoteManager_t;
 typedef struct NoteManager_t NoteManager;
 struct PortFindCell_t;
@@ -250,35 +248,6 @@ static inline void TimedOff_setPitch(TimedOff *self, int value){self->pitch = va
 int TimedOff_cmpTime(TimedOff *left, TimedOff *right);
 #define TimedOff_declare(name, time, pitch) TimedOff name = {(time), (pitch)}
 #include "timedOffAr.h"
-
-// *** DO NOT MODIFY THIS FILE (see header.pl) ***
-struct PendingNoteOff_t 
-{
-    struct PendingNoteOff_t *next;
-    union {
-        Ticks timestamp;
-        int padIndex;
-    } ticksOrPadIndex;
-    int pitch;
-};
-#define PendingNoteOff_newUninitialized() ((PendingNoteOff*)sysmem_newptrclear(sizeof(PendingNoteOff)))
-#define PendingNoteOff_next(pno)      (pno)->next
-#define PendingNoteOff_timestamp(pno) (pno)->ticksOrPadIndex.timestamp
-#define PendingNoteOff_padIndex(pno)  (pno)->ticksOrPadIndex.padIndex 
-#define PendingNoteOff_pitch(pno)     (pno)->pitch
-#define PendingNoteOff_increment(pno) do { \
-    if (pno) { \
-        (pno) = PendingNoteOff_next(pno); \
-    } \
-} while (0)
-PendingNoteOff *PendingNoteOff_new();
-void PendingNoteOff_free(PendingNoteOff *node);
-bool PendingNoteOff_removePitch(PendingNoteOff **head, int pitch);
-void PendingNoteOff_removePadIndexed(PendingNoteOff **head, int padIndex, IntAr *pitchesRemoved);
-void PendingNoteOff_insertTimestamped(PendingNoteOff **head, int pitch, Ticks timestamp);
-void PendingNoteOff_insertPadIndexed(PendingNoteOff **head, int pitch, int padIndex);
-void PendingNoteOff_pop(PendingNoteOff **head);
-void PendingNoteOff_freeAll(PendingNoteOff *start);
 
 // *** DO NOT MODIFY THIS FILE (see header.pl) ***
 struct NoteManager_t

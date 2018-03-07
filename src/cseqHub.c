@@ -11,7 +11,6 @@
 #include "ext_time.h"
 #include "ext_itm.h"
 
-#include "stretchy_buffer.h"
 #include "core.c"
 #include "array.c"
 #include "ptrAr.h"
