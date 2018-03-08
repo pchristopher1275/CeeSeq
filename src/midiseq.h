@@ -62,7 +62,6 @@ struct BinFile_t
 };
 #define BinFile_newUninitialized() ((BinFile*)sysmem_newptrclear(sizeof(BinFile)))
 static inline int BinFile_version(BinFile *self){return self->version;}
-static inline void BinFile_setVersion(BinFile *self, int value){self->version = value;}
 static inline sds BinFile_filename(BinFile *self){return self->filename;}
 static inline void BinFile_setFilename(BinFile *self, sds value){self->filename = value;}
 static inline sds BinFile_buffer(BinFile *self){return self->buffer;}
@@ -146,12 +145,6 @@ static inline bool Midiseq_useMasterClock(Midiseq *self){return self->useMasterC
 static inline void Midiseq_setUseMasterClock(Midiseq *self, bool value){self->useMasterClock = value;}
 static inline Ticks Midiseq_sequenceLength(Midiseq *self){return self->sequenceLength;}
 static inline void Midiseq_setSequenceLength(Midiseq *self, Ticks value){self->sequenceLength = value;}
-static inline MEventAr Midiseq_events(Midiseq *self){return self->events;}
-static inline void Midiseq_setEvents(Midiseq *self, MEventAr value){self->events = value;}
-static inline Ticks Midiseq_startTime(Midiseq *self){return self->startTime;}
-static inline void Midiseq_setStartTime(Midiseq *self, Ticks value){self->startTime = value;}
-static inline int Midiseq_ptr(Midiseq *self){return self->ptr;}
-static inline void Midiseq_setPtr(Midiseq *self, int value){self->ptr = value;}
 Midiseq *Midiseq_new();
 void Midiseq_toBinFile(Midiseq *mseq, BinFile *bf, Error *err);
 Midiseq *Midiseq_fromBinFile(BinFile *bf, Error *err);
@@ -551,10 +544,6 @@ struct IndexedOff_t
     int pitch;
 };
 #define IndexedOff_newUninitialized() ((IndexedOff*)sysmem_newptrclear(sizeof(IndexedOff)))
-static inline int IndexedOff_padIndex(IndexedOff *self){return self->padIndex;}
-static inline void IndexedOff_setPadIndex(IndexedOff *self, int value){self->padIndex = value;}
-static inline int IndexedOff_pitch(IndexedOff *self){return self->pitch;}
-static inline void IndexedOff_setPitch(IndexedOff *self, int value){self->pitch = value;}
 #define IndexedOff_declare(name, padIndex, pitch) IndexedOff name = {(padIndex), (pitch)}
 int IndexedOff_cmpPadIndex(IndexedOff *left, IndexedOff *right);
 
@@ -724,10 +713,6 @@ struct TimedOff_t
     int pitch;
 };
 #define TimedOff_newUninitialized() ((TimedOff*)sysmem_newptrclear(sizeof(TimedOff)))
-static inline Ticks TimedOff_time(TimedOff *self){return self->time;}
-static inline void TimedOff_setTime(TimedOff *self, Ticks value){self->time = value;}
-static inline int TimedOff_pitch(TimedOff *self){return self->pitch;}
-static inline void TimedOff_setPitch(TimedOff *self, int value){self->pitch = value;}
 #define TimedOff_declare(name, time, pitch) TimedOff name = {(time), (pitch)}
 int TimedOff_cmpTime(TimedOff *left, TimedOff *right);
 
@@ -885,14 +870,6 @@ struct NoteManager_t
     t_atom *atoms;
 };
 #define NoteManager_newUninitialized() ((NoteManager*)sysmem_newptrclear(sizeof(NoteManager)))
-static inline TimedOffAr NoteManager_pending(NoteManager *self){return self->pending;}
-static inline void NoteManager_setPending(NoteManager *self, TimedOffAr value){self->pending = value;}
-static inline IndexedOffAr NoteManager_endgroups(NoteManager *self){return self->endgroups;}
-static inline void NoteManager_setEndgroups(NoteManager *self, IndexedOffAr value){self->endgroups = value;}
-static inline Port *NoteManager_output(NoteManager *self){return self->output;}
-static inline void NoteManager_setOutput(NoteManager *self, Port *value){self->output = value;}
-static inline t_atom *NoteManager_atoms(NoteManager *self){return self->atoms;}
-static inline void NoteManager_setAtoms(NoteManager *self, t_atom *value){self->atoms = value;}
 NoteManager *NoteManager_new(Port *port);
 void NoteManager_free(NoteManager *nm);
 bool NoteManager_insertNoteOff(NoteManager *manager, Ticks timestamp, int pitch, int padIndexForEndgroup);
@@ -913,10 +890,6 @@ struct PortFindCell_t
     t_symbol *varname;
 };
 #define PortFindCell_newUninitialized() ((PortFindCell*)sysmem_newptrclear(sizeof(PortFindCell)))
-static inline Port *PortFindCell_reciever(PortFindCell *self){return self->reciever;}
-static inline void PortFindCell_setReciever(PortFindCell *self, Port *value){self->reciever = value;}
-static inline t_symbol *PortFindCell_varname(PortFindCell *self){return self->varname;}
-static inline void PortFindCell_setVarname(PortFindCell *self, t_symbol *value){self->varname = value;}
 
 typedef struct PortFindCellAr_t {
     Array body;
@@ -1057,8 +1030,6 @@ struct PortFind_t
     Port_intDispatchFunc intDispatch;
 };
 #define PortFind_newUninitialized() ((PortFind*)sysmem_newptrclear(sizeof(PortFind)))
-static inline PortFindCellAr PortFind_objects(PortFind *self){return self->objects;}
-static inline void PortFind_setObjects(PortFind *self, PortFindCellAr value){self->objects = value;}
 static inline void *PortFind_hub(PortFind *self){return self->hub;}
 static inline void PortFind_setHub(PortFind *self, void *value){self->hub = value;}
 static inline Port_anythingDispatchFunc PortFind_anythingDispatch(PortFind *self){return self->anythingDispatch;}
@@ -1109,7 +1080,6 @@ struct Track_t
     NoteManager *noteManager;
 };
 #define Track_newUninitialized() ((Track*)sysmem_newptrclear(sizeof(Track)))
-static inline Symbol *Track_name(Track *self){return self->name;}
 static inline void Track_setName(Track *self, Symbol *value){self->name = value;}
 static inline NoteManager *Track_noteManager(Track *self){return self->noteManager;}
 static inline void Track_setNoteManager(Track *self, NoteManager *value){self->noteManager = value;}
@@ -1250,7 +1220,6 @@ struct TrackList_t
     TrackAr list;
 };
 #define TrackList_newUninitialized() ((TrackList*)sysmem_newptrclear(sizeof(TrackList)))
-static inline TrackAr *TrackList_list(TrackList *self){return &self->list;}
 TrackList *TrackList_new(PortFind *pf);
 void TrackList_init(TrackList *tl, PortFind *pf);
 void TrackList_clear(TrackList *tl);
@@ -1270,9 +1239,7 @@ struct PortRef_t
     int outlet;
 };
 static inline Port *PortRef_port(PortRef *self){return self->port;}
-static inline void PortRef_setPort(PortRef *self, Port *value){self->port = value;}
 static inline int PortRef_outlet(PortRef *self){return self->outlet;}
-static inline void PortRef_setOutlet(PortRef *self, int value){self->outlet = value;}
 
 
 
@@ -1293,8 +1260,6 @@ struct DropDown_t
     PortRef portRef;
 };
 #define DropDown_newUninitialized() ((DropDown*)sysmem_newptrclear(sizeof(DropDown)))
-static inline SymbolPtrAr *DropDown_table(DropDown *self){return &self->table;}
-static inline int DropDown_selected(DropDown *self){return self->selected;}
 DropDown *DropDown_new(const char **table, PortRef *pr);
 void DropDown_init(DropDown *dd, const char **table, PortRef *pr);
 void DropDown_initCGLocalGlobal(DropDown *dd, PortRef *pr);
@@ -1354,13 +1319,10 @@ static inline Port *Hub_selFramePort(Hub *self){return self->selFramePort;}
 static inline void Hub_setSelFramePort(Hub *self, Port *value){self->selFramePort = value;}
 static inline Port *Hub_selPadPort(Hub *self){return self->selPadPort;}
 static inline void Hub_setSelPadPort(Hub *self, Port *value){self->selPadPort = value;}
-static inline Port *Hub_chokeGroupPort(Hub *self){return self->chokeGroupPort;}
-static inline void Hub_setChokeGroupPort(Hub *self, Port *value){self->chokeGroupPort = value;}
 static inline DropDown *Hub_cgLocalGlobalMenu(Hub *self){return &self->cgLocalGlobalMenu;}
 static inline DropDown *Hub_cgInstrumentMenu(Hub *self){return &self->cgInstrumentMenu;}
 static inline DropDown *Hub_cgIndexMenu(Hub *self){return &self->cgIndexMenu;}
 static inline int Hub_bank(Hub *self){return self->bank;}
-static inline void Hub_setBank(Hub *self, int value){self->bank = value;}
 static inline int Hub_frame(Hub *self){return self->frame;}
 static inline void Hub_setFrame(Hub *self, int value){self->frame = value;}
 static inline bool Hub_grabNextTappedPad(Hub *self){return self->grabNextTappedPad;}

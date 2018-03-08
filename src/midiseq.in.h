@@ -93,9 +93,11 @@ const int Midiseq_endgrptype = 5;
 
 @type
    {  
+      // FOO
       "typeName":"Midiseq",
       "fields":[  
          {  
+
             "group":"persist"
          },
          {  

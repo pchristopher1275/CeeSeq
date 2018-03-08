@@ -84,17 +84,6 @@ sub xcodebuild {
 
 sub buildHeaders {
     run "$gHome/script/generate.pl src";
-    # run "$gHome/script/header.pl > $gHome/src/midiseq.h";
-    # run "$gHome/script/array.pl $gHome/src/mEventAr.json > $gHome/src/mEventAr.h";
-    # run "$gHome/script/array.pl $gHome/src/portFindCellAr.json > $gHome/src/portFindCellAr.h";
-    # run "$gHome/script/array.pl $gHome/src/padAr.json > $gHome/src/padAr.h";
-    # run "$gHome/script/array.pl $gHome/src/padPtrAr.json > $gHome/src/padPtrAr.h";
-    # run "$gHome/script/array.pl $gHome/src/trackAr.json > $gHome/src/trackAr.h";
-    # run "$gHome/script/array.pl $gHome/src/symbolPtrAr.json > $gHome/src/symbolPtrAr.h";
-    # run "$gHome/script/array.pl $gHome/src/intAr.json > $gHome/src/intAr.h";
-    # run "$gHome/script/array.pl $gHome/src/ptrAr.json > $gHome/src/ptrAr.h";
-    # run "$gHome/script/array.pl $gHome/src/indexedOffAr.json > $gHome/src/indexedOffAr.h";
-    # run "$gHome/script/array.pl $gHome/src/timedOffAr.json > $gHome/src/timedOffAr.h";
 }
 
 sub findBuildNumber {

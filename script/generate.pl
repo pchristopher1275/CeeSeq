@@ -4,8 +4,7 @@ use lib "$ENV{HOME}/CeeSeq/script/lib";
 use JSON::Tiny qw(decode_json encode_json);
 use Data::Dumper;
 
-my $gVerbose = 1;
-
+my $gVerbose   = 1;
 sub run {
     my ($cmd, %opts) = @_;
     print "$cmd\n" if $gVerbose;
@@ -88,7 +87,6 @@ END
 
 sub writePredefined {
 	my ($out, $config) = @_;
-	print Dumper($config), "\n";
 	print {$out}<<END;
 struct $config->{typeName}_t;
 typedef struct $config->{typeName}_t $config->{typeName};
@@ -126,10 +124,19 @@ sub setNameFromFieldName {
 	return 'set' . uc($first) . $rest;
 }
 
+sub usedCall {
+	my ($usedCalls, $className, $methodName) = @_;
+	return $usedCalls->{$className}{$methodName};
+}
+
 sub writeAccessor {
-	my ($out, $config) = @_;
-	my $typeName = $config->{typeName};
-	for my $field (@{$config->{fields}}) {
+	my ($out, $class, $usedCalls) = @_;
+	my $typeName     = $class->{typeName};
+	my $used = sub {
+		my ($method) = @_;
+		return usedCall($usedCalls, $class->{typeName}, $method);
+	};
+	for my $field (@{$class->{fields}}) {
 		if (defined($field->{group})) {
 			next;
 		}
@@ -144,41 +151,43 @@ sub writeAccessor {
 		}
 		my $stype = spaceAdjustType($rtype);
 
-		if (defined($getter)) {			
-			if ($getter eq 'proto') {
-				print {$out}<<END;
+		if ($used->($field->{name})) {
+			if (defined($getter)) {			
+				if ($getter eq 'proto') {
+					print {$out}<<END;
 ${stype}${typeName}_$field->{name}($typeName *self);
 END
-		 	} elsif ($getter eq 'none') {
-		 		## Nothing
-		 	} else {
-		 		die "INTERNAL ERROR";
-		 	}
-		} else {
-			print {$out}<<END;
+			 	} elsif ($getter eq 'none') {
+			 		## Nothing
+			 	} else {
+			 		die "INTERNAL ERROR";
+			 	}
+			} else {
+				print {$out}<<END;
 static inline ${stype}${typeName}_$field->{name}($typeName *self){return ${maybeAmper}self->$field->{name};}
 END
+			}
 		}
 
 		my $setter = $field->{setter}; 
 		my $setName = setNameFromFieldName($field->{name});
-		if (defined($setter)) {	
-			if ($setter eq 'proto') {		
-				print {$out}<<END;
+		if ($used->($setName)) {
+			if (defined($setter)) {	
+				if ($setter eq 'proto') {		
+					print {$out}<<END;
 void ${typeName}_${setName}($typeName *self, ${stype}value);
 END
-			} elsif ($setter eq 'none') {
-				## Do nothing
+				} elsif ($setter eq 'none') {
+					## Do nothing
+				} else {
+					die "INTERNAL ERROR";
+				}
 			} else {
-				die "INTERNAL ERROR";
-			}
-		} else {
-			print {$out}<<END;
+				print {$out}<<END;
 static inline void ${typeName}_${setName}($typeName *self, ${stype}value){self->$field->{name} = value;}
 END
+			}
 		}
-
-
 	}
 }
 
@@ -224,6 +233,9 @@ sub scanUntilAtEnd {
 		$line++;
 		chomp;
 
+		## Remove C++ comments from the line
+		s[//.*][];
+
 		if (/^\@end/) {
 			$found = 1;
 			last;
@@ -249,7 +261,9 @@ sub scanInDotH {
 	$cfg->{line} = 0;
 	while (<$inp>) {
 		$cfg->{line}++;
-		if (/^\@type\s/) {
+		chomp;
+				
+		if (/^\@type/) {
 			$cfg->{lastAtType} = $cfg->{line};
 			my $text = scanUntilAtEnd($cfg);
 			$typeCallback->($cfg, $text);
@@ -297,16 +311,17 @@ sub writeClassFromAtType {
 	if ($@) {
 		die "Failed to decode json for type starting at $cfg->{lastAtType}";
 	}
-	my $out  = $cfg->{out};
-	my $apif = $cfg->{apif};
-	my $file = $cfg->{file};
+	my $out       = $cfg->{out};
+	my $apif      = $cfg->{apif};
+	my $file      = $cfg->{file};
+	my $usedCalls = $cfg->{usedCalls};
 	writeWarning($out, $file);
 	writeStruct($out, $class);
 	writeNewUnitialized($out, $class) unless $class->{noNewUnitialized};
 	if (defined($class->{preAccessor})) {
 		$class->{preAccessor}($out);
 	}
-	writeAccessor($out, $class);
+	writeAccessor($out, $class, $usedCalls);
 	if (defined($class->{postAccessor})) {
 		$class->{postAccessor}($out);
 	}
@@ -329,12 +344,12 @@ sub writeClassFromAtType {
 sub writeOrdinaryLine {
 	my ($cfg, $line) = @_;
 	my $out = $cfg->{out};
-	print {$out} $line;
+	print {$out} $line, "\n";
 }
 
 sub writeAllClassesFromFile {
-	my ($out, $file, $apif) = @_;
-	my $cfg = {out=>$out, file=>$file, typeCallback=>\&writeClassFromAtType, notTypeCallback=>\&writeOrdinaryLine, apif=>$apif};
+	my ($out, $file, $apif, $usedCalls) = @_;
+	my $cfg = {out=>$out, file=>$file, typeCallback=>\&writeClassFromAtType, notTypeCallback=>\&writeOrdinaryLine, apif=>$apif, usedCalls=>$usedCalls};
 	scanInDotH($cfg);
 }
 
@@ -613,13 +628,48 @@ sub collectAllClasses {
 }
 
 sub processTemplateHeader {
-	my ($out, $templateHeader) = @_;
+	my ($out, $templateHeader, $usedCalls) = @_;
 	my $cFile = $templateHeader;
 	if ($cFile !~ s/\.in\.h$/.c/) {
 		die "generate.pl was passed a bad file name '$templateHeader'";
 	}
 	my $apif = scanAPIF($cFile);
-	writeAllClassesFromFile($out, $templateHeader, $apif);
+	writeAllClassesFromFile($out, $templateHeader, $apif, $usedCalls);
+}
+
+
+my %extraUsedCalls = (
+	## These guys are embedded in a define in a header
+	PortRef => {port => 1, outlet => 1},
+);
+
+sub collectUsedCalls {
+	my ($cFiles) = @_;
+	my %used = %extraUsedCalls;
+	for my $source (@$cFiles) {
+		open my $fd, $source or die "Failed to open $source";
+		while (<$fd>) {
+			next if /^\s*APIF/;
+			
+			while(/([[:alpha:]][[:alnum:]]*)_([[:alpha:]][[:alnum:]]*)(?:\b|$)\(/ag) {
+				my $className  = $1;
+				my $methodName = $2;
+				my $methods    = $used{$className};
+	  			if (!defined($methods)) {
+	  				$methods = {};
+	  				$used{$className} = $methods;
+	  			}
+	  			$methods->{$methodName} = 1;
+			}	 
+		}
+		close($fd);
+	}
+	return \%used;
+}
+
+sub collectAllUsedCalls {
+	my ($cFiles) = @_;
+	my %used;
 }
 
 sub main {
@@ -631,6 +681,8 @@ sub main {
 	}
 
 	my $allClasses = collectAllClasses($templateHeaders);
+	my $usedCalls  = collectUsedCalls($cFiles);
+	
 	for my $templateHeader (@$templateHeaders) {
 		my $header = $templateHeader;
 		if ($header !~ s/\.in\.h$/.h/) {
@@ -646,7 +698,7 @@ sub main {
 			writePredefined($out, $allClasses->{classes}{$className});		
 		}
 
-		processTemplateHeader($out, $templateHeader);
+		processTemplateHeader($out, $templateHeader, $usedCalls);
 		close($out);
 	}
 }	
