@@ -5,8 +5,8 @@ use JSON::Tiny qw(decode_json encode_json);
 use Data::Dumper;
 
 sub writeWarning {
-	my ($out) = @_;
-	print {$out} "// *** DO NOT MODIFY THIS FILE (see header.pl) ***\n";
+	my ($out, $srcFile) = @_;
+	print {$out} "// *** DO NOT MODIFY THIS FILE (see $srcFile) ***\n";
 }
 
 sub writeStruct {
@@ -193,14 +193,13 @@ sub scanUntilAtEnd {
 	my @text;
 	while (<$inp>) {
 		$line++;
-		print "$line: $_";
-		s/\n$/ /;
+		chomp;
 
-		if (/^\@end\s/) {
+		if (/^\@end/) {
 			$found = 1;
 			last;
 		}
-		if (/^\@type\s/) {
+		if (/^\@type/) {
 			die "Failed to find \@end while processing \@type at line $start and failing on line $line";
 		}
 		push @text, $_;
@@ -215,6 +214,7 @@ sub scanUntilAtEnd {
 sub scanInDotH {
 	my ($cfg) = @_;
 	my ($file, $typeCallback, $notTypeCallback) = ($cfg->{file}, $cfg->{typeCallback}, $cfg->{notTypeCallback});
+	die "INTERNAL ERROR" unless defined($file) && defined($typeCallback) && defined($notTypeCallback);
 	open my $inp, "<", $file or die "Failed to open $file";
 	$cfg->{inp}  = $inp;
 	$cfg->{line} = 0;
@@ -230,7 +230,7 @@ sub scanInDotH {
 	}
 	delete($cfg->{inp});
 	delete($cfg->{line});
-	close($fd);
+	close($inp);
 }
 
 sub collectClassFromAtType {
@@ -268,8 +268,8 @@ sub writeClassFromAtType {
 	}
 	my $out  = $cfg->{out};
 	my $apif = $cfg->{apif};
-
-	writeWarning($out);
+	my $file = $cfg->{file};
+	writeWarning($out, $file);
 	writeStruct($out, $class);
 	writeNewUnitialized($out, $class) unless $class->{noNewUnitialized};
 	if (defined($class->{preAccessor})) {
@@ -289,12 +289,12 @@ sub writeClassFromAtType {
 sub writeOrdinaryLine {
 	my ($cfg, $line) = @_;
 	my $out = $cfg->{out};
-	print {$fd} $line, "\n";
+	print {$out} $line;
 }
 
 sub writeAllClassesFromFile {
-	my ($out, $file) = @_;
-	my $cfg = {out=>$out, file=>$file, typeCallback=>\&writeClassFromAtType, notTypeCallback=>\&writeOrdinaryLine};
+	my ($out, $file, $apif) = @_;
+	my $cfg = {out=>$out, file=>$file, typeCallback=>\&writeClassFromAtType, notTypeCallback=>\&writeOrdinaryLine, apif=>$apif};
 	scanInDotH($cfg);
 }
 
@@ -308,48 +308,17 @@ sub main {
 	$cFile =~ s/\.in\.h$/.c/;
 
 	
-	my $classes = collectAllClassesFromFile();
+	my $classes = collectAllClassesFromFile($srcFile);
 	my $apif    = scanAPIF($cFile);
-	
+		
 
 	open my $out, ">", $dstFile or die "Failed to open $dstFile";
-	writeWarning($out);
+	writeWarning($out, $srcFile);
 	for my $class (@$classes) {
 		writePredefined($out, $class);		
 	}
-	writeAllClassesFromFile($out, $srcFile);
+	writeAllClassesFromFile($out, $srcFile, $apif);
 	close($out);
-
-
-	# ## Predefined
-	# for my $class (@classes) {
-	# 	writePredefined($out, $class);		
-	# }
-	# print {$out} "\n\n";
-
-	## Structs
-	# for my $class (@classes) {
-	# 	writeWarning($out);
-	# 	writeStruct($out, $class);
-	# 	writeNewUnitialized($out, $class) unless $class->{noNewUnitialized};
-	# 	if (defined($class->{preAccessor})) {
-	# 		$class->{preAccessor}($out);
-	# 	}
-	# 	writeAccessor($out, $class);
-	# 	if (defined($class->{postAccessor})) {
-	# 		$class->{postAccessor}($out);
-	# 	}
-	# 	writeAPIFForType($apif, $out, $class->{typeName});
-	# 	if (defined($class->{argDeclare})) {
-	# 		writeArgDeclare($out, $class);
-	# 	}
-	# 	if (defined($class->{includes})) {
-	# 		for my $i (@{$class->{includes}}) {
-	# 			printf {$out} "#include \"%s\"\n", $i;
-	# 		}
-	# 	}
-	# 	print {$out} "\n";
-	# }	
 }	
 
 main();
