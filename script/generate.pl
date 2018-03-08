@@ -4,6 +4,34 @@ use lib "$ENV{HOME}/CeeSeq/script/lib";
 use JSON::Tiny qw(decode_json encode_json);
 use Data::Dumper;
 
+my $gVerbose = 1;
+
+sub run {
+    my ($cmd, %opts) = @_;
+    print "$cmd\n" if $gVerbose;
+    if (system $cmd) {
+        die "Failed '$cmd'" unless $opts{noexit};
+    }
+}
+
+sub backtick {
+    my ($cmd) = @_;
+    if (wantarray) {
+        my @a = `$cmd`;
+        if ($?) {
+            die "Failed '$cmd'";
+        }
+        return @a;
+    } else {
+        my $buffer = `$cmd`;
+        if ($?) {
+            die "Failed '$cmd'";
+        }
+        return $buffer;
+    }
+}
+
+
 sub writeWarning {
 	my ($out, $srcFile) = @_;
 	print {$out} "// *** DO NOT MODIFY THIS FILE (see $srcFile) ***\n";
@@ -60,6 +88,7 @@ END
 
 sub writePredefined {
 	my ($out, $config) = @_;
+	print Dumper($config), "\n";
 	print {$out}<<END;
 struct $config->{typeName}_t;
 typedef struct $config->{typeName}_t $config->{typeName};
@@ -549,7 +578,7 @@ END
 sub filesInDirectory {
 	my ($srcDir) = @_;
 	$srcDir =~ s[/$][];
-	my @lines = backtick "ls $srcDir";
+	my @lines = backtick "ls $srcDir/*";
 	my @templateHeaders;
 	my @cFiles;
 	for my $line (@lines) {
@@ -572,7 +601,7 @@ sub collectAllClasses {
 		my $headerClasses = collectAllClassesFromFile($header);	
 		$classOrder{$header} = [];
 		for my $class (@$headerClasses) {
-			if (defined($classes{$class->{typeName}}})) {
+			if (defined($classes{$class->{typeName}})) {
 				my $otherClass = $classes{$class->{typeName}};
 				die "Found the same typeName in two files: '$otherClass->{srcFile}' and '$class->{srcFile}'";
 			}
@@ -600,6 +629,7 @@ sub main {
 	if (@$templateHeaders <= 0) {
 		die "No templates found in directory $srcDir"
 	}
+
 	my $allClasses = collectAllClasses($templateHeaders);
 	for my $templateHeader (@$templateHeaders) {
 		my $header = $templateHeader;
@@ -613,7 +643,7 @@ sub main {
 		my $order = $allClasses->{file2ClassOrder}{$templateHeader};
 		die "INTERNAL ERROR" unless defined($order);
 		for my $className (@$order) {
-			writePredefined($out, $class);		
+			writePredefined($out, $allClasses->{classes}{$className});		
 		}
 
 		processTemplateHeader($out, $templateHeader);
