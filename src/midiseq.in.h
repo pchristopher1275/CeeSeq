@@ -2,15 +2,6 @@
 #define APIF /**/
 sds stripBaseName(const char *path);
 
-#define BinFile_nullLengthFieldSizeStr "11"
-#define BinFile_maxLength              2147483647
-#define BinFileFlag_tag                1
-static inline PortFind *BinFile_portFindPayload(BinFile *self){ return (self->payload == NULL ? NULL : self->payload->portFind); }
-static inline void BinFile_setPayload(BinFile *self, BinFilePayload *payload) { self->payload = payload;}
-#define BinFile_writeBackLength(bf, location, err) BinFile_writeBackLengthFlags(bf, location, -1, err)
-#define BinFile_readLength(bf, err) BinFile_readLengthFlags(bf, NULL, err)
-#define BinFile_writeLength(bf, length, err) BinFile_writeLengthFlags(bf, length, -1, err)
-
 @type
    {  
       "typeName": "BinFilePayload",
@@ -27,6 +18,13 @@ static inline void BinFile_setPayload(BinFile *self, BinFilePayload *payload) { 
       ]
    }
 @end
+
+#define BinFile_nullLengthFieldSizeStr "11"
+#define BinFile_maxLength              2147483647
+#define BinFileFlag_tag                1
+#define BinFile_writeBackLength(bf, location, err) BinFile_writeBackLengthFlags(bf, location, -1, err)
+#define BinFile_readLength(bf, err) BinFile_readLengthFlags(bf, NULL, err)
+#define BinFile_writeLength(bf, length, err) BinFile_writeLengthFlags(bf, length, -1, err)
 
 @type
    {  
@@ -61,6 +59,8 @@ static inline void BinFile_setPayload(BinFile *self, BinFilePayload *payload) { 
    }
 @end
 
+static inline PortFind *BinFile_portFindPayload(BinFile *self){ return (self->payload == NULL ? NULL : self->payload->portFind); }
+static inline void BinFile_setPayload(BinFile *self, BinFilePayload *payload) { self->payload = payload;}
 
 typedef struct MEvent_t
 {
@@ -130,6 +130,72 @@ const int Midiseq_endgrptype = 5;
    }
 @end
 
+// @type
+//    {  
+//       "typeName":"NoteEvent",
+//       "fields":[  
+//          {  
+//             "name":"type",
+//             "type":"uint8_t"
+//          },
+//          {  
+//             "name":"pitch",
+//             "type":"uint8_t"
+//          },
+//          {  
+//             "name":"velocity",
+//             "type":"uint8_t"
+//          },
+//          {  
+//             "name":"t",
+//             "type":"Ticks"
+//          },
+//          {  
+//             "name":"duration",
+//             "type":"Ticks"
+//          },
+//       ],
+//       "containers": [
+//          {"type": "array", "typename": "NoteEventAr", "elemname": "NoteEvent"}
+//       ]      
+//    }
+// @end
+
+// @type
+//    {  
+//       "typeName":"NoteSequence",
+//       "fields":[  
+//          {  
+//             "group":"persist"
+//          },
+//          {  
+//             "name":"useMasterClock",
+//             "type":"bool"
+//          },
+//          {  
+//             "name":"sequenceLength",
+//             "type":"Ticks"
+//          },
+//          {  
+//             "name":"events",
+//             "type":"NoteEventAr"
+//          },
+//          {  
+//             "group":"noPersist"
+//          },
+//          {  
+//             "name":"startTime",
+//             "type":"Ticks"
+//          },
+//          {  
+//             "name":"ptr",
+//             "type":"int"
+//          }
+//       ]      
+//    }
+// @end
+
+
 @type
    {  
       "typeName": "Pad",
@@ -181,12 +247,13 @@ const int Midiseq_endgrptype = 5;
             "name":"track",
             "type":"Track *"
          }
+      ],
+      "containers": [
+         {"type": "array", "typename": "PadAr", "elemname": "Pad"},
+         {"type": "array", "typename": "PadPtrAr", "elemname": "Pad *"}
       ]
    }
 @end
-
-#include "padAr.h"
-#include "padPtrAr.h"
 
 @type
    {  
@@ -201,10 +268,19 @@ const int Midiseq_endgrptype = 5;
             "name":"pitch",
             "type":"int"
          }
+      ],
+      "containers": [
+         {
+            "type": "array",
+            "typename": "IndexedOffAr", 
+            "elemname": "IndexedOff",
+            "binarySearch": [
+               {"compare": "IndexedOff_cmpPadIndex", "multi": true, "tag": "PadIndex"}
+            ]
+         }
       ]
    }
 @end
-#include "indexedOffAr.h"
 
 @type
    {  
@@ -219,11 +295,19 @@ const int Midiseq_endgrptype = 5;
             "name":"pitch",
             "type":"int"
          }
+      ],
+      "containers": [
+         {
+            "type": "array",
+            "typename": "TimedOffAr", 
+            "elemname": "TimedOff",
+            "binarySearch": [
+               {"compare": "TimedOff_cmpTime", "multi": false, "tag": "Time"}
+            ]
+         }
       ]
    }
 @end
-#include "timedOffAr.h"
-
 
 @type
    {  
@@ -267,10 +351,16 @@ const int Midiseq_endgrptype = 5;
             "name":"varname",
             "type":"t_symbol *"
          }
+      ],
+      "containers": [
+         {
+            "type": "array",
+            "typename": "PortFindCellAr", 
+            "elemname": "PortFindCell"
+         }
       ]
    }
 @end
-#include "portFindCellAr.h"
 
 @type
    {  
@@ -333,11 +423,17 @@ const int Midiseq_endgrptype = 5;
             "name":"noteManager",
             "type":"NoteManager *"
          }
+      ],
+      "containers": [
+         {
+            "type": "array",
+            "typename": "TrackAr", 
+            "elemname": "Track"
+         }
       ]
    }
 @end
 
-#include "trackAr.h"
 
 @type
    {  
