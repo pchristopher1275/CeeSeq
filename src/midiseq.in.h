@@ -7,9 +7,6 @@ sds stripBaseName(const char *path);
       "typeName": "BinFilePayload",
       "fields":[  
          {  
-            "group":"noPersist"
-         },
-         {  
             "getter":"none",
             "name":"portFind",
             "setter":"none",
@@ -30,9 +27,6 @@ sds stripBaseName(const char *path);
    {  
       "typeName": "BinFile",
       "fields":[  
-         {  
-            "group":"noPersist"
-         },
          {  
             "name":"version",
             "type":"int"
@@ -97,10 +91,6 @@ const int Midiseq_endgrptype = 5;
       "typeName":"Midiseq",
       "fields":[  
          {  
-
-            "group":"persist"
-         },
-         {  
             "name":"useMasterClock",
             "type":"bool"
          },
@@ -111,9 +101,6 @@ const int Midiseq_endgrptype = 5;
          {  
             "name":"events",
             "type":"MEventAr"
-         },
-         {  
-            "group":"noPersist"
          },
          {  
             "comment":[  
@@ -168,9 +155,6 @@ const int Midiseq_endgrptype = 5;
 //       "typeName":"NoteSequence",
 //       "fields":[  
 //          {  
-//             "group":"persist"
-//          },
-//          {  
 //             "name":"useMasterClock",
 //             "type":"bool"
 //          },
@@ -181,9 +165,6 @@ const int Midiseq_endgrptype = 5;
 //          {  
 //             "name":"events",
 //             "type":"NoteEventAr"
-//          },
-//          {  
-//             "group":"noPersist"
 //          },
 //          {  
 //             "name":"startTime",
@@ -203,9 +184,6 @@ const int Midiseq_endgrptype = 5;
       "typeName": "Pad",
       "fields":[  
          {  
-            "group":"persist"
-         },
-         {  
             "name":"trackName",
             "type":"t_symbol *"
          },
@@ -215,7 +193,7 @@ const int Midiseq_endgrptype = 5;
          },
          {  
             "name":"sequence",
-            "setter":"proto",
+            "setter":"none",
             "type":"Midiseq *"
          },
          {  
@@ -229,9 +207,6 @@ const int Midiseq_endgrptype = 5;
          {  
             "name":"chokeGroupIndex",
             "type":"int"
-         },
-         {  
-            "group":"noPersist"
          },
          {  
             "name":"chokeGroup",
@@ -257,10 +232,11 @@ const int Midiseq_endgrptype = 5;
    }
 @end
 
+
 @type
    {  
       "typeName": "IndexedOff",
-      "argDeclare":1,
+      "argDeclare": 1,
       "fields":[  
          {  
             "name":"padIndex",
@@ -316,9 +292,6 @@ const int Midiseq_endgrptype = 5;
       "typeName":"NoteManager",
       "fields":[  
          {  
-            "group":"noPersist"
-         },
-         {  
             "name":"pending",
             "type":"TimedOffAr"
          },
@@ -343,9 +316,6 @@ const int Midiseq_endgrptype = 5;
       "typeName":"PortFindCell",
       "fields":[  
          {  
-            "group":"noPersist"
-         },
-         {  
             "name":"reciever",
             "type":"Port *"
          },
@@ -368,9 +338,6 @@ const int Midiseq_endgrptype = 5;
    {  
       "typeName": "PortFind",
       "fields":[  
-         {  
-            "group":"noPersist"
-         },
          {  
             "name":"objects",
             "type":"PortFindCellAr"

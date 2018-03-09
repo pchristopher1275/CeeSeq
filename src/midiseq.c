@@ -811,7 +811,7 @@ APIF void Pad_clear(Pad *pad)
 
 
 
-void Pad_setSequence(Pad *pad, Midiseq *midi)
+APIF void Pad_setSequence(Pad *pad, Midiseq *midi)
 {
     if (Pad_sequence(pad) != NULL) {
         Midiseq_free(Pad_sequence(pad));
