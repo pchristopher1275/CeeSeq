@@ -267,89 +267,71 @@ void Pad_computeChokeGroup(Pad *pad);
 typedef struct PadAr_t {
     Array body;
 } PadAr;
-
 typedef struct PadArIter_t {
    PadAr *arr;
    int index;
    bool last;
    Pad *var;
 } PadArIter;
-static inline void PadAr_init(PadAr *arr, int nelems) {
-    Array_init((Array*)arr, nelems, sizeof(Pad), (Array_clearElement)NULL);
-}
-
 static inline void PadAr_clear(PadAr *arr) {
     Array_clear((Array*)arr);
     PadAr zero = {{0}};
     *arr = zero;
 }
-
-static inline int PadAr_len(PadAr *arr) {
-    return Array_len((Array*)arr);
+static inline void PadAr_fit(PadAr *arr) {
+    Array_fit((Array*)arr);
 }
-
+#define PadAr_foreach(var, arr)  for (PadArIter_declare(var, arr); PadArIter_next(&var); )            
 static inline Pad *PadAr_getp(PadAr *arr, int index, Error *err) {
     Array_getCheck(arr, index, NULL, err);
     return (Pad *)Array_get((Array*)arr, index);
 }
-
+static inline void PadAr_init(PadAr *arr, int nelems) {
+    Array_init((Array*)arr, nelems, sizeof(Pad), (Array_clearElement)NULL);
+}
+static inline int PadAr_len(PadAr *arr) {
+    return Array_len((Array*)arr);
+}
 static inline void PadAr_push(PadAr *arr, Pad elem) {
     Pad *p = (Pad *)Array_pushN((Array*)arr, 1);
     *p = elem;
     return; 
-}
-
-static inline void PadAr_fit(PadAr *arr) {
-    Array_fit((Array*)arr);
-}
-
+}            
+#define PadArIter_declare(var, arr)  PadArIter var = {arr, -1, false, NULL}            
 static inline bool PadArIter_next(PadArIter *iterator) {
     return ArrayIter_next((ArrayIter*)iterator);
 }
-
-#define PadArIter_declare(var, arr)  PadArIter var = {arr, -1, false, NULL}
-
-#define PadAr_foreach(var, arr)  for (PadArIter_declare(var, arr); PadArIter_next(&var); )
-
 typedef struct PadPtrAr_t {
     Array body;
 } PadPtrAr;
-
 typedef struct PadPtrArIter_t {
    PadPtrAr *arr;
    int index;
    bool last;
    Pad **var;
 } PadPtrArIter;
-static inline void PadPtrAr_init(PadPtrAr *arr, int nelems) {
-    Array_init((Array*)arr, nelems, sizeof(Pad *), (Array_clearElement)NULL);
-}
-
 static inline void PadPtrAr_clear(PadPtrAr *arr) {
     Array_clear((Array*)arr);
     PadPtrAr zero = {{0}};
     *arr = zero;
 }
-
+#define PadPtrAr_foreach(var, arr)  for (PadPtrArIter_declare(var, arr); PadPtrArIter_next(&var); )            
+static inline void PadPtrAr_init(PadPtrAr *arr, int nelems) {
+    Array_init((Array*)arr, nelems, sizeof(Pad *), (Array_clearElement)NULL);
+}
 static inline void PadPtrAr_push(PadPtrAr *arr, Pad *elem) {
     Pad * *p = (Pad **)Array_pushN((Array*)arr, 1);
     *p = elem;
     return; 
-}
-
+}            
 static inline void PadPtrAr_remove(PadPtrAr *arr, int index, Error *err) {
     Array_removeNCheck(arr, index, 1, err);
     Array_removeN((Array*)arr, index, 1);
-}
-
+}    
+#define PadPtrArIter_declare(var, arr)  PadPtrArIter var = {arr, -1, false, NULL}            
 static inline bool PadPtrArIter_next(PadPtrArIter *iterator) {
     return ArrayIter_next((ArrayIter*)iterator);
 }
-
-#define PadPtrArIter_declare(var, arr)  PadPtrArIter var = {arr, -1, false, NULL}
-
-#define PadPtrAr_foreach(var, arr)  for (PadPtrArIter_declare(var, arr); PadPtrArIter_next(&var); )
-
 
 
 
@@ -365,60 +347,47 @@ int IndexedOff_cmpPadIndex(IndexedOff *left, IndexedOff *right);
 typedef struct IndexedOffAr_t {
     Array body;
 } IndexedOffAr;
-
-typedef struct IndexedOffArIter_t {
-   IndexedOffAr *arr;
-   int index;
-   bool last;
-   IndexedOff *var;
-} IndexedOffArIter;
-static inline void IndexedOffAr_init(IndexedOffAr *arr, int nelems) {
-    Array_init((Array*)arr, nelems, sizeof(IndexedOff), (Array_clearElement)NULL);
-}
-
-static inline void IndexedOffAr_clear(IndexedOffAr *arr) {
-    Array_clear((Array*)arr);
-    IndexedOffAr zero = {{0}};
-    *arr = zero;
-}
-
-static inline void IndexedOffAr_truncate(IndexedOffAr *arr) {
-    Array_truncate((Array*)arr);
-}
-
-static inline void IndexedOffAr_remove(IndexedOffAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}
-
-static inline bool IndexedOffArIter_next(IndexedOffArIter *iterator) {
-    return ArrayIter_next((ArrayIter*)iterator);
-}
-
-#define IndexedOffArIter_declare(var, arr)  IndexedOffArIter var = {arr, -1, false, NULL}
-
-#define IndexedOffAr_foreach(var, arr)  for (IndexedOffArIter_declare(var, arr); IndexedOffArIter_next(&var); )
-
 typedef struct IndexedOffArSlice_t {
     int len;
     IndexedOff *data;
     int index;
     IndexedOff *var;
 } IndexedOffArSlice;
-#define IndexedOffAr_declareSlice(name) IndexedOffArSlice name = {0}
-
+typedef struct IndexedOffArIter_t {
+   IndexedOffAr *arr;
+   int index;
+   bool last;
+   IndexedOff *var;
+} IndexedOffArIter;
+static inline void IndexedOffAr_clear(IndexedOffAr *arr) {
+    Array_clear((Array*)arr);
+    IndexedOffAr zero = {{0}};
+    *arr = zero;
+}
+#define IndexedOffAr_declareSlice(name) IndexedOffArSlice name = {0}            
+#define IndexedOffAr_foreach(var, arr)  for (IndexedOffArIter_declare(var, arr); IndexedOffArIter_next(&var); )            
+static inline void IndexedOffAr_init(IndexedOffAr *arr, int nelems) {
+    Array_init((Array*)arr, nelems, sizeof(IndexedOff), (Array_clearElement)NULL);
+}
+static inline void IndexedOffAr_remove(IndexedOffAr *arr, int index, Error *err) {
+    Array_removeNCheck(arr, index, 1, err);
+    Array_removeN((Array*)arr, index, 1);
+}    
 #define IndexedOffAr_sliceEmpty(slice) (slice.data == NULL)
-
 #define IndexedOffAr_sliceForeach(slice) for (slice.index=0, slice.var=slice.data; slice.index < slice.len; slice.index++, slice.var++)
-
+static inline void IndexedOffAr_truncate(IndexedOffAr *arr) {
+    Array_truncate((Array*)arr);
+}
+#define IndexedOffArIter_declare(var, arr)  IndexedOffArIter var = {arr, -1, false, NULL}            
+static inline bool IndexedOffArIter_next(IndexedOffArIter *iterator) {
+    return ArrayIter_next((ArrayIter*)iterator);
+}
 static inline void IndexedOffAr_binInsertPadIndex(IndexedOffAr *arr, IndexedOff elem) {
     Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)IndexedOff_cmpPadIndex, true);
-}
-
+}            
 static inline void IndexedOffAr_binRemovePadIndex(IndexedOffAr *arr, IndexedOff elem) {
     Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)IndexedOff_cmpPadIndex, true);
-}
-
+}        
 static inline IndexedOffArSlice IndexedOffAr_binSearchPadIndex(IndexedOffAr *arr, IndexedOff elem) {
     IndexedOffArSlice slice = {0};
     Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)IndexedOff_cmpPadIndex, (ArraySlice*)&slice);
@@ -438,49 +407,39 @@ int TimedOff_cmpTime(TimedOff *left, TimedOff *right);
 typedef struct TimedOffAr_t {
     Array body;
 } TimedOffAr;
-
 typedef struct TimedOffArIter_t {
    TimedOffAr *arr;
    int index;
    bool last;
    TimedOff *var;
 } TimedOffArIter;
-static inline void TimedOffAr_init(TimedOffAr *arr, int nelems) {
-    Array_init((Array*)arr, nelems, sizeof(TimedOff), (Array_clearElement)NULL);
-}
-
 static inline void TimedOffAr_clear(TimedOffAr *arr) {
     Array_clear((Array*)arr);
     TimedOffAr zero = {{0}};
     *arr = zero;
 }
-
-static inline void TimedOffAr_truncate(TimedOffAr *arr) {
-    Array_truncate((Array*)arr);
+#define TimedOffAr_foreach(var, arr)  for (TimedOffArIter_declare(var, arr); TimedOffArIter_next(&var); )            
+static inline void TimedOffAr_init(TimedOffAr *arr, int nelems) {
+    Array_init((Array*)arr, nelems, sizeof(TimedOff), (Array_clearElement)NULL);
 }
-
 static inline void TimedOffAr_remove(TimedOffAr *arr, int index, Error *err) {
     Array_removeNCheck(arr, index, 1, err);
     Array_removeN((Array*)arr, index, 1);
-}
-
+}    
 static inline void TimedOffAr_removeN(TimedOffAr *arr, int index, int N, Error *err) {
     Array_removeNCheck(arr, index, N, err);
     Array_removeN((Array*)arr, index, N);
 }
-
+static inline void TimedOffAr_truncate(TimedOffAr *arr) {
+    Array_truncate((Array*)arr);
+}
+#define TimedOffArIter_declare(var, arr)  TimedOffArIter var = {arr, -1, false, NULL}            
 static inline bool TimedOffArIter_next(TimedOffArIter *iterator) {
     return ArrayIter_next((ArrayIter*)iterator);
 }
-
-#define TimedOffArIter_declare(var, arr)  TimedOffArIter var = {arr, -1, false, NULL}
-
-#define TimedOffAr_foreach(var, arr)  for (TimedOffArIter_declare(var, arr); TimedOffArIter_next(&var); )
-
 static inline void TimedOffAr_binInsertTime(TimedOffAr *arr, TimedOff elem) {
     Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)TimedOff_cmpTime, false);
-}
-
+}            
 
 
 // *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) ***
@@ -513,48 +472,39 @@ struct PortFindCell_t
 typedef struct PortFindCellAr_t {
     Array body;
 } PortFindCellAr;
-
 typedef struct PortFindCellArIter_t {
    PortFindCellAr *arr;
    int index;
    bool last;
    PortFindCell *var;
 } PortFindCellArIter;
-static inline void PortFindCellAr_init(PortFindCellAr *arr, int nelems) {
-    Array_init((Array*)arr, nelems, sizeof(PortFindCell), (Array_clearElement)NULL);
-}
-
 static inline void PortFindCellAr_clear(PortFindCellAr *arr) {
     Array_clear((Array*)arr);
     PortFindCellAr zero = {{0}};
     *arr = zero;
 }
-
-static inline int PortFindCellAr_len(PortFindCellAr *arr) {
-    return Array_len((Array*)arr);
-}
-
+#define PortFindCellAr_foreach(var, arr)  for (PortFindCellArIter_declare(var, arr); PortFindCellArIter_next(&var); )            
 static inline PortFindCell PortFindCellAr_get(PortFindCellAr *arr, int index, Error *err) {
     PortFindCell v = {0};
     Array_getCheck(arr, index, v, err);
     memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
     return v;
 }
-
+static inline void PortFindCellAr_init(PortFindCellAr *arr, int nelems) {
+    Array_init((Array*)arr, nelems, sizeof(PortFindCell), (Array_clearElement)NULL);
+}
+static inline int PortFindCellAr_len(PortFindCellAr *arr) {
+    return Array_len((Array*)arr);
+}
 static inline void PortFindCellAr_push(PortFindCellAr *arr, PortFindCell elem) {
     PortFindCell *p = (PortFindCell *)Array_pushN((Array*)arr, 1);
     *p = elem;
     return; 
-}
-
+}            
+#define PortFindCellArIter_declare(var, arr)  PortFindCellArIter var = {arr, -1, false, NULL}            
 static inline bool PortFindCellArIter_next(PortFindCellArIter *iterator) {
     return ArrayIter_next((ArrayIter*)iterator);
 }
-
-#define PortFindCellArIter_declare(var, arr)  PortFindCellArIter var = {arr, -1, false, NULL}
-
-#define PortFindCellAr_foreach(var, arr)  for (PortFindCellArIter_declare(var, arr); PortFindCellArIter_next(&var); )
-
 
 
 // *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) ***
@@ -621,40 +571,32 @@ static inline void Track_setNoteManager(Track *self, NoteManager *value){self->n
 typedef struct TrackAr_t {
     Array body;
 } TrackAr;
-
 typedef struct TrackArIter_t {
    TrackAr *arr;
    int index;
    bool last;
    Track *var;
 } TrackArIter;
-static inline void TrackAr_init(TrackAr *arr, int nelems) {
-    Array_init((Array*)arr, nelems, sizeof(Track), (Array_clearElement)NULL);
-}
-
-static inline int TrackAr_len(TrackAr *arr) {
-    return Array_len((Array*)arr);
-}
-
+#define TrackAr_foreach(var, arr)  for (TrackArIter_declare(var, arr); TrackArIter_next(&var); )            
 static inline Track *TrackAr_getp(TrackAr *arr, int index, Error *err) {
     Array_getCheck(arr, index, NULL, err);
     return (Track *)Array_get((Array*)arr, index);
 }
-
+static inline void TrackAr_init(TrackAr *arr, int nelems) {
+    Array_init((Array*)arr, nelems, sizeof(Track), (Array_clearElement)NULL);
+}
+static inline int TrackAr_len(TrackAr *arr) {
+    return Array_len((Array*)arr);
+}
 static inline void TrackAr_push(TrackAr *arr, Track elem) {
     Track *p = (Track *)Array_pushN((Array*)arr, 1);
     *p = elem;
     return; 
-}
-
+}            
+#define TrackArIter_declare(var, arr)  TrackArIter var = {arr, -1, false, NULL}            
 static inline bool TrackArIter_next(TrackArIter *iterator) {
     return ArrayIter_next((ArrayIter*)iterator);
 }
-
-#define TrackArIter_declare(var, arr)  TrackArIter var = {arr, -1, false, NULL}
-
-#define TrackAr_foreach(var, arr)  for (TrackArIter_declare(var, arr); TrackArIter_next(&var); )
-
 
 
 

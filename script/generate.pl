@@ -308,6 +308,7 @@ sub writeAllClassesFromFile {
 sub writeArray {
 	my ($out, $arrayCfg, $usedCalls) = @_;
 	my $TYPENAME    = $arrayCfg->{typename};
+	print "PETE $TYPENAME\n";
 	my $ELEMNAME_NS = $arrayCfg->{elemname};
 	my $CLEARER     = $arrayCfg->{clearer};
 	my $ELEMNAME    = "";
@@ -325,295 +326,30 @@ sub writeArray {
 		$ELEMZERO = "0";
 	}
 
-	my @templates = (
-		"${TYPENAME}_new" => <<END,
-static inline ${TYPENAME} *${TYPENAME}_new(int nelems) {
-	return (${TYPENAME}*)Array_new(nelems, sizeof(${ELEMNAME_NS}), (Array_clearElement)${CLEARER});
-}
-END
-
-		"${TYPENAME}_init" => <<END,
-static inline void ${TYPENAME}_init(${TYPENAME} *arr, int nelems) {
-	Array_init((Array*)arr, nelems, sizeof(${ELEMNAME_NS}), (Array_clearElement)${CLEARER});
-}
-END
-
-		"${TYPENAME}_clear" => <<END,
-static inline void ${TYPENAME}_clear(${TYPENAME} *arr) {
-	Array_clear((Array*)arr);
-	$TYPENAME zero = {{0}};
-	*arr = zero;
-}
-END
-
-		"${TYPENAME}_free" => <<END,
-static inline void ${TYPENAME}_free(${TYPENAME} *arr) {
-	Array_free((Array*)arr);
-}
-END
-
-		"${TYPENAME}_truncate" => <<END,
-static inline void ${TYPENAME}_truncate(${TYPENAME} *arr) {
-	Array_truncate((Array*)arr);
-}
-END
-
-		"${TYPENAME}_len" => <<END,
-static inline int ${TYPENAME}_len(${TYPENAME} *arr) {
-	return Array_len((Array*)arr);
-}
-END
-
-		"${TYPENAME}_get" => <<END, 
-static inline ${ELEMNAME}${TYPENAME}_get(${TYPENAME} *arr, int index, Error *err) {
-	${ELEMNAME_NS} v = $ELEMZERO;
-	Array_getCheck(arr, index, v, err);
-	memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-	return v;
-}
-END
-
-		"${TYPENAME}_getp" => <<END,
-static inline ${ELEMNAME}*${TYPENAME}_getp(${TYPENAME} *arr, int index, Error *err) {
-	Array_getCheck(arr, index, NULL, err);
-	return (${ELEMNAME}*)Array_get((Array*)arr, index);
-}
-END
-
-		"${TYPENAME}_set" => <<END,
-static inline void ${TYPENAME}_set(${TYPENAME} *arr, int index, ${ELEMNAME}elem, Error *err) {
-	Array_setCheck(arr, index, err);
-	Array_set((Array*)arr, index, (char*)&elem);
-}
-END
-
-		"${TYPENAME}_setp" => <<END,
-static inline void ${TYPENAME}_setp(${TYPENAME} *arr, int index, ${ELEMNAME}*elem, Error *err) {
-	Array_setCheck(arr, index, err);
-	Array_set((Array*)arr, index, (char*)elem);
-}
-END
-
-		"${TYPENAME}_pop" => <<END,
-static inline void ${TYPENAME}_pop(${TYPENAME} *arr, Error *err) {
-	Array_popNCheck(arr, 1, err);
-	Array_popN((Array*)arr, 1);
-}
-END
-
-		"${TYPENAME}_push" => <<END,
-static inline void ${TYPENAME}_push(${TYPENAME} *arr, ${ELEMNAME}elem) {
-	${ELEMNAME_NS} *p = (${ELEMNAME}*)Array_pushN((Array*)arr, 1);
-	*p = elem;
-	return; 
-}
-END
-
-		"${TYPENAME}_pushp" => <<END,
-static inline void ${TYPENAME}_pushp(${TYPENAME} *arr, ${ELEMNAME}*elem) {
-	${ELEMNAME_NS} *p = (${ELEMNAME}*)Array_pushN((Array*)arr, 1);
-	*p = *elem;
-	return; 
-}
-END
-
-		"${TYPENAME}_insert" => <<END,
-static inline void ${TYPENAME}_insert(${TYPENAME} *arr, int index, ${ELEMNAME}elem, Error *err) {
-	Array_insertNCheck(arr, index, 1, err);
-	${ELEMNAME_NS} *p = (${ELEMNAME}*)Array_insertN((Array*)arr, index, 1);
-	*p = elem;
-}
-END
-
-		"${TYPENAME}_insertp" => <<END,
-static inline void ${TYPENAME}_insertp(${TYPENAME} *arr, int index, ${ELEMNAME}*elem, Error *err) {
-	Array_insertNCheck(arr, index, 1, err);
-	${ELEMNAME_NS} *p = (${ELEMNAME}*)Array_insertN((Array*)arr, index, 1);
-	*p = *elem;
-}
-END
-		"${TYPENAME}_remove" => <<END,
-static inline void ${TYPENAME}_remove(${TYPENAME} *arr, int index, Error *err) {
-	Array_removeNCheck(arr, index, 1, err);
-	Array_removeN((Array*)arr, index, 1);
-}
-END
-
-		"${TYPENAME}_removeN" => <<END,
-static inline void ${TYPENAME}_removeN(${TYPENAME} *arr, int index, int N, Error *err) {
-	Array_removeNCheck(arr, index, N, err);
-	Array_removeN((Array*)arr, index, N);
-}
-END
-
-		"${TYPENAME}_fit" => <<END,
-static inline void ${TYPENAME}_fit(${TYPENAME} *arr) {
-	Array_fit((Array*)arr);
-}
-END
-
-		"${TYPENAME}_last" => <<END,
-static inline int ${TYPENAME}_last(${TYPENAME} *arr) {
-	return Array_len((Array*)arr)-1;
-}
-END
-
-		"${TYPENAME}_changeLength" => <<END,
-static inline void ${TYPENAME}_changeLength(${TYPENAME} *arr, int newLength) {
-	Array_changeLength((Array*)arr, newLength);
-}
-END
-		
-		"${TYPENAME}Iter_next" => <<END,
-static inline bool ${TYPENAME}Iter_next(${TYPENAME}Iter *iterator) {
-	return ArrayIter_next((ArrayIter*)iterator);
-}
-END
-
-		"${TYPENAME}Iter_previous" => <<END,
-static inline bool ${TYPENAME}Iter_previous(${TYPENAME}Iter *iterator) {
-	return ArrayIter_previous((ArrayIter*)iterator);
-}
-END
-		"${TYPENAME}Iter_declare" => <<END,
-#define ${TYPENAME}Iter_declare(var, arr)  ${TYPENAME}Iter var = {arr, -1, false, NULL}
-END
-
-		"${TYPENAME}Iter_rdeclare" => <<END,
-#define ${TYPENAME}Iter_rdeclare(var, arr)  ${TYPENAME}Iter var = {arr, ${TYPENAME}_len(arr), false, NULL}
-END
-
-		"${TYPENAME}_foreach" => <<END,
-#define ${TYPENAME}_foreach(var, arr)  for (${TYPENAME}Iter_declare(var, arr); ${TYPENAME}Iter_next(&var); )
-END
-
-		"${TYPENAME}_rforeach" => <<END,
-#define ${TYPENAME}_rforeach(var, arr)  for (${TYPENAME}Iter_rdeclare(var, arr); ${TYPENAME}Iter_previous(&var); )
-END
-
-		"${TYPENAME}_loop" => <<END,
-#define ${TYPENAME}_loop(var, arr)    ${TYPENAME}Iter_declare(var, arr); while (${TYPENAME}Iter_next(&var)) 
-END
-		
-		"${TYPENAME}_rloop" => <<END,
-#define ${TYPENAME}_rloop(var, arr)    ${TYPENAME}Iter_rdeclare(var, arr); while (${TYPENAME}Iter_previous(&var)) 
-END
-	);
-
 	##
-	## Create alias for defines. XXX: this should be done at the time we collect all of the usedCalls, so it's seen
-	## throughout the call stack.
+	## Setup base keys
 	##
-	if (usedCall($usedCalls, $TYPENAME, "foreach")) {
-		# print "PETE HERE WE ARE: $TYPENAME\n";
-		$usedCalls->{"${TYPENAME}Iter"}{declare} = 1;
-		$usedCalls->{"${TYPENAME}Iter"}{next}    = 1;
-	}
-	if (usedCall($usedCalls, $TYPENAME, "rforeach")) {
-		$usedCalls->{"${TYPENAME}Iter"}{rdeclare} = 1;
-		$usedCalls->{"${TYPENAME}Iter"}{previous} = 1;
-	}
-	if (usedCall($usedCalls, $TYPENAME, "loop")) {
-		$usedCalls->{"${TYPENAME}Iter"}{declare} = 1;
-		$usedCalls->{"${TYPENAME}Iter"}{next}    = 1;
-	}
-	if (usedCall($usedCalls, $TYPENAME, "rloop")) {
-		$usedCalls->{"${TYPENAME}Iter"}{rdeclare} = 1;
-		$usedCalls->{"${TYPENAME}Iter"}{previous} = 1;
-	}
-
-	##
-	## Output structs
-	##
-	my $templ = <<END;
-typedef struct ${TYPENAME}_t {
-	Array body;
-} ${TYPENAME};
-
-typedef struct ${TYPENAME}Iter_t {
-   ${TYPENAME} *arr;
-   int index;
-   bool last;
-   ${ELEMNAME}*var;
-} ${TYPENAME}Iter;
-END
-	## change any tabs to spaces so that the spacing is rendered correctly
-	$templ =~ s/\t/    /g;
-	print {$out} $templ;
-
-	##
-	## Output ordinary array methods
-	##
-	my %templates = @templates;
-	my @methods;
-	for (my $i = 0; $i < @templates; $i += 2) {
-		push @methods, $templates[$i];
-	}
-	for my $method (@methods) {
-		$method =~ /([[:alpha:]][[:alnum:]]*)_([[:alpha:]][[:alnum:]]*)/;
-		my $className  = $1;
-		my $methodName = $2;
-		# print "Looking at '$method' $className and $methodName\n";
-		if (usedCall($usedCalls, $className, $methodName)) {
-			my $buffer = $templates{$method};
-			$buffer =~ s/\t/    /g;
-			print {$out} $buffer, "\n";
-		}
-	}
+	my @keys = ("Array:struct", 'ArrayIter:struct', 'Array:new', 'Array:init', 'Array:clear', 'Array:free',
+				'Array:truncate', 'Array:len',  'Array:get', 'Array:getp', 'Array:set', 'Array:setp',
+				'Array:pop', 'Array:push', 'Array:pushp', 'Array:insert', 'Array:insertp', 'Array:remove',
+				'Array:removeN', 'Array:fit', 'Array:last', 'Array:changeLength', 'Array:foreach', 'Array:rforeach',
+				'Array:loop', 'Array:rloop');
 
 	my $binarySearch = $arrayCfg->{binarySearch};
 	if (defined($binarySearch)) {
 		my $needslice = 0;
 		for my $b (@$binarySearch) {
 			if ($b->{multi}) {
-				$needslice = 1;
+				push @keys, "Array:slice", "Array:declareSlice", "Array:sliceEmpty", "Array:sliceForeach", "Array:rsliceForeach";						
 				last;
 			}
 		}
-		if ($needslice) {
-			$templ = <<END;
-typedef struct ${TYPENAME}Slice_t {
-	int len;
-	${ELEMNAME}*data;
-	int index;
-	${ELEMNAME}*var;
-} ${TYPENAME}Slice;
-END
-			$templ =~ s/\t/    /g;
-			print {$out} $templ;
+	}
+	
+	my $dict = {TYPENAME=>$TYPENAME, ELEMNAME_NS=>$ELEMNAME_NS, ELEMNAME=>$ELEMNAME, CLEARER=>$CLEARER, ELEMZERO=>$ELEMZERO};
+	pexpand($out, \@keys, $dict);
 
-			my @functions = (
-				"${TYPENAME}_declareSlice" => <<END,
-#define ${TYPENAME}_declareSlice(name) ${TYPENAME}Slice name = {0}
-END
-				"${TYPENAME}_sliceEmpty" => <<END,
-#define ${TYPENAME}_sliceEmpty(slice) (slice.data == NULL)
-END
-				"${TYPENAME}_sliceForeach" => <<END,
-#define ${TYPENAME}_sliceForeach(slice) for (slice.index=0, slice.var=slice.data; slice.index < slice.len; slice.index++, slice.var++)
-END
-				"${TYPENAME}_rsliceForeach" => <<END,
-#define ${TYPENAME}_rsliceForeach(slice) for (slice.index=slice.len-1, slice.var = slice.data + slice.index*sizeof(${ELEMNAME_NS}); \\
-											  slice.index >= 0; slice.index--, slice.var--)
-END
-			);
-			my %templates = @functions;
-			my @methods;
-			for (my $i = 0; $i < @functions; $i += 2) {
-				push @methods, $functions[$i];
-			}
-			for my $method (@methods) {
-				$method =~ /([[:alpha:]][[:alnum:]]*)_([[:alpha:]][[:alnum:]]*)/;
-				my $className  = $1;
-				my $methodName = $2;
-				if (usedCall($usedCalls, $className, $methodName)) {
-					my $buffer = $templates{$method};
-					$buffer =~ s/\t/    /g;
-					print {$out} $buffer, "\n";
-				}
-			}
-		}
-
+	if (defined$binarySearch) {
 		my $usedEmpty = 0;
 		for my $b (@$binarySearch) {
 			my $COMPARE = $b->{compare} or die "Failed to define compare function for binarySearch";
@@ -624,61 +360,18 @@ END
 				$usedEmpty = 1;
 				$TAG = "";
 			}
-			my $MULTI = $domulti ? "true" : "false";
-			{
-				my @templates = (
-				"${TYPENAME}_binInsert${TAG}" => <<END,
-static inline void ${TYPENAME}_binInsert${TAG}(${TYPENAME} *arr, ${ELEMNAME}elem) {
-	Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)${COMPARE}, ${MULTI});
-}
-END
-				"${TYPENAME}_binRemove${TAG}" => <<END,
-static inline void ${TYPENAME}_binRemove${TAG}(${TYPENAME} *arr, ${ELEMNAME}elem) {
-	Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)${COMPARE}, ${MULTI});
-}
-END
-				"${TYPENAME}_sort${TAG}" => <<END,
-static inline void ${TYPENAME}_sort${TAG}(${TYPENAME} *arr) {
-	Array_sort((Array*)arr, (Array_compare)${COMPARE});
-}				
-END
-				);
-				my %templates = @templates;
-				my @methods;
-				for (my $i = 0; $i < @templates; $i += 2) {
-					push @methods, $templates[$i];
-				}
-				for my $method (@methods) {
-					$method =~ /([[:alpha:]][[:alnum:]]*)_([[:alpha:]][[:alnum:]]*)/;
-					my $className  = $1;
-					my $methodName = $2;
-					if (usedCall($usedCalls, $className, $methodName)) {
-						my $buffer = $templates{$method};
-						$buffer =~ s/\t/    /g;
-						print {$out} $buffer, "\n";
-					}
-				}
-			}
+			$dict->{COMPARE} = $COMPARE;
+			$dict->{TAG}     = $TAG;
 
+			my @keys = ('Array:binInsert', 'Array:binRemove', 'Array:sort');
 			if ($domulti) {
-				$templ = <<END;
-static inline ${TYPENAME}Slice ${TYPENAME}_binSearch${TAG}(${TYPENAME} *arr, ${ELEMNAME}elem) {
-	${TYPENAME}Slice slice = {0};
-	Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)${COMPARE}, (ArraySlice*)&slice);
-	return slice;
-}
-END
+				$dict->{MULTI} = "true";
+				push @keys, "Array:binSearchSliceReturn";
 			} else {
-				$templ = <<END;
-static inline ${ELEMNAME}*${TYPENAME}_binSearch${TAG}(${TYPENAME} *arr, ${ELEMNAME}elem) {
-	return (${ELEMNAME}*)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)${COMPARE}, NULL);
-}
-END
+				$dict->{MULTI} = "false";
+				push @keys, "Array:binSearchElemReturn";
 			}
-			if (usedCall($usedCalls, $TYPENAME, "binSearch${TAG}")) {
-				$templ =~ s/\t/    /g;
-				print {$out} $templ;
-			}
+			pexpand($out, \@keys, $dict);
 		}
 	}
 }
@@ -763,19 +456,6 @@ sub collectUsedCalls {
 
 my @templates = (
 	{
-		key =>    'Array:get',
-		symbol => '${TYPENAME}_get',
-		tmpl   => <<'ENDxxxxxxxxxx', 
-			@static inline ${ELEMNAME}${TYPENAME}_get(${TYPENAME} *arr, int index, Error *err) {
-			@	${ELEMNAME_NS} v = ${ELEMZERO};
-			@	Array_getCheck(arr, index, v, err);
-			@	memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-			@	return v;
-			@}
-ENDxxxxxxxxxx
-	},
-
-	{
 		key =>    'Struct:head',
 		symbol => '',
 		tmpl   => <<'ENDxxxxxxxxxx', 
@@ -816,6 +496,425 @@ ENDxxxxxxxxxx
 ENDxxxxxxxxxx
 	},
 
+
+	{
+		key =>    'Array:struct',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@typedef struct ${TYPENAME}_t {
+			@	Array body;
+			@} ${TYPENAME};
+ENDxxxxxxxxxx
+	},
+
+
+	{
+		key =>    'ArrayIter:struct',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@typedef struct ${TYPENAME}Iter_t {
+			@   ${TYPENAME} *arr;
+			@   int index;
+			@   bool last;
+			@   ${ELEMNAME}*var;
+			@} ${TYPENAME}Iter;
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Array:new',
+		symbol => '${TYPENAME}_new',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline ${TYPENAME} *${TYPENAME}_new(int nelems) {
+			@	return (${TYPENAME}*)Array_new(nelems, sizeof(${ELEMNAME_NS}), (Array_clearElement)${CLEARER});
+			@}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Array:init',
+		symbol => '${TYPENAME}_init',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline void ${TYPENAME}_init(${TYPENAME} *arr, int nelems) {
+			@	Array_init((Array*)arr, nelems, sizeof(${ELEMNAME_NS}), (Array_clearElement)${CLEARER});
+			@}
+ENDxxxxxxxxxx
+	},
+
+
+	{
+		key =>    'Array:clear',
+		symbol => '${TYPENAME}_clear',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline void ${TYPENAME}_clear(${TYPENAME} *arr) {
+			@	Array_clear((Array*)arr);
+			@	${TYPENAME} zero = {{0}};
+			@	*arr = zero;
+			@}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Array:free',
+		symbol => '${TYPENAME}_free',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline void ${TYPENAME}_free(${TYPENAME} *arr) {
+			@	Array_free((Array*)arr);
+			@}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Array:truncate',
+		symbol => '${TYPENAME}_truncate',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline void ${TYPENAME}_truncate(${TYPENAME} *arr) {
+			@	Array_truncate((Array*)arr);
+			@}
+ENDxxxxxxxxxx
+	},
+
+
+	{
+		key =>    'Array:len',
+		symbol => '${TYPENAME}_len',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline int ${TYPENAME}_len(${TYPENAME} *arr) {
+			@	return Array_len((Array*)arr);
+			@}
+ENDxxxxxxxxxx
+	},
+
+
+	{
+		key =>    'Array:get',
+		symbol => '${TYPENAME}_get',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline ${ELEMNAME}${TYPENAME}_get(${TYPENAME} *arr, int index, Error *err) {
+			@	${ELEMNAME_NS} v = ${ELEMZERO};
+			@	Array_getCheck(arr, index, v, err);
+			@	memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
+			@	return v;
+			@}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Array:getp',
+		symbol => '${TYPENAME}_getp',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline ${ELEMNAME}*${TYPENAME}_getp(${TYPENAME} *arr, int index, Error *err) {
+			@	Array_getCheck(arr, index, NULL, err);
+			@	return (${ELEMNAME}*)Array_get((Array*)arr, index);
+			@}
+ENDxxxxxxxxxx
+	},
+
+
+	{
+		key =>    'Array:set',
+		symbol => '${TYPENAME}_set',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline void ${TYPENAME}_set(${TYPENAME} *arr, int index, ${ELEMNAME}elem, Error *err) {
+			@	Array_setCheck(arr, index, err);
+			@	Array_set((Array*)arr, index, (char*)&elem);
+			@}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Array:setp',
+		symbol => '${TYPENAME}_setp',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline void ${TYPENAME}_setp(${TYPENAME} *arr, int index, ${ELEMNAME}*elem, Error *err) {
+			@	Array_setCheck(arr, index, err);
+			@	Array_set((Array*)arr, index, (char*)elem);
+			@}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Array:pop',
+		symbol => '${TYPENAME}_pop',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline void ${TYPENAME}_pop(${TYPENAME} *arr, Error *err) {
+			@	Array_popNCheck(arr, 1, err);
+			@	Array_popN((Array*)arr, 1);
+			@}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Array:push',
+		symbol => '${TYPENAME}_push',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline void ${TYPENAME}_push(${TYPENAME} *arr, ${ELEMNAME}elem) {
+			@	${ELEMNAME_NS} *p = (${ELEMNAME}*)Array_pushN((Array*)arr, 1);
+			@	*p = elem;
+			@	return; 
+			@}			
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Array:pushp',
+		symbol => '${TYPENAME}_pushp',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline void ${TYPENAME}_pushp(${TYPENAME} *arr, ${ELEMNAME}*elem) {
+			@	${ELEMNAME_NS} *p = (${ELEMNAME}*)Array_pushN((Array*)arr, 1);
+			@	*p = *elem;
+			@	return; 
+			@}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Array:insert',
+		symbol => '${TYPENAME}_insert',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline void ${TYPENAME}_insert(${TYPENAME} *arr, int index, ${ELEMNAME}elem, Error *err) {
+			@	Array_insertNCheck(arr, index, 1, err);
+			@	${ELEMNAME_NS} *p = (${ELEMNAME}*)Array_insertN((Array*)arr, index, 1);
+			@	*p = elem;
+			@}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Array:insertp',
+		symbol => '${TYPENAME}_insertp',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline void ${TYPENAME}_insertp(${TYPENAME} *arr, int index, ${ELEMNAME}*elem, Error *err) {
+			@	Array_insertNCheck(arr, index, 1, err);
+			@	${ELEMNAME_NS} *p = (${ELEMNAME}*)Array_insertN((Array*)arr, index, 1);
+			@	*p = *elem;
+			@}			
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Array:remove',
+		symbol => '${TYPENAME}_remove',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline void ${TYPENAME}_remove(${TYPENAME} *arr, int index, Error *err) {
+			@	Array_removeNCheck(arr, index, 1, err);
+			@	Array_removeN((Array*)arr, index, 1);
+			@}	
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Array:removeN',
+		symbol => '${TYPENAME}_removeN',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline void ${TYPENAME}_removeN(${TYPENAME} *arr, int index, int N, Error *err) {
+			@	Array_removeNCheck(arr, index, N, err);
+			@	Array_removeN((Array*)arr, index, N);
+			@}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Array:fit',
+		symbol => '${TYPENAME}_fit',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline void ${TYPENAME}_fit(${TYPENAME} *arr) {
+			@	Array_fit((Array*)arr);
+			@}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Array:last',
+		symbol => '${TYPENAME}_last',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline int ${TYPENAME}_last(${TYPENAME} *arr) {
+			@	return Array_len((Array*)arr)-1;
+			@}			
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key =>    'Array:changeLength',
+		symbol => '${TYPENAME}_changeLength',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline void ${TYPENAME}_changeLength(${TYPENAME} *arr, int newLength) {
+			@	Array_changeLength((Array*)arr, newLength);
+			@}						
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key =>    'ArrayIter:next',
+		symbol => '${TYPENAME}Iter_next',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline bool ${TYPENAME}Iter_next(${TYPENAME}Iter *iterator) {
+			@	return ArrayIter_next((ArrayIter*)iterator);
+			@}
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key =>    'ArrayIter:previous',
+		symbol => '${TYPENAME}Iter_previous',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline bool ${TYPENAME}Iter_previous(${TYPENAME}Iter *iterator) {
+			@	return ArrayIter_previous((ArrayIter*)iterator);
+			@}			
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key    =>    'ArrayIter:declare',
+		symbol => '${TYPENAME}Iter_declare',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}Iter_declare(var, arr)  ${TYPENAME}Iter var = {arr, -1, false, NULL}			
+ENDxxxxxxxxxx
+	},	
+		
+	{
+		key =>    'ArrayIter:rdeclare',
+		implies => ['Array:len'],
+		symbol => '${TYPENAME}Iter_rdeclare',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}Iter_rdeclare(var, arr)  ${TYPENAME}Iter var = {arr, ${TYPENAME}_len(arr), false, NULL}			
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key     =>  'Array:foreach',
+		implies => ["ArrayIter:declare", "ArrayIter:next"],
+		symbol  => '${TYPENAME}_foreach',
+		tmpl    => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}_foreach(var, arr)  for (${TYPENAME}Iter_declare(var, arr); ${TYPENAME}Iter_next(&var); )			
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key =>    'Array:rforeach',
+		implies => ["ArrayIter:rdeclare", "ArrayIter:previous"],
+		symbol => '${TYPENAME}_rforeach',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}_rforeach(var, arr)  for (${TYPENAME}Iter_rdeclare(var, arr); ${TYPENAME}Iter_previous(&var); )			
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key =>    'Array:loop',
+		implies => ["ArrayIter:declare", "ArrayIter:next"],
+		symbol => '${TYPENAME}_loop',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}_loop(var, arr) ${TYPENAME}Iter_declare(var, arr); while (${TYPENAME}Iter_next(&var)) 
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Array:rloop',
+		implies => ["ArrayIter:rdeclare", "ArrayIter:previous"],
+		symbol => '${TYPENAME}_rloop',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}_rloop(var, arr)    ${TYPENAME}Iter_rdeclare(var, arr); while (${TYPENAME}Iter_previous(&var)) 			
+ENDxxxxxxxxxx
+	},
+
+
+	{
+		key =>    'Array:slice',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@typedef struct ${TYPENAME}Slice_t {
+			@	int len;
+			@	${ELEMNAME}*data;
+			@	int index;
+			@	${ELEMNAME}*var;
+			@} ${TYPENAME}Slice;
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Array:declareSlice',
+		symbol => '${TYPENAME}_declareSlice',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}_declareSlice(name) ${TYPENAME}Slice name = {0}			
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Array:sliceEmpty',
+		symbol => '${TYPENAME}_sliceEmpty',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}_sliceEmpty(slice) (slice.data == NULL)
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key =>    'Array:sliceForeach',
+		symbol => '${TYPENAME}_sliceForeach',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}_sliceForeach(slice) for (slice.index=0, slice.var=slice.data; slice.index < slice.len; slice.index++, slice.var++)
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key =>    'Array:rsliceForeach',
+		symbol => '${TYPENAME}_rsliceForeach',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}_rsliceForeach(slice) for (slice.index=slice.len-1, slice.var = slice.data + slice.index*sizeof(${ELEMNAME_NS}); \\
+			@								               slice.index >= 0; slice.index--, slice.var--)
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key =>    'Array:binInsert',
+		symbol => '${TYPENAME}_binInsert${TAG}',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline void ${TYPENAME}_binInsert${TAG}(${TYPENAME} *arr, ${ELEMNAME}elem) {
+			@	Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)${COMPARE}, ${MULTI});
+			@}			
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key =>    'Array:binRemove',
+		symbol => '${TYPENAME}_binRemove${TAG}',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline void ${TYPENAME}_binRemove${TAG}(${TYPENAME} *arr, ${ELEMNAME}elem) {
+			@	Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)${COMPARE}, ${MULTI});
+			@}		
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key =>    'Array:sort',
+		symbol => '${TYPENAME}_sort${TAG}',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline void ${TYPENAME}_sort${TAG}(${TYPENAME} *arr) {
+			@	Array_sort((Array*)arr, (Array_compare)${COMPARE});
+			@}				
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key =>    'Array:binSearchSliceReturn',
+		symbol => '${TYPENAME}_binSearch${TAG}',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline ${TYPENAME}Slice ${TYPENAME}_binSearch${TAG}(${TYPENAME} *arr, ${ELEMNAME}elem) {
+			@	${TYPENAME}Slice slice = {0};
+			@	Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)${COMPARE}, (ArraySlice*)&slice);
+			@	return slice;
+			@}
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key =>    'Array:binSearchElemReturn',
+		symbol => '${TYPENAME}_binSearch${TAG}',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline ${ELEMNAME}*${TYPENAME}_binSearch${TAG}(${TYPENAME} *arr, ${ELEMNAME}elem) {
+			@	return (${ELEMNAME}*)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)${COMPARE}, NULL);
+			@}
+ENDxxxxxxxxxx
+	},	
 );
 my %templateMap = map {$_->{key} => $_} @templates;
 my $gUsedCalls;
@@ -827,7 +926,11 @@ sub expand {
 		$_[0] =~ s/\$\{(\w+)\}/exists $inputDictionary->{$1} ? $inputDictionary->{$1} : '<EXPAND_FAIL>'/eg;
 		return $_[0];
 	};
-	my %results;
+
+	## Filter based on gUsedCalls. Also add any implied keys into keysToProcess
+	my @keysToProcess;
+	my %implied;
+	my %seen;
 	for my $requestedKey (@$inputKeys) {
 		my $hsh = $templateMap{$requestedKey};
 		if (!defined($hsh)) {
@@ -841,6 +944,55 @@ sub expand {
 			next unless $gUsedCalls->{$className}{$methodName};
 		}
 
+		next if $seen{$requestedKey};
+		$seen{$requestedKey} = 1;
+
+		push @keysToProcess, $requestedKey;
+
+		my $topImplies = $hsh->{implies};
+		if (defined($topImplies)) {
+			my %implieds = map {$_ => 1} @$topImplies;
+			while (%implieds) {
+				my @impliedKeys = keys(%implieds);
+				%implieds       = ();
+				for my $imp (@impliedKeys) {
+					next if $seen{$imp};
+					$seen{$imp} = 1;
+					push @keysToProcess, $imp;
+					my $hsh = $templateMap{$imp};
+					next unless defined($hsh);
+					my $nimplies = $hsh->{implies};
+					next unless defined($nimplies);
+					for my $nimp (@$nimplies) {
+						next if $seen{$nimp};
+						$seen{$nimp} = 1;
+						$implieds{$nimp} = 1;
+					}
+				}
+			}
+		}
+	}
+	
+	my %special = ("Array:struct" => 1, "Array:slice" => 2, "ArrayIter:struct" => 3);
+	my $srt = sub {
+		my $ls = $special{$a};
+		my $rs = $special{$b};
+		if (defined($ls) && defined($rs)) {
+			return $ls <=> $rs;
+		} elsif (!defined($ls) && defined($rs)) {
+			return 1;
+		} elsif (defined($ls) && !defined($rs)) {
+			return -1;
+		}
+		return $a cmp $b;
+	};
+	@keysToProcess = sort {$srt->()} @keysToProcess;
+
+
+	## Now do the expansion of all desiered keys
+	my %results;
+	for my $requestedKey (@keysToProcess) {
+		my $hsh = $templateMap{$requestedKey};
 		my $tmpl = $hsh->{tmpl};
 		$tmpl =~ s/^\s*\@//mg;
 		$tmpl = $expandVar->($tmpl);
@@ -848,13 +1000,13 @@ sub expand {
 		$results{$requestedKey} = $tmpl;
 	}
 
-	return \%results;
+	return \@keysToProcess, \%results;
 }
 
 sub pexpand {
 	my ($out, $inputKeys, $inputDictionary) = @_;
-	my $res = expand($inputKeys, $inputDictionary);
-	for my $key (@$inputKeys) {
+	my ($outputKeys, $res) = expand($inputKeys, $inputDictionary);
+	for my $key (@$outputKeys) {
 		my $t = $res->{$key};
 		next unless defined($t);
 		print {$out} $t;
@@ -864,18 +1016,6 @@ sub pexpand {
 
 
 sub main {
-	# my @keys = ('Array:get', 'Struct:head');
-	# my %dict = (TYPENAME=>"TheFoo", ELEMNAME=>"TheBar", ELEMNAME_NS=>"TheBarNS");
-	# $gUsedCalls = {"TheFoo" => {}};
-	# my $res  = TESTINGexpandTemplates(\@keys, \%dict, \%usedCalls);
-	# for my $k (@keys) {
-	# 	my $v = $res->{$k};
-	# 	next unless defined($v);
-	# 	print "***********\n";
-	# 	print "$v";
-	# }
-	# return;
-
 	my ($srcDir) = @ARGV;
 	die "generate requires 1 argument" unless @ARGV == 1;
 	my ($templateHeaders, $cFiles) = filesInDirectory($srcDir);
