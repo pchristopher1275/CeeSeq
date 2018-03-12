@@ -37,18 +37,21 @@ sub writeWarning {
 }
 
 sub writeStruct {
-	my ($out, $config) = @_;
-	if (defined($config->{manualStruct})) {
-		$config->{manualStruct}($out);
+	my ($out, $class) = @_;
+	if (defined($class->{manualStruct})) {
+		$class->{manualStruct}($out);
 		return;
 	}
 
 	print {$out} <<END;
-struct $config->{typeName}_t
+struct $class->{typeName}_t
 {
 END
+	if ($class->{interface}) {
+		print {$out} "    int itype;\n";
+	}
 	my $persist;
-	for my $field (@{$config->{fields}}) {
+	for my $field (@{$class->{fields}}) {
 		my $stype = spaceAdjustType($field->{type});
 		print {$out} "    $stype$field->{name};\n";
 	}
@@ -58,10 +61,10 @@ END
 }
 
 sub writePredefined {
-	my ($out, $config) = @_;
+	my ($out, $class) = @_;
 	print {$out}<<END;
-struct $config->{typeName}_t;
-typedef struct $config->{typeName}_t $config->{typeName};
+struct $class->{typeName}_t;
+typedef struct $class->{typeName}_t $class->{typeName};
 END
 }
 
@@ -95,18 +98,9 @@ sub setNameFromFieldName {
 	return 'set' . uc($first) . $rest;
 }
 
-sub usedCall {
-	my ($usedCalls, $className, $methodName) = @_;
-	return $usedCalls->{$className}{$methodName};
-}
-
 sub writeAccessor {
 	my ($out, $class, $usedCalls) = @_;
 	my $typeName     = $class->{typeName};
-	my $used = sub {
-		my ($method) = @_;
-		return usedCall($usedCalls, $class->{typeName}, $method);
-	};
 	for my $field (@{$class->{fields}}) {
 		if (defined($field->{group})) {
 			next;
@@ -143,26 +137,43 @@ sub writeAccessor {
 	}
 }
 
+my $gApif;
 sub scanAPIF {
-	my ($source) = @_;
-	open my $fd, $source or die "Failed to open $source";
-	my @a;
-	while (<$fd>) {
-		next unless /^\s*APIF/;
-		my $line = $_;
-		chomp($line);
-		my $bracket = '{';
-		$line =~ s/\s*$bracket?\s*$//;
-		$line =~ s/^\s*APIF\s*//;
-		push @a, $line;
+	my ($sources) = @_;
+
+	my @funcs;
+	for my $source (@$sources) {
+		open my $fd, $source or die "Failed to open $source";
+		while (<$fd>) {
+			next unless /^\s*APIF/;
+			my $line = $_;
+			chomp($line);
+			my $bracket = '{';
+			$line =~ s/\s*$bracket?\s*$//;
+			$line =~ s/^\s*APIF\s*//;
+			push @funcs, $line;
+		}
+		close($fd);
 	}
-	close($fd);
-	return {funcs=>\@a};
+	my %definedCalls;
+	for my $func (@funcs) {
+		die "INTERNAL ERROR" unless $line =~ /([[:alpha:]][[:alnum:]]*)_([[:alpha:]][[:alnum:]]*)/;
+		my $className  = $1;
+		my $methodName = $2;
+		my $subhash = $definedCalls{$className};
+		if (!defined($subhash)) {
+			$subhash = {};
+			$definedCalls{$className} = $subhash;
+		}
+		$subhash->{$methodName} = 1;
+	}
+
+	$gApif = {funcs=>\@a, definedCalls=>\%definedCalls};
 }
 
 sub writeAPIFForType {
-	my ($apif, $out, $type) = @_;
-	for my $line (@{$apif->{funcs}}) {
+	my ($out, $type) = @_;
+	for my $line (@{$gApif->{funcs}}) {
 		my ($t) = ($line =~ /^\s*\S+\s*\**\s*([^_\s]+)/);
 		die "Bad APIF line '$line'" unless defined($t);
 		if ($t eq $type) {
@@ -264,27 +275,25 @@ sub writeClassFromAtType {
 		die "Failed to decode json for type starting at $cfg->{lastAtType}";
 	}
 	my $out       = $cfg->{out};
-	my $apif      = $cfg->{apif};
 	my $file      = $cfg->{file};
-	my $usedCalls = $cfg->{usedCalls};
 	writeWarning($out, $file);
 	writeStruct($out, $class);
 	pexpand($out, ['Type:newUninitialized'], {TYPENAME => $class->{typeName}}) unless $class->{noNewUnitialized};
 	if (defined($class->{preAccessor})) {
 		$class->{preAccessor}($out);
 	}
-	writeAccessor($out, $class, $usedCalls);
+	writeAccessor($out, $class);
 	if (defined($class->{postAccessor})) {
 		$class->{postAccessor}($out);
 	}
 	if (defined($class->{argDeclare})) {
 		writeArgDeclare($out, $class);
 	}
-	writeAPIFForType($apif, $out, $class->{typeName});
+	writeAPIFForType($out, $class->{typeName});
 	if (defined($class->{containers})) {
 		for my $cont (@{$class->{containers}}) {
 			if ($cont->{type} eq 'array') {
-				writeArray($out, $cont, $usedCalls);
+				writeArray($out, $cont);
 			} else {
 				die "Unknown container type $cont->{type}";
 			}
@@ -300,15 +309,14 @@ sub writeOrdinaryLine {
 }
 
 sub writeAllClassesFromFile {
-	my ($out, $file, $apif, $usedCalls) = @_;
-	my $cfg = {out=>$out, file=>$file, typeCallback=>\&writeClassFromAtType, notTypeCallback=>\&writeOrdinaryLine, apif=>$apif, usedCalls=>$usedCalls};
+	my ($out, $file) = @_;
+	my $cfg = {out=>$out, file=>$file, typeCallback=>\&writeClassFromAtType, notTypeCallback=>\&writeOrdinaryLine};
 	scanInDotH($cfg);
 }
 
 sub writeArray {
-	my ($out, $arrayCfg, $usedCalls) = @_;
+	my ($out, $arrayCfg) = @_;
 	my $TYPENAME    = $arrayCfg->{typename};
-	print "PETE $TYPENAME\n";
 	my $ELEMNAME_NS = $arrayCfg->{elemname};
 	my $CLEARER     = $arrayCfg->{clearer};
 	my $ELEMNAME    = "";
@@ -380,25 +388,36 @@ sub filesInDirectory {
 	my ($srcDir) = @_;
 	$srcDir =~ s[/$][];
 	my @lines = backtick "ls $srcDir/*";
-	my @templateHeaders;
+	my @headerTemplates;
 	my @cFiles;
+	my @cTemplates;
+	my %isCTemplate;
 	for my $line (@lines) {
 		$line =~ s/^\s*//;
 		$line =~ s/\s*$//;
 		if ($line =~ /\.in.h$/) {
-			push @templateHeaders, $line;
+			push @headerTemplates, $line;
+		} elsif ($line =~ /\.in\.c$/) {
+			my $short = $line;
+			die "INTERNAL ERROR" unless $short =~ m{([^/]+)\.in\.c};
+			$isCTemplate{$line} = 1;
+			push @cTemplates, $line;
 		} elsif ($line =~ /\.c$/) {
-			push @cFiles, $line;
+			my $short = $line;
+			die "INTERNAL ERROR" unless $line =~ m{([^/]+)\.c};
+			if (!$isCTemplate{$line}) {
+				push @cFiles, $line;	
+			}
 		}
 	}
-	return (\@templateHeaders, \@cFiles);
+	return (\@headerTemplates, \@cFiles, \@cTemplates);
 }
 
 sub collectAllClasses {
-	my ($templateHeaders) = @_;
+	my ($headerTemplates) = @_;
 	my %classes;
 	my %classOrder;
-	for my $header (@$templateHeaders) {
+	for my $header (@$headerTemplates) {
 		my $headerClasses = collectAllClassesFromFile($header);	
 		$classOrder{$header} = [];
 		for my $class (@$headerClasses) {
@@ -414,13 +433,13 @@ sub collectAllClasses {
 }
 
 sub processTemplateHeader {
-	my ($out, $templateHeader, $usedCalls) = @_;
+	my ($out, $templateHeader) = @_;
 	my $cFile = $templateHeader;
 	if ($cFile !~ s/\.in\.h$/.c/) {
 		die "generate.pl was passed a bad file name '$templateHeader'";
 	}
-	my $apif = scanAPIF($cFile);
-	writeAllClassesFromFile($out, $templateHeader, $apif, $usedCalls);
+	
+	writeAllClassesFromFile($out, $templateHeader);
 }
 
 
@@ -429,6 +448,7 @@ my %extraUsedCalls = (
 	PortRef => {port => 1, outlet => 1},
 );
 
+my $gUsedCalls;
 sub collectUsedCalls {
 	my ($cFiles) = @_;
 	my %used = %extraUsedCalls;
@@ -450,7 +470,7 @@ sub collectUsedCalls {
 		}
 		close($fd);
 	}
-	return \%used;
+	$gUsedCalls = \%used;
 }
 
 
@@ -917,7 +937,6 @@ ENDxxxxxxxxxx
 	},	
 );
 my %templateMap = map {$_->{key} => $_} @templates;
-my $gUsedCalls;
 
 sub expand {
 	my ($inputKeys, $inputDictionary) = @_;
@@ -1013,18 +1032,41 @@ sub pexpand {
 	}
 }
 
-
+sub writeInterfaceH {
+	my ($allClasses, $srcDir) = @_; 
+	my %classes    = %{$allClasses->{classes}};
+	my %classOrder = %{$allClasses->{file2ClassOrder}};
+	my $outFile = "$srcDir/interface.h";
+	open my $fd, ">", $outFile or die "Failed to open $outFile";
+	my $nextIType = 10;
+	for my $file (keys(%classOrder)) {
+		printf {$fd} "// From file '%s'\n", $file;
+		my @order = @{$classOrder{$file}};
+		for my $className (@order) {
+			my $class = $classes{$className};
+			next unless $class->{interface};
+			printf {$fd} "#define Interface_type$className $nextIType\n";
+			$nextIType++;
+		}
+	}
+	close($fd);
+}
 
 sub main {
 	my ($srcDir) = @ARGV;
 	die "generate requires 1 argument" unless @ARGV == 1;
-	my ($templateHeaders, $cFiles) = filesInDirectory($srcDir);
+	my ($templateHeaders, $cFiles, $cTemplates) = filesInDirectory($srcDir);
 	if (@$templateHeaders <= 0) {
 		die "No templates found in directory $srcDir"
 	}
 
 	my $allClasses   = collectAllClasses($templateHeaders);
-	$gUsedCalls = collectUsedCalls($cFiles);
+	my $allCFiles = [@$cFiles, @$cTemplates];
+	collectUsedCalls($allCFiles);
+	scanAPIF($allCFiles);
+
+	writeInterfaceH($allClasses, $srcDir);
+	
 	
 	for my $templateHeader (@$templateHeaders) {
 		my $header = $templateHeader;

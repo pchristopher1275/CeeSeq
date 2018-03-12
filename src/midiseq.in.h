@@ -550,6 +550,14 @@ static inline void DropDown_setPortRef(DropDown *dd, PortRef *pr) {
             "comment":"which pad has been selected",
             "name":"selectedPad",
             "type":"int"
+         },
+         {
+            "name": "arguments",
+            "type": "Arguments",
+         },
+         {
+            "name": "dispatcher",
+            "type": "DispatchPtAr"
          }
       ]
    }

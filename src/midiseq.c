@@ -811,7 +811,7 @@ APIF void Pad_clear(Pad *pad)
 
 
 
-APIF void Pad_setSequence(Pad *pad, Midiseq *midi)
+APIF  void Pad_setSequence(Pad *pad, Midiseq *midi)
 {
     if (Pad_sequence(pad) != NULL) {
         Midiseq_free(Pad_sequence(pad));
@@ -1480,6 +1480,9 @@ APIF void Hub_init(Hub *hub, PortFind *pf, Error *err) {
 
     Port_send(Hub_selPadPort(hub), 0, 2, a, err);
     Error_returnVoidOnError(err);
+
+    DispatchPtAr_init(&hub->dispatcher);
+    DispatchPtAr_populate(&hub->dispatcher);
 }
 
 APIF void Hub_free(Hub *hub) {
@@ -1487,32 +1490,32 @@ APIF void Hub_free(Hub *hub) {
     TrackList_free(Hub_trackList(hub));
 }
 
-APIF void Hub_incrementFrame(Hub *hub)
-{
-    if (Hub_frame(hub) >= (Hub_framesPerBank-1)) {
-        return;
-    }
+// APIF void Hub_incrementFrame(Hub *hub)
+// {
+//     if (Hub_frame(hub) >= (Hub_framesPerBank-1)) {
+//         return;
+//     }
 
-    Hub_setFrame(hub, Hub_frame(hub)+1);
-    Hub_updateGuiCurrentCoordinates(hub);
-}
-
-
-APIF void Hub_decrementFrame(Hub *hub)
-{
-    if (Hub_frame(hub) <= 0) {
-        return;
-    }
-
-    Hub_setFrame(hub, Hub_frame(hub)-1);
-    Hub_updateGuiCurrentCoordinates(hub);
-}
+//     Hub_setFrame(hub, Hub_frame(hub)+1);
+//     Hub_updateGuiCurrentCoordinates(hub);
+// }
 
 
-APIF void Hub_selectNextPushedPad(Hub *hub)
-{
-    Hub_setGrabNextTappedPad(hub, true);
-}
+// APIF void Hub_decrementFrame(Hub *hub)
+// {
+//     if (Hub_frame(hub) <= 0) {
+//         return;
+//     }
+
+//     Hub_setFrame(hub, Hub_frame(hub)-1);
+//     Hub_updateGuiCurrentCoordinates(hub);
+// }
+
+
+// APIF void Hub_selectNextPushedPad(Hub *hub)
+// {
+//     Hub_setGrabNextTappedPad(hub, true);
+// }
 
 APIF void Hub_updateGuiCurrentCoordinates(Hub *hub) 
 {
@@ -1520,66 +1523,66 @@ APIF void Hub_updateGuiCurrentCoordinates(Hub *hub)
     Port_sendInteger(Hub_currFramePort(hub), 0, Hub_frame(hub));
 }
 
-APIF void Hub_midiFileDrop(Hub *hub, t_atom *pathAtom) {
-    Error_declare(err);
-    if (pathAtom == NULL) {
-        post("midiFileDrop requires at least 1 symbol argument");
-        return;
-    }
-    Symbol *path = atom_getsym(pathAtom);
-    if (path == gensym("")) {
-        post("midiFileDrop requires at least 1 symbol argument");
-        return;
-    }
-    const char *colon = strchr(Symbol_cstr(path), ':');
-    if (colon == NULL) {
-        post("midiFileDrop expected to find colon (:) in filename");
-        return;
-    }
-    sds filename = sdsnew(colon+1);
-    Midiseq *mseq = Midiseq_fromfile(filename, err);
-    if (Error_iserror(err)) {
-        post("midiFileDrop: %s", Error_message(err));
-        Error_clear(err);
-        return;
-    }
-    sdsfree(filename);
-    Pad *pad = PadList_pad(Hub_padList(hub), Hub_selectedPad(hub), err);
-    if (Error_iserror(err)) {
-        post("midiFileDrop: %s", Error_message(err));
-        Midiseq_free(mseq);
-        Error_clear(err);
-        return;
-    }
-    Pad_setSequence(pad, mseq);
-}
+// APIF void Hub_midiFileDrop(Hub *hub, t_atom *pathAtom) {
+//     Error_declare(err);
+//     if (pathAtom == NULL) {
+//         post("midiFileDrop requires at least 1 symbol argument");
+//         return;
+//     }
+//     Symbol *path = atom_getsym(pathAtom);
+//     if (path == gensym("")) {
+//         post("midiFileDrop requires at least 1 symbol argument");
+//         return;
+//     }
+//     const char *colon = strchr(Symbol_cstr(path), ':');
+//     if (colon == NULL) {
+//         post("midiFileDrop expected to find colon (:) in filename");
+//         return;
+//     }
+//     sds filename = sdsnew(colon+1);
+//     Midiseq *mseq = Midiseq_fromfile(filename, err);
+//     if (Error_iserror(err)) {
+//         post("midiFileDrop: %s", Error_message(err));
+//         Error_clear(err);
+//         return;
+//     }
+//     sdsfree(filename);
+//     Pad *pad = PadList_pad(Hub_padList(hub), Hub_selectedPad(hub), err);
+//     if (Error_iserror(err)) {
+//         post("midiFileDrop: %s", Error_message(err));
+//         Midiseq_free(mseq);
+//         Error_clear(err);
+//         return;
+//     }
+//     Pad_setSequence(pad, mseq);
+// }
 
 
-APIF void Hub_manageChokeGroups(Hub *hub, long value, long inlet, Error *err) {
-    Pad *pad = PadList_pad(Hub_padList(hub), Hub_selectedPad(hub), err);
-    switch (inlet) {
-        case 0:
-            DropDown_setSelected(Hub_cgLocalGlobalMenu(hub), value, err);
-            Error_returnVoidOnError(err);
-            Pad_setChokeGroupGlobal(pad, value ? true : false);
-            break;
-        case 1:
-            DropDown_setSelected(Hub_cgInstrumentMenu(hub), value, err);
-            Error_returnVoidOnError(err);
-            Pad_setChokeGroupInstrument(pad, value);
-            break;
-        case 2:
-            DropDown_setSelected(Hub_cgIndexMenu(hub), value, err);
-            Error_returnVoidOnError(err);
-            Pad_setChokeGroupIndex(pad, value);
-            break;
-        default:
-            Error_format(err, "INTERNAL ERROR: bad inlet %ld", inlet);
-            return;
-    }
-    Pad_computeChokeGroup(pad);
-    return;
-}
+// APIF void Hub_manageChokeGroups(Hub *hub, long value, long inlet, Error *err) {
+//     Pad *pad = PadList_pad(Hub_padList(hub), Hub_selectedPad(hub), err);
+//     switch (inlet) {
+//         case 0:
+//             DropDown_setSelected(Hub_cgLocalGlobalMenu(hub), value, err);
+//             Error_returnVoidOnError(err);
+//             Pad_setChokeGroupGlobal(pad, value ? true : false);
+//             break;
+//         case 1:
+//             DropDown_setSelected(Hub_cgInstrumentMenu(hub), value, err);
+//             Error_returnVoidOnError(err);
+//             Pad_setChokeGroupInstrument(pad, value);
+//             break;
+//         case 2:
+//             DropDown_setSelected(Hub_cgIndexMenu(hub), value, err);
+//             Error_returnVoidOnError(err);
+//             Pad_setChokeGroupIndex(pad, value);
+//             break;
+//         default:
+//             Error_format(err, "INTERNAL ERROR: bad inlet %ld", inlet);
+//             return;
+//     }
+//     Pad_computeChokeGroup(pad);
+//     return;
+// }
 
 APIF void Hub_changeSelectedPad(Hub *hub, int selectedPadIndex, Error *err) {
     Hub_setSelectedPad(hub, selectedPadIndex);
@@ -1610,8 +1613,36 @@ APIF void Hub_changeSelectedPad(Hub *hub, int selectedPadIndex, Error *err) {
 
 }
 
-APIF void Hub_anythingDispatch(void *hub_in, Port *port, Symbol *msg, long argc, t_atom *argv)
+APIF void Hub_anythingDispatch(Hub *hub, Port *port, Symbol *selector, long argc, Atom *argv)
 {
+
+    Error_declare(err);
+    DispatchBase_declare(cell, selector, Port_id(port), 0);
+    Dispatch *dis = DispatchPtAr_binSearch(&hub->dispatchPtAr, DispatchBase_castToDispatch(&cell));
+    if (dis == NULL) {
+        return;
+    }
+    DispatchBase *found = DispatchBase_castFromDispatch(dis);
+    Marshal *marshal = DispatchBase_marshal(found);
+    if (marshal != NULL) {
+        Marshal_process(marshal, &hub->arguments, argc, argv, err);
+        if (Error_maypost(err)) {
+            return;
+        }
+    }
+    Dispatch_exec(dis, hub, &hub->arguments, err);
+    if (Error_maypost(err)) {
+        return;
+    }
+    if (marshal != NULL) {
+        Marshal_zeroArgs(marshal, &hub->arguments, err);
+        if (Error_maypost(err)) {
+            return;
+        }
+    }
+
+    return;
+    /*
     Hub *hub = (Hub*)hub_in;
     if (Port_id(port) == gensym("guiBottom")) {
         if (msg == gensym("incrementFrame")) {
@@ -1626,12 +1657,29 @@ APIF void Hub_anythingDispatch(void *hub_in, Port *port, Symbol *msg, long argc,
             Hub_midiFileDrop(hub, (argc > 0 ? argv + 0 : NULL));
         }
     } 
+    */
 }
 
 
 
-APIF void Hub_intDispatch(void *hub_in, Port *port, long value, long inlet)
+APIF void Hub_intDispatch(Hub *hub, Port *port, long value, long inlet)
 {
+    DispatchBase_declare(cell, NULL, Port_id(port), inlet);
+    Dispatch *dis = DispatchPtAr_binSearch(&hub->dispatchPtAr, DispatchBase_castToDispatch(&cell));
+    if (dis == NULL) {
+        return;
+    }
+
+    Arguments_setIvalue(&hub->arguments, value);
+    Arguments_setIinlet(&hub->arguments, inlet);
+    Dispatch_exec(dis, hub, &hub->arguments, err);
+    if (Error_maypost(err)) {
+        return;
+    }
+    Arguments_setIvalue(&hub->arguments, 0);
+    Arguments_setIinlet(&hub->arguments, 0);
+
+    /*
     Hub *hub = (Hub*)hub_in;
     int ev = port_parseEvSymbol(Port_id(port));
     if (ev >= 0) {
@@ -1645,6 +1693,7 @@ APIF void Hub_intDispatch(void *hub_in, Port *port, long value, long inlet)
             Error_maypost(err);
         }
     }
+    */
 }
 
 APIF void Hub_toBinFile(Hub *hub, BinFile *bf, Error *err) {

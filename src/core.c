@@ -194,6 +194,107 @@ static inline Symbol *Symbol_gen(const char *word) {
 #endif
 
 
+//
+// A T O M
+//
+#ifdef TEST_BUILD
+#define Atom_typeSymbol 1
+#define Atom_typeInteger 2
+#define Atom_typeFloat 3
+typedef struct Atom_t {
+    int atype;
+    union {
+        Symbol *symbol;
+        long integer;
+        double number;
+    } value;
+} Atom;
+
+static inline Atom Atom_integer(long value) {
+    Atom a = {0};
+    a.atype = Atom_typeInteger;
+    a.value.integer = value;
+    return a;
+}
+
+static inline Atom Atom_symbol(Symbol *value) {
+    Atom a = {0};
+    a.atype = Atom_typeSymbol;
+    a.value.symbol = value;
+    return a;
+}
+
+static inline Atom Atom_float(double value) {
+    Atom a = {0};
+    a.atype = Atom_typeFloat;
+    a.value.number = value;
+    return a;
+}
+
+
+static inline bool Atom_isSymbol(Atom *a) {
+    return a->atype == Atom_typeSymbol;
+}
+static inline Symbol *Atom_toSymbol(Atom *a) {
+    return a->type == Atom_typeSymbol ? a->value.symbol : NULL;
+}
+
+static inline bool Atom_isNumber(Atom *a) {
+    return a->atype == Atom_typeInteger || a->atype == Atom_typeFloat;
+}
+
+static inline long Atom_toInteger(Atom *a) {
+    return a->type == Atom_typeInteger ? a->value.integer : 
+           a->type == Atom_typeFloat   ? (long)a->value.number;
+} 
+static inline double Atom_toFloat(Atom *a) {
+    return a->type == Atom_typeInteger ? (double)a->value.integer : 
+           a->type == Atom_typeFloat   ? a->value.number;
+}
+
+#else
+
+#define Atom t_atom
+
+static inline Atom Atom_integer(long value) {
+    Atom a = {0};
+    atom_setlong(&a, value);
+    return a;
+}
+
+static inline Atom Atom_symbol(Symbol *value) {
+    Atom a = {0};
+    atom_setsym(*a, value);
+    return a;
+}
+
+static inline Atom Atom_float(double value) {
+    Atom a = {0};
+    atom_setfloat(&a, value);
+    return a;
+}
+
+static inline bool Atom_isSymbol(Atom *a) {
+    int t = atom_gettype(a);
+    return t == A_SYM;
+}
+static inline Symbol *Atom_toSymbol(Atom *a) {
+    return atom_getsym(a);
+}
+
+static inline bool Atom_isNumber(Atom *a) {
+    int t = atom_gettype(a);
+    return t == A_LONG || t == A_FLOAT;
+}
+static inline long Atom_toInteger(Atom *a) {
+    return atom_getlong(a);
+} 
+static inline double Atom_toFloat(Atom *a) {
+    return atom_getfloat(a);
+} 
+
+#endif
+
 
 
 // ifndef CORE_C
