@@ -2,9 +2,14 @@
 use strict;
 use lib "$ENV{HOME}/CeeSeq/script/lib";
 use JSON::Tiny qw(decode_json encode_json);
+ use POSIX qw(strftime);
 use Data::Dumper;
 
-my $gVerbose   = 1;
+my $gVerbose                 = 1;
+my $gAllClassesAndInterfaces = undef;
+my $gApif                    = undef;
+my $gNow                     = strftime("%m/%d/%Y %H:%M:%S", localtime);
+
 sub run {
     my ($cmd, %opts) = @_;
     print "$cmd\n" if $gVerbose;
@@ -33,39 +38,26 @@ sub backtick {
 
 sub writeWarning {
 	my ($out, $srcFile) = @_;
-	print {$out} "// *** DO NOT MODIFY THIS FILE (see $srcFile) ***\n";
+	print {$out} "// *** DO NOT MODIFY THIS FILE (see $srcFile) generated $gNow ***\n";
 }
 
 sub writeStruct {
-	my ($out, $class) = @_;
-	if (defined($class->{manualStruct})) {
-		$class->{manualStruct}($out);
-		return;
-	}
-
-	print {$out} <<END;
-struct $class->{typeName}_t
-{
-END
-	if ($class->{interface}) {
-		print {$out} "    int itype;\n";
-	}
-	my $persist;
-	for my $field (@{$class->{fields}}) {
+	my ($out, $classOrInterface) = @_;
+	pexpand($out, ["Struct:head"], {TYPENAME => $classOrInterface->{typeName}});	
+	for my $field (@{$classOrInterface->{fields}}) {
 		my $stype = spaceAdjustType($field->{type});
-		print {$out} "    $stype$field->{name};\n";
+		pexpand($out, ["Struct:field"], {STYPE=>$stype, NAME => $field->{name}});	
 	}
-	print {$out} <<END;  
-};
-END
+	pexpand($out, ["Struct:tail"], {});
 }
 
 sub writePredefined {
 	my ($out, $class) = @_;
-	print {$out}<<END;
-struct $class->{typeName}_t;
-typedef struct $class->{typeName}_t $class->{typeName};
-END
+	if (defined($class->{aliasFor})) {
+		pexpand($out, ['Predefined:alias'], {ALIAS=>$class->{aliasFor}, TYPENAME=>$class->{typeName}});
+	} else {
+		pexpand($out, ['Predefined:struct'], {TYPENAME=>$class->{typeName}});
+	}
 }
 
 sub writeArgDeclare {
@@ -137,7 +129,6 @@ sub writeAccessor {
 	}
 }
 
-my $gApif;
 sub scanAPIF {
 	my ($sources) = @_;
 
@@ -157,7 +148,7 @@ sub scanAPIF {
 	}
 	my %definedCalls;
 	for my $func (@funcs) {
-		die "INTERNAL ERROR" unless $line =~ /([[:alpha:]][[:alnum:]]*)_([[:alpha:]][[:alnum:]]*)/;
+		die "INTERNAL ERROR '$func'" unless $func =~ /([[:alpha:]][[:alnum:]]*)_([[:alpha:]][[:alnum:]]*)/;
 		my $className  = $1;
 		my $methodName = $2;
 		my $subhash = $definedCalls{$className};
@@ -168,7 +159,7 @@ sub scanAPIF {
 		$subhash->{$methodName} = 1;
 	}
 
-	$gApif = {funcs=>\@a, definedCalls=>\%definedCalls};
+	$gApif = {funcs=>\@funcs, definedCalls=>\%definedCalls};
 }
 
 sub writeAPIFForType {
@@ -203,7 +194,7 @@ sub scanUntilAtEnd {
 			$found = 1;
 			last;
 		}
-		if (/^\@type/) {
+		if (/^\@/) {
 			die "Failed to find \@end while processing \@type at line $start and failing on line $line";
 		}
 		push @text, $_;
@@ -217,8 +208,8 @@ sub scanUntilAtEnd {
 
 sub scanInDotH {
 	my ($cfg) = @_;
-	my ($file, $typeCallback, $notTypeCallback) = ($cfg->{file}, $cfg->{typeCallback}, $cfg->{notTypeCallback});
-	die "INTERNAL ERROR" unless defined($file) && defined($typeCallback) && defined($notTypeCallback);
+	my ($file, $typeCallback, $interfaceCallback, $nothingCallback) = ($cfg->{file}, $cfg->{typeCallback}, $cfg->{interfaceCallback}, $cfg->{nothingCallback});
+	die "INTERNAL ERROR" unless defined($file) && defined($typeCallback) && defined($nothingCallback);
 	open my $inp, "<", $file or die "Failed to open $file";
 	$cfg->{inp}  = $inp;
 	$cfg->{line} = 0;
@@ -230,8 +221,12 @@ sub scanInDotH {
 			$cfg->{lastAtType} = $cfg->{line};
 			my $text = scanUntilAtEnd($cfg);
 			$typeCallback->($cfg, $text);
+		} elsif (/^\@interface/) {
+			$cfg->{lastAtType} = $cfg->{line};
+			my $text = scanUntilAtEnd($cfg);
+			$interfaceCallback->($cfg, $text);
 		} else {
-			$notTypeCallback->($cfg, $_);
+			$nothingCallback->($cfg, $_);
 		}
 	}
 	delete($cfg->{inp});
@@ -253,16 +248,68 @@ sub collectClassFromAtType {
 		push @$classes, $class;
 	};
 	if ($@) {
-		die "Failed to decode json for type starting at $cfg->{lastAtType}";
+		die "Failed to decode json for type in file $cfg->{file}, starting at $cfg->{lastAtType}\n";
 	}
 }
 
+sub collectInterfaceFromAtType {
+	my ($cfg, $lines) = @_;
+	my $text = join("\n", @$lines);
+	my $interfaces = $cfg->{interfaces};
+	if (!defined($interfaces)) {
+		$interfaces = [];
+		$cfg->{interfaces} = $interfaces;
+	}
+	eval {
+		my $interface = decode_json($text);
+		$interface->{srcFile} = $cfg->{file};
+		push @$interfaces, $interface;
+	};
+	if ($@) {
+		die "Failed to decode json for interface in file $cfg->{file}, starting at $cfg->{lastAtType}\n";
+	}	
+}
+
+
 sub collectAllClassesFromFile {
 	my ($file) = @_;
-	my $cfg = {file=>$file, typeCallback=>\&collectClassFromAtType, notTypeCallback=>sub {}};
+	my $cfg = {file=>$file, typeCallback=>\&collectClassFromAtType, interfaceCallback=>\&collectInterfaceFromAtType, nothingCallback=>sub {}};
 	scanInDotH($cfg);
-	return $cfg->{classes};
+	return {classes=>$cfg->{classes}, interfaces=>$cfg->{interfaces}};
 }
+
+sub crossrefClassesAndInterfaces {
+	my ($interfaces, $classes) = @_;
+
+	for my $interfaceName (keys(%$interfaces)) {
+		print "Doing $interfaceName ", defined($interfaces->{$interfaceName}{fields}), "\n";
+		if (!defined($interfaces->{$interfaceName}{fields})) {
+			$interfaces->{$interfaceName}{fields} = [];
+		}
+		unshift @{$interfaces->{$interfaceName}{fields}}, {name=>"itype", type=>"int"}; 
+	}
+	print Dumper($interfaces),"\n";
+
+
+	for my $className (keys(%$classes)) {
+		next unless defined($classes->{$className}{implements});
+		## First, add the itype field to the class
+		unshift @{$classes->{$className}{fields}}, {name=>"itype", type=>"int"}; 
+
+		## Now add each class that implements interface ifc, to the implementedBy list of ifc.
+		for my $ifc (@{$classes->{$className}{implements}}) {
+			die "Class $className implements an interface that doesn't exist" unless defined($interfaces->{$ifc});
+			my $interface     = $interfaces->{$ifc};
+			my $implementedBy = $interface->{implementedBy};
+			if (!defined($implementedBy)) {
+				$implementedBy = {};
+				$interface->{implementedBy} = $implementedBy;
+			}
+			$implementedBy->{$className} = 1;
+		}
+	}
+}
+
 
 sub writeClassFromAtType {
 	my ($cfg, $lines) = @_;
@@ -272,8 +319,12 @@ sub writeClassFromAtType {
 		$class = decode_json($text);
 	};
 	if ($@) {
-		die "Failed to decode json for type starting at $cfg->{lastAtType}";
+		die "Failed to decode json for type starting in file $cfg->{srcFile} at line $cfg->{lastAtType}\n";
 	}
+	my $storedClass = $gAllClassesAndInterfaces->{classes}{$class->{typeName}};
+	die "INTERNAL ERROR: didn't find stored type $class->{typeName}" unless defined($storedClass);
+	$class = $storedClass;
+
 	my $out       = $cfg->{out};
 	my $file      = $cfg->{file};
 	writeWarning($out, $file);
@@ -302,6 +353,26 @@ sub writeClassFromAtType {
 	print {$out} "\n";
 }
 
+sub writeInterfaceFromAtType {
+	my ($cfg, $lines) = @_;
+	my $text = join("\n", @$lines);
+	my $interface;
+	eval {
+		$interface = decode_json($text);
+	};
+	if ($@) {
+		die "Failed to decode json for interface starting in file $cfg->{srcFile} at line $cfg->{lastAtType}\n";
+	}
+	my $storedInterface = $gAllClassesAndInterfaces->{interfaces}{$interface->{typeName}};
+	die "INTERNAL ERROR: didn't find stored interface $interface->{typeName}" unless defined($storedInterface);
+	$interface = $storedInterface;
+
+	my $out       = $cfg->{out};
+	my $file      = $cfg->{file};
+	writeWarning($out, $file);
+	writeStruct($out, $interface);
+}
+
 sub writeOrdinaryLine {
 	my ($cfg, $line) = @_;
 	my $out = $cfg->{out};
@@ -310,7 +381,7 @@ sub writeOrdinaryLine {
 
 sub writeAllClassesFromFile {
 	my ($out, $file) = @_;
-	my $cfg = {out=>$out, file=>$file, typeCallback=>\&writeClassFromAtType, notTypeCallback=>\&writeOrdinaryLine};
+	my $cfg = {out=>$out, file=>$file, typeCallback=>\&writeClassFromAtType, interfaceCallback=>\&writeInterfaceFromAtType, nothingCallback=>\&writeOrdinaryLine};
 	scanInDotH($cfg);
 }
 
@@ -417,19 +488,35 @@ sub collectAllClasses {
 	my ($headerTemplates) = @_;
 	my %classes;
 	my %classOrder;
+	my %interfaces;
+	my %interfaceOrder;
 	for my $header (@$headerTemplates) {
-		my $headerClasses = collectAllClassesFromFile($header);	
-		$classOrder{$header} = [];
+		my $classesAndInterfaces = collectAllClassesFromFile($header);	
+		my $headerClasses        = $classesAndInterfaces->{classes};
+		my $headerInterfaces     = $classesAndInterfaces->{interfaces};
+
+		$classOrder{$header}     = [];
 		for my $class (@$headerClasses) {
 			if (defined($classes{$class->{typeName}})) {
 				my $otherClass = $classes{$class->{typeName}};
-				die "Found the same typeName in two files: '$otherClass->{srcFile}' and '$class->{srcFile}'";
+				die "Found the same type typeName in two files: '$otherClass->{srcFile}' and '$class->{srcFile}'";
 			}
 			$classes{$class->{typeName}} = $class;
 			push @{$classOrder{$header}}, $class->{typeName};
 		}
+
+		$interfaceOrder{$header} = [];
+		for my $interface (@$headerInterfaces) {
+			if (defined($interfaces{$interface->{typeName}})) {
+				my $otherInterface = $interfaces{$interface->{typeName}};
+				die "Found the same interface typeName in two files: '$otherInterface->{srcFile}' and '$interface->{srcFile}'";
+			}
+			$interfaces{$interface->{typeName}} = $interface;
+			push @{$interfaceOrder{$header}}, $interface->{typeName};
+		}
 	}
-	return {classes => \%classes, file2ClassOrder => \%classOrder};
+
+	$gAllClassesAndInterfaces = {classes => \%classes, classOrder => \%classOrder, interfaces=>\%interfaces, interfaceOrder=>\%interfaceOrder};
 }
 
 sub processTemplateHeader {
@@ -475,15 +562,6 @@ sub collectUsedCalls {
 
 
 my @templates = (
-	{
-		key =>    'Struct:head',
-		symbol => '',
-		tmpl   => <<'ENDxxxxxxxxxx', 
-			@struct ${TYPENAME}_t
-			@{
-ENDxxxxxxxxxx
-	},
-
 	{
 		key =>    'Type:newUninitialized',
 		symbol => '${TYPENAME}_newUninitialized',
@@ -935,6 +1013,48 @@ ENDxxxxxxxxxx
 			@}
 ENDxxxxxxxxxx
 	},	
+
+	{
+		key =>    'Predefined:struct',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@struct ${TYPENAME}_t;
+			@typedef struct ${TYPENAME}_t ${TYPENAME};
+ENDxxxxxxxxxx
+	},
+	{
+		key =>    'Predefined:alias',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@typedef struct ${ALIAS}_t ${TYPENAME};
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Struct:head',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@struct ${TYPENAME}_t
+			@{
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Struct:field',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@    ${STYPE}${NAME};
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Struct:tail',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@};
+ENDxxxxxxxxxx
+	},
+
 );
 my %templateMap = map {$_->{key} => $_} @templates;
 
@@ -1035,7 +1155,7 @@ sub pexpand {
 sub writeInterfaceH {
 	my ($allClasses, $srcDir) = @_; 
 	my %classes    = %{$allClasses->{classes}};
-	my %classOrder = %{$allClasses->{file2ClassOrder}};
+	my %classOrder = %{$allClasses->{classOrder}};
 	my $outFile = "$srcDir/interface.h";
 	open my $fd, ">", $outFile or die "Failed to open $outFile";
 	my $nextIType = 10;
@@ -1044,7 +1164,7 @@ sub writeInterfaceH {
 		my @order = @{$classOrder{$file}};
 		for my $className (@order) {
 			my $class = $classes{$className};
-			next unless $class->{interface};
+			next unless defined($class->{implements});
 			printf {$fd} "#define Interface_type$className $nextIType\n";
 			$nextIType++;
 		}
@@ -1060,12 +1180,15 @@ sub main {
 		die "No templates found in directory $srcDir"
 	}
 
-	my $allClasses   = collectAllClasses($templateHeaders);
+	collectAllClasses($templateHeaders);
+	crossrefClassesAndInterfaces($gAllClassesAndInterfaces->{interfaces}, $gAllClassesAndInterfaces->{classes});
+	# print Dumper($gAllClassesAndInterfaces->{classes}),"\n";
+	# return;
 	my $allCFiles = [@$cFiles, @$cTemplates];
 	collectUsedCalls($allCFiles);
 	scanAPIF($allCFiles);
 
-	writeInterfaceH($allClasses, $srcDir);
+	writeInterfaceH($gAllClassesAndInterfaces, $srcDir);
 	
 	
 	for my $templateHeader (@$templateHeaders) {
@@ -1077,10 +1200,16 @@ sub main {
 		open my $out, ">", $header or die "Failed to open $header";
 		writeWarning($out, $templateHeader);
 
-		my $order = $allClasses->{file2ClassOrder}{$templateHeader};
-		die "INTERNAL ERROR" unless defined($order);
-		for my $className (@$order) {
-			writePredefined($out, $allClasses->{classes}{$className});		
+		my $interfaceOrder = $gAllClassesAndInterfaces->{interfaceOrder}{$templateHeader};
+		die "INTERNAL ERROR" unless defined($interfaceOrder);
+		for my $interfaceName (@$interfaceOrder) {
+			writePredefined($out, $gAllClassesAndInterfaces->{interfaces}{$interfaceName});		
+		}
+
+		my $classOrder = $gAllClassesAndInterfaces->{classOrder}{$templateHeader};
+		die "INTERNAL ERROR" unless defined($classOrder);
+		for my $className (@$classOrder) {
+			writePredefined($out, $gAllClassesAndInterfaces->{classes}{$className});		
 		}
 
 		processTemplateHeader($out, $templateHeader, $gUsedCalls);

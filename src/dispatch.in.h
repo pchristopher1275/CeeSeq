@@ -9,7 +9,7 @@
 
          {"name": "ivalue", "type": "long"},
          {"name": "inlet", "type": "long"}
-      ],
+      ]
    }
 @end
 
@@ -22,13 +22,13 @@
          {
             "name": "process",
             "retVal": "void",
-            "args": ["Arguments *", "long", "Atom *", "Error *"],
+            "args": ["Arguments *", "long", "Atom *", "Error *"]
          },
          {
             "name": "zeroArgs",
             "retVal": "void",
-            "args": ["Arguments *"],
-         },
+            "args": ["Arguments *"]
+         }
       ]
    }
 @end
@@ -36,7 +36,7 @@
 @type 
    {
       "typeName": "MarshalSi",
-      "aliasFor": "MarshalBase",
+      "aliasFor": "Marshal",
       "implements": ["Marshal"]
    }
 @end
@@ -44,7 +44,7 @@
 @type
    { 
       "typeName": "MarshalSii",
-      "aliasFor": "MarshalBase",
+      "aliasFor": "Marshal",
       "implements": ["Marshal"]
    }
 @end
@@ -52,7 +52,7 @@
 @type
    { 
       "typeName": "MarshalSs",
-      "aliasFor": "MarshalBase",
+      "aliasFor": "Marshal",
       "implements": ["Marshal"]
    }
 @end
@@ -60,19 +60,18 @@
 @interface
    {
       "typeName": "Dispatch",
-      "baseType": "DispatchBase",
       "fields": [
          {
             "name": "selector",
-            "type": "Symbol *",
+            "type": "Symbol *"
          },
          {
             "name": "portId",
-            "type": "Symbol *",
+            "type": "Symbol *"
          },
          {
             "name": "inlet",
-            "type": "int",
+            "type": "int"
          },
          {
             "name": "marshal",
@@ -83,26 +82,26 @@
          {
             "name": "exec",
             "retVal": "void",
-            "args": ["Hub *", "Arguments *", "Error *"],
+            "args": ["Hub *", "Arguments *", "Error *"]
          },
          {
             "name": "clear",
             "retVal": "void",
             "args": [],
-            "absentOk": true,
+            "absentOk": true
          },
          {
             "name": "init",
             "retVal": "void",
             "args": [],
-            "absentOk": true,
+            "absentOk": true
          },
          {
             "name": "initDispatchPtAr",
             "retVal": "int",
             "args": ["DispatchPtAr *"],
-            "absentOk": true,
-         },
+            "absentOk": true
+         }
       ],
       "containers": [
          {
@@ -120,7 +119,7 @@
 @type
    {
       "typeName": "IncrementFrameDispatch",
-      "aliasFor": "DispatchBase",
+      "aliasFor": "Dispatch",
       "implements": ["Dispatch"]
    }
 @end
@@ -128,7 +127,7 @@
 @type
    {
       "typeName": "DecrementFrameDispatch",
-      "aliasFor": "DispatchBase",
+      "aliasFor": "Dispatch",
       "implements": ["Dispatch"]
    }
 @end
@@ -136,7 +135,7 @@
 @type
    {
       "typeName": "SelectNextPushedPadDispatch",
-      "aliasFor": "DispatchBase",
+      "aliasFor": "Dispatch",
       "implements": ["Dispatch"]
    }
 @end
@@ -144,7 +143,7 @@
 @type
    {
       "typeName": "MidiFileDropDispatch",
-      "aliasFor": "DispatchBase",
+      "aliasFor": "Dispatch",
       "implements": ["Dispatch"]
    }
 @end
@@ -152,7 +151,7 @@
 @type
    {
       "typeName": "ManageChokeGroupsDispatch",
-      "aliasFor": "DispatchBase",
+      "aliasFor": "Dispatch",
       "implements": ["Dispatch"]
    }
 @end

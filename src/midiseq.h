@@ -1,4 +1,4 @@
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
 struct BinFilePayload_t;
 typedef struct BinFilePayload_t BinFilePayload;
 struct BinFile_t;
@@ -33,7 +33,7 @@ typedef struct Hub_t Hub;
 #define APIF /**/
 sds stripBaseName(const char *path);
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
 struct BinFilePayload_t
 {
     PortFind *portFind;
@@ -48,7 +48,7 @@ struct BinFilePayload_t
 #define BinFile_readLength(bf, err) BinFile_readLengthFlags(bf, NULL, err)
 #define BinFile_writeLength(bf, length, err) BinFile_writeLengthFlags(bf, length, -1, err)
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
 struct BinFile_t
 {
     int version;
@@ -122,7 +122,7 @@ const int Midiseq_cctype     = 3;
 const int Midiseq_cycletype  = 4;
 const int Midiseq_endgrptype = 5;
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
 struct Midiseq_t
 {
     bool useMasterClock;
@@ -136,6 +136,7 @@ static inline bool Midiseq_useMasterClock(Midiseq *self){return self->useMasterC
 static inline void Midiseq_setUseMasterClock(Midiseq *self, bool value){self->useMasterClock = value;}
 static inline Ticks Midiseq_sequenceLength(Midiseq *self){return self->sequenceLength;}
 static inline void Midiseq_setSequenceLength(Midiseq *self, Ticks value){self->sequenceLength = value;}
+int Midiseq_Midiseq_convertIntFileLine(const char *src, Error *err, const char *file, int line);
 Midiseq *Midiseq_new();
 void Midiseq_toBinFile(Midiseq *mseq, BinFile *bf, Error *err);
 Midiseq *Midiseq_fromBinFile(BinFile *bf, Error *err);
@@ -220,7 +221,7 @@ Midiseq *Midiseq_fromfile(const char *fullpath, Error *err);
 // @end
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
 struct Pad_t
 {
     t_symbol *trackName;
@@ -335,7 +336,7 @@ static inline bool PadPtrArIter_next(PadPtrArIter *iterator) {
 
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
 struct IndexedOff_t
 {
     int padIndex;
@@ -395,7 +396,7 @@ static inline IndexedOffArSlice IndexedOffAr_binSearchPadIndex(IndexedOffAr *arr
 }
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
 struct TimedOff_t
 {
     Ticks time;
@@ -442,7 +443,7 @@ static inline void TimedOffAr_binInsertTime(TimedOffAr *arr, TimedOff elem) {
 }            
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
 struct NoteManager_t
 {
     TimedOffAr pending;
@@ -462,7 +463,7 @@ void NoteManager_padNoteOff(NoteManager *manager, int padIndex);
 
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
 struct PortFindCell_t
 {
     Port *reciever;
@@ -507,7 +508,7 @@ static inline bool PortFindCellArIter_next(PortFindCellArIter *iterator) {
 }
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
 struct PortFind_t
 {
     PortFindCellAr objects;
@@ -535,7 +536,7 @@ Port *PortFind_findByIndex(PortFind *pf, int index, Error *err);
 #define PortFind_declare(name) PortFind _##name; PortFind *name = &_##name; memset(name, 0, sizeof(PortFind)); PortFind_init(name)        
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
 struct PadList_t
 {
     PadAr pads;
@@ -558,7 +559,7 @@ void PadList_fromBinFileInitialized(PadList *pl, BinFile *bf, Error *err);
 
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
 struct Track_t
 {
     Symbol *name;
@@ -600,7 +601,7 @@ static inline bool TrackArIter_next(TrackArIter *iterator) {
 
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
 struct TrackList_t
 {
     TrackAr list;
@@ -618,7 +619,7 @@ void TrackList_toBinFile(TrackList *tl, BinFile *bf, Error *err);
 
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
 struct PortRef_t
 {
     Port *port;
@@ -638,7 +639,7 @@ static inline void PortRef_set(PortRef *pr, Port *port, int outlet) {
 #define PortRef_sendInteger(pr, value, err)    Port_sendInteger(PortRef_port(pr), PortRef_outlet(pr), value, err)
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
 struct DropDown_t
 {
     SymbolPtrAr table;
@@ -666,7 +667,7 @@ static inline void DropDown_setPortRef(DropDown *dd, PortRef *pr) {
    dd->portRef = *pr;
 }
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
 struct Hub_t
 {
     PadList *padList;
@@ -684,6 +685,8 @@ struct Hub_t
     int frame;
     bool grabNextTappedPad;
     int selectedPad;
+    Arguments arguments;
+    DispatchPtAr dispatcher;
 };
 #define Hub_newUninitialized() ((Hub*)sysmem_newptrclear(sizeof(Hub)))        
 static inline PadList *Hub_padList(Hub *self){return self->padList;}
@@ -713,15 +716,10 @@ static inline void Hub_setSelectedPad(Hub *self, int value){self->selectedPad = 
 Hub *Hub_new(PortFind *pf, Error *err);
 void Hub_init(Hub *hub, PortFind *pf, Error *err);
 void Hub_free(Hub *hub);
-void Hub_incrementFrame(Hub *hub);
-void Hub_decrementFrame(Hub *hub);
-void Hub_selectNextPushedPad(Hub *hub);
 void Hub_updateGuiCurrentCoordinates(Hub *hub);
-void Hub_midiFileDrop(Hub *hub, t_atom *pathAtom);
-void Hub_manageChokeGroups(Hub *hub, long value, long inlet, Error *err);
 void Hub_changeSelectedPad(Hub *hub, int selectedPadIndex, Error *err);
-void Hub_anythingDispatch(void *hub_in, Port *port, Symbol *msg, long argc, t_atom *argv);
-void Hub_intDispatch(void *hub_in, Port *port, long value, long inlet);
+void Hub_anythingDispatch(Hub *hub, Port *port, Symbol *selector, long argc, Atom *argv);
+void Hub_intDispatch(Hub *hub, Port *port, long value, long inlet);
 void Hub_toBinFile(Hub *hub, BinFile *bf, Error *err);
 Hub *Hub_fromBinFile(BinFile *bf, Error *err);
 void Hub_fromBinFileUninitialized(Hub *hub, BinFile *bf, Error *err);

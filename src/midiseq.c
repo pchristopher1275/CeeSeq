@@ -18,7 +18,7 @@
 //
 // U t i l i t y
 //
-APIF static int convertIntFileLine(const char *src, Error *err, const char *file, int line)
+APIF int Midiseq_Midiseq_convertIntFileLine(const char *src, Error *err, const char *file, int line)
 {
     errno = 0;
     long v = strtol(src, NULL, 10);
@@ -32,7 +32,7 @@ APIF static int convertIntFileLine(const char *src, Error *err, const char *file
 }
 
 
-#define convertInt(src, err) convertIntFileLine(src, err, __FILE__, __LINE__)
+#define Midiseq_convertInt(src, err) Midiseq_Midiseq_convertIntFileLine(src, err, __FILE__, __LINE__)
 
 //
 // M I D I S E Q
@@ -531,7 +531,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
         }
 
         MEvent cell = {0};
-        cell.t = (long)(tickFactor*convertInt(fields[1], err));
+        cell.t = (long)(tickFactor*Midiseq_convertInt(fields[1], err));
         if (Error_iserror(err)) {
             goto END;
         }
@@ -545,8 +545,8 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
                 Error_format(err, "Bad Note_on_c file '%s' line %d", tempfile, linenum);
                 goto END;
             }
-            long pitch    = convertInt(fields[4], err);
-            long velocity = convertInt(fields[5], err);
+            long pitch    = Midiseq_convertInt(fields[4], err);
+            long velocity = Midiseq_convertInt(fields[5], err);
             if (Error_iserror(err)) {
                 goto END;
             }
@@ -589,7 +589,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
                 Error_format(err, "Bad Pitch_bend_c file '%s' line %d", tempfile, linenum);
                 goto END;
             }
-            long value = convertInt(fields[4], err);
+            long value = Midiseq_convertInt(fields[4], err);
             if (Error_iserror(err)) {
                 goto END;
             }
@@ -602,8 +602,8 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
                 Error_format(err, "Bad Control_c file '%s' line %d", tempfile, linenum);
                 goto END;
             }
-            long cc = convertInt(fields[4], err);
-            long val  = convertInt(fields[5], err);
+            long cc = Midiseq_convertInt(fields[4], err);
+            long val  = Midiseq_convertInt(fields[5], err);
             if (Error_iserror(err)) {
                 goto END;
             }
@@ -617,7 +617,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
                 Error_format(err, "Bad Header file '%s' line %d", tempfile, linenum);
                 goto END;
             }
-            long ppqn = convertInt(fields[5], err);
+            long ppqn = Midiseq_convertInt(fields[5], err);
             if (Error_iserror(err)) {
                 goto END;
             }

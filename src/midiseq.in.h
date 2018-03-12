@@ -553,7 +553,7 @@ static inline void DropDown_setPortRef(DropDown *dd, PortRef *pr) {
          },
          {
             "name": "arguments",
-            "type": "Arguments",
+            "type": "Arguments"
          },
          {
             "name": "dispatcher",
