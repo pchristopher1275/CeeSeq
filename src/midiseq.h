@@ -1,4 +1,4 @@
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/14/2018 14:15:48 ***
 struct BinFilePayload_t;
 typedef struct BinFilePayload_t BinFilePayload;
 struct BinFile_t;
@@ -33,22 +33,13 @@ typedef struct Hub_t Hub;
 #define APIF /**/
 sds stripBaseName(const char *path);
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/14/2018 14:15:48 ***
 struct BinFilePayload_t
 {
     PortFind *portFind;
 };
 
-
-
-#define BinFile_nullLengthFieldSizeStr "11"
-#define BinFile_maxLength              2147483647
-#define BinFileFlag_tag                1
-#define BinFile_writeBackLength(bf, location, err) BinFile_writeBackLengthFlags(bf, location, -1, err)
-#define BinFile_readLength(bf, err) BinFile_readLengthFlags(bf, NULL, err)
-#define BinFile_writeLength(bf, length, err) BinFile_writeLengthFlags(bf, length, -1, err)
-
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/14/2018 14:15:48 ***
 struct BinFile_t
 {
     int version;
@@ -87,9 +78,12 @@ void BinFile_writeBool(BinFile *bf, bool value, Error *err);
 bool BinFile_readBool(BinFile *bf, Error *err);
 void BinFile_writeTag(BinFile *bf, const char *tag, Error *err);
 void BinFile_verifyTag(BinFile *bf, const char *tag, Error *err);
-
-
-
+#define BinFile_nullLengthFieldSizeStr "11"
+#define BinFile_maxLength              2147483647
+#define BinFileFlag_tag                1
+#define BinFile_writeBackLength(bf, location, err) BinFile_writeBackLengthFlags(bf, location, -1, err)
+#define BinFile_readLength(bf, err) BinFile_readLengthFlags(bf, NULL, err)
+#define BinFile_writeLength(bf, length, err) BinFile_writeLengthFlags(bf, length, -1, err)
 static inline PortFind *BinFile_portFindPayload(BinFile *self){ return (self->payload == NULL ? NULL : self->payload->portFind); }
 static inline void BinFile_setPayload(BinFile *self, BinFilePayload *payload) { self->payload = payload;}
 
@@ -104,7 +98,6 @@ typedef struct MEvent_t
     Ticks t;
     Ticks duration;
 } MEvent;
-
 #define MEvent_newUninitialized() ((MEvent*)sysmem_newptrclear(sizeof(MEvent)))
 #define MEvent_type(cell) ((cell).type)
 #define MEvent_t(cell) ((cell).t)
@@ -115,14 +108,13 @@ typedef struct MEvent_t
 #define MEvent_ccValue(cell) ((cell).b.b[1])
 #define MEvent_bendValue(cell) ((cell).b.bend)
 #include "mEventAr.h"
-
 const int Midiseq_notetype   = 1;
 const int Midiseq_bendtype   = 2;
 const int Midiseq_cctype     = 3;
 const int Midiseq_cycletype  = 4;
 const int Midiseq_endgrptype = 5;
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/14/2018 14:15:48 ***
 struct Midiseq_t
 {
     bool useMasterClock;
@@ -158,8 +150,6 @@ void Midiseq_stop(Midiseq *mseq);
 int Midiseq_nextevent(Midiseq *mseq, Ticks until, MEvent *cell, Error *err);
 int Midiseq_fastfwrd(Midiseq *mseq, long t, Error *err);
 Midiseq *Midiseq_fromfile(const char *fullpath, Error *err);
-
-
 
 // @type
 //    {  
@@ -221,7 +211,7 @@ Midiseq *Midiseq_fromfile(const char *fullpath, Error *err);
 // @end
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/14/2018 14:15:48 ***
 struct Pad_t
 {
     t_symbol *trackName;
@@ -264,79 +254,97 @@ void Pad_toBinFile(Pad *pad, BinFile *bf, Error *err);
 Pad *Pad_fromBinFile(BinFile *bf, Error *err);
 void Pad_fromBinFileUninitialized(Pad *pad, BinFile *bf, Error *err);
 void Pad_computeChokeGroup(Pad *pad);
-
 typedef struct PadAr_t {
     Array body;
 } PadAr;
+
 typedef struct PadArIter_t {
    PadAr *arr;
    int index;
    bool last;
    Pad *var;
 } PadArIter;
+
 static inline void PadAr_clear(PadAr *arr) {
     Array_clear((Array*)arr);
     PadAr zero = {{0}};
     *arr = zero;
 }
+
 static inline void PadAr_fit(PadAr *arr) {
     Array_fit((Array*)arr);
 }
+
 #define PadAr_foreach(var, arr)  for (PadArIter_declare(var, arr); PadArIter_next(&var); )            
+
 static inline Pad *PadAr_getp(PadAr *arr, int index, Error *err) {
     Array_getCheck(arr, index, NULL, err);
     return (Pad *)Array_get((Array*)arr, index);
 }
+
 static inline void PadAr_init(PadAr *arr, int nelems) {
     Array_init((Array*)arr, nelems, sizeof(Pad), (Array_clearElement)NULL);
 }
+
 static inline int PadAr_len(PadAr *arr) {
     return Array_len((Array*)arr);
 }
+
 static inline void PadAr_push(PadAr *arr, Pad elem) {
     Pad *p = (Pad *)Array_pushN((Array*)arr, 1);
     *p = elem;
     return; 
 }            
+
 #define PadArIter_declare(var, arr)  PadArIter var = {arr, -1, false, NULL}            
+
 static inline bool PadArIter_next(PadArIter *iterator) {
     return ArrayIter_next((ArrayIter*)iterator);
 }
+
 typedef struct PadPtrAr_t {
     Array body;
 } PadPtrAr;
+
 typedef struct PadPtrArIter_t {
    PadPtrAr *arr;
    int index;
    bool last;
    Pad **var;
 } PadPtrArIter;
+
 static inline void PadPtrAr_clear(PadPtrAr *arr) {
     Array_clear((Array*)arr);
     PadPtrAr zero = {{0}};
     *arr = zero;
 }
+
 #define PadPtrAr_foreach(var, arr)  for (PadPtrArIter_declare(var, arr); PadPtrArIter_next(&var); )            
+
 static inline void PadPtrAr_init(PadPtrAr *arr, int nelems) {
     Array_init((Array*)arr, nelems, sizeof(Pad *), (Array_clearElement)NULL);
 }
+
 static inline void PadPtrAr_push(PadPtrAr *arr, Pad *elem) {
     Pad * *p = (Pad **)Array_pushN((Array*)arr, 1);
     *p = elem;
     return; 
 }            
+
 static inline void PadPtrAr_remove(PadPtrAr *arr, int index, Error *err) {
     Array_removeNCheck(arr, index, 1, err);
     Array_removeN((Array*)arr, index, 1);
 }    
+
 #define PadPtrArIter_declare(var, arr)  PadPtrArIter var = {arr, -1, false, NULL}            
+
 static inline bool PadPtrArIter_next(PadPtrArIter *iterator) {
     return ArrayIter_next((ArrayIter*)iterator);
 }
 
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/14/2018 14:15:48 ***
 struct IndexedOff_t
 {
     int padIndex;
@@ -344,51 +352,65 @@ struct IndexedOff_t
 };
 #define IndexedOff_declare(name, padIndex, pitch) IndexedOff name = {(padIndex), (pitch)}
 int IndexedOff_cmpPadIndex(IndexedOff *left, IndexedOff *right);
-
 typedef struct IndexedOffAr_t {
     Array body;
 } IndexedOffAr;
+
 typedef struct IndexedOffArSlice_t {
     int len;
     IndexedOff *data;
     int index;
     IndexedOff *var;
 } IndexedOffArSlice;
+
 typedef struct IndexedOffArIter_t {
    IndexedOffAr *arr;
    int index;
    bool last;
    IndexedOff *var;
 } IndexedOffArIter;
+
 static inline void IndexedOffAr_clear(IndexedOffAr *arr) {
     Array_clear((Array*)arr);
     IndexedOffAr zero = {{0}};
     *arr = zero;
 }
+
 #define IndexedOffAr_declareSlice(name) IndexedOffArSlice name = {0}            
+
 #define IndexedOffAr_foreach(var, arr)  for (IndexedOffArIter_declare(var, arr); IndexedOffArIter_next(&var); )            
+
 static inline void IndexedOffAr_init(IndexedOffAr *arr, int nelems) {
     Array_init((Array*)arr, nelems, sizeof(IndexedOff), (Array_clearElement)NULL);
 }
+
 static inline void IndexedOffAr_remove(IndexedOffAr *arr, int index, Error *err) {
     Array_removeNCheck(arr, index, 1, err);
     Array_removeN((Array*)arr, index, 1);
 }    
+
 #define IndexedOffAr_sliceEmpty(slice) (slice.data == NULL)
+
 #define IndexedOffAr_sliceForeach(slice) for (slice.index=0, slice.var=slice.data; slice.index < slice.len; slice.index++, slice.var++)
+
 static inline void IndexedOffAr_truncate(IndexedOffAr *arr) {
     Array_truncate((Array*)arr);
 }
+
 #define IndexedOffArIter_declare(var, arr)  IndexedOffArIter var = {arr, -1, false, NULL}            
+
 static inline bool IndexedOffArIter_next(IndexedOffArIter *iterator) {
     return ArrayIter_next((ArrayIter*)iterator);
 }
+
 static inline void IndexedOffAr_binInsertPadIndex(IndexedOffAr *arr, IndexedOff elem) {
     Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)IndexedOff_cmpPadIndex, true);
 }            
+
 static inline void IndexedOffAr_binRemovePadIndex(IndexedOffAr *arr, IndexedOff elem) {
     Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)IndexedOff_cmpPadIndex, true);
 }        
+
 static inline IndexedOffArSlice IndexedOffAr_binSearchPadIndex(IndexedOffAr *arr, IndexedOff elem) {
     IndexedOffArSlice slice = {0};
     Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)IndexedOff_cmpPadIndex, (ArraySlice*)&slice);
@@ -396,7 +418,7 @@ static inline IndexedOffArSlice IndexedOffAr_binSearchPadIndex(IndexedOffAr *arr
 }
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/14/2018 14:15:48 ***
 struct TimedOff_t
 {
     Ticks time;
@@ -404,46 +426,55 @@ struct TimedOff_t
 };
 #define TimedOff_declare(name, time, pitch) TimedOff name = {(time), (pitch)}
 int TimedOff_cmpTime(TimedOff *left, TimedOff *right);
-
 typedef struct TimedOffAr_t {
     Array body;
 } TimedOffAr;
+
 typedef struct TimedOffArIter_t {
    TimedOffAr *arr;
    int index;
    bool last;
    TimedOff *var;
 } TimedOffArIter;
+
 static inline void TimedOffAr_clear(TimedOffAr *arr) {
     Array_clear((Array*)arr);
     TimedOffAr zero = {{0}};
     *arr = zero;
 }
+
 #define TimedOffAr_foreach(var, arr)  for (TimedOffArIter_declare(var, arr); TimedOffArIter_next(&var); )            
+
 static inline void TimedOffAr_init(TimedOffAr *arr, int nelems) {
     Array_init((Array*)arr, nelems, sizeof(TimedOff), (Array_clearElement)NULL);
 }
+
 static inline void TimedOffAr_remove(TimedOffAr *arr, int index, Error *err) {
     Array_removeNCheck(arr, index, 1, err);
     Array_removeN((Array*)arr, index, 1);
 }    
+
 static inline void TimedOffAr_removeN(TimedOffAr *arr, int index, int N, Error *err) {
     Array_removeNCheck(arr, index, N, err);
     Array_removeN((Array*)arr, index, N);
 }
+
 static inline void TimedOffAr_truncate(TimedOffAr *arr) {
     Array_truncate((Array*)arr);
 }
+
 #define TimedOffArIter_declare(var, arr)  TimedOffArIter var = {arr, -1, false, NULL}            
+
 static inline bool TimedOffArIter_next(TimedOffArIter *iterator) {
     return ArrayIter_next((ArrayIter*)iterator);
 }
+
 static inline void TimedOffAr_binInsertTime(TimedOffAr *arr, TimedOff elem) {
     Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)TimedOff_cmpTime, false);
 }            
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/14/2018 14:15:48 ***
 struct NoteManager_t
 {
     TimedOffAr pending;
@@ -461,54 +492,60 @@ Ticks NoteManager_scheduleOffs(NoteManager *manager, Ticks current);
 void NoteManager_midievent(NoteManager *manager, MEvent cell, int padIndexForEndgroup);
 void NoteManager_padNoteOff(NoteManager *manager, int padIndex);
 
-
-
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/14/2018 14:15:48 ***
 struct PortFindCell_t
 {
     Port *reciever;
     t_symbol *varname;
 };
-
 typedef struct PortFindCellAr_t {
     Array body;
 } PortFindCellAr;
+
 typedef struct PortFindCellArIter_t {
    PortFindCellAr *arr;
    int index;
    bool last;
    PortFindCell *var;
 } PortFindCellArIter;
+
 static inline void PortFindCellAr_clear(PortFindCellAr *arr) {
     Array_clear((Array*)arr);
     PortFindCellAr zero = {{0}};
     *arr = zero;
 }
+
 #define PortFindCellAr_foreach(var, arr)  for (PortFindCellArIter_declare(var, arr); PortFindCellArIter_next(&var); )            
+
 static inline PortFindCell PortFindCellAr_get(PortFindCellAr *arr, int index, Error *err) {
     PortFindCell v = {0};
     Array_getCheck(arr, index, v, err);
     memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
     return v;
 }
+
 static inline void PortFindCellAr_init(PortFindCellAr *arr, int nelems) {
     Array_init((Array*)arr, nelems, sizeof(PortFindCell), (Array_clearElement)NULL);
 }
+
 static inline int PortFindCellAr_len(PortFindCellAr *arr) {
     return Array_len((Array*)arr);
 }
+
 static inline void PortFindCellAr_push(PortFindCellAr *arr, PortFindCell elem) {
     PortFindCell *p = (PortFindCell *)Array_pushN((Array*)arr, 1);
     *p = elem;
     return; 
 }            
+
 #define PortFindCellArIter_declare(var, arr)  PortFindCellArIter var = {arr, -1, false, NULL}            
+
 static inline bool PortFindCellArIter_next(PortFindCellArIter *iterator) {
     return ArrayIter_next((ArrayIter*)iterator);
 }
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/14/2018 14:15:48 ***
 struct PortFind_t
 {
     PortFindCellAr objects;
@@ -531,12 +568,10 @@ Port *PortFind_findByTrack(PortFind *pf, Symbol *symbol);
 Port *PortFind_findById(PortFind *pf, Symbol *symbol);
 int PortFind_portCount(PortFind *pf);
 Port *PortFind_findByIndex(PortFind *pf, int index, Error *err);
-
-
 #define PortFind_declare(name) PortFind _##name; PortFind *name = &_##name; memset(name, 0, sizeof(PortFind)); PortFind_init(name)        
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/14/2018 14:15:48 ***
 struct PadList_t
 {
     PadAr pads;
@@ -557,9 +592,7 @@ void PadList_toBinFile(PadList *pl, BinFile *bf, Error *err);
 PadList *PadList_fromBinFile(BinFile *bf, Error *err);
 void PadList_fromBinFileInitialized(PadList *pl, BinFile *bf, Error *err);
 
-
-
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/14/2018 14:15:48 ***
 struct Track_t
 {
     Symbol *name;
@@ -568,40 +601,47 @@ struct Track_t
 static inline void Track_setName(Track *self, Symbol *value){self->name = value;}
 static inline NoteManager *Track_noteManager(Track *self){return self->noteManager;}
 static inline void Track_setNoteManager(Track *self, NoteManager *value){self->noteManager = value;}
-
 typedef struct TrackAr_t {
     Array body;
 } TrackAr;
+
 typedef struct TrackArIter_t {
    TrackAr *arr;
    int index;
    bool last;
    Track *var;
 } TrackArIter;
+
 #define TrackAr_foreach(var, arr)  for (TrackArIter_declare(var, arr); TrackArIter_next(&var); )            
+
 static inline Track *TrackAr_getp(TrackAr *arr, int index, Error *err) {
     Array_getCheck(arr, index, NULL, err);
     return (Track *)Array_get((Array*)arr, index);
 }
+
 static inline void TrackAr_init(TrackAr *arr, int nelems) {
     Array_init((Array*)arr, nelems, sizeof(Track), (Array_clearElement)NULL);
 }
+
 static inline int TrackAr_len(TrackAr *arr) {
     return Array_len((Array*)arr);
 }
+
 static inline void TrackAr_push(TrackAr *arr, Track elem) {
     Track *p = (Track *)Array_pushN((Array*)arr, 1);
     *p = elem;
     return; 
 }            
+
 #define TrackArIter_declare(var, arr)  TrackArIter var = {arr, -1, false, NULL}            
+
 static inline bool TrackArIter_next(TrackArIter *iterator) {
     return ArrayIter_next((ArrayIter*)iterator);
 }
 
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/14/2018 14:15:48 ***
 struct TrackList_t
 {
     TrackAr list;
@@ -617,9 +657,7 @@ Track *TrackList_findTrackByIndex(TrackList *tl, int index, Error *err);
 TrackList *TrackList_fromBinFile(BinFile *bf, Error *err);
 void TrackList_toBinFile(TrackList *tl, BinFile *bf, Error *err);
 
-
-
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/14/2018 14:15:48 ***
 struct PortRef_t
 {
     Port *port;
@@ -627,8 +665,6 @@ struct PortRef_t
 };
 static inline Port *PortRef_port(PortRef *self){return self->port;}
 static inline int PortRef_outlet(PortRef *self){return self->outlet;}
-
-
 
 #define PortRef_declare(name, port, outlet)    PortRef _##name = {port, outlet}; PortRef *name = &_##name
 static inline void PortRef_set(PortRef *pr, Port *port, int outlet) {
@@ -639,7 +675,7 @@ static inline void PortRef_set(PortRef *pr, Port *port, int outlet) {
 #define PortRef_sendInteger(pr, value, err)    Port_sendInteger(PortRef_port(pr), PortRef_outlet(pr), value, err)
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/14/2018 14:15:48 ***
 struct DropDown_t
 {
     SymbolPtrAr table;
@@ -657,8 +693,6 @@ void DropDown_updateSelected(DropDown *dd, Error *err);
 void DropDown_setSelected(DropDown *dd, int selected, Error *err);
 void DropDown_initializeMenu(DropDown *dd, Error *err);
 
-
-
 static inline PortRef *DropDown_portRef(DropDown *dd) {
     return &dd->portRef;
 }
@@ -667,7 +701,7 @@ static inline void DropDown_setPortRef(DropDown *dd, PortRef *pr) {
    dd->portRef = *pr;
 }
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/12/2018 11:58:24 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/14/2018 14:15:48 ***
 struct Hub_t
 {
     PadList *padList;
@@ -723,8 +757,6 @@ void Hub_intDispatch(Hub *hub, Port *port, long value, long inlet);
 void Hub_toBinFile(Hub *hub, BinFile *bf, Error *err);
 Hub *Hub_fromBinFile(BinFile *bf, Error *err);
 void Hub_fromBinFileUninitialized(Hub *hub, BinFile *bf, Error *err);
-
-
 
 #define Hub_padsPerFrame           24
 #define Hub_framesPerBank           8

@@ -1,10 +1,20 @@
+typedef struct Undefined_t {
+    int itype;
+    char buffer[1024];
+} Undefined;
+#define Undefined_itype 10
+Undefined Undefined_instance = {Undefined_itype, 0};
+#define Undefined_ptr(typename) ((typename*)&Undefined_instance)
+
 // From file 'src/dispatch.in.h'
-#define Interface_typeMarshalSi 10
-#define Interface_typeMarshalSii 11
-#define Interface_typeMarshalSs 12
-#define Interface_typeIncrementFrameDispatch 13
-#define Interface_typeDecrementFrameDispatch 14
-#define Interface_typeSelectNextPushedPadDispatch 15
-#define Interface_typeMidiFileDropDispatch 16
-#define Interface_typeManageChokeGroupsDispatch 17
+#define MarshalSi_itype 12
+#define MarshalSii_itype 13
+#define MarshalSs_itype 14
+#define IncrementFrameDispatch_itype 15
+#define DecrementFrameDispatch_itype 16
+#define SelectNextPushedPadDispatch_itype 17
+#define MidiFileDropDispatch_itype 18
+#define ManageChokeGroupsDispatch_itype 19
+
 // From file 'src/midiseq.in.h'
+const char *Interface_toString(int itype);

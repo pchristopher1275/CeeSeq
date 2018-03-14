@@ -16,7 +16,6 @@
 @interface
    {
       "typeName": "Marshal",
-      "baseType": "MarshalBase",
       "fields": [],
       "methods": [
          {
@@ -85,22 +84,25 @@
             "args": ["Hub *", "Arguments *", "Error *"]
          },
          {
-            "name": "clear",
-            "retVal": "void",
+            "name": "create",
+            "itypeReceiver": true,
+            "retVal": "Dispatch *",
             "args": [],
-            "absentOk": true
+            "defMethod": "Dispatch_newDefault"
          },
          {
-            "name": "init",
+            "name": "free",
             "retVal": "void",
             "args": [],
-            "absentOk": true
+            "defMethod": "Dispatch_freeDefault"
          },
          {
             "name": "initDispatchPtAr",
-            "retVal": "int",
+            "retVal": "void",
             "args": ["DispatchPtAr *"],
-            "absentOk": true
+            "absentOk": true,
+            "itypeReceiver": true,
+            "defMethod": "Dispatch_initDispatchPtArDefault"
          }
       ],
       "containers": [
@@ -109,7 +111,7 @@
             "typename": "DispatchPtAr", 
             "elemname": "Dispatch *",
             "binarySearch": [
-               {"compare": "DispatchBase_cmp"}
+               {"compare": "Dispatch_cmp"}
             ]
          }
       ]

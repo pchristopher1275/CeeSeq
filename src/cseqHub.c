@@ -11,14 +11,19 @@
 #include "ext_time.h"
 #include "ext_itm.h"
 
+#include "interface.h"
 #include "core.c"
 #include "array.c"
+#include "dispatch.h"
 #include "ptrAr.h"
 #include "symbolPtrAr.h"
 #include "intAr.h"
-#include "shared.c"
 #include "midiseq.h"
+#include "shared.c"
 #include "midiseq.c"
+#include "dispatch.h"
+
+
 
 typedef struct _CseqHub
 {

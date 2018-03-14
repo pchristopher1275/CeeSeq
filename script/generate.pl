@@ -9,7 +9,8 @@ my $gVerbose                 = 1;
 my $gAllClassesAndInterfaces = undef;
 my $gApif                    = undef;
 my $gNow                     = strftime("%m/%d/%Y %H:%M:%S", localtime);
-
+my $gNextItype               = 10;
+my $gUndefinedItype          = $gNextItype++;
 sub run {
     my ($cmd, %opts) = @_;
     print "$cmd\n" if $gVerbose;
@@ -173,7 +174,6 @@ $line;
 END
 		}
 	}
-	print {$out} "\n";
 }
 
 sub scanUntilAtEnd {
@@ -234,6 +234,54 @@ sub scanInDotH {
 	close($inp);
 }
 
+sub filterDotInC {
+	my ($inDotC) = @_;
+	my $outFile = $inDotC;
+	my $header  = $inDotC;
+	die "INTERNAL ERROR: bad .in.c [1] file" unless $outFile =~ s[\.in\.c$][.c];
+	die "INTERNAL ERROR: bad .in.c [2] file" unless $header  =~ s[\.in\.c$][\.in\.h];
+	open my $inp, "<", $inDotC or die "Failed to open file $inDotC";
+	open my $out, ">", $outFile or die "Failed to open file $inDotC";
+	while (<$inp>) {
+		print {$out} $_;
+	}
+	close($inp);
+
+	my $interfaces     = $gAllClassesAndInterfaces->{interfaces};
+	my $interfaceOrder = $gAllClassesAndInterfaces->{interfaceOrder}{$header};
+	die "INTERNAL ERROR: didn't find iterfaceOrder for $header" unless defined($interfaceOrder);
+	for my $interfaceName (@$interfaceOrder) {
+		my $interface = $interfaces->{$interfaceName};
+		for (my $methodIndex = 0; $methodIndex < @{$interface->{methods}}; $methodIndex++) {
+		 	writeInterfaceMethod($out, $interface, $methodIndex, 0);
+		}
+	}
+	close($out);
+}
+
+sub filterAllDotInC {
+	my ($inDotCList) = @_;
+	for my $inDotC (@$inDotCList) {
+		filterDotInC($inDotC);
+	}
+}
+
+sub reportBadJson {
+	my ($cfg, $lines) = @_;
+	my $commaEnd          = 0;
+	my $closeBracketStart = 0;
+	my $startLineNumber   = $cfg->{lastAtType};
+	my $count             = 0;
+	for my $line (@$lines) {
+		$closeBracketStart = ($line =~ /^\s*[}\]]/);
+		if ($closeBracketStart && $commaEnd) {
+			printf {*STDERR} "Suspicious comma in file %s at line %d\n", $cfg->{file}, ($startLineNumber + $count);
+		}
+		$commaEnd = ($line =~ /,\s*$/);
+		$count++;
+	}
+}
+
 sub collectClassFromAtType {
 	my ($cfg, $lines) = @_;
 	my $text = join("\n", @$lines);
@@ -245,9 +293,11 @@ sub collectClassFromAtType {
 	eval {
 		my $class = decode_json($text);
 		$class->{srcFile} = $cfg->{file};
+		$class->{itype}   = $gNextItype++;
 		push @$classes, $class;
 	};
 	if ($@) {
+		reportBadJson($cfg, $lines);
 		die "Failed to decode json for type in file $cfg->{file}, starting at $cfg->{lastAtType}\n";
 	}
 }
@@ -266,6 +316,7 @@ sub collectInterfaceFromAtType {
 		push @$interfaces, $interface;
 	};
 	if ($@) {
+		reportBadJson($cfg, $lines);
 		die "Failed to decode json for interface in file $cfg->{file}, starting at $cfg->{lastAtType}\n";
 	}	
 }
@@ -282,14 +333,11 @@ sub crossrefClassesAndInterfaces {
 	my ($interfaces, $classes) = @_;
 
 	for my $interfaceName (keys(%$interfaces)) {
-		print "Doing $interfaceName ", defined($interfaces->{$interfaceName}{fields}), "\n";
 		if (!defined($interfaces->{$interfaceName}{fields})) {
 			$interfaces->{$interfaceName}{fields} = [];
 		}
 		unshift @{$interfaces->{$interfaceName}{fields}}, {name=>"itype", type=>"int"}; 
 	}
-	print Dumper($interfaces),"\n";
-
 
 	for my $className (keys(%$classes)) {
 		next unless defined($classes->{$className}{implements});
@@ -328,15 +376,13 @@ sub writeClassFromAtType {
 	my $out       = $cfg->{out};
 	my $file      = $cfg->{file};
 	writeWarning($out, $file);
-	writeStruct($out, $class);
+	if (defined($class->{aliasFor})) {
+		pexpand($out, ['Alias:comment'], {ALIAS=>$class->{aliasFor}, TYPENAME=>$class->{typeName}});
+	} else {
+		writeStruct($out, $class);
+	}
 	pexpand($out, ['Type:newUninitialized'], {TYPENAME => $class->{typeName}}) unless $class->{noNewUnitialized};
-	if (defined($class->{preAccessor})) {
-		$class->{preAccessor}($out);
-	}
 	writeAccessor($out, $class);
-	if (defined($class->{postAccessor})) {
-		$class->{postAccessor}($out);
-	}
 	if (defined($class->{argDeclare})) {
 		writeArgDeclare($out, $class);
 	}
@@ -349,6 +395,114 @@ sub writeClassFromAtType {
 				die "Unknown container type $cont->{type}";
 			}
 		}
+	}
+	if (defined($class->{implements})) {
+		my $h = {TYPENAME=>$class->{typeName}};
+		for my $ifc (@{$class->{implements}}) {
+			$h->{IFCNAME} = $ifc;
+			pexpand($out, ['Interface:castTo', 'Interface:castFrom'], $h);
+		}
+	}
+}
+
+sub writeInterfaceMethod {
+	my ($out, $interface, $methodIndex, $justProto) = @_;
+	my $ifcName       = $interface->{typeName};
+	my $method        = $interface->{methods}[$methodIndex];
+	my $itypeReceiver = $method->{itypeReceiver};
+	my $defMethod     = $method->{defMethod};
+	my $retVoid       = $method->{retVal} eq 'void';
+	my $retPtr        = ($method->{retVal} =~ /\*/);
+	my $absentOk      = defined($defMethod) ? 0 : $method->{absentOk};
+	my $methodName    = $method->{name};
+	my @methodArgs    = @{$method->{args}};
+
+	my $forwardError = 1;
+	if (@methodArgs == 0 || $methodArgs[$#methodArgs] !~ m[Error\s*\*]) {
+		$forwardError = 0;
+	} else {
+		pop @methodArgs;
+	}
+
+	my @argWithVariable;
+	my @variable;
+	my $count = 1;
+	for my $arg (@methodArgs) {
+		if ($arg =~ /\*/) {
+			push @argWithVariable, "${arg}a$count";
+		} else {
+			push @argWithVariable, "$arg a$count";
+		}
+		push @variable, "a$count";
+		$count++;
+	}
+	if ($forwardError) {
+		push @variable, "err"
+	}
+
+	my $typedArgs  = "";
+	my $listArgs   = "";
+	if (@argWithVariable > 0) {
+		$typedArgs = ", " . join(", ", @argWithVariable);
+		$listArgs  = ", " . join(", ", @variable);
+	}
+	
+	
+	my $cfg       = {
+		IFCNAME       => $ifcName,
+		TYPEDRECIEVER => $itypeReceiver ? "int itype" : "$ifcName *self",
+		METHODNAME    => $methodName,
+		DEFRET        => $retPtr ? "NULL" : '0',
+		LISTARGS      => $listArgs,
+		TYPEDARGS     => $typedArgs,
+		RTYPE         => spaceAdjustType($method->{retVal}),
+		ENDPROTO      => ";",
+		SWITCHTARGET  => $itypeReceiver ? "itype" : "self->itype",
+	};
+
+	if ($justProto) {
+		pexpand($out, ['Interface:proto'], $cfg);
+		return;
+	}
+
+	$cfg->{ENDPROTO} = "";
+	my ($defClassName, $defMethodName);
+	if (defined($defMethod)) {
+		($defClassName, $defMethodName) = split "_", $defMethod;
+	}
+
+	pexpand($out, ['Interface:proto', 'Interface:startFunction'], $cfg);
+	my @implementedBy = sort {$a cmp $b} keys(%{$interface->{implementedBy}});
+	for my $implementedBy (@implementedBy) {
+		$cfg->{TYPENAME} = $implementedBy;
+		if (!defined($defMethod) || $gApif->{definedCalls}{$implementedBy}{$methodName}) {
+			$cfg->{CALLTYPENAME}     = $implementedBy;
+			$cfg->{CALLMETHODNAME}   = $methodName;	
+			$cfg->{CASTRECIEVER}     = $itypeReceiver ? "itype" : "($implementedBy*)self";
+		} else {
+			$cfg->{CALLTYPENAME}     = $defClassName;
+			$cfg->{CALLMETHODNAME}   = $defMethodName;	
+			$cfg->{CASTRECIEVER}     = $itypeReceiver ? "itype" : "self";
+		}
+		
+		if ($absentOk && !$gApif->{definedCalls}{$implementedBy}{$methodName}) {
+			if ($retVoid) {
+				pexpand($out, ['Interface:caseAbsentVoid'], $cfg);
+			} else {
+				pexpand($out, ['Interface:caseAbsent'], $cfg);
+			}
+		} else {
+			if ($retVoid) {
+				pexpand($out, ['Interface:caseVoid'], $cfg);
+			} else {
+				pexpand($out, ['Interface:case'], $cfg);
+			}
+		}
+	}
+	if ($retVoid) {
+		pexpand($out, ['Interface:endFunctionVoid'], $cfg);
+	} else {
+		pexpand($out, ['Interface:endFunction'], $cfg);
 	}
 	print {$out} "\n";
 }
@@ -371,6 +525,27 @@ sub writeInterfaceFromAtType {
 	my $file      = $cfg->{file};
 	writeWarning($out, $file);
 	writeStruct($out, $interface);
+	writeAPIFForType($out, $interface->{typeName});
+	if (defined($interface->{containers})) {
+		for my $cont (@{$interface->{containers}}) {
+			if ($cont->{type} eq 'array') {
+				writeArray($out, $cont);
+			} else {
+				die "Unknown container type $cont->{type}";
+			}
+		}
+	}
+	for (my $methodIndex = 0; $methodIndex < @{$interface->{methods}}; $methodIndex++) {
+		writeInterfaceMethod($out, $interface, $methodIndex, 1);
+	}
+	print {$out} "\n";
+	my @itypes;
+	for my $className (keys(%{$interface->{implementedBy}})) {
+		push @itypes, $gAllClassesAndInterfaces->{classes}{$className}{itype};
+	}
+	@itypes = sort {$a <=> $b} @itypes;
+	my $h = {IFCNAME => $interface->{typeName}, ITYPELIST=>join(", ", @itypes)};
+	pexpand($out, ['Interface:foreachIType'], $h);
 }
 
 sub writeOrdinaryLine {
@@ -426,7 +601,7 @@ sub writeArray {
 	}
 	
 	my $dict = {TYPENAME=>$TYPENAME, ELEMNAME_NS=>$ELEMNAME_NS, ELEMNAME=>$ELEMNAME, CLEARER=>$CLEARER, ELEMZERO=>$ELEMZERO};
-	pexpand($out, \@keys, $dict);
+	pexpandNl($out, \@keys, $dict);
 
 	if (defined$binarySearch) {
 		my $usedEmpty = 0;
@@ -450,7 +625,7 @@ sub writeArray {
 				$dict->{MULTI} = "false";
 				push @keys, "Array:binSearchElemReturn";
 			}
-			pexpand($out, \@keys, $dict);
+			pexpandNl($out, \@keys, $dict);
 		}
 	}
 }
@@ -462,25 +637,28 @@ sub filesInDirectory {
 	my @headerTemplates;
 	my @cFiles;
 	my @cTemplates;
-	my %isCTemplate;
 	for my $line (@lines) {
 		$line =~ s/^\s*//;
 		$line =~ s/\s*$//;
 		if ($line =~ /\.in.h$/) {
 			push @headerTemplates, $line;
 		} elsif ($line =~ /\.in\.c$/) {
-			my $short = $line;
-			die "INTERNAL ERROR" unless $short =~ m{([^/]+)\.in\.c};
-			$isCTemplate{$line} = 1;
 			push @cTemplates, $line;
 		} elsif ($line =~ /\.c$/) {
-			my $short = $line;
-			die "INTERNAL ERROR" unless $line =~ m{([^/]+)\.c};
-			if (!$isCTemplate{$line}) {
-				push @cFiles, $line;	
-			}
+			push @cFiles, $line;
 		}
 	}
+	my %templateHash = map {$_ => 1} @cTemplates;
+	my @a;
+	for my $cFile (@cFiles) {
+		my $cTemplate = $cFile;
+		die "INTERNAL ERROR" unless $cTemplate =~ s/\.c$/.in.c/;	
+		if (!$templateHash{$cTemplate}) {
+			push @a, $cFile;
+		}
+	}
+	@cFiles = @a;
+
 	return (\@headerTemplates, \@cFiles, \@cTemplates);
 }
 
@@ -1055,6 +1233,187 @@ ENDxxxxxxxxxx
 ENDxxxxxxxxxx
 	},
 
+	{
+		key =>    'Alias:comment',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@// type ${TYPENAME} is an alias for ${ALIAS}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Interface:proto',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@${RTYPE}${IFCNAME}_${METHODNAME}(${TYPEDRECIEVER}${TYPEDARGS}, Error *err)${ENDPROTO}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Interface:protoToString',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@${RTYPE}${IFCNAME}_${METHODNAME}(int itype)
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Interface:startFunction',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@{
+			@	switch(${SWITCHTARGET}) {
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Interface:endFunction',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@}
+ENDxxxxxxxxxx
+	},
+
+
+	{
+		key =>    'Interface:caseVoid',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@		case ${TYPENAME}_itype:
+			@			${CALLTYPENAME}_${CALLMETHODNAME}(${CASTRECIEVER}${LISTARGS});
+			@			return;
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Interface:caseAbsentVoid',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@		case ${TYPENAME}_itype:
+			@			return;
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Interface:case',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@		case ${TYPENAME}_itype:
+			@			return ${CALLTYPENAME}_${CALLMETHODNAME}(${CASTRECIEVER}${LISTARGS});
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Interface:caseAbsent',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@		case ${TYPENAME}_itype:
+			@			return ${DEFRET};
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Interface:caseToString',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@		case ${TYPENAME}_itype:
+			@			return "${TYPENAME}";
+ENDxxxxxxxxxx
+	},
+
+
+	{
+		key =>    'Interface:endFunction',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@		default:
+			@			Error_format(err, "Failed to resolve interface call in ${TYPENAME}_${METHODNAME}: found type %s", Interface_toString(self->itype));
+			@    }
+			@    return ${DEFRET};
+			@}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Interface:endFunctionToString',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@		default:
+			@    }
+			@    return "Unknown";
+			@}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Interface:endFunctionVoid',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@       default:
+			@			Error_format(err, "Failed to resolve interface call in ${TYPENAME}_${METHODNAME}: found type %s", Interface_toString(self));
+			@    }
+			@    return;
+			@}
+ENDxxxxxxxxxx
+	},
+
+
+	{
+		key =>    'Interface:foreachIType',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+static inline int ${IFCNAME}_nthIType(int n, int *itype) {
+	static int itypes[] = {
+		${ITYPELIST}
+	};
+	static int len = sizeof(itypes)/sizeof(int);
+	if (n < 0 || n >= len) {
+		return 0;
+	}
+	*itype = itypes[n];
+	return 1;
+}
+#define ${IFCNAME}_foreachIType(itype) for (int __#itype = 0, itype = 0; ${IFCNAME}_nthIType(__#itype, &itype); __#itype++)
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Interface:castTo',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline ${IFCNAME} *${TYPENAME}_castTo${IFCNAME}(${TYPENAME} *self) {
+			@	return (${IFCNAME}*)self;
+			@}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Interface:castFrom',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline ${TYPENAME} *${TYPENAME}_castFrom${IFCNAME}(${IFCNAME} *self) {
+			@	if (self->itype == ${TYPENAME}_itype) {
+			@		return (${TYPENAME}*)self;
+			@	}
+			@	return NULL;
+			@}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Interface:undefined',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@typedef struct Undefined_t {
+			@	int itype;
+			@	char buffer[1024];
+			@} Undefined;
+			@#define Undefined_itype ${ITYPE}
+			@Undefined Undefined_instance = {Undefined_itype, 0};
+			@#define Undefined_ptr(typename) ((typename*)&Undefined_instance)
+ENDxxxxxxxxxx
+	},
+
 );
 my %templateMap = map {$_->{key} => $_} @templates;
 
@@ -1142,14 +1501,23 @@ sub expand {
 	return \@keysToProcess, \%results;
 }
 
-sub pexpand {
-	my ($out, $inputKeys, $inputDictionary) = @_;
+sub pexpandFull {
+	my ($out, $inputKeys, $inputDictionary, %opts) = @_;
 	my ($outputKeys, $res) = expand($inputKeys, $inputDictionary);
 	for my $key (@$outputKeys) {
 		my $t = $res->{$key};
 		next unless defined($t);
 		print {$out} $t;
+		print {$out} "\n" if $opts{newline};
 	}
+}
+
+sub pexpand {
+	pexpandFull(@_, newline=>0);
+}
+
+sub pexpandNl {
+	pexpandFull(@_, newline=>1);
 }
 
 sub writeInterfaceH {
@@ -1158,20 +1526,46 @@ sub writeInterfaceH {
 	my %classOrder = %{$allClasses->{classOrder}};
 	my $outFile = "$srcDir/interface.h";
 	open my $fd, ">", $outFile or die "Failed to open $outFile";
-	my $nextIType = 10;
+
+	pexpand($fd, ["Interface:undefined"], {ITYPE=>$gUndefinedItype});
 	for my $file (keys(%classOrder)) {
-		printf {$fd} "// From file '%s'\n", $file;
+		printf {$fd} "\n// From file '%s'\n", $file;
 		my @order = @{$classOrder{$file}};
 		for my $className (@order) {
 			my $class = $classes{$className};
 			next unless defined($class->{implements});
-			printf {$fd} "#define Interface_type$className $nextIType\n";
-			$nextIType++;
+			my $itype = $class->{itype};
+			printf {$fd} "#define ${className}_itype $itype\n";
 		}
 	}
+	print {$fd} "const char *Interface_toString(int itype);";
 	close($fd);
 }
-
+sub writeInterfaceC {
+	my ($allClasses, $srcDir) = @_; 
+	my %classes    = %{$allClasses->{classes}};
+	my %classOrder = %{$allClasses->{classOrder}};
+	my $outFile = "$srcDir/interface.c";
+	open my $fd, ">", $outFile or die "Failed to open $outFile";
+	my $cfg = {
+		RTYPE         => spaceAdjustType("const char *"),
+		IFCNAME       => "Interface",
+		METHODNAME    => "toString",
+	};
+	pexpand($fd, ['Interface:protoToString'], $cfg);
+	pexpand($fd, ['Interface:startFunction'], {SWITCHTARGET => "itype"});
+	pexpand($fd, ['Interface:caseToString'], {TYPENAME => "Undefined"});
+	for my $file (keys(%classOrder)) {
+		my @order = @{$classOrder{$file}};
+		for my $className (@order) {
+			my $class = $classes{$className};
+			next unless defined($class->{implements});
+			pexpand($fd, ['Interface:caseToString'], {TYPENAME => $class->{typeName}});
+		}
+	}
+	pexpand($fd, ['Interface:endFunctionToString'], {});
+	close($fd);
+}
 sub main {
 	my ($srcDir) = @ARGV;
 	die "generate requires 1 argument" unless @ARGV == 1;
@@ -1182,14 +1576,12 @@ sub main {
 
 	collectAllClasses($templateHeaders);
 	crossrefClassesAndInterfaces($gAllClassesAndInterfaces->{interfaces}, $gAllClassesAndInterfaces->{classes});
-	# print Dumper($gAllClassesAndInterfaces->{classes}),"\n";
-	# return;
 	my $allCFiles = [@$cFiles, @$cTemplates];
 	collectUsedCalls($allCFiles);
 	scanAPIF($allCFiles);
 
 	writeInterfaceH($gAllClassesAndInterfaces, $srcDir);
-	
+	writeInterfaceC($gAllClassesAndInterfaces, $srcDir);
 	
 	for my $templateHeader (@$templateHeaders) {
 		my $header = $templateHeader;
@@ -1214,6 +1606,10 @@ sub main {
 
 		processTemplateHeader($out, $templateHeader, $gUsedCalls);
 		close($out);
+	}
+
+	for my $inDotC (@$cTemplates) {
+		filterDotInC($inDotC);
 	}
 }	
 

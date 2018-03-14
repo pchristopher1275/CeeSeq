@@ -238,3 +238,130 @@ APIF void DispatchPtAr_populate(DispatchPtAr *self) {
    DispatchPtAr_sort(self);
 }
 
+void Marshal_process(Marshal *self, Arguments *a1, long a2, Atom *a3, Error *err)
+{
+    switch(self->itype) {
+        case MarshalSi_itype:
+            MarshalSi_process((MarshalSi*)self, a1, a2, a3, err);
+            return;
+        case MarshalSii_itype:
+            MarshalSii_process((MarshalSii*)self, a1, a2, a3, err);
+            return;
+        case MarshalSs_itype:
+            MarshalSs_process((MarshalSs*)self, a1, a2, a3, err);
+            return;
+       default:
+            Error_format(err, "Failed to resolve interface call in MarshalSs_process: found type %s", Interface_toString(self));
+    }
+    return;
+}
+
+void Marshal_zeroArgs(Marshal *self, Arguments *a1, Error *err)
+{
+    switch(self->itype) {
+        case MarshalSi_itype:
+            MarshalSi_zeroArgs((MarshalSi*)self, a1);
+            return;
+        case MarshalSii_itype:
+            MarshalSii_zeroArgs((MarshalSii*)self, a1);
+            return;
+        case MarshalSs_itype:
+            MarshalSs_zeroArgs((MarshalSs*)self, a1);
+            return;
+       default:
+            Error_format(err, "Failed to resolve interface call in MarshalSs_zeroArgs: found type %s", Interface_toString(self));
+    }
+    return;
+}
+
+void Dispatch_exec(Dispatch *self, Hub *a1, Arguments *a2, Error *err)
+{
+    switch(self->itype) {
+        case DecrementFrameDispatch_itype:
+            DecrementFrameDispatch_exec((DecrementFrameDispatch*)self, a1, a2, err);
+            return;
+        case IncrementFrameDispatch_itype:
+            IncrementFrameDispatch_exec((IncrementFrameDispatch*)self, a1, a2, err);
+            return;
+        case ManageChokeGroupsDispatch_itype:
+            ManageChokeGroupsDispatch_exec((ManageChokeGroupsDispatch*)self, a1, a2, err);
+            return;
+        case MidiFileDropDispatch_itype:
+            MidiFileDropDispatch_exec((MidiFileDropDispatch*)self, a1, a2, err);
+            return;
+        case SelectNextPushedPadDispatch_itype:
+            SelectNextPushedPadDispatch_exec((SelectNextPushedPadDispatch*)self, a1, a2, err);
+            return;
+       default:
+            Error_format(err, "Failed to resolve interface call in SelectNextPushedPadDispatch_exec: found type %s", Interface_toString(self));
+    }
+    return;
+}
+
+Dispatch *Dispatch_create(int itype, Error *err)
+{
+    switch(itype) {
+        case DecrementFrameDispatch_itype:
+            return DecrementFrameDispatch_create(itype);
+        case IncrementFrameDispatch_itype:
+            return IncrementFrameDispatch_create(itype);
+        case ManageChokeGroupsDispatch_itype:
+            return Dispatch_newDefault(itype);
+        case MidiFileDropDispatch_itype:
+            return MidiFileDropDispatch_create(itype);
+        case SelectNextPushedPadDispatch_itype:
+            return SelectNextPushedPadDispatch_create(itype);
+        default:
+            Error_format(err, "Failed to resolve interface call in SelectNextPushedPadDispatch_create: found type %s", Interface_toString(self->itype));
+    }
+    return NULL;
+}
+
+void Dispatch_free(Dispatch *self, Error *err)
+{
+    switch(self->itype) {
+        case DecrementFrameDispatch_itype:
+            Dispatch_freeDefault(self);
+            return;
+        case IncrementFrameDispatch_itype:
+            Dispatch_freeDefault(self);
+            return;
+        case ManageChokeGroupsDispatch_itype:
+            Dispatch_freeDefault(self);
+            return;
+        case MidiFileDropDispatch_itype:
+            Dispatch_freeDefault(self);
+            return;
+        case SelectNextPushedPadDispatch_itype:
+            Dispatch_freeDefault(self);
+            return;
+       default:
+            Error_format(err, "Failed to resolve interface call in SelectNextPushedPadDispatch_free: found type %s", Interface_toString(self));
+    }
+    return;
+}
+
+void Dispatch_initDispatchPtAr(int itype, DispatchPtAr *a1, Error *err)
+{
+    switch(itype) {
+        case DecrementFrameDispatch_itype:
+            Dispatch_initDispatchPtArDefault(itype, a1);
+            return;
+        case IncrementFrameDispatch_itype:
+            Dispatch_initDispatchPtArDefault(itype, a1);
+            return;
+        case ManageChokeGroupsDispatch_itype:
+            ManageChokeGroupsDispatch_initDispatchPtAr(itype, a1);
+            return;
+        case MidiFileDropDispatch_itype:
+            Dispatch_initDispatchPtArDefault(itype, a1);
+            return;
+        case SelectNextPushedPadDispatch_itype:
+            Dispatch_initDispatchPtArDefault(itype, a1);
+            return;
+       default:
+            Error_format(err, "Failed to resolve interface call in SelectNextPushedPadDispatch_initDispatchPtAr: found type %s", Interface_toString(self));
+    }
+    return;
+}
+

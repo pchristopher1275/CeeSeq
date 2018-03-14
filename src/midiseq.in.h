@@ -16,13 +16,6 @@ sds stripBaseName(const char *path);
    }
 @end
 
-#define BinFile_nullLengthFieldSizeStr "11"
-#define BinFile_maxLength              2147483647
-#define BinFileFlag_tag                1
-#define BinFile_writeBackLength(bf, location, err) BinFile_writeBackLengthFlags(bf, location, -1, err)
-#define BinFile_readLength(bf, err) BinFile_readLengthFlags(bf, NULL, err)
-#define BinFile_writeLength(bf, length, err) BinFile_writeLengthFlags(bf, length, -1, err)
-
 @type
    {  
       "typeName": "BinFile",
@@ -52,7 +45,12 @@ sds stripBaseName(const char *path);
       ]
    }
 @end
-
+#define BinFile_nullLengthFieldSizeStr "11"
+#define BinFile_maxLength              2147483647
+#define BinFileFlag_tag                1
+#define BinFile_writeBackLength(bf, location, err) BinFile_writeBackLengthFlags(bf, location, -1, err)
+#define BinFile_readLength(bf, err) BinFile_readLengthFlags(bf, NULL, err)
+#define BinFile_writeLength(bf, length, err) BinFile_writeLengthFlags(bf, length, -1, err)
 static inline PortFind *BinFile_portFindPayload(BinFile *self){ return (self->payload == NULL ? NULL : self->payload->portFind); }
 static inline void BinFile_setPayload(BinFile *self, BinFilePayload *payload) { self->payload = payload;}
 
@@ -67,7 +65,6 @@ typedef struct MEvent_t
     Ticks t;
     Ticks duration;
 } MEvent;
-
 #define MEvent_newUninitialized() ((MEvent*)sysmem_newptrclear(sizeof(MEvent)))
 #define MEvent_type(cell) ((cell).type)
 #define MEvent_t(cell) ((cell).t)
@@ -78,7 +75,6 @@ typedef struct MEvent_t
 #define MEvent_ccValue(cell) ((cell).b.b[1])
 #define MEvent_bendValue(cell) ((cell).b.bend)
 #include "mEventAr.h"
-
 const int Midiseq_notetype   = 1;
 const int Midiseq_bendtype   = 2;
 const int Midiseq_cctype     = 3;
@@ -532,17 +528,17 @@ static inline void DropDown_setPortRef(DropDown *dd, PortRef *pr) {
             "type":"DropDown"
          },
          {  
-            "comment":"bank varies from 0-infinity",
+            // bank varies from 0-infinity
             "name":"bank",
             "type":"int"
          },
          {  
-            "comment":"frame varies from 0-7",
+            // frame varies from 0-7
             "name":"frame",
             "type":"int"
          },
          {  
-            "comment":"true if the next padIndex tapped should be written into selectedPad",
+            // true if the next padIndex tapped should be written into selectedPad
             "name":"grabNextTappedPad",
             "type":"bool"
          },
