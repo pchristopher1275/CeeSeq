@@ -163,16 +163,10 @@ sub scanAPIF {
 	$gApif = {funcs=>\@funcs, definedCalls=>\%definedCalls};
 }
 
-sub writeAPIFForType {
-	my ($out, $type) = @_;
+sub writeApif {
+	my ($out) = @_;
 	for my $line (@{$gApif->{funcs}}) {
-		my ($t) = ($line =~ /^\s*\S+\s*\**\s*([^_\s]+)/);
-		die "Bad APIF line '$line'" unless defined($t);
-		if ($t eq $type) {
-			print {$out} <<END;
-$line;
-END
-		}
+		print {$out} $line,";\n";
 	}
 }
 
@@ -376,21 +370,16 @@ sub writeClassFromAtType {
 	my $out       = $cfg->{out};
 	my $file      = $cfg->{file};
 	writeWarning($out, $file);
-	if (defined($class->{aliasFor})) {
-		pexpand($out, ['Alias:comment'], {ALIAS=>$class->{aliasFor}, TYPENAME=>$class->{typeName}});
-	} else {
-		writeStruct($out, $class);
-	}
 	pexpand($out, ['Type:newUninitialized'], {TYPENAME => $class->{typeName}}) unless $class->{noNewUnitialized};
 	writeAccessor($out, $class);
 	if (defined($class->{argDeclare})) {
 		writeArgDeclare($out, $class);
 	}
-	writeAPIFForType($out, $class->{typeName});
 	if (defined($class->{containers})) {
 		for my $cont (@{$class->{containers}}) {
 			if ($cont->{type} eq 'array') {
-				writeArray($out, $cont);
+				print "CREATING ARRAY FOR $class->{typeName}\n";
+				writeArray($out, $cont, 0);
 			} else {
 				die "Unknown container type $cont->{type}";
 			}
@@ -524,20 +513,17 @@ sub writeInterfaceFromAtType {
 	my $out       = $cfg->{out};
 	my $file      = $cfg->{file};
 	writeWarning($out, $file);
-	writeStruct($out, $interface);
-	writeAPIFForType($out, $interface->{typeName});
-	if (defined($interface->{containers})) {
-		for my $cont (@{$interface->{containers}}) {
-			if ($cont->{type} eq 'array') {
-				writeArray($out, $cont);
-			} else {
-				die "Unknown container type $cont->{type}";
-			}
-		}
-	}
-	for (my $methodIndex = 0; $methodIndex < @{$interface->{methods}}; $methodIndex++) {
-		writeInterfaceMethod($out, $interface, $methodIndex, 1);
-	}
+	# writeStruct($out, $interface);
+	# if (defined($interface->{containers})) {
+	# 	for my $cont (@{$interface->{containers}}) {
+	# 		if ($cont->{type} eq 'array') {
+	# 			writeArray($out, $cont);
+	# 		} else {
+	# 			die "Unknown container type $cont->{type}";
+	# 		}
+	# 	}
+	# }
+
 	print {$out} "\n";
 	my @itypes;
 	for my $className (keys(%{$interface->{implementedBy}})) {
@@ -546,6 +532,16 @@ sub writeInterfaceFromAtType {
 	@itypes = sort {$a <=> $b} @itypes;
 	my $h = {IFCNAME => $interface->{typeName}, ITYPELIST=>join(", ", @itypes)};
 	pexpand($out, ['Interface:foreachIType'], $h);
+	if (defined($interface->{containers})) {
+		for my $cont (@{$interface->{containers}}) {
+			if ($cont->{type} eq 'array') {
+				print "CREATING ARRAY FOR $interface->{typeName}\n";
+				writeArray($out, $cont, 0);
+			} else {
+				die "Unknown container type $interface->{type}";
+			}
+		}
+	}
 }
 
 sub writeOrdinaryLine {
@@ -561,7 +557,7 @@ sub writeAllClassesFromFile {
 }
 
 sub writeArray {
-	my ($out, $arrayCfg) = @_;
+	my ($out, $arrayCfg, $outputStructs) = @_;
 	my $TYPENAME    = $arrayCfg->{typename};
 	my $ELEMNAME_NS = $arrayCfg->{elemname};
 	my $CLEARER     = $arrayCfg->{clearer};
@@ -579,31 +575,45 @@ sub writeArray {
 	if ($use0{$ELEMNAME_NS}) {
 		$ELEMZERO = "0";
 	}
+	my $binarySearch = $arrayCfg->{binarySearch};
+
+	my $needsSlice = 0;
+	if (defined($binarySearch)) {
+		my $needslice = 0;
+		for my $b (@$binarySearch) {
+			if ($b->{multi}) {
+				$needsSlice = 1;
+				last;
+			}
+		}
+	}
+
+	my $dict = {TYPENAME=>$TYPENAME, ELEMNAME_NS=>$ELEMNAME_NS, ELEMNAME=>$ELEMNAME, CLEARER=>$CLEARER, ELEMZERO=>$ELEMZERO};
+
+	if ($outputStructs) {
+		my @keys = ("Array:struct", 'ArrayIter:struct');
+		if ($needsSlice) {
+			push @keys, "Array:slice";
+		}
+		pexpandNl($out, \@keys, $dict);
+		return
+	}
 
 	##
 	## Setup base keys
 	##
-	my @keys = ("Array:struct", 'ArrayIter:struct', 'Array:new', 'Array:init', 'Array:clear', 'Array:free',
+	my @keys = ('Array:new', 'Array:init', 'Array:clear', 'Array:free',
 				'Array:truncate', 'Array:len',  'Array:get', 'Array:getp', 'Array:set', 'Array:setp',
 				'Array:pop', 'Array:push', 'Array:pushp', 'Array:insert', 'Array:insertp', 'Array:remove',
 				'Array:removeN', 'Array:fit', 'Array:last', 'Array:changeLength', 'Array:foreach', 'Array:rforeach',
 				'Array:loop', 'Array:rloop');
 
-	my $binarySearch = $arrayCfg->{binarySearch};
-	if (defined($binarySearch)) {
-		my $needslice = 0;
-		for my $b (@$binarySearch) {
-			if ($b->{multi}) {
-				push @keys, "Array:slice", "Array:declareSlice", "Array:sliceEmpty", "Array:sliceForeach", "Array:rsliceForeach";						
-				last;
-			}
-		}
-	}
+	if ($needsSlice) {
+		push @keys, "Array:declareSlice", "Array:sliceEmpty", "Array:sliceForeach", "Array:rsliceForeach";
+	}	
 	
-	my $dict = {TYPENAME=>$TYPENAME, ELEMNAME_NS=>$ELEMNAME_NS, ELEMNAME=>$ELEMNAME, CLEARER=>$CLEARER, ELEMZERO=>$ELEMZERO};
 	pexpandNl($out, \@keys, $dict);
-
-	if (defined$binarySearch) {
+	if (defined($binarySearch)) {
 		my $usedEmpty = 0;
 		for my $b (@$binarySearch) {
 			my $COMPARE = $b->{compare} or die "Failed to define compare function for binarySearch";
@@ -1409,7 +1419,7 @@ ENDxxxxxxxxxx
 			@	char buffer[1024];
 			@} Undefined;
 			@#define Undefined_itype ${ITYPE}
-			@Undefined Undefined_instance = {Undefined_itype, 0};
+			@Undefined Undefined_instance = {Undefined_itype, {0}};
 			@#define Undefined_ptr(typename) ((typename*)&Undefined_instance)
 ENDxxxxxxxxxx
 	},
@@ -1566,6 +1576,89 @@ sub writeInterfaceC {
 	pexpand($fd, ['Interface:endFunctionToString'], {});
 	close($fd);
 }
+
+sub writeTypesH {
+	my ($srcDir, $templateHeaders) = @_;
+	my $file = "$srcDir/types.h";
+	open my $out, ">", $file or die "Failed to open $file";
+	for my $templateHeader (@$templateHeaders) {
+		writeWarning($out, $templateHeader);
+
+		my $interfaceOrder = $gAllClassesAndInterfaces->{interfaceOrder}{$templateHeader};
+		die "INTERNAL ERROR" unless defined($interfaceOrder);
+		for my $interfaceName (@$interfaceOrder) {
+			writePredefined($out, $gAllClassesAndInterfaces->{interfaces}{$interfaceName});		
+		}
+
+		my $classOrder = $gAllClassesAndInterfaces->{classOrder}{$templateHeader};
+		die "INTERNAL ERROR" unless defined($classOrder);
+		for my $className (@$classOrder) {
+			writePredefined($out, $gAllClassesAndInterfaces->{classes}{$className});		
+		}
+	}
+
+	for my $templateHeader (@$templateHeaders) {
+		writeWarning($out, $templateHeader);
+		my $interfaceOrder = $gAllClassesAndInterfaces->{interfaceOrder}{$templateHeader};
+		die "INTERNAL ERROR" unless defined($interfaceOrder);
+		for my $interfaceName (@$interfaceOrder) {
+			my $interface = $gAllClassesAndInterfaces->{interfaces}{$interfaceName};
+			if (defined($interface->{aliasFor})) {
+				pexpand($out, ['Alias:comment'], {ALIAS=>$interface->{aliasFor}, TYPENAME=>$interface->{typeName}});
+			} else {
+				writeStruct($out, $interface);
+			}
+
+			if (defined($interface->{containers})) {
+				for my $cont (@{$interface->{containers}}) {
+					if ($cont->{type} eq 'array') {
+						writeArray($out, $cont, 1);
+					} else {
+						die "Unknown container type $cont->{type}";
+					}
+				}
+			}
+		}
+
+		my $classOrder = $gAllClassesAndInterfaces->{classOrder}{$templateHeader};
+		die "INTERNAL ERROR" unless defined($classOrder);
+		for my $className (@$classOrder) {
+			my $class = $gAllClassesAndInterfaces->{classes}{$className};
+			if (defined($class->{aliasFor})) {
+				pexpand($out, ['Alias:comment'], {ALIAS=>$class->{aliasFor}, TYPENAME=>$class->{typeName}});
+			} else {
+				writeStruct($out, $class);
+			}
+
+			if (defined($class->{containers})) {
+				for my $cont (@{$class->{containers}}) {
+					if ($cont->{type} eq 'array') {
+						writeArray($out, $cont, 1);
+					} else {
+						die "Unknown container type $cont->{type}";
+					}
+				}
+			}
+		}
+	}
+
+
+	writeApif($out);
+	for my $templateHeader (@$templateHeaders) {
+		writeWarning($out, $templateHeader);
+		my $interfaceOrder = $gAllClassesAndInterfaces->{interfaceOrder}{$templateHeader};
+		die "INTERNAL ERROR" unless defined($interfaceOrder);
+		for my $interfaceName (@$interfaceOrder) {
+			my $interface = $gAllClassesAndInterfaces->{interfaces}{$interfaceName};
+			for (my $methodIndex = 0; $methodIndex < @{$interface->{methods}}; $methodIndex++) {
+				writeInterfaceMethod($out, $interface, $methodIndex, 1);
+			}
+		}
+	}
+
+	close($out);
+}
+
 sub main {
 	my ($srcDir) = @ARGV;
 	die "generate requires 1 argument" unless @ARGV == 1;
@@ -1582,7 +1675,8 @@ sub main {
 
 	writeInterfaceH($gAllClassesAndInterfaces, $srcDir);
 	writeInterfaceC($gAllClassesAndInterfaces, $srcDir);
-	
+	writeTypesH($srcDir, $templateHeaders);
+
 	for my $templateHeader (@$templateHeaders) {
 		my $header = $templateHeader;
 		if ($header !~ s/\.in\.h$/.h/) {
@@ -1592,17 +1686,17 @@ sub main {
 		open my $out, ">", $header or die "Failed to open $header";
 		writeWarning($out, $templateHeader);
 
-		my $interfaceOrder = $gAllClassesAndInterfaces->{interfaceOrder}{$templateHeader};
-		die "INTERNAL ERROR" unless defined($interfaceOrder);
-		for my $interfaceName (@$interfaceOrder) {
-			writePredefined($out, $gAllClassesAndInterfaces->{interfaces}{$interfaceName});		
-		}
+		# my $interfaceOrder = $gAllClassesAndInterfaces->{interfaceOrder}{$templateHeader};
+		# die "INTERNAL ERROR" unless defined($interfaceOrder);
+		# for my $interfaceName (@$interfaceOrder) {
+		# 	writePredefined($out, $gAllClassesAndInterfaces->{interfaces}{$interfaceName});		
+		# }
 
-		my $classOrder = $gAllClassesAndInterfaces->{classOrder}{$templateHeader};
-		die "INTERNAL ERROR" unless defined($classOrder);
-		for my $className (@$classOrder) {
-			writePredefined($out, $gAllClassesAndInterfaces->{classes}{$className});		
-		}
+		# my $classOrder = $gAllClassesAndInterfaces->{classOrder}{$templateHeader};
+		# die "INTERNAL ERROR" unless defined($classOrder);
+		# for my $className (@$classOrder) {
+		# 	writePredefined($out, $gAllClassesAndInterfaces->{classes}{$className});		
+		# }
 
 		processTemplateHeader($out, $templateHeader, $gUsedCalls);
 		close($out);

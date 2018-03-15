@@ -54,27 +54,6 @@ sds stripBaseName(const char *path);
 static inline PortFind *BinFile_portFindPayload(BinFile *self){ return (self->payload == NULL ? NULL : self->payload->portFind); }
 static inline void BinFile_setPayload(BinFile *self, BinFilePayload *payload) { self->payload = payload;}
 
-typedef struct MEvent_t
-{
-    uint8_t type;
-    union
-    {
-        uint8_t b[2];
-        uint16_t bend;
-    } b;
-    Ticks t;
-    Ticks duration;
-} MEvent;
-#define MEvent_newUninitialized() ((MEvent*)sysmem_newptrclear(sizeof(MEvent)))
-#define MEvent_type(cell) ((cell).type)
-#define MEvent_t(cell) ((cell).t)
-#define MEvent_notePitch(cell) ((cell).b.b[0])
-#define MEvent_noteVelocity(cell) ((cell).b.b[1])
-#define MEvent_noteDuration(cell) ((cell).duration)
-#define MEvent_ccNumber(cell) ((cell).b.b[0])
-#define MEvent_ccValue(cell) ((cell).b.b[1])
-#define MEvent_bendValue(cell) ((cell).b.bend)
-#include "mEventAr.h"
 const int Midiseq_notetype   = 1;
 const int Midiseq_bendtype   = 2;
 const int Midiseq_cctype     = 3;

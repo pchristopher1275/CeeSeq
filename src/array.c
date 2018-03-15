@@ -1,7 +1,6 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "mem.c"
 
 typedef void (*Array_clearElement)(void *);
 typedef struct Array_t {

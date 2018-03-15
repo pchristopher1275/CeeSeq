@@ -3,7 +3,7 @@ typedef struct Undefined_t {
     char buffer[1024];
 } Undefined;
 #define Undefined_itype 10
-Undefined Undefined_instance = {Undefined_itype, 0};
+Undefined Undefined_instance = {Undefined_itype, {0}};
 #define Undefined_ptr(typename) ((typename*)&Undefined_instance)
 
 // From file 'src/dispatch.in.h'

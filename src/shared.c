@@ -2,21 +2,6 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-
-#ifndef APIF
-#define APIF /**/
-#endif 
-
-//
-// T I M E
-//
-typedef long long Ticks;
-APIF Ticks cseqHub_now()
-{
-    return (Ticks)itm_getticks(itm_getglobal());
-}
-
-
 //
 // P O R T
 //
@@ -28,9 +13,7 @@ enum
     Port_vstType = 1,
 };
 
-struct Port_t;
-typedef void (*Port_anythingDispatchFunc)(void *hub, struct Port_t *port, Symbol *msg, long argc, t_atom *argv);
-typedef void (*Port_intDispatchFunc)(void *hub, struct Port_t *port, long value, long inlet);
+// struct Port_t;
 typedef struct Port_t
 {
     t_object d_obj;
@@ -45,7 +28,7 @@ typedef struct Port_t
     void *hub;
     Port_anythingDispatchFunc anythingDispatch;
     Port_intDispatchFunc intDispatch;
-    t_atom *sendBuffer;
+    Atom *sendBuffer;
 } Port;
 
 Port PORT_NULL_IMPL =
@@ -112,7 +95,7 @@ APIF static int Port_isNullType(Port *port)
 }
 
 
-APIF void Port_send(Port *port, int outletIndex, short argc, t_atom *argv, Error *err)
+APIF void Port_send(Port *port, int outletIndex, short argc, Atom *argv, Error *err)
 {
     if (Port_isNullType(port)) {
         return;
@@ -140,7 +123,7 @@ APIF void Port_sendInteger(Port *p, int outlet, long value) {
 APIF void Port_sendSelectorAndInteger(Port *port, Symbol *selector, int value)
 {
     Error_declare(err);
-    t_atom a = {0};
+    Atom a = {0};
     atom_setlong(&a, value);
     void *outlet = PtrAr_get(&port->outlet, 0, err);
     if (Error_maypost(err)) {

@@ -3,10 +3,10 @@
 APIF void MarshalSi_process(MarshalSi *self, Arguments *args, long argc, Atom *argv, Error *err)
 {
    if (argc != 1) {
-      Error_format(err, "MarshalSi expected 1 additional argument, found %d", argc);
+      Error_format(err, "MarshalSi expected 1 additional argument, found %d", (int)argc);
       return;
    }
-   if (!Atom_isInteger(argv + 0)) {
+   if (!Atom_isNumber(argv + 0)) {
       Error_format0(err, "MarshalSi second argument should be an integer");
       return;  
    }
@@ -20,14 +20,14 @@ APIF void MarshalSi_zeroArgs(MarshalSi *self, Arguments *args) {
 APIF void MarshalSii_process(MarshalSii *self, Arguments *args, long argc, Atom *argv, Error *err)
 {
    if (argc != 2) {
-      Error_format(err, "MarshalSii expected 2 additional arguments, found %d", argc);
+      Error_format(err, "MarshalSii expected 2 additional arguments, found %d", (int)argc);
       return;
    }
-   if (!Atom_isInteger(argv + 0)) {
+   if (!Atom_isNumber(argv + 0)) {
       Error_format0(err, "MarshalSii second argument should be an integer");
       return;  
    }
-   if (!Atom_isInteger(argv + 1)) {
+   if (!Atom_isNumber(argv + 1)) {
       Error_format0(err, "MarshalSii third argument should be an integer");
       return;  
    }
@@ -43,7 +43,7 @@ APIF void MarshalSii_zeroArgs(MarshalSi *self, Arguments *args) {
 APIF void MarshalSs_process(MarshalSs *self, Arguments *args, long argc, Atom *argv, Error *err)
 {
    if (argc != 1) {
-      Error_format(err, "MarshalSs expected 1 additional arguments, found %d", argc);
+      Error_format(err, "MarshalSs expected 1 additional arguments, found %d", (int)argc);
       return;
    }
    if (!Atom_isSymbol(argv + 0)) {
@@ -67,7 +67,7 @@ APIF void Marshal_free(Marshal *self) {
    Mem_free(self);
 }
 
-APIF Dispatch *IncrementFrameDispatch_create(IncrementFrameDispatch *self) {
+APIF Dispatch *IncrementFrameDispatch_create(int itype) {
    Dispatch *self = (Dispatch *)Mem_malloc(sizeof(Dispatch));
    memset(self, 0, sizeof(Dispatch));
    self->itype    = itype;
@@ -131,7 +131,7 @@ APIF Dispatch *MidiFileDropDispatch_create(int itype) {
    self->selector = Symbol_gen("midiFileDrop");
    self->portId   = Symbol_gen("guiBottom");
    self->inlet    = 0;
-   self->marshal  = Marshal_new(MarshalSs_itype); 
+   self->marshal  = Marshal_create(MarshalSs_itype); 
    return self;
 }
 
@@ -140,7 +140,7 @@ APIF void MidiFileDropDispatch_exec(MidiFileDropDispatch *self, Hub *hub, Argume
    
    const char *colon = strchr(Symbol_cstr(path), ':');
    if (colon == NULL) {
-     Error_format0("midiFileDrop expected to find colon (:) in filename");
+     Error_format0(err, "midiFileDrop expected to find colon (:) in filename");
      return;
    }
    sds filename = sdsnew(colon+1);
@@ -162,7 +162,7 @@ APIF int ManageChokeGroupsDispatch_initDispatchPtAr(int myItype, DispatchPtAr *d
    for (int i = 0; i < 3; i++) {
       ManageChokeGroupsDispatch *mcg = ManageChokeGroupsDispatch_castFromDispatch(Dispatch_newDefault(myItype));
       mcg->selector = NULL;
-      mcg->portId   = Symbol_gen("chokeGroup")
+      mcg->portId   = Symbol_gen("chokeGroup");
       mcg->inlet    = i;
       mcg->marshal  = NULL;
       DispatchPtAr_push(disPtAr, ManageChokeGroupsDispatch_castToDispatch(mcg));
@@ -172,7 +172,7 @@ APIF int ManageChokeGroupsDispatch_initDispatchPtAr(int myItype, DispatchPtAr *d
 
 APIF void ManageChokeGroupsDispatch_exec(ManageChokeGroupsDispatch *self, Hub *hub, Arguments *args, Error *err) {
    Pad *pad   = PadList_pad(Hub_padList(hub), Hub_selectedPad(hub), err);
-   long value = Arguments_ivalue(args)
+   long value = Arguments_ivalue(args);
    switch (self->inlet) {
       case 0:
          DropDown_setSelected(Hub_cgLocalGlobalMenu(hub), value, err);
@@ -190,7 +190,7 @@ APIF void ManageChokeGroupsDispatch_exec(ManageChokeGroupsDispatch *self, Hub *h
          Pad_setChokeGroupIndex(pad, value);
          break;
       default:
-         Error_format(err, "INTERNAL ERROR: bad inlet %ld", inlet);
+         Error_format(err, "INTERNAL ERROR: bad inlet %d", self->inlet);
          return;
    }
    Pad_computeChokeGroup(pad);
@@ -232,7 +232,7 @@ APIF void Dispatch_initDispatchPtArDefault(int itype, DispatchPtAr *disPtAr) {
 
 APIF void DispatchPtAr_populate(DispatchPtAr *self) {
    DispatchPtAr_truncate(self);
-   Dispatch_itypeForeach(itype) {
+   Dispatch_foreachIType(itype) {
       Dispatch_initDispatchPtAr(itype, self);
    }
    DispatchPtAr_sort(self);

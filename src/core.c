@@ -264,7 +264,7 @@ static inline Atom Atom_integer(long value) {
 
 static inline Atom Atom_symbol(Symbol *value) {
     Atom a = {0};
-    atom_setsym(*a, value);
+    atom_setsym(&a, value);
     return a;
 }
 
@@ -295,7 +295,46 @@ static inline double Atom_toFloat(Atom *a) {
 
 #endif
 
+//
+// T I M E
+//
+typedef long long Ticks;
+#ifndef TEST_BUILD
+APIF Ticks cseqHub_now()
+{
+    return (Ticks)itm_getticks(itm_getglobal());
+}
+#endif
 
+
+//
+// M E V E N T
+//
+typedef struct MEvent_t
+{
+    uint8_t type;
+    union
+    {
+        uint8_t b[2];
+        uint16_t bend;
+    } b;
+    Ticks t;
+    Ticks duration;
+} MEvent;
+#define MEvent_newUninitialized() ((MEvent*)sysmem_newptrclear(sizeof(MEvent)))
+#define MEvent_type(cell) ((cell).type)
+#define MEvent_t(cell) ((cell).t)
+#define MEvent_notePitch(cell) ((cell).b.b[0])
+#define MEvent_noteVelocity(cell) ((cell).b.b[1])
+#define MEvent_noteDuration(cell) ((cell).duration)
+#define MEvent_ccNumber(cell) ((cell).b.b[0])
+#define MEvent_ccValue(cell) ((cell).b.b[1])
+#define MEvent_bendValue(cell) ((cell).b.bend)
+
+struct Port_t;
+typedef struct Port_t Port;
+typedef void (*Port_anythingDispatchFunc)(void *hub, struct Port_t *port, Symbol *msg, long argc, Atom *argv);
+typedef void (*Port_intDispatchFunc)(void *hub, struct Port_t *port, long value, long inlet);
 
 // ifndef CORE_C
 #endif

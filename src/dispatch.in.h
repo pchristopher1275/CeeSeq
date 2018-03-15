@@ -114,7 +114,8 @@
                {"compare": "Dispatch_cmp"}
             ]
          }
-      ]
+      ],
+      "manualProto": ["Dispatch_cmp"]
    }
 @end
 
