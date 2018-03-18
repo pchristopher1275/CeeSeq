@@ -72,8 +72,26 @@ sub argsAndOpts {
     return \@args, \%opts;
 }
 
+sub listHandCFiles {
+    my ($srcDir) = @_;
+    $srcDir =~ s[/$][];
+    my @lines = backtick "ls $srcDir/*";
+    my @files;
+    for my $line (@lines) {
+        $line =~ s/^\s*//;
+        $line =~ s/\s*$//;
+        next unless $line =~ /[hc]$/;
+        next if $line =~ /\.in.h$/ || $line =~ /\.in\.c$/;
+        push @files, $line;
+    }
+
+    return \@files;
+}
+
 sub copyCodeToSource {
-    run "cp $gCodeDir/*.{h,c} $gSourceDir";
+    my $files = listHandCFiles("src");
+    my @files = @$files;
+    run "cp @files $gSourceDir";
 }
 
 sub xcodebuild {

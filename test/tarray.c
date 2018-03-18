@@ -3,10 +3,11 @@
 #include "../src/array.c"
 
 
-typedef struct Foo_t {
-	int i;
-	double d;
-} Foo;
+// typedef struct Foo_t {
+// 	int i;
+// 	double d;
+// } Foo;
+#include "util/types.h"
 
 int Foo_cmp(Foo *left, Foo *right) {
 	if (left->i < right->i) {
@@ -32,8 +33,6 @@ int Foo_cmpBoth(Foo *left, Foo *right) {
 	return 0;
 }
 
-
-#define Foo_newUninitialized() Mem_malloc(sizeof(Foo))
 const int maxNumRecorded = 10;
 int numRecorded          = 0;
 Foo recorded[maxNumRecorded] = {0};
@@ -50,8 +49,7 @@ void record_clearer(Foo *left) {
 	}
 }
 
-
-#include "util/for_tarray.c"
+#include "util/for_tarray.h"
 
 #define Array_cap(arr) ((Array*)arr)->cap
 
@@ -63,10 +61,6 @@ Unit_declare(testNewFree) {
 	FooArr *fa = FooArr_new(10);
 	chk(fa != NULL);
 	FooArr_free(fa);
-
-	FooPtrArr *fpa = FooPtrArr_new(100);
-	chk(fpa != NULL);
-	FooPtrArr_free(fpa);
 }
 
 Unit_declare(testLenInitClear) {
@@ -838,6 +832,161 @@ Unit_declare(testForeach) {
 	}	
 }
 
+Unit_declare(testEach) {
+	{
+		IntArr *arr = IntArr_new(0);
+		for (int i = 0; i < 5; i++) {
+			IntArr_push(arr, 3*i);
+		}
+
+		int count = 0;
+		IntArr_each(it, arr) {
+			chk(*it == 3*count);
+			chk(IntArr_eachIndexOf(it) == count);
+			count++;
+			if (count == 5) {
+				chk(IntArr_eachLast(it));
+			} else {
+				chk(!IntArr_eachLast(it));
+			}
+		}
+		chk(count == 5);
+
+		count = 5-1;
+		IntArr_reach(it, arr) {
+			chk(*it == 3*count);
+			
+			if (count == 0) {
+				chk(IntArr_reachLast(it));
+			} else {
+				chk(!IntArr_reachLast(it));
+			}
+			count--;
+		}
+
+
+		IntArr_each(it, arr) {
+			*it += 17;
+		}
+
+		count = 0;
+		IntArr_each(it, arr) {
+			chk(*it == 3*count + 17);
+			count++;
+		}
+		chk(count == 5);
+	}
+
+	{
+		FooArr *arr = FooArr_new(0);
+		for (int i = 0; i < 5; i++) {
+			Foo foo = {3*i, 6*i};
+			FooArr_push(arr, foo);
+		}
+
+		int count = 0;
+		FooArr_each(it, arr) {
+			chk(it->i == 3*count);
+			chk(it->d == 6*count);
+			count++;
+			if (count == 5) {
+				chk(FooArr_eachLast(it));
+			} else {
+				chk(!FooArr_eachLast(it));
+			}
+		}
+		chk(count == 5);
+
+		count = 5-1;
+		FooArr_reach(it, arr) {
+			chk(it->i == 3*count);
+			chk(it->d == 6*count);
+			if (count == 0) {
+				chk(FooArr_reachLast(it));
+			} else {
+				chk(!FooArr_reachLast(it));
+			}
+			count--;
+		}
+
+
+		FooArr_each(it, arr) {
+			it->i += 17;
+		}
+
+		count = 0;
+		FooArr_each(it, arr) {
+			chk(it->i == 3*count + 17);
+			count++;
+		}
+		chk(count == 5);
+
+		FooArr_free(arr);
+	}	
+
+	{
+		IntArr *arr = IntArr_new(0);
+		for (int i = 0; i < 3; i++) {
+			IntArr_push(arr, i+1);
+		}
+
+		IntArr_each(it, arr) {
+			int n = -*it;
+			IntArr_eachInsert(it, arr, &n);
+			fatal(false); // This is never reached
+		}
+
+		int count = 1;
+		IntArr_each(it, arr) {
+			if (*it < 0) {
+				chk(count == -*it);
+			} else {
+				chk(count == *it);
+				count++;
+			}
+		}
+
+		IntArr_each(it, arr) {
+			if (*it < 0) {
+				IntArr_eachRemove(it, arr);	
+			} 
+		}
+
+		count = 1;
+		IntArr_each(it, arr) {
+			chk(*it == count);
+			count++;
+		}
+
+		count = 3;
+		IntArr_reach(it, arr) {
+			chk(*it == count);
+			count--;
+			int n = -*it;
+			IntArr_reachInsert(it, arr, &n);
+		}
+		chk(IntArr_len(arr) == 6);
+
+		count = 3;
+		IntArr_reach(it, arr) {
+			if (*it < 0) {
+				IntArr_reachRemove(it, arr);
+			}
+			chk(*it == count);
+			count--;
+		}
+		chk(IntArr_len(arr) == 3);
+		IntArr_each(it, arr) {
+			chk(*it == IntArr_eachIndexOf(it)+1);
+		}
+
+
+		IntArr_free(arr);
+	}
+
+}
+
+
 Unit_declare(testSort) {
 	{
 		Error_declare(err);
@@ -1034,6 +1183,7 @@ int main(int argc, char *argv[]) {
 	Unit_test(testInsert);
 	Unit_test(testRemove);
 	Unit_test(testForeach);
+	Unit_test(testEach);
 	Unit_test(testSort);
 	Unit_test(testBinSearch);
 	Unit_test(testBinMulti);

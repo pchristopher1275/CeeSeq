@@ -87,8 +87,7 @@
             "name": "create",
             "itypeReceiver": true,
             "retVal": "Dispatch *",
-            "args": [],
-            "defMethod": "Dispatch_newDefault"
+            "args": []
          },
          {
             "name": "free",
@@ -99,7 +98,7 @@
          {
             "name": "initDispatchPtAr",
             "retVal": "void",
-            "args": ["DispatchPtAr *"],
+            "args": ["DispatchPtAr *", "Error *"],
             "absentOk": true,
             "itypeReceiver": true,
             "defMethod": "Dispatch_initDispatchPtArDefault"
@@ -115,7 +114,7 @@
             ]
          }
       ],
-      "manualProto": ["Dispatch_cmp"]
+      "argDeclare": 1
    }
 @end
 

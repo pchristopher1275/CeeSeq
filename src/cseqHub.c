@@ -20,15 +20,12 @@
 #include "symbolPtrAr.h"
 #include "ptrAr.h"
 #include "intAr.h"
-
 #include "types.h"
-
-
-
 
 #include "shared.c"
 #include "dispatch.h"
 #include "midiseq.h"
+#include "interface.c"
 #include "dispatch.c"
 #include "midiseq.c"
 

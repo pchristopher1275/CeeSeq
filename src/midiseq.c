@@ -1368,7 +1368,7 @@ APIF void NoteManager_dblogPending(NoteManager *manager, Ticks current)
 
 APIF Ticks NoteManager_scheduleOffs(NoteManager *manager, Ticks current)
 {
-    Error_declare(ignored);
+    Error_declare(err);
     int count = 0;
     TimedOffAr_foreach(it, &manager->pending) {
         if (it.var->time > current) {
@@ -1377,10 +1377,11 @@ APIF Ticks NoteManager_scheduleOffs(NoteManager *manager, Ticks current)
         NoteManager_sendNoteOn(manager, it.var->pitch , 0);
         count++;
     }
-    TimedOffAr_removeN(&manager->pending, 0, count, ignored);
-    Error_maypost(ignored);
-
-
+    if (count > 0) {
+        TimedOffAr_removeN(&manager->pending, 0, count, err);
+        Error_maypost(err);
+    }
+    
     TimedOffAr_foreach(it, &manager->pending) {
         return it.var->time-current;
     }
@@ -1481,8 +1482,9 @@ APIF void Hub_init(Hub *hub, PortFind *pf, Error *err) {
     Port_send(Hub_selPadPort(hub), 0, 2, a, err);
     Error_returnVoidOnError(err);
 
-    DispatchPtAr_init(&hub->dispatcher);
-    DispatchPtAr_populate(&hub->dispatcher);
+    DispatchPtAr_init(&hub->dispatcher, 0);
+    DispatchPtAr_populate(&hub->dispatcher, err);
+    Error_returnVoidOnError(err);
 }
 
 APIF void Hub_free(Hub *hub) {
@@ -1617,20 +1619,31 @@ APIF void Hub_anythingDispatch(Hub *hub, Port *port, Symbol *selector, long argc
 {
 
     Error_declare(err);
-    DispatchBase_declare(cell, selector, Port_id(port), 0);
-    Dispatch *dis = DispatchPtAr_binSearch(&hub->dispatchPtAr, DispatchBase_castToDispatch(&cell));
+
+    Dispatch_declare(cell, Undefined_itype, selector, Port_id(port), 0, NULL);
+    Dispatch **dis = DispatchPtAr_binSearch(&hub->dispatcher, &cell);
+
+     DispatchPtAr_foreach(it, &hub->dispatcher) {
+        Dispatch *d = *it.var;
+         if (d->selector == selector && d->portId == Port_id(port)) {
+            dblog("HERE IT IS %p %s %s", dis, Symbol_cstr(selector), Symbol_cstr(Port_id(port)));
+         }
+    }
+
+    dblog("Dis %p %s %s", dis, Symbol_cstr(selector), Symbol_cstr(Port_id(port)));
     if (dis == NULL) {
         return;
     }
-    DispatchBase *found = DispatchBase_castFromDispatch(dis);
-    Marshal *marshal = DispatchBase_marshal(found);
+    
+    Marshal *marshal = Dispatch_marshal(*dis);
     if (marshal != NULL) {
         Marshal_process(marshal, &hub->arguments, argc, argv, err);
         if (Error_maypost(err)) {
             return;
         }
     }
-    Dispatch_exec(dis, hub, &hub->arguments, err);
+    
+    Dispatch_exec(*dis, hub, &hub->arguments, err);
     if (Error_maypost(err)) {
         return;
     }
@@ -1642,42 +1655,27 @@ APIF void Hub_anythingDispatch(Hub *hub, Port *port, Symbol *selector, long argc
     }
 
     return;
-    /*
-    Hub *hub = (Hub*)hub_in;
-    if (Port_id(port) == gensym("guiBottom")) {
-        if (msg == gensym("incrementFrame")) {
-            Hub_incrementFrame(hub);
-        }
-        else if (msg == gensym("decrementFrame")) {
-            Hub_decrementFrame(hub);
-        }
-        else if (msg == gensym("selectNextPushedPad")) {
-            Hub_selectNextPushedPad(hub);
-        } else if (msg == gensym("midiFileDrop")) {
-            Hub_midiFileDrop(hub, (argc > 0 ? argv + 0 : NULL));
-        }
-    } 
-    */
 }
 
 
 
 APIF void Hub_intDispatch(Hub *hub, Port *port, long value, long inlet)
 {
-    DispatchBase_declare(cell, NULL, Port_id(port), inlet);
-    Dispatch *dis = DispatchPtAr_binSearch(&hub->dispatchPtAr, DispatchBase_castToDispatch(&cell));
+    Error_declare(err);
+    Dispatch_declare(cell, Undefined_itype, NULL, Port_id(port), (int)inlet, NULL);
+    Dispatch **dis = DispatchPtAr_binSearch(&hub->dispatcher, &cell);
     if (dis == NULL) {
         return;
     }
 
     Arguments_setIvalue(&hub->arguments, value);
-    Arguments_setIinlet(&hub->arguments, inlet);
-    Dispatch_exec(dis, hub, &hub->arguments, err);
+    Arguments_setInlet(&hub->arguments, inlet);
+    Dispatch_exec(*dis, hub, &hub->arguments, err);
     if (Error_maypost(err)) {
         return;
     }
     Arguments_setIvalue(&hub->arguments, 0);
-    Arguments_setIinlet(&hub->arguments, 0);
+    Arguments_setInlet(&hub->arguments, 0);
 
     /*
     Hub *hub = (Hub*)hub_in;

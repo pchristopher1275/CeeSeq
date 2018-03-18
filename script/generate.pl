@@ -8,9 +8,12 @@ use Data::Dumper;
 my $gVerbose                 = 1;
 my $gAllClassesAndInterfaces = undef;
 my $gApif                    = undef;
+my $gUsedCalls               = undef;
+my $gAcceptAllCalls          = 0;
 my $gNow                     = strftime("%m/%d/%Y %H:%M:%S", localtime);
 my $gNextItype               = 10;
 my $gUndefinedItype          = $gNextItype++;
+
 sub run {
     my ($cmd, %opts) = @_;
     print "$cmd\n" if $gVerbose;
@@ -202,7 +205,8 @@ sub scanUntilAtEnd {
 
 sub scanInDotH {
 	my ($cfg) = @_;
-	my ($file, $typeCallback, $interfaceCallback, $nothingCallback) = ($cfg->{file}, $cfg->{typeCallback}, $cfg->{interfaceCallback}, $cfg->{nothingCallback});
+	my ($file, $typeCallback, $interfaceCallback, $nothingCallback, $containerCallback) = (
+		$cfg->{file}, $cfg->{typeCallback}, $cfg->{interfaceCallback}, $cfg->{nothingCallback}, $cfg->{containerCallback});
 	die "INTERNAL ERROR" unless defined($file) && defined($typeCallback) && defined($nothingCallback);
 	open my $inp, "<", $file or die "Failed to open $file";
 	$cfg->{inp}  = $inp;
@@ -219,6 +223,10 @@ sub scanInDotH {
 			$cfg->{lastAtType} = $cfg->{line};
 			my $text = scanUntilAtEnd($cfg);
 			$interfaceCallback->($cfg, $text);
+		} elsif (/^\@container/) {
+			$cfg->{lastAtType} = $cfg->{line};
+			my $text = scanUntilAtEnd($cfg);
+			$containerCallback->($cfg, $text);
 		} else {
 			$nothingCallback->($cfg, $_);
 		}
@@ -318,7 +326,13 @@ sub collectInterfaceFromAtType {
 
 sub collectAllClassesFromFile {
 	my ($file) = @_;
-	my $cfg = {file=>$file, typeCallback=>\&collectClassFromAtType, interfaceCallback=>\&collectInterfaceFromAtType, nothingCallback=>sub {}};
+	my $cfg = {
+		file=>$file, 
+		typeCallback=>\&collectClassFromAtType, 
+		interfaceCallback=>\&collectInterfaceFromAtType,
+		nothingCallback=>sub {}, 
+		containerCallback=>sub {},
+	};
 	scanInDotH($cfg);
 	return {classes=>$cfg->{classes}, interfaces=>$cfg->{interfaces}};
 }
@@ -378,7 +392,6 @@ sub writeClassFromAtType {
 	if (defined($class->{containers})) {
 		for my $cont (@{$class->{containers}}) {
 			if ($cont->{type} eq 'array') {
-				print "CREATING ARRAY FOR $class->{typeName}\n";
 				writeArray($out, $cont, 0);
 			} else {
 				die "Unknown container type $cont->{type}";
@@ -391,6 +404,26 @@ sub writeClassFromAtType {
 			$h->{IFCNAME} = $ifc;
 			pexpand($out, ['Interface:castTo', 'Interface:castFrom'], $h);
 		}
+	}
+}
+
+sub writeContainerFromAtType {
+	my ($cfg, $lines) = @_;
+	my $text = join("\n", @$lines);
+	my $cont;
+	eval {
+		$cont = decode_json($text);
+	};
+	if ($@) {
+		die "Failed to decode json for container starting in file $cfg->{srcFile} at line $cfg->{lastAtType}\n";
+	}
+	
+	my $out = $cfg->{out};
+	if ($cont->{type} eq 'array') {
+		writeArray($out, $cont, 1);
+		writeArray($out, $cont, 0);
+	} else {
+		die "Unknown container type $cont->{type}";
 	}
 }
 
@@ -513,16 +546,6 @@ sub writeInterfaceFromAtType {
 	my $out       = $cfg->{out};
 	my $file      = $cfg->{file};
 	writeWarning($out, $file);
-	# writeStruct($out, $interface);
-	# if (defined($interface->{containers})) {
-	# 	for my $cont (@{$interface->{containers}}) {
-	# 		if ($cont->{type} eq 'array') {
-	# 			writeArray($out, $cont);
-	# 		} else {
-	# 			die "Unknown container type $cont->{type}";
-	# 		}
-	# 	}
-	# }
 
 	print {$out} "\n";
 	my @itypes;
@@ -532,10 +555,13 @@ sub writeInterfaceFromAtType {
 	@itypes = sort {$a <=> $b} @itypes;
 	my $h = {IFCNAME => $interface->{typeName}, ITYPELIST=>join(", ", @itypes)};
 	pexpand($out, ['Interface:foreachIType'], $h);
+	writeAccessor($out, $interface);
+	if (defined($interface->{argDeclare})) {
+		writeArgDeclare($out, $interface);
+	}
 	if (defined($interface->{containers})) {
 		for my $cont (@{$interface->{containers}}) {
 			if ($cont->{type} eq 'array') {
-				print "CREATING ARRAY FOR $interface->{typeName}\n";
 				writeArray($out, $cont, 0);
 			} else {
 				die "Unknown container type $interface->{type}";
@@ -552,7 +578,14 @@ sub writeOrdinaryLine {
 
 sub writeAllClassesFromFile {
 	my ($out, $file) = @_;
-	my $cfg = {out=>$out, file=>$file, typeCallback=>\&writeClassFromAtType, interfaceCallback=>\&writeInterfaceFromAtType, nothingCallback=>\&writeOrdinaryLine};
+	my $cfg = {
+		out=>$out, 
+		file=>$file, 
+		typeCallback=>\&writeClassFromAtType, 
+		interfaceCallback=>\&writeInterfaceFromAtType, 
+		nothingCallback=>\&writeOrdinaryLine,
+		containerCallback=>\&writeContainerFromAtType,
+	};
 	scanInDotH($cfg);
 }
 
@@ -567,6 +600,15 @@ sub writeArray {
 	} else {
 		$ELEMNAME = $ELEMNAME_NS;
 	}
+	my $ELEMNAME_NP = $ELEMNAME_NS;
+	$ELEMNAME_NP =~ s/\*//g;
+	my $ELEMPTR = "";
+	while ($ELEMNAME_NS =~ /\*/ga) {
+		$ELEMPTR .= "*"
+	}
+	$ELEMPTR .= "*";
+	
+
 	if (!defined($CLEARER)) {
 		$CLEARER = "NULL";
 	}
@@ -588,7 +630,17 @@ sub writeArray {
 		}
 	}
 
-	my $dict = {TYPENAME=>$TYPENAME, ELEMNAME_NS=>$ELEMNAME_NS, ELEMNAME=>$ELEMNAME, CLEARER=>$CLEARER, ELEMZERO=>$ELEMZERO};
+
+
+	my $dict = {
+		TYPENAME=>$TYPENAME, 
+		ELEMNAME_NS=>$ELEMNAME_NS, 
+		ELEMNAME=>$ELEMNAME, 
+		CLEARER=>$CLEARER, 
+		ELEMZERO=>$ELEMZERO,
+		ELEMPTR=>$ELEMPTR,
+		ELEMNAME_NP=>$ELEMNAME_NP,
+	};
 
 	if ($outputStructs) {
 		my @keys = ("Array:struct", 'ArrayIter:struct');
@@ -607,6 +659,10 @@ sub writeArray {
 				'Array:pop', 'Array:push', 'Array:pushp', 'Array:insert', 'Array:insertp', 'Array:remove',
 				'Array:removeN', 'Array:fit', 'Array:last', 'Array:changeLength', 'Array:foreach', 'Array:rforeach',
 				'Array:loop', 'Array:rloop');
+
+	push @keys, ('Array:each', 'Array:reach', 'Array:eachInsert', 'Array:eachInsertAfter', 
+				 'Array:reachInsert', 'Array:reachInsertAfter', 'Array:eachIndexOf', 'Array:eachLast', 'Array:reachLast',
+				 'Array:eachRemove', 'Array:reachRemove');
 
 	if ($needsSlice) {
 		push @keys, "Array:declareSlice", "Array:sliceEmpty", "Array:sliceForeach", "Array:rsliceForeach";
@@ -723,7 +779,11 @@ my %extraUsedCalls = (
 	PortRef => {port => 1, outlet => 1},
 );
 
-my $gUsedCalls;
+sub usedCall {
+	my ($className, $methodName) = @_;
+	return $gUsedCalls->{$className}{$methodName} || $gAcceptAllCalls;
+}
+
 sub collectUsedCalls {
 	my ($cFiles) = @_;
 	my %used = %extraUsedCalls;
@@ -788,7 +848,11 @@ ENDxxxxxxxxxx
 		symbol => '',
 		tmpl   => <<'ENDxxxxxxxxxx', 
 			@typedef struct ${TYPENAME}_t {
-			@	Array body;
+			@   int len;
+			@   int cap;
+			@   int elemSize;
+			@   void (*clearer)(${ELEMNAME_NS}*);
+			@   ${ELEMNAME}*data;
 			@} ${TYPENAME};
 ENDxxxxxxxxxx
 	},
@@ -834,7 +898,7 @@ ENDxxxxxxxxxx
 		tmpl   => <<'ENDxxxxxxxxxx', 
 			@static inline void ${TYPENAME}_clear(${TYPENAME} *arr) {
 			@	Array_clear((Array*)arr);
-			@	${TYPENAME} zero = {{0}};
+			@	${TYPENAME} zero = {0};
 			@	*arr = zero;
 			@}
 ENDxxxxxxxxxx
@@ -1073,6 +1137,148 @@ ENDxxxxxxxxxx
 		symbol  => '${TYPENAME}_foreach',
 		tmpl    => <<'ENDxxxxxxxxxx', 
 			@#define ${TYPENAME}_foreach(var, arr)  for (${TYPENAME}Iter_declare(var, arr); ${TYPENAME}Iter_next(&var); )			
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key     =>  'Array:each',
+		implies => [],
+		symbol  => '${TYPENAME}_each',
+		tmpl    => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}_each(it, arr) for (${ELEMNAME_NP} ${ELEMPTR}s##it = arr->data, \
+            @                    								   ${ELEMPTR}e##it = arr->data + arr->len, \
+            @                    								   ${ELEMPTR}it    = s##it;\
+            @              							it < e##it;\
+            @              							it++)
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key     =>  'Array:reach',
+		implies => [],
+		symbol  => '${TYPENAME}_reach',
+		tmpl    => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}_reach(it, arr) for (${ELEMNAME_NP} ${ELEMPTR}s##it = arr->data, \
+            @                        							    ${ELEMPTR}e##it = arr->data + arr->len, \
+            @                    								    ${ELEMPTR}it    = e##it-1;\
+            @               						it >= s##it;\
+            @               						it--)
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key     =>  'Array:eachRemoveImpl',
+		implies => ["Array:eachIndexOf", "Array:remove"],
+		symbol  => '',
+		tmpl    => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}_eachRemoveImpl(it, arr, itOffset) do {\
+			@   int index##it = ${TYPENAME}_eachIndexOf(it);\
+			@   Error_declare(err##it);\
+			@   ${TYPENAME}_remove(arr, index##it, err##it);\
+			@   Error_maypost(err##it);\
+			@	s##it     = arr->data, \
+            @   e##it     = arr->data + arr->len, \
+            @   it        = s##it + (index##it + (itOffset));\
+			@} while(0); continue
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key     =>  'Array:eachRemove',
+		implies => ["Array:eachRemoveImpl"],
+		symbol  => '${TYPENAME}_eachRemove',
+		tmpl    => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}_eachRemove(it, arr) ${TYPENAME}_eachRemoveImpl(it, arr, 0)
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key     =>  'Array:reachRemove',
+		implies => ["Array:eachRemoveImpl"],
+		symbol  => '${TYPENAME}_reachRemove',
+		tmpl    => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}_reachRemove(it, arr) ${TYPENAME}_eachRemoveImpl(it, arr, -1)
+ENDxxxxxxxxxx
+	},	
+
+
+	{
+		key     =>  'Array:eachInsertImpl',
+		implies => ["Array:eachIndexOf", "Array:insertp"],
+		symbol  => '',
+		tmpl    => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}_eachInsertImpl(it, arr, valPtr, insertOffset, itOffset) do {\
+			@   int index##it = ${TYPENAME}_eachIndexOf(it);\
+			@   Error_declare(err##it);\
+			@   ${TYPENAME}_insertp(arr, index##it + (insertOffset), valPtr, err##it);\
+			@   Error_maypost(err##it);\
+			@	s##it     = arr->data, \
+            @   e##it     = arr->data + arr->len, \
+            @   it        = s##it + (index##it+(itOffset));\
+			@} while(0); continue
+ENDxxxxxxxxxx
+	},
+
+	{
+		key     =>  'Array:eachInsert',
+		implies => ["Array:eachInsertImpl"],
+		symbol  => '${TYPENAME}_eachInsert',
+		tmpl    => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}_eachInsert(it, arr, valPtr) ${TYPENAME}_eachInsertImpl(it, arr, valPtr, 0, 1)
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key     =>  'Array:eachInsertAfter',
+		implies => ["Array:eachInsertImpl"],
+		symbol  => '${TYPENAME}_eachInsertAfter',
+		tmpl    => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}_eachInsertAfter(it, arr, valPtr) ${TYPENAME}_eachInsertImpl(it, arr, valPtr, 1, 1)
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key     =>  'Array:reachInsert',
+		implies => ["Array:eachInsertImpl"],
+		symbol  => '${TYPENAME}_reachInsert',
+		tmpl    => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}_reachInsert(it, arr, valPtr) ${TYPENAME}_eachInsertImpl(it, arr, valPtr, 0, 0)
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key     =>  'Array:reachInsertAfter',
+		implies => ["Array:reachInsertImpl"],
+		symbol  => '${TYPENAME}_reachInsertAfter',
+		tmpl    => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}_reachInsertAfter(it, arr, valPtr) ${TYPENAME}_eachInsertImpl(it, arr, valPtr, 1, -1)
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key     =>  'Array:eachIndexOf',
+		implies => [],
+		symbol  => '${TYPENAME}_eachIndexOf',
+		tmpl    => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}_eachIndexOf(it) ((int)(it - s##it))
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key     =>  'Array:eachLast',
+		implies => [],
+		symbol  => '${TYPENAME}_eachLast',
+		tmpl    => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}_eachLast(it) ((it + 1) >= e##it)
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key     =>  'Array:reachLast',
+		implies => [],
+		symbol  => '${TYPENAME}_reachLast',
+		tmpl    => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}_reachLast(it) ((it - 1) < s##it)
 ENDxxxxxxxxxx
 	},	
 
@@ -1337,7 +1543,7 @@ ENDxxxxxxxxxx
 		symbol => '',
 		tmpl   => <<'ENDxxxxxxxxxx', 
 			@		default:
-			@			Error_format(err, "Failed to resolve interface call in ${TYPENAME}_${METHODNAME}: found type %s", Interface_toString(self->itype));
+			@			Error_format(err, "Failed to resolve interface call in ${TYPENAME}_${METHODNAME}: found type %s", Interface_toString(${SWITCHTARGET}));
 			@    }
 			@    return ${DEFRET};
 			@}
@@ -1348,7 +1554,6 @@ ENDxxxxxxxxxx
 		key =>    'Interface:endFunctionToString',
 		symbol => '',
 		tmpl   => <<'ENDxxxxxxxxxx', 
-			@		default:
 			@    }
 			@    return "Unknown";
 			@}
@@ -1360,7 +1565,7 @@ ENDxxxxxxxxxx
 		symbol => '',
 		tmpl   => <<'ENDxxxxxxxxxx', 
 			@       default:
-			@			Error_format(err, "Failed to resolve interface call in ${TYPENAME}_${METHODNAME}: found type %s", Interface_toString(self));
+			@			Error_format(err, "Failed to resolve interface call in ${TYPENAME}_${METHODNAME}: found type %s", Interface_toString(${SWITCHTARGET}));
 			@    }
 			@    return;
 			@}
@@ -1383,7 +1588,7 @@ static inline int ${IFCNAME}_nthIType(int n, int *itype) {
 	*itype = itypes[n];
 	return 1;
 }
-#define ${IFCNAME}_foreachIType(itype) for (int __#itype = 0, itype = 0; ${IFCNAME}_nthIType(__#itype, &itype); __#itype++)
+#define ${IFCNAME}_foreachIType(itype) for (int __##itype = 0, itype = 0; ${IFCNAME}_nthIType(__##itype, &itype); __##itype++)
 ENDxxxxxxxxxx
 	},
 
@@ -1444,43 +1649,56 @@ sub expand {
 		if (!defined($hsh)) {
 			die "Failed to find template key '$requestedKey'";
 		}
+
 		my $symbol = $hsh->{symbol};
 		if ($symbol && defined($gUsedCalls)) {
 			$symbol = $expandVar->($symbol);
 			my ($className, $methodName) = split '_', $symbol;
 			die "INTERNAL ERROR" unless defined($methodName);
-			next unless $gUsedCalls->{$className}{$methodName};
+			next unless usedCall($className, $methodName);
 		}
 
 		next if $seen{$requestedKey};
 		$seen{$requestedKey} = 1;
-
 		push @keysToProcess, $requestedKey;
 
 		my $topImplies = $hsh->{implies};
 		if (defined($topImplies)) {
-			my %implieds = map {$_ => 1} @$topImplies;
-			while (%implieds) {
-				my @impliedKeys = keys(%implieds);
-				%implieds       = ();
-				for my $imp (@impliedKeys) {
-					next if $seen{$imp};
-					$seen{$imp} = 1;
-					push @keysToProcess, $imp;
-					my $hsh = $templateMap{$imp};
-					next unless defined($hsh);
-					my $nimplies = $hsh->{implies};
-					next unless defined($nimplies);
-					for my $nimp (@$nimplies) {
-						next if $seen{$nimp};
-						$seen{$nimp} = 1;
-						$implieds{$nimp} = 1;
-					}
-				}
+			for my $imp (@$topImplies) {
+				next if $seen{$imp};
+				$seen{$imp} = 1;
+				push @keysToProcess, $imp;
 			}
+
+
+			# my %implieds = map {$_ => 1} @$topImplies;
+			# while (%implieds) {
+			# 	my @impliedKeys = keys(%implieds);
+			# 	%implieds       = ();
+			# 	for my $imp (@impliedKeys) {
+			# 		if ($imp eq 'Array:eachIndexOf') {
+			# 			print "Hmmmmm after before $imp\n";
+			# 		}
+			# 		next if $seen{$imp};
+			# 		$seen{$imp} = 1;
+			# 		push @keysToProcess, $imp;
+			# 		my $hsh = $templateMap{$imp};
+			# 		next unless defined($hsh);
+			# 		my $nimplies = $hsh->{implies};
+			# 		next unless defined($nimplies);
+			# 		for my $nimp (@$nimplies) {
+			# 			if ($nimp eq 'Array:eachIndexOf') {
+			# 			print "Hmmmmm YYYYYY $imp\n";
+			# 		}
+			# 			next if $seen{$nimp};
+			# 			$seen{$nimp} = 1;
+			# 			$implieds{$nimp} = 1;
+			# 		}
+			# 	}
+			# }
 		}
 	}
-	
+
 	my %special = ("Array:struct" => 1, "Array:slice" => 2, "ArrayIter:struct" => 3);
 	my $srt = sub {
 		my $ls = $special{$a};
@@ -1660,8 +1878,12 @@ sub writeTypesH {
 }
 
 sub main {
-	my ($srcDir) = @ARGV;
-	die "generate requires 1 argument" unless @ARGV == 1;
+
+	my @args = @ARGV;
+	$gAcceptAllCalls = (grep {$_ eq '-a'} @args) > 0;
+	@args = (grep {$_ ne '-a'} @args);
+	die "generate requires 1 argument" unless @args == 1;
+	my ($srcDir) = @args;
 	my ($templateHeaders, $cFiles, $cTemplates) = filesInDirectory($srcDir);
 	if (@$templateHeaders <= 0) {
 		die "No templates found in directory $srcDir"
@@ -1685,20 +1907,7 @@ sub main {
 
 		open my $out, ">", $header or die "Failed to open $header";
 		writeWarning($out, $templateHeader);
-
-		# my $interfaceOrder = $gAllClassesAndInterfaces->{interfaceOrder}{$templateHeader};
-		# die "INTERNAL ERROR" unless defined($interfaceOrder);
-		# for my $interfaceName (@$interfaceOrder) {
-		# 	writePredefined($out, $gAllClassesAndInterfaces->{interfaces}{$interfaceName});		
-		# }
-
-		# my $classOrder = $gAllClassesAndInterfaces->{classOrder}{$templateHeader};
-		# die "INTERNAL ERROR" unless defined($classOrder);
-		# for my $className (@$classOrder) {
-		# 	writePredefined($out, $gAllClassesAndInterfaces->{classes}{$className});		
-		# }
-
-		processTemplateHeader($out, $templateHeader, $gUsedCalls);
+		processTemplateHeader($out, $templateHeader);
 		close($out);
 	}
 

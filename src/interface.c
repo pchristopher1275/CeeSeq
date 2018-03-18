@@ -19,7 +19,6 @@ const char *Interface_toString(int itype)
             return "MidiFileDropDispatch";
         case ManageChokeGroupsDispatch_itype:
             return "ManageChokeGroupsDispatch";
-        default:
     }
     return "Unknown";
 }

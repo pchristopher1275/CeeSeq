@@ -1,4 +1,4 @@
-// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/15/2018 14:26:57 ***
+// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/16/2018 14:26:58 ***
 struct Marshal_t;
 typedef struct Marshal_t Marshal;
 struct Dispatch_t;
@@ -13,7 +13,7 @@ typedef struct Dispatch_t DecrementFrameDispatch;
 typedef struct Dispatch_t SelectNextPushedPadDispatch;
 typedef struct Dispatch_t MidiFileDropDispatch;
 typedef struct Dispatch_t ManageChokeGroupsDispatch;
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/15/2018 14:26:57 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/16/2018 14:26:58 ***
 struct BinFilePayload_t;
 typedef struct BinFilePayload_t BinFilePayload;
 struct BinFile_t;
@@ -44,7 +44,7 @@ struct DropDown_t;
 typedef struct DropDown_t DropDown;
 struct Hub_t;
 typedef struct Hub_t Hub;
-// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/15/2018 14:26:57 ***
+// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/16/2018 14:26:58 ***
 struct Marshal_t
 {
     int itype;
@@ -84,7 +84,7 @@ struct Arguments_t
 // type SelectNextPushedPadDispatch is an alias for Dispatch
 // type MidiFileDropDispatch is an alias for Dispatch
 // type ManageChokeGroupsDispatch is an alias for Dispatch
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/15/2018 14:26:57 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/16/2018 14:26:58 ***
 struct BinFilePayload_t
 {
     PortFind *portFind;
@@ -298,13 +298,13 @@ Dispatch *SelectNextPushedPadDispatch_create(int itype);
 void SelectNextPushedPadDispatch_exec(SelectNextPushedPadDispatch *self, Hub *hub, Arguments *args, Error *err);
 Dispatch *MidiFileDropDispatch_create(int itype);
 void MidiFileDropDispatch_exec(MidiFileDropDispatch *self, Hub *hub, Arguments *args, Error *err);
-int ManageChokeGroupsDispatch_initDispatchPtAr(int myItype, DispatchPtAr *disPtAr);
+Dispatch *ManageChokeGroupsDispatch_create(int itype);
+void ManageChokeGroupsDispatch_initDispatchPtAr(int itype, DispatchPtAr *disPtAr, Error *ignored);
 void ManageChokeGroupsDispatch_exec(ManageChokeGroupsDispatch *self, Hub *hub, Arguments *args, Error *err);
-int Dispatch_cmp(Dispatch *left, Dispatch *right);
-Dispatch *Dispatch_newDefault(int itype);
+int Dispatch_cmp(Dispatch **leftp, Dispatch **rightp);
 void Dispatch_freeDefault(Dispatch *d);
-void Dispatch_initDispatchPtArDefault(int itype, DispatchPtAr *disPtAr);
-void DispatchPtAr_populate(DispatchPtAr *self);
+void Dispatch_initDispatchPtArDefault(int itype, DispatchPtAr *disPtAr, Error *err);
+void DispatchPtAr_populate(DispatchPtAr *self, Error *err);
 int Midiseq_Midiseq_convertIntFileLine(const char *src, Error *err, const char *file, int line);
 Midiseq *Midiseq_new();
 void Midiseq_toBinFile(Midiseq *mseq, BinFile *bf, Error *err);
@@ -422,11 +422,11 @@ void BinFile_writeBool(BinFile *bf, bool value, Error *err);
 bool BinFile_readBool(BinFile *bf, Error *err);
 void BinFile_writeTag(BinFile *bf, const char *tag, Error *err);
 void BinFile_verifyTag(BinFile *bf, const char *tag, Error *err);
-// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/15/2018 14:26:57 ***
+// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/16/2018 14:26:58 ***
 void Marshal_process(Marshal *self, Arguments *a1, long a2, Atom *a3, Error *err);
 void Marshal_zeroArgs(Marshal *self, Arguments *a1, Error *err);
 void Dispatch_exec(Dispatch *self, Hub *a1, Arguments *a2, Error *err);
 Dispatch *Dispatch_create(int itype, Error *err);
 void Dispatch_free(Dispatch *self, Error *err);
 void Dispatch_initDispatchPtAr(int itype, DispatchPtAr *a1, Error *err);
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/15/2018 14:26:57 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/16/2018 14:26:58 ***

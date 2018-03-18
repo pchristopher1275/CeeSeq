@@ -236,7 +236,7 @@ static inline bool Atom_isSymbol(Atom *a) {
     return a->atype == Atom_typeSymbol;
 }
 static inline Symbol *Atom_toSymbol(Atom *a) {
-    return a->type == Atom_typeSymbol ? a->value.symbol : NULL;
+    return a->atype == Atom_typeSymbol ? a->value.symbol : NULL;
 }
 
 static inline bool Atom_isNumber(Atom *a) {
@@ -244,12 +244,12 @@ static inline bool Atom_isNumber(Atom *a) {
 }
 
 static inline long Atom_toInteger(Atom *a) {
-    return a->type == Atom_typeInteger ? a->value.integer : 
-           a->type == Atom_typeFloat   ? (long)a->value.number;
+    return a->atype == Atom_typeInteger ? a->value.integer : 
+           a->atype == Atom_typeFloat   ? (long)a->value.number : 0;
 } 
 static inline double Atom_toFloat(Atom *a) {
-    return a->type == Atom_typeInteger ? (double)a->value.integer : 
-           a->type == Atom_typeFloat   ? a->value.number;
+    return a->atype == Atom_typeInteger ? (double)a->value.integer : 
+           a->atype == Atom_typeFloat   ? a->value.number : 0.0;
 }
 
 #else
