@@ -37,7 +37,7 @@ APIF int Midiseq_Midiseq_convertIntFileLine(const char *src, Error *err, const c
 //
 // M I D I S E Q
 //
-const int Midiseq_maxLineLength = 1024;
+#define Midiseq_maxLineLength 1024
 
 // Create new empty midi sequence
 #define Midiseq_newUninitialized() ((Midiseq*)sysmem_newptrclear(sizeof(Midiseq)))
@@ -1069,7 +1069,8 @@ APIF void TrackList_clear(TrackList *tl)
     TrackAr_foreach(it, &tl->list) {
         NoteManager_free(it.var->noteManager);
     }
-    TrackList zero = {{{0}}};
+    TrackList zero;
+    memset(&zero, 0, sizeof(TrackList));
     *tl = zero;
     return;
 }
@@ -1283,7 +1284,7 @@ APIF void NoteManager_free(NoteManager *nm)
     TimedOffAr_clear(&nm->pending);
     IndexedOffAr_clear(&nm->endgroups);
     Mem_free(nm->atoms);
-    NoteManager zero = {{{0}}};
+    NoteManager zero; memset(&zero, 0, sizeof(NoteManager));
     *nm = zero;
     Mem_free(nm);
 }

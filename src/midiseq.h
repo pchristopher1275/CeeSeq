@@ -1,11 +1,11 @@
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/16/2018 14:26:58 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
 
 #define APIF /**/
 sds stripBaseName(const char *path);
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/16/2018 14:26:58 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/16/2018 14:26:58 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
 static inline int BinFile_version(BinFile *self){return self->version;}
 static inline sds BinFile_filename(BinFile *self){return self->filename;}
 static inline void BinFile_setFilename(BinFile *self, sds value){self->filename = value;}
@@ -28,7 +28,7 @@ const int Midiseq_cctype     = 3;
 const int Midiseq_cycletype  = 4;
 const int Midiseq_endgrptype = 5;
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/16/2018 14:26:58 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
 #define Midiseq_newUninitialized() ((Midiseq*)sysmem_newptrclear(sizeof(Midiseq)))        
 static inline bool Midiseq_useMasterClock(Midiseq *self){return self->useMasterClock;}
 static inline void Midiseq_setUseMasterClock(Midiseq *self, bool value){self->useMasterClock = value;}
@@ -95,7 +95,7 @@ static inline void Midiseq_setSequenceLength(Midiseq *self, Ticks value){self->s
 // @end
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/16/2018 14:26:58 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
 #define Pad_newUninitialized() ((Pad*)sysmem_newptrclear(sizeof(Pad)))        
 static inline t_symbol *Pad_trackName(Pad *self){return self->trackName;}
 static inline void Pad_setTrackName(Pad *self, t_symbol *value){self->trackName = value;}
@@ -118,7 +118,7 @@ static inline Track *Pad_track(Pad *self){return self->track;}
 static inline void Pad_setTrack(Pad *self, Track *value){self->track = value;}
 static inline void PadAr_clear(PadAr *arr) {
     Array_clear((Array*)arr);
-    PadAr zero = {{0}};
+    PadAr zero = {0};
     *arr = zero;
 }
 
@@ -155,7 +155,7 @@ static inline bool PadArIter_next(PadArIter *iterator) {
 
 static inline void PadPtrAr_clear(PadPtrAr *arr) {
     Array_clear((Array*)arr);
-    PadPtrAr zero = {{0}};
+    PadPtrAr zero = {0};
     *arr = zero;
 }
 
@@ -184,11 +184,11 @@ static inline bool PadPtrArIter_next(PadPtrArIter *iterator) {
 
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/16/2018 14:26:58 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
 #define IndexedOff_declare(name, padIndex, pitch) IndexedOff name = {(padIndex), (pitch)}
 static inline void IndexedOffAr_clear(IndexedOffAr *arr) {
     Array_clear((Array*)arr);
-    IndexedOffAr zero = {{0}};
+    IndexedOffAr zero = {0};
     *arr = zero;
 }
 
@@ -220,25 +220,28 @@ static inline bool IndexedOffArIter_next(IndexedOffArIter *iterator) {
 }
 
 static inline void IndexedOffAr_binInsertPadIndex(IndexedOffAr *arr, IndexedOff elem) {
-    Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)IndexedOff_cmpPadIndex, true);
+    int (*compare)(IndexedOff *, IndexedOff *) = IndexedOff_cmpPadIndex;
+    Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)compare, true);
 }            
 
 static inline void IndexedOffAr_binRemovePadIndex(IndexedOffAr *arr, IndexedOff elem) {
-    Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)IndexedOff_cmpPadIndex, true);
+    int (*compare)(IndexedOff *, IndexedOff *) = IndexedOff_cmpPadIndex;
+    Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)compare, true);
 }        
 
 static inline IndexedOffArSlice IndexedOffAr_binSearchPadIndex(IndexedOffAr *arr, IndexedOff elem) {
+    int (*compare)(IndexedOff *, IndexedOff *) = IndexedOff_cmpPadIndex;
     IndexedOffArSlice slice = {0};
-    Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)IndexedOff_cmpPadIndex, (ArraySlice*)&slice);
+    Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, (ArraySlice*)&slice);
     return slice;
 }
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/16/2018 14:26:58 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
 #define TimedOff_declare(name, time, pitch) TimedOff name = {(time), (pitch)}
 static inline void TimedOffAr_clear(TimedOffAr *arr) {
     Array_clear((Array*)arr);
-    TimedOffAr zero = {{0}};
+    TimedOffAr zero = {0};
     *arr = zero;
 }
 
@@ -246,6 +249,10 @@ static inline void TimedOffAr_clear(TimedOffAr *arr) {
 
 static inline void TimedOffAr_init(TimedOffAr *arr, int nelems) {
     Array_init((Array*)arr, nelems, sizeof(TimedOff), (Array_clearElement)NULL);
+}
+
+static inline int TimedOffAr_len(TimedOffAr *arr) {
+    return Array_len((Array*)arr);
 }
 
 static inline void TimedOffAr_remove(TimedOffAr *arr, int index, Error *err) {
@@ -269,16 +276,17 @@ static inline bool TimedOffArIter_next(TimedOffArIter *iterator) {
 }
 
 static inline void TimedOffAr_binInsertTime(TimedOffAr *arr, TimedOff elem) {
-    Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)TimedOff_cmpTime, false);
+    int (*compare)(TimedOff *, TimedOff *) = TimedOff_cmpTime;
+    Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)compare, false);
 }            
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/16/2018 14:26:58 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/16/2018 14:26:58 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
 static inline void PortFindCellAr_clear(PortFindCellAr *arr) {
     Array_clear((Array*)arr);
-    PortFindCellAr zero = {{0}};
+    PortFindCellAr zero = {0};
     *arr = zero;
 }
 
@@ -312,7 +320,7 @@ static inline bool PortFindCellArIter_next(PortFindCellArIter *iterator) {
 }
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/16/2018 14:26:58 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
 static inline void *PortFind_hub(PortFind *self){return self->hub;}
 static inline void PortFind_setHub(PortFind *self, void *value){self->hub = value;}
 static inline Port_anythingDispatchFunc PortFind_anythingDispatch(PortFind *self){return self->anythingDispatch;}
@@ -322,12 +330,12 @@ static inline void PortFind_setIntDispatch(PortFind *self, Port_intDispatchFunc 
 #define PortFind_declare(name) PortFind _##name; PortFind *name = &_##name; memset(name, 0, sizeof(PortFind)); PortFind_init(name)        
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/16/2018 14:26:58 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
 #define PadList_newUninitialized() ((PadList*)sysmem_newptrclear(sizeof(PadList)))        
 static inline PadAr *PadList_pads(PadList *self){return &self->pads;}
 static inline PadPtrAr *PadList_running(PadList *self){return &self->running;}
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/16/2018 14:26:58 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
 static inline void Track_setName(Track *self, Symbol *value){self->name = value;}
 static inline NoteManager *Track_noteManager(Track *self){return self->noteManager;}
 static inline void Track_setNoteManager(Track *self, NoteManager *value){self->noteManager = value;}
@@ -360,10 +368,10 @@ static inline bool TrackArIter_next(TrackArIter *iterator) {
 
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/16/2018 14:26:58 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
 #define TrackList_newUninitialized() ((TrackList*)sysmem_newptrclear(sizeof(TrackList)))        
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/16/2018 14:26:58 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
 static inline Port *PortRef_port(PortRef *self){return self->port;}
 static inline int PortRef_outlet(PortRef *self){return self->outlet;}
 
@@ -376,7 +384,7 @@ static inline void PortRef_set(PortRef *pr, Port *port, int outlet) {
 #define PortRef_sendInteger(pr, value, err)    Port_sendInteger(PortRef_port(pr), PortRef_outlet(pr), value, err)
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/16/2018 14:26:58 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
 
 static inline PortRef *DropDown_portRef(DropDown *dd) {
     return &dd->portRef;
@@ -386,7 +394,7 @@ static inline void DropDown_setPortRef(DropDown *dd, PortRef *pr) {
    dd->portRef = *pr;
 }
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/16/2018 14:26:58 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
 #define Hub_newUninitialized() ((Hub*)sysmem_newptrclear(sizeof(Hub)))        
 static inline PadList *Hub_padList(Hub *self){return self->padList;}
 static inline void Hub_setPadList(Hub *self, PadList *value){self->padList = value;}

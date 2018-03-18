@@ -1,4 +1,4 @@
-// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/16/2018 14:26:58 ***
+// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/18/2018 14:41:01 ***
 struct Marshal_t;
 typedef struct Marshal_t Marshal;
 struct Dispatch_t;
@@ -13,7 +13,7 @@ typedef struct Dispatch_t DecrementFrameDispatch;
 typedef struct Dispatch_t SelectNextPushedPadDispatch;
 typedef struct Dispatch_t MidiFileDropDispatch;
 typedef struct Dispatch_t ManageChokeGroupsDispatch;
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/16/2018 14:26:58 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
 struct BinFilePayload_t;
 typedef struct BinFilePayload_t BinFilePayload;
 struct BinFile_t;
@@ -44,7 +44,22 @@ struct DropDown_t;
 typedef struct DropDown_t DropDown;
 struct Hub_t;
 typedef struct Hub_t Hub;
-// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/16/2018 14:26:58 ***
+// *** DO NOT MODIFY THIS FILE (see src/sequence.in.h) generated 03/18/2018 14:41:01 ***
+struct Outlet_t;
+typedef struct Outlet_t Outlet;
+struct Sequence_t;
+typedef struct Sequence_t Sequence;
+struct Timed_t;
+typedef struct Timed_t Timed;
+struct NoteEvent_t;
+typedef struct NoteEvent_t NoteEvent;
+struct FloatEvent_t;
+typedef struct FloatEvent_t FloatEvent;
+struct NoteSequence_t;
+typedef struct NoteSequence_t NoteSequence;
+struct RecordBuffer_t;
+typedef struct RecordBuffer_t RecordBuffer;
+// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/18/2018 14:41:01 ***
 struct Marshal_t
 {
     int itype;
@@ -58,7 +73,11 @@ struct Dispatch_t
     Marshal *marshal;
 };
 typedef struct DispatchPtAr_t {
-    Array body;
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(Dispatch **);
+   Dispatch **data;
 } DispatchPtAr;
 
 typedef struct DispatchPtArIter_t {
@@ -84,7 +103,7 @@ struct Arguments_t
 // type SelectNextPushedPadDispatch is an alias for Dispatch
 // type MidiFileDropDispatch is an alias for Dispatch
 // type ManageChokeGroupsDispatch is an alias for Dispatch
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/16/2018 14:26:58 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
 struct BinFilePayload_t
 {
     PortFind *portFind;
@@ -119,7 +138,11 @@ struct Pad_t
     Track *track;
 };
 typedef struct PadAr_t {
-    Array body;
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(Pad*);
+   Pad *data;
 } PadAr;
 
 typedef struct PadArIter_t {
@@ -130,7 +153,11 @@ typedef struct PadArIter_t {
 } PadArIter;
 
 typedef struct PadPtrAr_t {
-    Array body;
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(Pad **);
+   Pad **data;
 } PadPtrAr;
 
 typedef struct PadPtrArIter_t {
@@ -146,7 +173,11 @@ struct IndexedOff_t
     int pitch;
 };
 typedef struct IndexedOffAr_t {
-    Array body;
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(IndexedOff*);
+   IndexedOff *data;
 } IndexedOffAr;
 
 typedef struct IndexedOffArSlice_t {
@@ -169,7 +200,11 @@ struct TimedOff_t
     int pitch;
 };
 typedef struct TimedOffAr_t {
-    Array body;
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(TimedOff*);
+   TimedOff *data;
 } TimedOffAr;
 
 typedef struct TimedOffArIter_t {
@@ -192,7 +227,11 @@ struct PortFindCell_t
     t_symbol *varname;
 };
 typedef struct PortFindCellAr_t {
-    Array body;
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(PortFindCell*);
+   PortFindCell *data;
 } PortFindCellAr;
 
 typedef struct PortFindCellArIter_t {
@@ -220,7 +259,11 @@ struct Track_t
     NoteManager *noteManager;
 };
 typedef struct TrackAr_t {
-    Array body;
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(Track*);
+   Track *data;
 } TrackAr;
 
 typedef struct TrackArIter_t {
@@ -264,6 +307,111 @@ struct Hub_t
     int selectedPad;
     Arguments arguments;
     DispatchPtAr dispatcher;
+};
+// *** DO NOT MODIFY THIS FILE (see src/sequence.in.h) generated 03/18/2018 14:41:01 ***
+struct Outlet_t
+{
+    int itype;
+};
+struct Sequence_t
+{
+    int itype;
+    long version;
+};
+typedef struct SequenceAr_t {
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(Sequence **);
+   Sequence **data;
+} SequenceAr;
+
+typedef struct SequenceArIter_t {
+   SequenceAr *arr;
+   int index;
+   bool last;
+   Sequence **var;
+} SequenceArIter;
+
+struct Timed_t
+{
+    Ticks time;
+    int version;
+    Sequence *sequence;
+};
+typedef struct TimedAr_t {
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(Timed*);
+   Timed *data;
+} TimedAr;
+
+typedef struct TimedArIter_t {
+   TimedAr *arr;
+   int index;
+   bool last;
+   Timed *var;
+} TimedArIter;
+
+struct NoteEvent_t
+{
+    uint8_t pitch;
+    uint8_t velocity;
+    Ticks stime;
+    Ticks duration;
+};
+typedef struct NoteEventAr_t {
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(NoteEvent*);
+   NoteEvent *data;
+} NoteEventAr;
+
+typedef struct NoteEventArIter_t {
+   NoteEventAr *arr;
+   int index;
+   bool last;
+   NoteEvent *var;
+} NoteEventArIter;
+
+struct FloatEvent_t
+{
+    Ticks time;
+    double value;
+};
+typedef struct FloatEventAr_t {
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(FloatEvent*);
+   FloatEvent *data;
+} FloatEventAr;
+
+typedef struct FloatEventArIter_t {
+   FloatEventAr *arr;
+   int index;
+   bool last;
+   FloatEvent *var;
+} FloatEventArIter;
+
+struct NoteSequence_t
+{
+    long version;
+    Ticks sequenceLength;
+    Ticks startTime;
+    int cursor;
+    bool cycle;
+    Outlet *outlet;
+    NoteSequence *recordBuffer;
+    TimedOffAr offs;
+    NoteEventAr events;
+};
+struct RecordBuffer_t
+{
+    Ticks recordStart;
+    SequenceAr sequences;
 };
 sds DBLog_stripBaseName(const char *path);
 void DBLog_printSDS(const char *file, int line, sds message);
@@ -422,11 +570,19 @@ void BinFile_writeBool(BinFile *bf, bool value, Error *err);
 bool BinFile_readBool(BinFile *bf, Error *err);
 void BinFile_writeTag(BinFile *bf, const char *tag, Error *err);
 void BinFile_verifyTag(BinFile *bf, const char *tag, Error *err);
-// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/16/2018 14:26:58 ***
+// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/18/2018 14:41:01 ***
 void Marshal_process(Marshal *self, Arguments *a1, long a2, Atom *a3, Error *err);
 void Marshal_zeroArgs(Marshal *self, Arguments *a1, Error *err);
 void Dispatch_exec(Dispatch *self, Hub *a1, Arguments *a2, Error *err);
 Dispatch *Dispatch_create(int itype, Error *err);
 void Dispatch_free(Dispatch *self, Error *err);
 void Dispatch_initDispatchPtAr(int itype, DispatchPtAr *a1, Error *err);
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/16/2018 14:26:58 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
+// *** DO NOT MODIFY THIS FILE (see src/sequence.in.h) generated 03/18/2018 14:41:01 ***
+void Outlet_sendNote(Outlet *self, uint8_t a1, uint8_t a2, Error *err);
+void Outlet_sendFloat(Outlet *self, double a1, Error *err);
+void Sequence_start(Sequence *self, Ticks a1, Ticks a2, TimedAr *a3, Error *err);
+void Sequence_drive(Sequence *self, Ticks a1, TimedAr *a2, Error *err);
+void Sequence_startRecord(Sequence *self, Error *err);
+Sequence *Sequence_recordingSeq(Sequence *self, Ticks a1, Error *err);
+void Sequence_stop(Sequence *self, Error *err);

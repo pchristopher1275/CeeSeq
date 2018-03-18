@@ -1361,7 +1361,8 @@ ENDxxxxxxxxxx
 		symbol => '${TYPENAME}_binInsert${TAG}',
 		tmpl   => <<'ENDxxxxxxxxxx', 
 			@static inline void ${TYPENAME}_binInsert${TAG}(${TYPENAME} *arr, ${ELEMNAME}elem) {
-			@	Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)${COMPARE}, ${MULTI});
+			@	int (*compare)(${ELEMNAME}*, ${ELEMNAME}*) = ${COMPARE};
+			@	Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)compare, ${MULTI});
 			@}			
 ENDxxxxxxxxxx
 	},	
@@ -1371,7 +1372,8 @@ ENDxxxxxxxxxx
 		symbol => '${TYPENAME}_binRemove${TAG}',
 		tmpl   => <<'ENDxxxxxxxxxx', 
 			@static inline void ${TYPENAME}_binRemove${TAG}(${TYPENAME} *arr, ${ELEMNAME}elem) {
-			@	Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)${COMPARE}, ${MULTI});
+			@	int (*compare)(${ELEMNAME}*, ${ELEMNAME}*) = ${COMPARE};
+			@	Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)compare, ${MULTI});
 			@}		
 ENDxxxxxxxxxx
 	},	
@@ -1381,7 +1383,8 @@ ENDxxxxxxxxxx
 		symbol => '${TYPENAME}_sort${TAG}',
 		tmpl   => <<'ENDxxxxxxxxxx', 
 			@static inline void ${TYPENAME}_sort${TAG}(${TYPENAME} *arr) {
-			@	Array_sort((Array*)arr, (Array_compare)${COMPARE});
+			@	int (*compare)(${ELEMNAME}*, ${ELEMNAME}*) = ${COMPARE};
+			@	Array_sort((Array*)arr, (Array_compare)compare);
 			@}				
 ENDxxxxxxxxxx
 	},	
@@ -1391,8 +1394,9 @@ ENDxxxxxxxxxx
 		symbol => '${TYPENAME}_binSearch${TAG}',
 		tmpl   => <<'ENDxxxxxxxxxx', 
 			@static inline ${TYPENAME}Slice ${TYPENAME}_binSearch${TAG}(${TYPENAME} *arr, ${ELEMNAME}elem) {
+			@	int (*compare)(${ELEMNAME}*, ${ELEMNAME}*) = ${COMPARE};
 			@	${TYPENAME}Slice slice = {0};
-			@	Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)${COMPARE}, (ArraySlice*)&slice);
+			@	Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, (ArraySlice*)&slice);
 			@	return slice;
 			@}
 ENDxxxxxxxxxx
@@ -1403,7 +1407,8 @@ ENDxxxxxxxxxx
 		symbol => '${TYPENAME}_binSearch${TAG}',
 		tmpl   => <<'ENDxxxxxxxxxx', 
 			@static inline ${ELEMNAME}*${TYPENAME}_binSearch${TAG}(${TYPENAME} *arr, ${ELEMNAME}elem) {
-			@	return (${ELEMNAME}*)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)${COMPARE}, NULL);
+			@	int (*compare)(${ELEMNAME}*, ${ELEMNAME}*) = ${COMPARE};
+			@	return (${ELEMNAME}*)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, NULL);
 			@}
 ENDxxxxxxxxxx
 	},	

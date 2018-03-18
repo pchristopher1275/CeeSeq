@@ -14,7 +14,7 @@ enum
 };
 
 // struct Port_t;
-typedef struct Port_t
+struct Port_t
 {
     t_object d_obj;
     int porttype;
@@ -29,7 +29,7 @@ typedef struct Port_t
     Port_anythingDispatchFunc anythingDispatch;
     Port_intDispatchFunc intDispatch;
     Atom *sendBuffer;
-} Port;
+};
 
 Port PORT_NULL_IMPL =
 {

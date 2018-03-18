@@ -6,6 +6,8 @@ typedef struct Undefined_t {
 Undefined Undefined_instance = {Undefined_itype, {0}};
 #define Undefined_ptr(typename) ((typename*)&Undefined_instance)
 
+// From file 'src/sequence.in.h'
+
 // From file 'src/dispatch.in.h'
 #define MarshalSi_itype 12
 #define MarshalSii_itype 13

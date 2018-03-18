@@ -13,7 +13,7 @@
             "name": "sendFloat",
             "retVal": "void",
             "args": ["double"]
-         },
+         }
       ]
    }
 @end
@@ -25,7 +25,7 @@
       "fields": [
          {"name": "time", "type": "Ticks"},
          {"name": "version", "type": "int"},
-         {"name": "sequence", "type": "Sequence *"},
+         {"name": "sequence", "type": "Sequence *"}
       ],       
       "containers": [
          {"type": "array", "typename": "TimedAr", "elemname": "Timed"}
@@ -101,7 +101,7 @@
          {  
             "name":"events",
             "type":"NoteEventAr"
-         },
+         }
       ]
    }
 @end
@@ -141,7 +141,7 @@
             "name": "stop",
             "retVal": "void",
             "args": []
-         },
+         }
       ],
       "containers": [
          {"type": "array", "typename": "SequenceAr", "elemname": "Sequence *"}
@@ -161,6 +161,6 @@
             "name": "sequences", 
             "type": "SequenceAr"
          }
-      ],
+      ]
    }
 @end

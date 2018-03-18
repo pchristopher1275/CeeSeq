@@ -10,7 +10,7 @@ APIF void MarshalSi_process(MarshalSi *self, Arguments *args, long argc, Atom *a
       Error_format0(err, "MarshalSi second argument should be an integer");
       return;  
    }
-   Arguments_setI1(args, Atom_toSymbol(argv + 0));
+   Arguments_setI1(args, Atom_toInteger(argv + 0));
 }
 
 APIF void MarshalSi_zeroArgs(MarshalSi *self, Arguments *args) {
@@ -245,23 +245,4 @@ APIF void DispatchPtAr_populate(DispatchPtAr *self, Error *err) {
    DispatchPtAr_sort(self);
 }
 
-Dispatch *baz(int i) {
-   return NULL;
-}
-int bar(int i) {
-   return NULL;
-}
-Dispatch *foo(int i) {
-   switch (i) {
-      case 1:
-         return baz(i);
-      case 2:
-         return bar(i);
-      case 3:
-         Dispatch *f = bar(i);
-         // return f;
-         return NULL;
-   }
-   return NULL;
-}
 

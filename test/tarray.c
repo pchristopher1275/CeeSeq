@@ -980,7 +980,6 @@ Unit_declare(testEach) {
 			chk(*it == IntArr_eachIndexOf(it)+1);
 		}
 
-
 		IntArr_free(arr);
 	}
 
