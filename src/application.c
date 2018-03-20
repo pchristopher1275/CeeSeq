@@ -1,4 +1,4 @@
-//      *** DO NOT MODIFY THIS FILE generated 03/20/2018 15:57:21 ***
+//      *** DO NOT MODIFY THIS FILE generated 03/20/2018 16:34:02 ***
 struct Arguments_t;
 typedef struct Arguments_t Arguments;
 struct Marshal_t;
@@ -124,10 +124,13 @@ struct Outlet_t
 {
     int itype;
 };
-struct PortRef_t
+struct Arguments_t
 {
-    Port *port;
-    int outlet;
+    Symbol *s1;
+    long i1;
+    long i2;
+    long ivalue;
+    long inlet;
 };
 typedef struct SymbolPtrAr_t {
    int len;
@@ -144,19 +147,16 @@ typedef struct SymbolPtrArIt_t {
    Symbol **var;
 } SymbolPtrArIt;
 
+struct PortRef_t
+{
+    Port *port;
+    int outlet;
+};
 struct DropDown_t
 {
     SymbolPtrAr table;
     int selected;
     PortRef portRef;
-};
-struct Arguments_t
-{
-    Symbol *s1;
-    long i1;
-    long i2;
-    long ivalue;
-    long inlet;
 };
 struct Hub_t
 {

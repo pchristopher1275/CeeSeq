@@ -10,9 +10,6 @@ my $gApplicationName     = "application";
 my $gAcceptAllCalls      = 0;
 my $gNow                 = strftime("%m/%d/%Y %H:%M:%S", localtime);
 
-## XXX: temporary
-my $gUsedCalls = undef;
-
 sub run {
     my ($cmd, %opts) = @_;
     print "$cmd\n" if $gVerbose;
@@ -868,6 +865,14 @@ ENDxxxxxxxxxx
 );
 my %templateMap = map {$_->{key} => $_} @templates;
 
+my $Expand_called = undef;
+
+sub Expand_setCalled {
+	my ($called) = @_;
+	die "Bad called passed to Expand_setCalled" unless $called->{itype} eq 'Called';
+	$Expand_called = $called;
+}
+
 sub Expand_expand {
 	my ($inputKeys, $inputDictionary) = @_;
 	
@@ -887,11 +892,9 @@ sub Expand_expand {
 		}
 
 		my $symbol = $hsh->{symbol};
-		if ($symbol && defined($gUsedCalls)) {
+		if ($symbol) {
 			$symbol = $expandVar->($symbol);
-			my ($className, $methodName) = split '_', $symbol;
-			die "INTERNAL ERROR" unless defined($methodName);
-			next unless usedCall($className, $methodName);
+			next unless Called_isName($Expand_called, $symbol);
 		}
 
 		next if $seen{$requestedKey};
@@ -1240,6 +1243,54 @@ sub ArtifactList_emitStructs {
 	}
 }
 
+sub Called_new {
+	return {itype => "Called"};
+}
+
+sub Called_scan {
+	my ($self, $templateFiles) = @_;
+	my %used = (PortRef => {port => 1, outlet => 1});
+	for my $source (@$templateFiles) {
+		open my $fd, $source or die "Failed to open $source";
+		while (<$fd>) {
+			next if /^\s*APIF/;
+			
+			while(/([[:alpha:]][[:alnum:]]*)_([[:alpha:]][[:alnum:]]*)(?:\b|$)\(/ag) {
+				my $className  = $1;
+				my $methodName = $2;
+				my $methods    = $used{$className};
+	  			if (!defined($methods)) {
+	  				$methods = {};
+	  				$used{$className} = $methods;
+	  			}
+	  			$methods->{$methodName} = 1;
+			}	 
+		}
+		close($fd);
+	}
+	$self->{used} = \%used;
+}
+
+sub Called_setAllUsed {
+	$_[0]->{allUsed} = 1;
+}
+
+sub Called_clearAllUsed {
+	$_[0]->{allUsed} = 0;	
+}
+
+sub Called_isName {
+	my ($self, $name) = @_;
+	my ($className, $methodName) = split "_", $name;
+	die "Bad name passed to Called_isName" unless defined($methodName);
+	return $self->{allUsed} || $self->{used}{$className}{$methodName};
+}
+
+sub Called_is {
+	my ($self, $className, $methodName) = @_;
+	return $self->{allUsed} || $self->{used}{$className}{$methodName};	
+}
+
 sub Main_handleArgs {
 	my @beforeArgs = @ARGV;
 	my @afterArgs;
@@ -1300,6 +1351,10 @@ sub Main_main {
 	die "Requires at least one argument" unless @args > 0;
 	my $srcDir = $args[0];
 	my @templateFiles = Main_listTemplateFiles(shift @args, @args);
+	my $called = Called_new();
+	Called_scan($called, \@templateFiles);
+	Expand_setCalled($called);
+	
 	my $artifactList = ArtifactList_new();
 	ArtifactList_scanFromTemplateFiles($artifactList, @templateFiles);
 
