@@ -103,25 +103,25 @@ static inline void SymbolPtrAr_changeLength(SymbolPtrAr *arr, int newLength) {
     Array_changeLength((Array*)arr, newLength);
 }
 
-typedef struct SymbolPtrArIter_t {
+typedef struct SymbolPtrArIt_t {
    SymbolPtrAr *arr;
    int index;
    bool last;
    Symbol **var;
-} SymbolPtrArIter;
+} SymbolPtrArIt;
 
-static inline bool SymbolPtrArIter_next(SymbolPtrArIter *iterator) {
-    return ArrayIter_next((ArrayIter*)iterator);
+static inline bool SymbolPtrArIt_next(SymbolPtrArIt *iterator) {
+    return ArrayIt_next((ArrayIt*)iterator);
 }
 
-static inline bool SymbolPtrArIter_previous(SymbolPtrArIter *iterator) {
-    return ArrayIter_previous((ArrayIter*)iterator);
+static inline bool SymbolPtrArIt_previous(SymbolPtrArIt *iterator) {
+    return ArrayIt_previous((ArrayIt*)iterator);
 }
 
-#define SymbolPtrArIter_declare(var, arr)  SymbolPtrArIter var = {arr, -1, false, NULL}
-#define SymbolPtrArIter_rdeclare(var, arr)  SymbolPtrArIter var = {arr, SymbolPtrAr_len(arr), false, NULL}
-#define SymbolPtrAr_foreach(var, arr)  for (SymbolPtrArIter_declare(var, arr); SymbolPtrArIter_next(&var); )
-#define SymbolPtrAr_rforeach(var, arr)  for (SymbolPtrArIter_rdeclare(var, arr); SymbolPtrArIter_previous(&var); )
-#define SymbolPtrAr_loop(var, arr)    SymbolPtrArIter_declare(var, arr); while (SymbolPtrArIter_next(&var)) 
-#define SymbolPtrAr_rloop(var, arr)    SymbolPtrArIter_rdeclare(var, arr); while (SymbolPtrArIter_previous(&var)) 
+#define SymbolPtrArIt_declare(var, arr)  SymbolPtrArIt var = {arr, -1, false, NULL}
+#define SymbolPtrArIt_rdeclare(var, arr)  SymbolPtrArIt var = {arr, SymbolPtrAr_len(arr), false, NULL}
+#define SymbolPtrAr_foreach(var, arr)  for (SymbolPtrArIt_declare(var, arr); SymbolPtrArIt_next(&var); )
+#define SymbolPtrAr_rforeach(var, arr)  for (SymbolPtrArIt_rdeclare(var, arr); SymbolPtrArIt_previous(&var); )
+#define SymbolPtrAr_loop(var, arr)    SymbolPtrArIt_declare(var, arr); while (SymbolPtrArIt_next(&var)) 
+#define SymbolPtrAr_rloop(var, arr)    SymbolPtrArIt_rdeclare(var, arr); while (SymbolPtrArIt_previous(&var)) 
 

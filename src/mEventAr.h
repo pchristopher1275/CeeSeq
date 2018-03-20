@@ -103,25 +103,25 @@ static inline void MEventAr_changeLength(MEventAr *arr, int newLength) {
     Array_changeLength((Array*)arr, newLength);
 }
 
-typedef struct MEventArIter_t {
+typedef struct MEventArIt_t {
    MEventAr *arr;
    int index;
    bool last;
    MEvent *var;
-} MEventArIter;
+} MEventArIt;
 
-static inline bool MEventArIter_next(MEventArIter *iterator) {
-    return ArrayIter_next((ArrayIter*)iterator);
+static inline bool MEventArIt_next(MEventArIt *iterator) {
+    return ArrayIt_next((ArrayIt*)iterator);
 }
 
-static inline bool MEventArIter_previous(MEventArIter *iterator) {
-    return ArrayIter_previous((ArrayIter*)iterator);
+static inline bool MEventArIt_previous(MEventArIt *iterator) {
+    return ArrayIt_previous((ArrayIt*)iterator);
 }
 
-#define MEventArIter_declare(var, arr)  MEventArIter var = {arr, -1, false, NULL}
-#define MEventArIter_rdeclare(var, arr)  MEventArIter var = {arr, MEventAr_len(arr), false, NULL}
-#define MEventAr_foreach(var, arr)  for (MEventArIter_declare(var, arr); MEventArIter_next(&var); )
-#define MEventAr_rforeach(var, arr)  for (MEventArIter_rdeclare(var, arr); MEventArIter_previous(&var); )
-#define MEventAr_loop(var, arr)    MEventArIter_declare(var, arr); while (MEventArIter_next(&var)) 
-#define MEventAr_rloop(var, arr)    MEventArIter_rdeclare(var, arr); while (MEventArIter_previous(&var)) 
+#define MEventArIt_declare(var, arr)  MEventArIt var = {arr, -1, false, NULL}
+#define MEventArIt_rdeclare(var, arr)  MEventArIt var = {arr, MEventAr_len(arr), false, NULL}
+#define MEventAr_foreach(var, arr)  for (MEventArIt_declare(var, arr); MEventArIt_next(&var); )
+#define MEventAr_rforeach(var, arr)  for (MEventArIt_rdeclare(var, arr); MEventArIt_previous(&var); )
+#define MEventAr_loop(var, arr)    MEventArIt_declare(var, arr); while (MEventArIt_next(&var)) 
+#define MEventAr_rloop(var, arr)    MEventArIt_rdeclare(var, arr); while (MEventArIt_previous(&var)) 
 

@@ -1,191 +1,87 @@
-// *** DO NOT MODIFY THIS FILE (see XXX-Temporarily-Out-Of-Service) generated 03/19/2018 17:51:40 ***
-struct Marshal_t;
-typedef struct Marshal_t Marshal;
-struct TimedOff_t;
-typedef struct TimedOff_t TimedOff;
-struct FloatEventAr_t;
-typedef struct FloatEventAr_t FloatEventAr;
-struct IndexedOffAr_t;
-typedef struct IndexedOffAr_t IndexedOffAr;
+// *** DO NOT MODIFY THIS FILE (see XXX-Temporarily-Out-Of-Service) generated 03/19/2018 21:37:36 ***
 struct NoteSequence_t;
 typedef struct NoteSequence_t NoteSequence;
-struct DispatchPtAr_t;
-typedef struct DispatchPtAr_t DispatchPtAr;
-struct TrackList_t;
-typedef struct TrackList_t TrackList;
-struct FloatEvent_t;
-typedef struct FloatEvent_t FloatEvent;
-typedef struct Marshal_t MarshalSii;
-struct NoteEventAr_t;
-typedef struct NoteEventAr_t NoteEventAr;
-struct PadList_t;
-typedef struct PadList_t PadList;
-struct RecordBuffer_t;
-typedef struct RecordBuffer_t RecordBuffer;
-typedef struct Marshal_t MarshalSi;
-struct PortFindCellAr_t;
-typedef struct PortFindCellAr_t PortFindCellAr;
-struct Midiseq_t;
-typedef struct Midiseq_t Midiseq;
-struct PadAr_t;
-typedef struct PadAr_t PadAr;
-typedef struct Dispatch_t SelectNextPushedPadDispatch;
-struct Outlet_t;
-typedef struct Outlet_t Outlet;
-typedef struct Dispatch_t DecrementFrameDispatch;
-struct Dispatch_t;
-typedef struct Dispatch_t Dispatch;
-struct Track_t;
-typedef struct Track_t Track;
-struct PortFindCell_t;
-typedef struct PortFindCell_t PortFindCell;
-typedef struct Dispatch_t IncrementFrameDispatch;
-struct DropDown_t;
-typedef struct DropDown_t DropDown;
-struct BinFile_t;
-typedef struct BinFile_t BinFile;
-typedef struct Marshal_t MarshalSs;
-struct Pad_t;
-typedef struct Pad_t Pad;
 struct PortRef_t;
 typedef struct PortRef_t PortRef;
-struct Hub_t;
-typedef struct Hub_t Hub;
-struct TimedOffAr_t;
-typedef struct TimedOffAr_t TimedOffAr;
-struct TimedAr_t;
-typedef struct TimedAr_t TimedAr;
+typedef struct Marshal_t MarshalSii;
+typedef struct Dispatch_t SelectNextPushedPadDispatch;
 struct PadPtrAr_t;
 typedef struct PadPtrAr_t PadPtrAr;
-struct Arguments_t;
-typedef struct Arguments_t Arguments;
-struct PortFind_t;
-typedef struct PortFind_t PortFind;
-typedef struct Dispatch_t ManageChokeGroupsDispatch;
-struct NoteEvent_t;
-typedef struct NoteEvent_t NoteEvent;
-struct Sequence_t;
-typedef struct Sequence_t Sequence;
 struct BinFilePayload_t;
 typedef struct BinFilePayload_t BinFilePayload;
-struct IndexedOff_t;
-typedef struct IndexedOff_t IndexedOff;
-struct Timed_t;
-typedef struct Timed_t Timed;
-struct SequenceAr_t;
-typedef struct SequenceAr_t SequenceAr;
-typedef struct Dispatch_t MidiFileDropDispatch;
 struct NoteManager_t;
 typedef struct NoteManager_t NoteManager;
+struct Marshal_t;
+typedef struct Marshal_t Marshal;
+struct Midiseq_t;
+typedef struct Midiseq_t Midiseq;
+struct PortFindCell_t;
+typedef struct PortFindCell_t PortFindCell;
+struct SequenceAr_t;
+typedef struct SequenceAr_t SequenceAr;
+struct TimedOff_t;
+typedef struct TimedOff_t TimedOff;
+typedef struct Marshal_t MarshalSi;
+struct IndexedOffAr_t;
+typedef struct IndexedOffAr_t IndexedOffAr;
+struct PadAr_t;
+typedef struct PadAr_t PadAr;
+struct Arguments_t;
+typedef struct Arguments_t Arguments;
+typedef struct Marshal_t MarshalSs;
+struct Sequence_t;
+typedef struct Sequence_t Sequence;
+struct BinFile_t;
+typedef struct BinFile_t BinFile;
+struct TrackList_t;
+typedef struct TrackList_t TrackList;
+struct TimedOffAr_t;
+typedef struct TimedOffAr_t TimedOffAr;
+struct Track_t;
+typedef struct Track_t Track;
 struct TrackAr_t;
 typedef struct TrackAr_t TrackAr;
-struct Track_t
-{
-    Symbol *name;
-    NoteManager *noteManager;
-};
-typedef struct TrackAr_t {
-   int len;
-   int cap;
-   int elemSize;
-   void (*clearer)(Track*);
-   Track *data;
-} TrackAr;
-
-typedef struct TrackArIter_t {
-   TrackAr *arr;
-   int index;
-   bool last;
-   Track *var;
-} TrackArIter;
-
-struct IndexedOff_t
-{
-    int padIndex;
-    int pitch;
-};
-typedef struct IndexedOffAr_t {
-   int len;
-   int cap;
-   int elemSize;
-   void (*clearer)(IndexedOff*);
-   IndexedOff *data;
-} IndexedOffAr;
-
-typedef struct IndexedOffArSlice_t {
-    int len;
-    IndexedOff *data;
-    int index;
-    IndexedOff *var;
-} IndexedOffArSlice;
-
-typedef struct IndexedOffArIter_t {
-   IndexedOffAr *arr;
-   int index;
-   bool last;
-   IndexedOff *var;
-} IndexedOffArIter;
-
-struct TimedOff_t
-{
-    Ticks time;
-    int pitch;
-};
-typedef struct TimedOffAr_t {
-   int len;
-   int cap;
-   int elemSize;
-   void (*clearer)(TimedOff*);
-   TimedOff *data;
-} TimedOffAr;
-
-typedef struct TimedOffArIter_t {
-   TimedOffAr *arr;
-   int index;
-   bool last;
-   TimedOff *var;
-} TimedOffArIter;
-
-struct NoteManager_t
-{
-    TimedOffAr pending;
-    IndexedOffAr endgroups;
-    Port *output;
-    t_atom *atoms;
-};
-struct MidiFileDropDispatch_t
+struct PortFindCellAr_t;
+typedef struct PortFindCellAr_t PortFindCellAr;
+typedef struct Dispatch_t ManageChokeGroupsDispatch;
+struct PadList_t;
+typedef struct PadList_t PadList;
+struct FloatEvent_t;
+typedef struct FloatEvent_t FloatEvent;
+struct IndexedOff_t;
+typedef struct IndexedOff_t IndexedOff;
+struct Hub_t;
+typedef struct Hub_t Hub;
+struct Timed_t;
+typedef struct Timed_t Timed;
+struct TimedAr_t;
+typedef struct TimedAr_t TimedAr;
+struct Dispatch_t;
+typedef struct Dispatch_t Dispatch;
+struct DispatchPtAr_t;
+typedef struct DispatchPtAr_t DispatchPtAr;
+typedef struct Dispatch_t MidiFileDropDispatch;
+struct RecordBuffer_t;
+typedef struct RecordBuffer_t RecordBuffer;
+typedef struct Dispatch_t DecrementFrameDispatch;
+struct NoteEvent_t;
+typedef struct NoteEvent_t NoteEvent;
+struct DropDown_t;
+typedef struct DropDown_t DropDown;
+struct FloatEventAr_t;
+typedef struct FloatEventAr_t FloatEventAr;
+typedef struct Dispatch_t IncrementFrameDispatch;
+struct Pad_t;
+typedef struct Pad_t Pad;
+struct PortFind_t;
+typedef struct PortFind_t PortFind;
+struct NoteEventAr_t;
+typedef struct NoteEventAr_t NoteEventAr;
+struct Outlet_t;
+typedef struct Outlet_t Outlet;
+struct Outlet_t
 {
     int itype;
-};
-typedef struct SequenceAr_t {
-   int len;
-   int cap;
-   int elemSize;
-   void (*clearer)(Sequence **);
-   Sequence **data;
-} SequenceAr;
-
-typedef struct SequenceArIter_t {
-   SequenceAr *arr;
-   int index;
-   bool last;
-   Sequence **var;
-} SequenceArIter;
-
-struct Timed_t
-{
-    Ticks time;
-    int version;
-    Sequence *sequence;
-};
-struct BinFilePayload_t
-{
-    PortFind *portFind;
-};
-struct Sequence_t
-{
-    int itype;
-    long version;
 };
 struct NoteEvent_t
 {
@@ -194,10 +90,21 @@ struct NoteEvent_t
     Ticks stime;
     Ticks duration;
 };
-struct ManageChokeGroupsDispatch_t
-{
-    int itype;
-};
+typedef struct NoteEventAr_t {
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(NoteEvent*);
+   NoteEvent *data;
+} NoteEventAr;
+
+typedef struct NoteEventArIt_t {
+   NoteEventAr *arr;
+   int index;
+   bool last;
+   NoteEvent *var;
+} NoteEventArIt;
+
 struct PortFindCell_t
 {
     Port *reciever;
@@ -211,12 +118,12 @@ typedef struct PortFindCellAr_t {
    PortFindCell *data;
 } PortFindCellAr;
 
-typedef struct PortFindCellArIter_t {
+typedef struct PortFindCellArIt_t {
    PortFindCellAr *arr;
    int index;
    bool last;
    PortFindCell *var;
-} PortFindCellArIter;
+} PortFindCellArIt;
 
 struct PortFind_t
 {
@@ -225,58 +132,59 @@ struct PortFind_t
     Port_anythingDispatchFunc anythingDispatch;
     Port_intDispatchFunc intDispatch;
 };
-struct Arguments_t
+typedef struct SequenceAr_t {
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(Sequence **);
+   Sequence **data;
+} SequenceAr;
+
+typedef struct SequenceArIt_t {
+   SequenceAr *arr;
+   int index;
+   bool last;
+   Sequence **var;
+} SequenceArIt;
+
+struct Pad_t
 {
-    Symbol *s1;
-    long i1;
-    long i2;
-    long ivalue;
-    long inlet;
+    t_symbol *trackName;
+    int padIndex;
+    Midiseq *sequence;
+    bool chokeGroupGlobal;
+    int chokeGroupInstrument;
+    int chokeGroupIndex;
+    int64_t chokeGroup;
+    bool noteReleasePending;
+    bool inEndgroup;
+    Track *track;
+    SequenceAr sequenceList;
+    bool useMasterClock;
 };
-typedef struct PadPtrAr_t {
+struct IncrementFrameDispatch_t
+{
+    int itype;
+};
+struct FloatEvent_t
+{
+    Ticks time;
+    double value;
+};
+typedef struct FloatEventAr_t {
    int len;
    int cap;
    int elemSize;
-   void (*clearer)(Pad **);
-   Pad **data;
-} PadPtrAr;
+   void (*clearer)(FloatEvent*);
+   FloatEvent *data;
+} FloatEventAr;
 
-typedef struct PadPtrArIter_t {
-   PadPtrAr *arr;
+typedef struct FloatEventArIt_t {
+   FloatEventAr *arr;
    int index;
    bool last;
-   Pad **var;
-} PadPtrArIter;
-
-typedef struct TimedAr_t {
-   int len;
-   int cap;
-   int elemSize;
-   void (*clearer)(Timed*);
-   Timed *data;
-} TimedAr;
-
-typedef struct TimedArIter_t {
-   TimedAr *arr;
-   int index;
-   bool last;
-   Timed *var;
-} TimedArIter;
-
-typedef struct DispatchPtAr_t {
-   int len;
-   int cap;
-   int elemSize;
-   void (*clearer)(Dispatch **);
-   Dispatch **data;
-} DispatchPtAr;
-
-typedef struct DispatchPtArIter_t {
-   DispatchPtAr *arr;
-   int index;
-   bool last;
-   Dispatch **var;
-} DispatchPtArIter;
+   FloatEvent *var;
+} FloatEventArIt;
 
 struct PortRef_t
 {
@@ -288,6 +196,71 @@ struct DropDown_t
     SymbolPtrAr table;
     int selected;
     PortRef portRef;
+};
+struct DecrementFrameDispatch_t
+{
+    int itype;
+};
+struct RecordBuffer_t
+{
+    Ticks recordStart;
+    SequenceAr sequences;
+};
+struct MidiFileDropDispatch_t
+{
+    int itype;
+};
+typedef struct DispatchPtAr_t {
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(Dispatch **);
+   Dispatch **data;
+} DispatchPtAr;
+
+typedef struct DispatchPtArIt_t {
+   DispatchPtAr *arr;
+   int index;
+   bool last;
+   Dispatch **var;
+} DispatchPtArIt;
+
+struct Dispatch_t
+{
+    int itype;
+    Symbol *selector;
+    Symbol *portId;
+    int inlet;
+    Marshal *marshal;
+};
+struct Timed_t
+{
+    Ticks time;
+    int version;
+    Sequence *sequence;
+};
+typedef struct TimedAr_t {
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(Timed*);
+   Timed *data;
+} TimedAr;
+
+typedef struct TimedArIt_t {
+   TimedAr *arr;
+   int index;
+   bool last;
+   Timed *var;
+} TimedArIt;
+
+struct Arguments_t
+{
+    Symbol *s1;
+    long i1;
+    long i2;
+    long ivalue;
+    long inlet;
 };
 struct Hub_t
 {
@@ -313,24 +286,93 @@ struct Hub_t
     Ticks masterClock;
     TimedAr queue;
 };
-struct Pad_t
+struct IndexedOff_t
 {
-    t_symbol *trackName;
     int padIndex;
-    Midiseq *sequence;
-    bool chokeGroupGlobal;
-    int chokeGroupInstrument;
-    int chokeGroupIndex;
-    int64_t chokeGroup;
-    bool noteReleasePending;
-    bool inEndgroup;
-    Track *track;
-    SequenceAr sequenceList;
-    bool useMasterClock;
+    int pitch;
 };
-struct MarshalSs_t
+typedef struct PadPtrAr_t {
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(Pad **);
+   Pad **data;
+} PadPtrAr;
+
+typedef struct PadPtrArIt_t {
+   PadPtrAr *arr;
+   int index;
+   bool last;
+   Pad **var;
+} PadPtrArIt;
+
+typedef struct PadAr_t {
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(Pad*);
+   Pad *data;
+} PadAr;
+
+typedef struct PadArIt_t {
+   PadAr *arr;
+   int index;
+   bool last;
+   Pad *var;
+} PadArIt;
+
+struct PadList_t
+{
+    PadAr pads;
+    PadPtrAr running;
+};
+struct ManageChokeGroupsDispatch_t
 {
     int itype;
+};
+struct Track_t
+{
+    Symbol *name;
+    NoteManager *noteManager;
+};
+typedef struct TrackAr_t {
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(Track*);
+   Track *data;
+} TrackAr;
+
+typedef struct TrackArIt_t {
+   TrackAr *arr;
+   int index;
+   bool last;
+   Track *var;
+} TrackArIt;
+
+struct TimedOff_t
+{
+    Ticks time;
+    int pitch;
+};
+typedef struct TimedOffAr_t {
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(TimedOff*);
+   TimedOff *data;
+} TimedOffAr;
+
+typedef struct TimedOffArIt_t {
+   TimedOffAr *arr;
+   int index;
+   bool last;
+   TimedOff *var;
+} TimedOffArIt;
+
+struct TrackList_t
+{
+    TrackAr list;
 };
 struct BinFile_t
 {
@@ -340,45 +382,41 @@ struct BinFile_t
     FILE *stream;
     BinFilePayload *payload;
 };
-struct IncrementFrameDispatch_t
+struct Sequence_t
+{
+    int itype;
+    long version;
+};
+struct MarshalSs_t
 {
     int itype;
 };
-struct Dispatch_t
-{
-    int itype;
-    Symbol *selector;
-    Symbol *portId;
-    int inlet;
-    Marshal *marshal;
-};
-struct DecrementFrameDispatch_t
-{
-    int itype;
-};
-struct Outlet_t
-{
-    int itype;
-};
-struct SelectNextPushedPadDispatch_t
-{
-    int itype;
-};
-typedef struct PadAr_t {
+typedef struct IndexedOffAr_t {
    int len;
    int cap;
    int elemSize;
-   void (*clearer)(Pad*);
-   Pad *data;
-} PadAr;
+   void (*clearer)(IndexedOff*);
+   IndexedOff *data;
+} IndexedOffAr;
 
-typedef struct PadArIter_t {
-   PadAr *arr;
+typedef struct IndexedOffArSlice_t {
+    int len;
+    IndexedOff *data;
+    int index;
+    IndexedOff *var;
+} IndexedOffArSlice;
+
+typedef struct IndexedOffArIt_t {
+   IndexedOffAr *arr;
    int index;
    bool last;
-   Pad *var;
-} PadArIter;
+   IndexedOff *var;
+} IndexedOffArIt;
 
+struct MarshalSi_t
+{
+    int itype;
+};
 struct Midiseq_t
 {
     bool useMasterClock;
@@ -387,47 +425,28 @@ struct Midiseq_t
     Ticks startTime;
     int ptr;
 };
-struct MarshalSi_t
+struct Marshal_t
 {
     int itype;
 };
-struct RecordBuffer_t
+struct NoteManager_t
 {
-    Ticks recordStart;
-    SequenceAr sequences;
+    TimedOffAr pending;
+    IndexedOffAr endgroups;
+    Port *output;
+    t_atom *atoms;
 };
-struct PadList_t
+struct BinFilePayload_t
 {
-    PadAr pads;
-    PadPtrAr running;
+    PortFind *portFind;
 };
-typedef struct NoteEventAr_t {
-   int len;
-   int cap;
-   int elemSize;
-   void (*clearer)(NoteEvent*);
-   NoteEvent *data;
-} NoteEventAr;
-
-typedef struct NoteEventArIter_t {
-   NoteEventAr *arr;
-   int index;
-   bool last;
-   NoteEvent *var;
-} NoteEventArIter;
-
+struct SelectNextPushedPadDispatch_t
+{
+    int itype;
+};
 struct MarshalSii_t
 {
     int itype;
-};
-struct FloatEvent_t
-{
-    Ticks time;
-    double value;
-};
-struct TrackList_t
-{
-    TrackAr list;
 };
 struct NoteSequence_t
 {
@@ -440,25 +459,6 @@ struct NoteSequence_t
     NoteSequence *recordBuffer;
     TimedOffAr offs;
     NoteEventAr events;
-};
-typedef struct FloatEventAr_t {
-   int len;
-   int cap;
-   int elemSize;
-   void (*clearer)(FloatEvent*);
-   FloatEvent *data;
-} FloatEventAr;
-
-typedef struct FloatEventArIter_t {
-   FloatEventAr *arr;
-   int index;
-   bool last;
-   FloatEvent *var;
-} FloatEventArIter;
-
-struct Marshal_t
-{
-    int itype;
 };
 sds DBLog_stripBaseName(const char *path);
 void DBLog_printSDS(const char *file, int line, sds message);
@@ -625,15 +625,15 @@ void Sequence_incVersion(Sequence *seq);
 void Frontend_recievedPadHit(Hub *hub, long pitchIn, long velocityIn);
 void Frontend_drive(Hub *hub);
 void Frontend_stop(Hub *hub);
-// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/19/2018 17:51:40 ***
+// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/19/2018 21:37:36 ***
 void Marshal_process(Marshal *self, Arguments *a1, long a2, Atom *a3, Error *err);
 void Marshal_zeroArgs(Marshal *self, Arguments *a1, Error *err);
 void Dispatch_exec(Dispatch *self, Hub *a1, Arguments *a2, Error *err);
 Dispatch *Dispatch_create(int itype, Error *err);
 void Dispatch_free(Dispatch *self, Error *err);
 void Dispatch_initDispatchPtAr(int itype, DispatchPtAr *a1, Error *err);
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 17:51:40 ***
-// *** DO NOT MODIFY THIS FILE (see src/sequence.in.h) generated 03/19/2018 17:51:40 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/sequence.in.h) generated 03/19/2018 21:37:36 ***
 void Outlet_sendNote(Outlet *self, uint8_t a1, uint8_t a2, Error *err);
 void Outlet_sendFloat(Outlet *self, double a1, Error *err);
 void Sequence_start(Sequence *self, Ticks a1, Ticks a2, TimedAr *a3, Error *err);

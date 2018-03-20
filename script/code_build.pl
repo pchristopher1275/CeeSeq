@@ -9,11 +9,11 @@ my $gExternalDest;
 my $gMxoBaseName;
 
 sub cseqHubSetGlobals { 
-    $gSourceDir       = "$gHome/CeeSequencer/source/cseqHub/cseqHub";
+    $gSourceDir       = "$gHome/CeeSequencer/source/Hub/Hub";
     $gCodeDir         = "$gHome/src";
     $gExternalSource  = "$gHome/CeeSequencer/externals";
     $gExternalDest    = "$ENV{HOME}/Documents/Max 7/Packages/CeeSeq/externals";
-    $gMxoBaseName     = "cseqHub";    
+    $gMxoBaseName     = "Hub";    
 }
 
 sub portSetGlobals {

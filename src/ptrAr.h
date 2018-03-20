@@ -103,25 +103,25 @@ static inline void PtrAr_changeLength(PtrAr *arr, int newLength) {
     Array_changeLength((Array*)arr, newLength);
 }
 
-typedef struct PtrArIter_t {
+typedef struct PtrArIt_t {
    PtrAr *arr;
    int index;
    bool last;
    void **var;
-} PtrArIter;
+} PtrArIt;
 
-static inline bool PtrArIter_next(PtrArIter *iterator) {
-    return ArrayIter_next((ArrayIter*)iterator);
+static inline bool PtrArIt_next(PtrArIt *iterator) {
+    return ArrayIt_next((ArrayIt*)iterator);
 }
 
-static inline bool PtrArIter_previous(PtrArIter *iterator) {
-    return ArrayIter_previous((ArrayIter*)iterator);
+static inline bool PtrArIt_previous(PtrArIt *iterator) {
+    return ArrayIt_previous((ArrayIt*)iterator);
 }
 
-#define PtrArIter_declare(var, arr)  PtrArIter var = {arr, -1, false, NULL}
-#define PtrArIter_rdeclare(var, arr)  PtrArIter var = {arr, PtrAr_len(arr), false, NULL}
-#define PtrAr_foreach(var, arr)  for (PtrArIter_declare(var, arr); PtrArIter_next(&var); )
-#define PtrAr_rforeach(var, arr)  for (PtrArIter_rdeclare(var, arr); PtrArIter_previous(&var); )
-#define PtrAr_loop(var, arr)    PtrArIter_declare(var, arr); while (PtrArIter_next(&var)) 
-#define PtrAr_rloop(var, arr)    PtrArIter_rdeclare(var, arr); while (PtrArIter_previous(&var)) 
+#define PtrArIt_declare(var, arr)  PtrArIt var = {arr, -1, false, NULL}
+#define PtrArIt_rdeclare(var, arr)  PtrArIt var = {arr, PtrAr_len(arr), false, NULL}
+#define PtrAr_foreach(var, arr)  for (PtrArIt_declare(var, arr); PtrArIt_next(&var); )
+#define PtrAr_rforeach(var, arr)  for (PtrArIt_rdeclare(var, arr); PtrArIt_previous(&var); )
+#define PtrAr_loop(var, arr)    PtrArIt_declare(var, arr); while (PtrArIt_next(&var)) 
+#define PtrAr_rloop(var, arr)    PtrArIt_rdeclare(var, arr); while (PtrArIt_previous(&var)) 
 

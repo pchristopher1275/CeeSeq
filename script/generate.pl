@@ -641,7 +641,7 @@ sub writeArray {
 	};
 
 	if ($outputStructs) {
-		my @keys = ("Array:struct", 'ArrayIter:struct');
+		my @keys = ("Array:struct", 'ArrayIt:struct');
 		if ($needsSlice) {
 			push @keys, "Array:slice";
 		}
@@ -876,15 +876,15 @@ ENDxxxxxxxxxx
 
 
 	{
-		key =>    'ArrayIter:struct',
+		key =>    'ArrayIt:struct',
 		symbol => '',
 		tmpl   => <<'ENDxxxxxxxxxx', 
-			@typedef struct ${TYPENAME}Iter_t {
+			@typedef struct ${TYPENAME}It_t {
 			@   ${TYPENAME} *arr;
 			@   int index;
 			@   bool last;
 			@   ${ELEMNAME}*var;
-			@} ${TYPENAME}Iter;
+			@} ${TYPENAME}It;
 ENDxxxxxxxxxx
 	},
 
@@ -1112,48 +1112,48 @@ ENDxxxxxxxxxx
 	},	
 
 	{
-		key =>    'ArrayIter:next',
-		symbol => '${TYPENAME}Iter_next',
+		key =>    'ArrayIt:next',
+		symbol => '${TYPENAME}It_next',
 		tmpl   => <<'ENDxxxxxxxxxx', 
-			@static inline bool ${TYPENAME}Iter_next(${TYPENAME}Iter *iterator) {
-			@	return ArrayIter_next((ArrayIter*)iterator);
+			@static inline bool ${TYPENAME}It_next(${TYPENAME}It *iterator) {
+			@	return ArrayIt_next((ArrayIt*)iterator);
 			@}
 ENDxxxxxxxxxx
 	},	
 
 	{
-		key =>    'ArrayIter:previous',
-		symbol => '${TYPENAME}Iter_previous',
+		key =>    'ArrayIt:previous',
+		symbol => '${TYPENAME}It_previous',
 		tmpl   => <<'ENDxxxxxxxxxx', 
-			@static inline bool ${TYPENAME}Iter_previous(${TYPENAME}Iter *iterator) {
-			@	return ArrayIter_previous((ArrayIter*)iterator);
+			@static inline bool ${TYPENAME}It_previous(${TYPENAME}It *iterator) {
+			@	return ArrayIt_previous((ArrayIt*)iterator);
 			@}			
 ENDxxxxxxxxxx
 	},	
 
 	{
-		key    =>    'ArrayIter:declare',
-		symbol => '${TYPENAME}Iter_declare',
+		key    =>    'ArrayIt:declare',
+		symbol => '${TYPENAME}It_declare',
 		tmpl   => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}Iter_declare(var, arr)  ${TYPENAME}Iter var = {arr, -1, false, NULL}			
+			@#define ${TYPENAME}It_declare(var, arr)  ${TYPENAME}It var = {arr, -1, false, NULL}			
 ENDxxxxxxxxxx
 	},	
 		
 	{
-		key =>    'ArrayIter:rdeclare',
+		key =>    'ArrayIt:rdeclare',
 		implies => ['Array:len'],
-		symbol => '${TYPENAME}Iter_rdeclare',
+		symbol => '${TYPENAME}It_rdeclare',
 		tmpl   => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}Iter_rdeclare(var, arr)  ${TYPENAME}Iter var = {arr, ${TYPENAME}_len(arr), false, NULL}			
+			@#define ${TYPENAME}It_rdeclare(var, arr)  ${TYPENAME}It var = {arr, ${TYPENAME}_len(arr), false, NULL}			
 ENDxxxxxxxxxx
 	},	
 
 	{
 		key     =>  'Array:foreach',
-		implies => ["ArrayIter:declare", "ArrayIter:next"],
+		implies => ["ArrayIt:declare", "ArrayIt:next"],
 		symbol  => '${TYPENAME}_foreach',
 		tmpl    => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}_foreach(var, arr)  for (${TYPENAME}Iter_declare(var, arr); ${TYPENAME}Iter_next(&var); )			
+			@#define ${TYPENAME}_foreach(var, arr)  for (${TYPENAME}It_declare(var, arr); ${TYPENAME}It_next(&var); )			
 ENDxxxxxxxxxx
 	},	
 
@@ -1301,28 +1301,28 @@ ENDxxxxxxxxxx
 
 	{
 		key =>    'Array:rforeach',
-		implies => ["ArrayIter:rdeclare", "ArrayIter:previous"],
+		implies => ["ArrayIt:rdeclare", "ArrayIt:previous"],
 		symbol => '${TYPENAME}_rforeach',
 		tmpl   => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}_rforeach(var, arr)  for (${TYPENAME}Iter_rdeclare(var, arr); ${TYPENAME}Iter_previous(&var); )			
+			@#define ${TYPENAME}_rforeach(var, arr)  for (${TYPENAME}It_rdeclare(var, arr); ${TYPENAME}It_previous(&var); )			
 ENDxxxxxxxxxx
 	},	
 
 	{
 		key =>    'Array:loop',
-		implies => ["ArrayIter:declare", "ArrayIter:next"],
+		implies => ["ArrayIt:declare", "ArrayIt:next"],
 		symbol => '${TYPENAME}_loop',
 		tmpl   => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}_loop(var, arr) ${TYPENAME}Iter_declare(var, arr); while (${TYPENAME}Iter_next(&var)) 
+			@#define ${TYPENAME}_loop(var, arr) ${TYPENAME}It_declare(var, arr); while (${TYPENAME}It_next(&var)) 
 ENDxxxxxxxxxx
 	},
 
 	{
 		key =>    'Array:rloop',
-		implies => ["ArrayIter:rdeclare", "ArrayIter:previous"],
+		implies => ["ArrayIt:rdeclare", "ArrayIt:previous"],
 		symbol => '${TYPENAME}_rloop',
 		tmpl   => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}_rloop(var, arr)    ${TYPENAME}Iter_rdeclare(var, arr); while (${TYPENAME}Iter_previous(&var)) 			
+			@#define ${TYPENAME}_rloop(var, arr)    ${TYPENAME}It_rdeclare(var, arr); while (${TYPENAME}It_previous(&var)) 			
 ENDxxxxxxxxxx
 	},
 
@@ -1721,7 +1721,7 @@ sub expand {
 		}
 	}
 
-	my %special = ("Array:struct" => 1, "Array:slice" => 2, "ArrayIter:struct" => 3);
+	my %special = ("Array:struct" => 1, "Array:slice" => 2, "ArrayIt:struct" => 3);
 	my $srt = sub {
 		my $ls = $special{$a};
 		my $rs = $special{$b};

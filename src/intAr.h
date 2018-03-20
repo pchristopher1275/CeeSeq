@@ -103,25 +103,25 @@ static inline void IntAr_changeLength(IntAr *arr, int newLength) {
     Array_changeLength((Array*)arr, newLength);
 }
 
-typedef struct IntArIter_t {
+typedef struct IntArIt_t {
    IntAr *arr;
    int index;
    bool last;
    int *var;
-} IntArIter;
+} IntArIt;
 
-static inline bool IntArIter_next(IntArIter *iterator) {
-    return ArrayIter_next((ArrayIter*)iterator);
+static inline bool IntArIt_next(IntArIt *iterator) {
+    return ArrayIt_next((ArrayIt*)iterator);
 }
 
-static inline bool IntArIter_previous(IntArIter *iterator) {
-    return ArrayIter_previous((ArrayIter*)iterator);
+static inline bool IntArIt_previous(IntArIt *iterator) {
+    return ArrayIt_previous((ArrayIt*)iterator);
 }
 
-#define IntArIter_declare(var, arr)  IntArIter var = {arr, -1, false, NULL}
-#define IntArIter_rdeclare(var, arr)  IntArIter var = {arr, IntAr_len(arr), false, NULL}
-#define IntAr_foreach(var, arr)  for (IntArIter_declare(var, arr); IntArIter_next(&var); )
-#define IntAr_rforeach(var, arr)  for (IntArIter_rdeclare(var, arr); IntArIter_previous(&var); )
-#define IntAr_loop(var, arr)    IntArIter_declare(var, arr); while (IntArIter_next(&var)) 
-#define IntAr_rloop(var, arr)    IntArIter_rdeclare(var, arr); while (IntArIter_previous(&var)) 
+#define IntArIt_declare(var, arr)  IntArIt var = {arr, -1, false, NULL}
+#define IntArIt_rdeclare(var, arr)  IntArIt var = {arr, IntAr_len(arr), false, NULL}
+#define IntAr_foreach(var, arr)  for (IntArIt_declare(var, arr); IntArIt_next(&var); )
+#define IntAr_rforeach(var, arr)  for (IntArIt_rdeclare(var, arr); IntArIt_previous(&var); )
+#define IntAr_loop(var, arr)    IntArIt_declare(var, arr); while (IntArIt_next(&var)) 
+#define IntAr_rloop(var, arr)    IntArIt_rdeclare(var, arr); while (IntArIt_previous(&var)) 
 

@@ -241,14 +241,14 @@ int Array_elemSize(Array *arr){
    return arr->elemSize;
 }
 
-typedef struct ArrayIter {
+typedef struct ArrayIt {
    Array *arr;
    int index;
    bool last;
    char *element;
-} ArrayIter;
+} ArrayIt;
 
-bool ArrayIter_next(ArrayIter *iterator) {
+bool ArrayIt_next(ArrayIt *iterator) {
    if (iterator->index < 0) {
       iterator->index = -1;
    }
@@ -261,7 +261,7 @@ bool ArrayIter_next(ArrayIter *iterator) {
    return true;
 }
 
-bool ArrayIter_previous(ArrayIter *iterator) {
+bool ArrayIt_previous(ArrayIt *iterator) {
    if (iterator->index >= Array_len(iterator->arr)) {
       iterator->index = Array_len(iterator->arr);
    }

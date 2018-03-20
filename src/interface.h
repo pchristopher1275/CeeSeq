@@ -6,7 +6,7 @@ typedef struct Undefined_t {
 Undefined Undefined_instance = {Undefined_itype, {0}};
 #define Undefined_ptr(typeName) ((typeName*)&Undefined_instance)
 
-// From file 'src/sequence.in.h'
+// From file 'src/midiseq.in.h'
 
 // From file 'src/dispatch.in.h'
 #define MarshalSi_itype 12
@@ -18,5 +18,5 @@ Undefined Undefined_instance = {Undefined_itype, {0}};
 #define MidiFileDropDispatch_itype 18
 #define ManageChokeGroupsDispatch_itype 19
 
-// From file 'src/midiseq.in.h'
+// From file 'src/sequence.in.h'
 const char *Interface_toString(int itype);

@@ -353,7 +353,7 @@ APIF void Midiseq_insertEndgroup(Midiseq *mseq, Error *err)
     MEventAr_rforeach(it, &mseq->events) {
         if (it.var->type == Midiseq_notetype) {
             cell.t = it.var->t;
-            while (MEventArIter_previous(&it)) {
+            while (MEventArIt_previous(&it)) {
                 if (cell.t != it.var->t) {
                     break;
                 }
@@ -675,7 +675,6 @@ APIF void PortFind_init(PortFind *pf) {
 APIF long PortFind_iterator(PortFind *pf, t_object *targetBox)
 {
     t_object *obj = jbox_get_object(targetBox);
-    // dblog("Inspecting %s", object_classname(obj)->s_name);
     if (Symbol_gen("Port") != object_classname(obj)) {
         return 0;
     }
@@ -704,7 +703,7 @@ APIF int PortFind_discover(PortFind *pf, t_object *sourceMaxObject, void *hub, E
     PortFind_setHub(pf, hub);
     PortFind_setAnythingDispatch(pf, (Port_anythingDispatchFunc)Hub_anythingDispatch);
     PortFind_setIntDispatch(pf, (Port_intDispatchFunc)Hub_intDispatch);
-    // dblog0("Calling discover");
+
     t_object *patcher = NULL;
     long result       = 0;
     t_max_err maxErr = object_obex_lookup(sourceMaxObject, gensym("#P"), &patcher);
@@ -717,10 +716,6 @@ APIF int PortFind_discover(PortFind *pf, t_object *sourceMaxObject, void *hub, E
     PortFind_setHub(pf, NULL);
     PortFind_setAnythingDispatch(pf, NULL);
     PortFind_setIntDispatch(pf, NULL);
-
-    PortFindCellAr_foreach(it, &pf->objects) {
-        dblog("Hmmmm %s", Symbol_cstr(Port_id(it.var->reciever)));
-    }
 
     return 0;
 }
@@ -1630,14 +1625,6 @@ APIF void Hub_anythingDispatch(Hub *hub, Port *port, Symbol *selector, long argc
     Dispatch_declare(cell, Undefined_itype, selector, Port_id(port), 0, NULL);
     Dispatch **dis = DispatchPtAr_binSearch(&hub->dispatcher, &cell);
 
-     DispatchPtAr_foreach(it, &hub->dispatcher) {
-        Dispatch *d = *it.var;
-         if (d->selector == selector && d->portId == Port_id(port)) {
-            dblog("HERE IT IS %p %s %s", dis, Symbol_cstr(selector), Symbol_cstr(Port_id(port)));
-         }
-    }
-
-    dblog("Dis %p %s %s", dis, Symbol_cstr(selector), Symbol_cstr(Port_id(port)));
     if (dis == NULL) {
         return;
     }
