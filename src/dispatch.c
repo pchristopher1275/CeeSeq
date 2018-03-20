@@ -120,6 +120,7 @@ APIF Dispatch *SelectNextPushedPadDispatch_create(int itype) {
 }
 
 APIF void SelectNextPushedPadDispatch_exec(SelectNextPushedPadDispatch *self, Hub *hub, Arguments *args, Error *err) {
+   dblog0("SelectNextPushedPadDispatch_exec");
    Hub_setGrabNextTappedPad(hub, true);
 }
 

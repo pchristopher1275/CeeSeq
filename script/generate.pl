@@ -56,11 +56,11 @@ sub writeStruct {
 }
 
 sub writePredefined {
-	my ($out, $class) = @_;
-	if (defined($class->{aliasFor})) {
-		pexpand($out, ['Predefined:alias'], {ALIAS=>$class->{aliasFor}, TYPENAME=>$class->{typeName}});
+	my ($out, $artifact) = @_;
+	if (defined($artifact->{aliasFor})) {
+		pexpand($out, ['Predefined:alias'], {ALIAS=>$artifact->{aliasFor}, TYPENAME=>$artifact->{typeName}});
 	} else {
-		pexpand($out, ['Predefined:struct'], {TYPENAME=>$class->{typeName}});
+		pexpand($out, ['Predefined:struct'], {TYPENAME=>$artifact->{typeName}});
 	}
 }
 
@@ -117,7 +117,7 @@ sub writeAccessor {
 		
 		if (defined($getter)) {			
 			if ($getter ne 'none') {
-		 		die "The 'getter' flag set to something funny: getter=$getter, typename=$typeName";
+		 		die "The 'getter' flag set to something funny: getter=$getter, typeName=$typeName";
 		 	}
 		} else {
 			pexpand($out, ["Type:getter"], $exCfg);
@@ -125,7 +125,7 @@ sub writeAccessor {
 			
 		if (defined($setter)) {	
 			if ($setter ne 'none') {
-				die "The 'setter' flag set to something funny: setter=$setter, typename=$typeName";
+				die "The 'setter' flag set to something funny: setter=$setter, typeName=$typeName";
 			}
 		} else {
 			pexpand($out, ["Type:setter"], $exCfg);
@@ -591,8 +591,8 @@ sub writeAllClassesFromFile {
 
 sub writeArray {
 	my ($out, $arrayCfg, $outputStructs) = @_;
-	my $TYPENAME    = $arrayCfg->{typename};
-	my $ELEMNAME_NS = $arrayCfg->{elemname};
+	my $TYPENAME    = $arrayCfg->{typeName};
+	my $ELEMNAME_NS = $arrayCfg->{elemName};
 	my $CLEARER     = $arrayCfg->{clearer};
 	my $ELEMNAME    = "";
 	if ($ELEMNAME_NS !~ /\*$/) {
@@ -629,8 +629,6 @@ sub writeArray {
 			}
 		}
 	}
-
-
 
 	my $dict = {
 		TYPENAME=>$TYPENAME, 
@@ -734,6 +732,7 @@ sub collectAllClasses {
 	my %classOrder;
 	my %interfaces;
 	my %interfaceOrder;
+	my %artifacts;
 	for my $header (@$headerTemplates) {
 		my $classesAndInterfaces = collectAllClassesFromFile($header);	
 		my $headerClasses        = $classesAndInterfaces->{classes};
@@ -745,8 +744,14 @@ sub collectAllClasses {
 				my $otherClass = $classes{$class->{typeName}};
 				die "Found the same type typeName in two files: '$otherClass->{srcFile}' and '$class->{srcFile}'";
 			}
-			$classes{$class->{typeName}} = $class;
+			$class->{artifactType}         = 'class';
+			$artifacts{$class->{typeName}} = $class;
+			$classes{$class->{typeName}}   = $class;
 			push @{$classOrder{$header}}, $class->{typeName};
+			for my $cont (@{$class->{containers}}) {
+				$cont->{artifactType}         = 'container';
+				$artifacts{$cont->{typeName}} = $cont;
+			}
 		}
 
 		$interfaceOrder{$header} = [];
@@ -755,12 +760,24 @@ sub collectAllClasses {
 				my $otherInterface = $interfaces{$interface->{typeName}};
 				die "Found the same interface typeName in two files: '$otherInterface->{srcFile}' and '$interface->{srcFile}'";
 			}
+			$interface->{artifactType}          = 'interface';
 			$interfaces{$interface->{typeName}} = $interface;
+			$artifacts{$interface->{typeName}}  = $interface;
 			push @{$interfaceOrder{$header}}, $interface->{typeName};
+			for my $cont (@{$interface->{containers}}) {
+				$cont->{artifactType}         = 'container';
+				$artifacts{$cont->{typeName}} = $cont;
+			}
 		}
 	}
 
-	$gAllClassesAndInterfaces = {classes => \%classes, classOrder => \%classOrder, interfaces=>\%interfaces, interfaceOrder=>\%interfaceOrder};
+	$gAllClassesAndInterfaces = {
+		classes        => \%classes, 
+		classOrder     => \%classOrder, 
+		interfaces     => \%interfaces, 
+		interfaceOrder => \%interfaceOrder,
+		artifacts      => \%artifacts,
+	};
 }
 
 sub processTemplateHeader {
@@ -1630,7 +1647,7 @@ ENDxxxxxxxxxx
 			@} Undefined;
 			@#define Undefined_itype ${ITYPE}
 			@Undefined Undefined_instance = {Undefined_itype, {0}};
-			@#define Undefined_ptr(typename) ((typename*)&Undefined_instance)
+			@#define Undefined_ptr(typeName) ((typeName*)&Undefined_instance)
 ENDxxxxxxxxxx
 	},
 
@@ -1800,72 +1817,82 @@ sub writeInterfaceC {
 	close($fd);
 }
 
+
+sub writeStructArtifact {
+	my ($out, $artifact) = @_;
+	if ($artifact->{artifactType} eq 'class' || $artifact->{artifactType} eq 'interface') {
+		writeStruct($out, $artifact);
+	} elsif ($artifact->{artifactType} eq 'container') {
+		writeArray($out, $artifact, 1);	
+	}
+}
+
+## Writes the list of structs in an order where a value field in a struct, implies that
+## the struct for the value field is 
+sub writeAllStructs {
+	my ($out) = @_;
+	my $artifacts = $gAllClassesAndInterfaces->{artifacts};
+	my @structNamesToWrite = keys(%$artifacts);
+
+	my %valueDepend;
+	for my $structName (@structNamesToWrite) {
+		my $artifact = $artifacts->{$structName};
+		die "INTERNAL ERROR" if defined($valueDepend{$structName});
+		my $subhash = {};
+		$valueDepend{$structName} = $subhash;
+		if ($artifact->{artifactType} eq 'container') {
+			if ($artifact->{elemName} !~ /\*/ && defined($artifacts->{$artifact->{elemName}})) {
+				$subhash->{$artifact->{elemName}} = 1;	
+			}
+		} else {
+			for my $field (@{$artifact->{fields}}) {
+				if ($field->{type} !~ /\*/ && defined($artifacts->{$field->{type}})) {
+					$subhash->{$field->{type}} = 1;
+				}
+			}
+		}
+	}
+
+	my %written;
+	my %queued;
+	my $wt;
+	$wt = sub {
+		my ($structName, $structList) = @_;
+		return if !defined($structName);
+		return if $written{$structName};
+		die "Unable to output structs in the right order" if $queued{$structName};
+		
+		my $depends = $valueDepend{$structName} || die "INTERNAL ERROR";
+		for my $classOrInterfaceName (keys(%$depends)) {
+			if (!$written{$classOrInterfaceName}) {				
+				$queued{$structName} = 1;
+				$wt->($classOrInterfaceName, $structList);
+				delete($queued{$structName});
+			}
+		}
+		$written{$structName} = 1;
+		my $artifact = $artifacts->{$structName};
+		writeStructArtifact($out, $artifact);
+		if (!%queued) {
+			$wt->(pop @$structList, $structList);
+		}
+	};
+	while (@structNamesToWrite) {
+		$wt->(pop @structNamesToWrite, \@structNamesToWrite);
+	}
+}
+
 sub writeTypesH {
 	my ($srcDir, $templateHeaders) = @_;
 	my $file = "$srcDir/types.h";
 	open my $out, ">", $file or die "Failed to open $file";
-	for my $templateHeader (@$templateHeaders) {
-		writeWarning($out, $templateHeader);
-
-		my $interfaceOrder = $gAllClassesAndInterfaces->{interfaceOrder}{$templateHeader};
-		die "INTERNAL ERROR" unless defined($interfaceOrder);
-		for my $interfaceName (@$interfaceOrder) {
-			writePredefined($out, $gAllClassesAndInterfaces->{interfaces}{$interfaceName});		
-		}
-
-		my $classOrder = $gAllClassesAndInterfaces->{classOrder}{$templateHeader};
-		die "INTERNAL ERROR" unless defined($classOrder);
-		for my $className (@$classOrder) {
-			writePredefined($out, $gAllClassesAndInterfaces->{classes}{$className});		
-		}
+	writeWarning($out, "XXX-Temporarily-Out-Of-Service");
+	my $artifacts = $gAllClassesAndInterfaces->{artifacts};
+	for my $artifactName (keys(%$artifacts)) {
+		my $artifact = $artifacts->{$artifactName};
+		writePredefined($out, $artifact);
 	}
-
-	for my $templateHeader (@$templateHeaders) {
-		writeWarning($out, $templateHeader);
-		my $interfaceOrder = $gAllClassesAndInterfaces->{interfaceOrder}{$templateHeader};
-		die "INTERNAL ERROR" unless defined($interfaceOrder);
-		for my $interfaceName (@$interfaceOrder) {
-			my $interface = $gAllClassesAndInterfaces->{interfaces}{$interfaceName};
-			if (defined($interface->{aliasFor})) {
-				pexpand($out, ['Alias:comment'], {ALIAS=>$interface->{aliasFor}, TYPENAME=>$interface->{typeName}});
-			} else {
-				writeStruct($out, $interface);
-			}
-
-			if (defined($interface->{containers})) {
-				for my $cont (@{$interface->{containers}}) {
-					if ($cont->{type} eq 'array') {
-						writeArray($out, $cont, 1);
-					} else {
-						die "Unknown container type $cont->{type}";
-					}
-				}
-			}
-		}
-
-		my $classOrder = $gAllClassesAndInterfaces->{classOrder}{$templateHeader};
-		die "INTERNAL ERROR" unless defined($classOrder);
-		for my $className (@$classOrder) {
-			my $class = $gAllClassesAndInterfaces->{classes}{$className};
-			if (defined($class->{aliasFor})) {
-				pexpand($out, ['Alias:comment'], {ALIAS=>$class->{aliasFor}, TYPENAME=>$class->{typeName}});
-			} else {
-				writeStruct($out, $class);
-			}
-
-			if (defined($class->{containers})) {
-				for my $cont (@{$class->{containers}}) {
-					if ($cont->{type} eq 'array') {
-						writeArray($out, $cont, 1);
-					} else {
-						die "Unknown container type $cont->{type}";
-					}
-				}
-			}
-		}
-	}
-
-
+	writeAllStructs($out);
 	writeApif($out);
 	for my $templateHeader (@$templateHeaders) {
 		writeWarning($out, $templateHeader);

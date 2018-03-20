@@ -205,8 +205,6 @@ APIF void ManageChokeGroupsDispatch_exec(ManageChokeGroupsDispatch *self, Hub *h
 
 APIF int Dispatch_cmp(Dispatch **leftp, Dispatch **rightp) 
 {
-// #define s(x) (x!= NULL) ? Symbol_cstr(x) : "NONE"   
-//    dblog("Hmmm %s %s %d | %s %s %d", s(left->selector), s(left->portId), left->inlet, s(right->selector), s(right->portId), right->inlet);
    Dispatch *left = *leftp;
    Dispatch *right = *rightp;
    if (left->selector < right->selector) {

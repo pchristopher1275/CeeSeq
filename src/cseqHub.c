@@ -21,6 +21,7 @@
 #include "ptrAr.h"
 #include "intAr.h"
 #include "types.h"
+#include "sequence.h"
 
 #include "shared.c"
 #include "dispatch.h"
@@ -195,7 +196,7 @@ void CseqHub_int(CseqHub *x, long val)
     PadList_play(CseqHub_padList(x), padIndex, now, now, false, err);
     Error_maypost(err);
     time_stop(x->schedular);
-    time_now(x->schedular, NULL);
+    time_now(x->schedular,  NULL);
     Error_clear(err);
 }
 

@@ -8,8 +8,8 @@
 		"containers": [
      		{
      			"type": "array",
-				"typename": "FooArr", 
-				"elemname": "Foo", 
+				"typeName": "FooArr", 
+				"elemName": "Foo", 
 				"clearer": "record_clearer", 
 			 	"binarySearch": [
 					{"compare": "Foo_cmp"}, 
@@ -25,7 +25,7 @@
 @container 
 	{	
 		"type": "array",
-		"typename": "IntArr", 
-		"elemname": "int"   
+		"typeName": "IntArr", 
+		"elemName": "int"   
 	}
 @end

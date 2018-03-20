@@ -1,11 +1,11 @@
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 17:51:40 ***
 
 #define APIF /**/
 sds stripBaseName(const char *path);
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 17:51:40 ***
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 17:51:40 ***
 static inline int BinFile_version(BinFile *self){return self->version;}
 static inline sds BinFile_filename(BinFile *self){return self->filename;}
 static inline void BinFile_setFilename(BinFile *self, sds value){self->filename = value;}
@@ -28,7 +28,7 @@ const int Midiseq_cctype     = 3;
 const int Midiseq_cycletype  = 4;
 const int Midiseq_endgrptype = 5;
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 17:51:40 ***
 #define Midiseq_newUninitialized() ((Midiseq*)sysmem_newptrclear(sizeof(Midiseq)))        
 static inline bool Midiseq_useMasterClock(Midiseq *self){return self->useMasterClock;}
 static inline void Midiseq_setUseMasterClock(Midiseq *self, bool value){self->useMasterClock = value;}
@@ -61,7 +61,7 @@ static inline void Midiseq_setSequenceLength(Midiseq *self, Ticks value){self->s
 //          },
 //       ],
 //       "containers": [
-//          {"type": "array", "typename": "NoteEventAr", "elemname": "NoteEvent"}
+//          {"type": "array", "typeName": "NoteEventAr", "elemName": "NoteEvent"}
 //       ]      
 //    }
 // @end
@@ -95,7 +95,7 @@ static inline void Midiseq_setSequenceLength(Midiseq *self, Ticks value){self->s
 // @end
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 17:51:40 ***
 #define Pad_newUninitialized() ((Pad*)sysmem_newptrclear(sizeof(Pad)))        
 static inline t_symbol *Pad_trackName(Pad *self){return self->trackName;}
 static inline void Pad_setTrackName(Pad *self, t_symbol *value){self->trackName = value;}
@@ -116,6 +116,8 @@ static inline bool Pad_inEndgroup(Pad *self){return self->inEndgroup;}
 static inline void Pad_setInEndgroup(Pad *self, bool value){self->inEndgroup = value;}
 static inline Track *Pad_track(Pad *self){return self->track;}
 static inline void Pad_setTrack(Pad *self, Track *value){self->track = value;}
+static inline SequenceAr *Pad_sequenceList(Pad *self){return &self->sequenceList;}
+static inline bool Pad_useMasterClock(Pad *self){return self->useMasterClock;}
 static inline void PadAr_clear(PadAr *arr) {
     Array_clear((Array*)arr);
     PadAr zero = {0};
@@ -184,7 +186,7 @@ static inline bool PadPtrArIter_next(PadPtrArIter *iterator) {
 
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 17:51:40 ***
 #define IndexedOff_declare(name, padIndex, pitch) IndexedOff name = {(padIndex), (pitch)}
 static inline void IndexedOffAr_clear(IndexedOffAr *arr) {
     Array_clear((Array*)arr);
@@ -237,7 +239,7 @@ static inline IndexedOffArSlice IndexedOffAr_binSearchPadIndex(IndexedOffAr *arr
 }
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 17:51:40 ***
 #define TimedOff_declare(name, time, pitch) TimedOff name = {(time), (pitch)}
 static inline void TimedOffAr_clear(TimedOffAr *arr) {
     Array_clear((Array*)arr);
@@ -281,9 +283,9 @@ static inline void TimedOffAr_binInsertTime(TimedOffAr *arr, TimedOff elem) {
 }            
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 17:51:40 ***
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 17:51:40 ***
 static inline void PortFindCellAr_clear(PortFindCellAr *arr) {
     Array_clear((Array*)arr);
     PortFindCellAr zero = {0};
@@ -320,7 +322,7 @@ static inline bool PortFindCellArIter_next(PortFindCellArIter *iterator) {
 }
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 17:51:40 ***
 static inline void *PortFind_hub(PortFind *self){return self->hub;}
 static inline void PortFind_setHub(PortFind *self, void *value){self->hub = value;}
 static inline Port_anythingDispatchFunc PortFind_anythingDispatch(PortFind *self){return self->anythingDispatch;}
@@ -330,12 +332,12 @@ static inline void PortFind_setIntDispatch(PortFind *self, Port_intDispatchFunc 
 #define PortFind_declare(name) PortFind _##name; PortFind *name = &_##name; memset(name, 0, sizeof(PortFind)); PortFind_init(name)        
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 17:51:40 ***
 #define PadList_newUninitialized() ((PadList*)sysmem_newptrclear(sizeof(PadList)))        
 static inline PadAr *PadList_pads(PadList *self){return &self->pads;}
 static inline PadPtrAr *PadList_running(PadList *self){return &self->running;}
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 17:51:40 ***
 static inline void Track_setName(Track *self, Symbol *value){self->name = value;}
 static inline NoteManager *Track_noteManager(Track *self){return self->noteManager;}
 static inline void Track_setNoteManager(Track *self, NoteManager *value){self->noteManager = value;}
@@ -368,10 +370,10 @@ static inline bool TrackArIter_next(TrackArIter *iterator) {
 
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 17:51:40 ***
 #define TrackList_newUninitialized() ((TrackList*)sysmem_newptrclear(sizeof(TrackList)))        
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 17:51:40 ***
 static inline Port *PortRef_port(PortRef *self){return self->port;}
 static inline int PortRef_outlet(PortRef *self){return self->outlet;}
 
@@ -384,7 +386,7 @@ static inline void PortRef_set(PortRef *pr, Port *port, int outlet) {
 #define PortRef_sendInteger(pr, value, err)    Port_sendInteger(PortRef_port(pr), PortRef_outlet(pr), value, err)
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 17:51:40 ***
 
 static inline PortRef *DropDown_portRef(DropDown *dd) {
     return &dd->portRef;
@@ -394,7 +396,7 @@ static inline void DropDown_setPortRef(DropDown *dd, PortRef *pr) {
    dd->portRef = *pr;
 }
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/18/2018 14:41:01 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 17:51:40 ***
 #define Hub_newUninitialized() ((Hub*)sysmem_newptrclear(sizeof(Hub)))        
 static inline PadList *Hub_padList(Hub *self){return self->padList;}
 static inline void Hub_setPadList(Hub *self, PadList *value){self->padList = value;}
@@ -420,6 +422,10 @@ static inline bool Hub_grabNextTappedPad(Hub *self){return self->grabNextTappedP
 static inline void Hub_setGrabNextTappedPad(Hub *self, bool value){self->grabNextTappedPad = value;}
 static inline int Hub_selectedPad(Hub *self){return self->selectedPad;}
 static inline void Hub_setSelectedPad(Hub *self, int value){self->selectedPad = value;}
+static inline RecordBuffer *Hub_recordBuffer(Hub *self){return self->recordBuffer;}
+static inline SequenceAr *Hub_runningSequences(Hub *self){return &self->runningSequences;}
+static inline Ticks Hub_masterClock(Hub *self){return self->masterClock;}
+static inline TimedAr *Hub_queue(Hub *self){return &self->queue;}
 
 #define Hub_padsPerFrame           24
 #define Hub_framesPerBank           8

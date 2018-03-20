@@ -4,7 +4,7 @@ typedef struct Undefined_t {
 } Undefined;
 #define Undefined_itype 10
 Undefined Undefined_instance = {Undefined_itype, {0}};
-#define Undefined_ptr(typename) ((typename*)&Undefined_instance)
+#define Undefined_ptr(typeName) ((typeName*)&Undefined_instance)
 
 // From file 'src/sequence.in.h'
 

@@ -120,7 +120,7 @@ const int Midiseq_endgrptype = 5;
 //          },
 //       ],
 //       "containers": [
-//          {"type": "array", "typename": "NoteEventAr", "elemname": "NoteEvent"}
+//          {"type": "array", "typeName": "NoteEventAr", "elemName": "NoteEvent"}
 //       ]      
 //    }
 // @end
@@ -198,11 +198,22 @@ const int Midiseq_endgrptype = 5;
          {  
             "name":"track",
             "type":"Track *"
+         },
+         
+         {  
+            "name":"sequenceList",
+            "type":"SequenceAr",
+            "getterReturn":"pointer",
+            "setter":"none"
+         },
+         {  
+            "name":"useMasterClock",
+            "type":"bool"
          }
       ],
       "containers": [
-         {"type": "array", "typename": "PadAr", "elemname": "Pad"},
-         {"type": "array", "typename": "PadPtrAr", "elemname": "Pad *"}
+         {"type": "array", "typeName": "PadAr", "elemName": "Pad"},
+         {"type": "array", "typeName": "PadPtrAr", "elemName": "Pad *"}
       ]
    }
 @end
@@ -225,8 +236,8 @@ const int Midiseq_endgrptype = 5;
       "containers": [
          {
             "type": "array",
-            "typename": "IndexedOffAr", 
-            "elemname": "IndexedOff",
+            "typeName": "IndexedOffAr", 
+            "elemName": "IndexedOff",
             "binarySearch": [
                {"compare": "IndexedOff_cmpPadIndex", "multi": true, "tag": "PadIndex"}
             ]
@@ -252,8 +263,8 @@ const int Midiseq_endgrptype = 5;
       "containers": [
          {
             "type": "array",
-            "typename": "TimedOffAr", 
-            "elemname": "TimedOff",
+            "typeName": "TimedOffAr", 
+            "elemName": "TimedOff",
             "binarySearch": [
                {"compare": "TimedOff_cmpTime", "multi": false, "tag": "Time"}
             ]
@@ -302,8 +313,8 @@ const int Midiseq_endgrptype = 5;
       "containers": [
          {
             "type": "array",
-            "typename": "PortFindCellAr", 
-            "elemname": "PortFindCell"
+            "typeName": "PortFindCellAr", 
+            "elemName": "PortFindCell"
          }
       ]
    }
@@ -371,8 +382,8 @@ const int Midiseq_endgrptype = 5;
       "containers": [
          {
             "type": "array",
-            "typename": "TrackAr", 
-            "elemname": "Track"
+            "typeName": "TrackAr", 
+            "elemName": "Track"
          }
       ]
    }
@@ -502,8 +513,8 @@ static inline void DropDown_setPortRef(DropDown *dd, PortRef *pr) {
          },
          {  
             "getterReturn":"pointer",
-            "name":"cgIndexMenu",
             "setter":"none",
+            "name":"cgIndexMenu",
             "type":"DropDown"
          },
          {  
@@ -532,8 +543,32 @@ static inline void DropDown_setPortRef(DropDown *dd, PortRef *pr) {
          },
          {
             "name": "dispatcher",
-            "type": "DispatchPtAr"
+            "type": "DispatchPtAr",
+            "getterReturn":"pointer",
+            "setter":"none"
+         },
+         {
+            "name": "recordBuffer",
+            "type": "RecordBuffer *"
+         },
+         
+         {
+            "name": "runningSequences",
+            "type": "SequenceAr",
+            "getterReturn":"pointer",
+            "setter":"none"
+         },
+         {
+            "name": "masterClock",
+            "type": "Ticks"
+         },
+         {
+            "name":"queue",
+            "type":"TimedAr",
+            "getterReturn":"pointer",
+            "setter":"none"
          }
+         
       ]
    }
 

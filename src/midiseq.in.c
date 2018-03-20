@@ -18,12 +18,12 @@
 //
 // U t i l i t y
 //
-APIF int Midiseq_Midiseq_convertIntFileLine(const char *src, Error *err, const char *file, int line)
+APIF int Midiseq_Midiseq_convertIntFileLine(const char *src, Error *err, const char *function, const char *file, int line)
 {
     errno = 0;
     long v = strtol(src, NULL, 10);
     if (errno != 0) {
-        Error_formatFileLine(err, file, line,
+        Error_formatFileLine(err, function, file, line,
             sdscatprintf(sdsempty(), "Failed to convert int error code %s",
             (errno == EINVAL ? "EINVAL" : errno == ERANGE ? "ERANGE" : "Unknown")));
 
@@ -32,7 +32,7 @@ APIF int Midiseq_Midiseq_convertIntFileLine(const char *src, Error *err, const c
 }
 
 
-#define Midiseq_convertInt(src, err) Midiseq_Midiseq_convertIntFileLine(src, err, __FILE__, __LINE__)
+#define Midiseq_convertInt(src, err) Midiseq_Midiseq_convertIntFileLine(src, err, __func__, __FILE__, __LINE__)
 
 //
 // M I D I S E Q
@@ -790,6 +790,7 @@ APIF void Pad_init(Pad *pad)
         Pad p = {0};
         *pad = p;
         pad->sequence = Midiseq_new();
+        SequenceAr_init(&pad->sequenceList, 0);
     }
 }
 
@@ -804,8 +805,8 @@ APIF void Pad_clear(Pad *pad)
 {
     if (pad != NULL) {
         Midiseq_free(pad->sequence);
-        Pad p = {0};
-        *pad = p;
+        SequenceAr_clear(&pad->sequenceList);
+        memset(pad, 0, sizeof(Pad));
     }
 }
 
@@ -1624,14 +1625,6 @@ APIF void Hub_anythingDispatch(Hub *hub, Port *port, Symbol *selector, long argc
     Dispatch_declare(cell, Undefined_itype, selector, Port_id(port), 0, NULL);
     Dispatch **dis = DispatchPtAr_binSearch(&hub->dispatcher, &cell);
 
-     DispatchPtAr_foreach(it, &hub->dispatcher) {
-        Dispatch *d = *it.var;
-         if (d->selector == selector && d->portId == Port_id(port)) {
-            dblog("HERE IT IS %p %s %s", dis, Symbol_cstr(selector), Symbol_cstr(Port_id(port)));
-         }
-    }
-
-    dblog("Dis %p %s %s", dis, Symbol_cstr(selector), Symbol_cstr(Port_id(port)));
     if (dis == NULL) {
         return;
     }

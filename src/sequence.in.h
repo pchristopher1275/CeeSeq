@@ -28,7 +28,7 @@
          {"name": "sequence", "type": "Sequence *"}
       ],       
       "containers": [
-         {"type": "array", "typename": "TimedAr", "elemname": "Timed"}
+         {"type": "array", "typeName": "TimedAr", "elemName": "Timed"}
       ]
    }
 @end
@@ -44,7 +44,7 @@
          {"name": "duration", "type": "Ticks"}
       ], 
       "containers": [
-         {"type": "array", "typename": "NoteEventAr", "elemname": "NoteEvent"}
+         {"type": "array", "typeName": "NoteEventAr", "elemName": "NoteEvent"}
       ]
    }
 @end
@@ -57,7 +57,7 @@
          {"name": "value", "type": "double"}
       ],
       "containers": [
-         {"type": "array", "typename": "FloatEventAr", "elemname": "FloatEvent"}
+         {"type": "array", "typeName": "FloatEventAr", "elemName": "FloatEvent"}
       ]
    }
 @end
@@ -128,23 +128,18 @@
             "args": ["Ticks", "TimedAr *"]
          },
          {
-            "name": "startRecord",
-            "retVal": "void",
-            "args": []
-         },
-         {
-            "name": "recordingSeq",
-            "retVal": "Sequence *",
-            "args": ["Ticks"]
-         },
-         {
             "name": "stop",
+            "retVal": "void",
+            "args": ["Ticks", "TimedAr *"]
+         },
+         {
+            "name": "padNoteOff",
             "retVal": "void",
             "args": []
          }
       ],
       "containers": [
-         {"type": "array", "typename": "SequenceAr", "elemname": "Sequence *"}
+         {"type": "array", "typeName": "SequenceAr", "elemName": "Sequence *"}
       ]
    }
 @end

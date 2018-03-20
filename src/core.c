@@ -96,17 +96,17 @@ APIF void Error_clear(Error *err)
 }
 
 
-APIF void Error_formatFileLine(Error *dst, const char *file, int line, sds message)
+APIF void Error_formatFileLine(Error *dst, const char *function, const char *file, int line, sds message)
 {
     Error_clear(dst);
-    dst->message = sdscatprintf(sdsempty(), "[%s:%d] %s", DBLog_stripBaseName(file), line, message);
+    dst->message = sdscatprintf(sdsempty(), "[%s:%s:%d] %s", function, DBLog_stripBaseName(file), line, message);
     dst->iserror = true;
     sdsfree(message);
 }
 
 
-#define Error_format(dst, format, ...) Error_formatFileLine(dst, __FILE__, __LINE__, sdscatprintf(sdsempty(), (format), __VA_ARGS__))
-#define Error_format0(dst, format) Error_formatFileLine(dst, __FILE__, __LINE__, sdscatprintf(sdsempty(), (format)))
+#define Error_format(dst, format, ...) Error_formatFileLine(dst, __func__, __FILE__, __LINE__, sdscatprintf(sdsempty(), (format), __VA_ARGS__))
+#define Error_format0(dst, format) Error_formatFileLine(dst, __func__, __FILE__, __LINE__, sdscatprintf(sdsempty(), (format)))
 
 
 
@@ -301,6 +301,10 @@ static inline double Atom_toFloat(Atom *a) {
 typedef long long Ticks;
 #ifndef TEST_BUILD
 APIF Ticks cseqHub_now()
+{
+    return (Ticks)itm_getticks(itm_getglobal());
+}
+APIF Ticks Ticks_now()
 {
     return (Ticks)itm_getticks(itm_getglobal());
 }

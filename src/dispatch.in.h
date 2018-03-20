@@ -107,8 +107,8 @@
       "containers": [
          {
             "type": "array",
-            "typename": "DispatchPtAr", 
-            "elemname": "Dispatch *",
+            "typeName": "DispatchPtAr", 
+            "elemName": "Dispatch *",
             "binarySearch": [
                {"compare": "Dispatch_cmp"}
             ]

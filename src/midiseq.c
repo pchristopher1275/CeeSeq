@@ -18,12 +18,12 @@
 //
 // U t i l i t y
 //
-APIF int Midiseq_Midiseq_convertIntFileLine(const char *src, Error *err, const char *file, int line)
+APIF int Midiseq_Midiseq_convertIntFileLine(const char *src, Error *err, const char *function, const char *file, int line)
 {
     errno = 0;
     long v = strtol(src, NULL, 10);
     if (errno != 0) {
-        Error_formatFileLine(err, file, line,
+        Error_formatFileLine(err, function, file, line,
             sdscatprintf(sdsempty(), "Failed to convert int error code %s",
             (errno == EINVAL ? "EINVAL" : errno == ERANGE ? "ERANGE" : "Unknown")));
 
@@ -32,7 +32,7 @@ APIF int Midiseq_Midiseq_convertIntFileLine(const char *src, Error *err, const c
 }
 
 
-#define Midiseq_convertInt(src, err) Midiseq_Midiseq_convertIntFileLine(src, err, __FILE__, __LINE__)
+#define Midiseq_convertInt(src, err) Midiseq_Midiseq_convertIntFileLine(src, err, __func__, __FILE__, __LINE__)
 
 //
 // M I D I S E Q
@@ -675,6 +675,7 @@ APIF void PortFind_init(PortFind *pf) {
 APIF long PortFind_iterator(PortFind *pf, t_object *targetBox)
 {
     t_object *obj = jbox_get_object(targetBox);
+    // dblog("Inspecting %s", object_classname(obj)->s_name);
     if (Symbol_gen("Port") != object_classname(obj)) {
         return 0;
     }
@@ -703,7 +704,7 @@ APIF int PortFind_discover(PortFind *pf, t_object *sourceMaxObject, void *hub, E
     PortFind_setHub(pf, hub);
     PortFind_setAnythingDispatch(pf, (Port_anythingDispatchFunc)Hub_anythingDispatch);
     PortFind_setIntDispatch(pf, (Port_intDispatchFunc)Hub_intDispatch);
-
+    // dblog0("Calling discover");
     t_object *patcher = NULL;
     long result       = 0;
     t_max_err maxErr = object_obex_lookup(sourceMaxObject, gensym("#P"), &patcher);
@@ -716,6 +717,10 @@ APIF int PortFind_discover(PortFind *pf, t_object *sourceMaxObject, void *hub, E
     PortFind_setHub(pf, NULL);
     PortFind_setAnythingDispatch(pf, NULL);
     PortFind_setIntDispatch(pf, NULL);
+
+    PortFindCellAr_foreach(it, &pf->objects) {
+        dblog("Hmmmm %s", Symbol_cstr(Port_id(it.var->reciever)));
+    }
 
     return 0;
 }
@@ -790,6 +795,7 @@ APIF void Pad_init(Pad *pad)
         Pad p = {0};
         *pad = p;
         pad->sequence = Midiseq_new();
+        SequenceAr_init(&pad->sequenceList, 0);
     }
 }
 
@@ -804,8 +810,8 @@ APIF void Pad_clear(Pad *pad)
 {
     if (pad != NULL) {
         Midiseq_free(pad->sequence);
-        Pad p = {0};
-        *pad = p;
+        SequenceAr_clear(&pad->sequenceList);
+        memset(pad, 0, sizeof(Pad));
     }
 }
 
