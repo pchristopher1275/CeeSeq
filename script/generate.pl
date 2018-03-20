@@ -323,18 +323,39 @@ sub collectInterfaceFromAtType {
 	}	
 }
 
+sub collectContainerFromAtType {
+	my ($cfg, $lines) = @_;
+	my $text = join("\n", @$lines);
+	my $containers = $cfg->{containers};
+	if (!defined($containers)) {
+		$containers = [];
+		$cfg->{containers} = $containers;
+	}
+	eval {
+		my $container = decode_json($text);
+		$container->{srcFile} = $cfg->{file};
+		print Dumper($container), "<----\n";
+		push @$containers, $containers;
+	};
+	if ($@) {
+		reportBadJson($cfg, $lines);
+		die "Failed to decode json for interface in file $cfg->{file}, starting at $cfg->{lastAtType}\n";
+	}	
+
+}
 
 sub collectAllClassesFromFile {
 	my ($file) = @_;
 	my $cfg = {
 		file=>$file, 
-		typeCallback=>\&collectClassFromAtType, 
-		interfaceCallback=>\&collectInterfaceFromAtType,
-		nothingCallback=>sub {}, 
-		containerCallback=>sub {},
+		typeCallback      => \&collectClassFromAtType, 
+		interfaceCallback => \&collectInterfaceFromAtType,
+		nothingCallback   => sub {}, 
+		containerCallback => \&collectContainerFromAtType,
 	};
 	scanInDotH($cfg);
-	return {classes=>$cfg->{classes}, interfaces=>$cfg->{interfaces}};
+	print Dumper($cfg->{containers}), "XXX\n";
+	return {classes=>$cfg->{classes}, interfaces=>$cfg->{interfaces}, containers => $cfg->{containers}};
 }
 
 sub crossrefClassesAndInterfaces {
@@ -737,7 +758,7 @@ sub collectAllClasses {
 		my $classesAndInterfaces = collectAllClassesFromFile($header);	
 		my $headerClasses        = $classesAndInterfaces->{classes};
 		my $headerInterfaces     = $classesAndInterfaces->{interfaces};
-
+		my $containers           = $classesAndInterfaces->{containers};
 		$classOrder{$header}     = [];
 		for my $class (@$headerClasses) {
 			if (defined($classes{$class->{typeName}})) {
@@ -768,6 +789,13 @@ sub collectAllClasses {
 				$cont->{artifactType}         = 'container';
 				$artifacts{$cont->{typeName}} = $cont;
 			}
+		}
+
+		print Dumper($containers), "#######\n";
+		for my $cont (@$containers) {
+			print Dumper($cont), "[][]\n";
+			$cont->{artifactType}         = 'container';
+			$artifacts{$cont->{typeName}} = $cont;
 		}
 	}
 
@@ -1852,6 +1880,9 @@ sub writeAllStructs {
 			}
 		}
 	}
+
+	## Start by writing the Array structs
+	writeStructArtifact($out, {artifactType=>"container", typeName=>"Array", elemName=>"char"});
 
 	my %written;
 	my %queued;

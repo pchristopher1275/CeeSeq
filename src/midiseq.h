@@ -1,11 +1,214 @@
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/20/2018 10:23:21 ***
 
 #define APIF /**/
 sds stripBaseName(const char *path);
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 21:37:36 ***
+typedef struct MEventAr_t {
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(MEvent*);
+   MEvent *data;
+} MEventAr;
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 21:37:36 ***
+typedef struct MEventArIt_t {
+   MEventAr *arr;
+   int index;
+   bool last;
+   MEvent *var;
+} MEventArIt;
+
+static inline void MEventAr_clear(MEventAr *arr) {
+    Array_clear((Array*)arr);
+    MEventAr zero = {0};
+    *arr = zero;
+}
+
+static inline void MEventAr_fit(MEventAr *arr) {
+    Array_fit((Array*)arr);
+}
+
+#define MEventAr_foreach(var, arr)  for (MEventArIt_declare(var, arr); MEventArIt_next(&var); )            
+
+static inline MEvent MEventAr_get(MEventAr *arr, int index, Error *err) {
+    MEvent v = {0};
+    Array_getCheck(arr, index, v, err);
+    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
+    return v;
+}
+
+static inline MEvent *MEventAr_getp(MEventAr *arr, int index, Error *err) {
+    Array_getCheck(arr, index, NULL, err);
+    return (MEvent *)Array_get((Array*)arr, index);
+}
+
+static inline void MEventAr_init(MEventAr *arr, int nelems) {
+    Array_init((Array*)arr, nelems, sizeof(MEvent), (Array_clearElement)NULL);
+}
+
+static inline void MEventAr_insert(MEventAr *arr, int index, MEvent elem, Error *err) {
+    Array_insertNCheck(arr, index, 1, err);
+    MEvent *p = (MEvent *)Array_insertN((Array*)arr, index, 1);
+    *p = elem;
+}
+
+static inline int MEventAr_last(MEventAr *arr) {
+    return Array_len((Array*)arr)-1;
+}            
+
+static inline int MEventAr_len(MEventAr *arr) {
+    return Array_len((Array*)arr);
+}
+
+static inline void MEventAr_push(MEventAr *arr, MEvent elem) {
+    MEvent *p = (MEvent *)Array_pushN((Array*)arr, 1);
+    *p = elem;
+    return; 
+}            
+
+#define MEventAr_rforeach(var, arr)  for (MEventArIt_rdeclare(var, arr); MEventArIt_previous(&var); )            
+
+#define MEventArIt_declare(var, arr)  MEventArIt var = {arr, -1, false, NULL}            
+
+static inline bool MEventArIt_next(MEventArIt *iterator) {
+    return ArrayIt_next((ArrayIt*)iterator);
+}
+
+static inline bool MEventArIt_previous(MEventArIt *iterator) {
+    return ArrayIt_previous((ArrayIt*)iterator);
+}            
+
+#define MEventArIt_rdeclare(var, arr)  MEventArIt var = {arr, MEventAr_len(arr), false, NULL}            
+
+
+typedef struct PtrAr_t {
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(void **);
+   void **data;
+} PtrAr;
+
+typedef struct PtrArIt_t {
+   PtrAr *arr;
+   int index;
+   bool last;
+   void **var;
+} PtrArIt;
+
+static inline void PtrAr_changeLength(PtrAr *arr, int newLength) {
+    Array_changeLength((Array*)arr, newLength);
+}                        
+
+static inline void PtrAr_clear(PtrAr *arr) {
+    Array_clear((Array*)arr);
+    PtrAr zero = {0};
+    *arr = zero;
+}
+
+#define PtrAr_foreach(var, arr)  for (PtrArIt_declare(var, arr); PtrArIt_next(&var); )            
+
+static inline void *PtrAr_get(PtrAr *arr, int index, Error *err) {
+    void * v = {0};
+    Array_getCheck(arr, index, v, err);
+    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
+    return v;
+}
+
+static inline void PtrAr_init(PtrAr *arr, int nelems) {
+    Array_init((Array*)arr, nelems, sizeof(void *), (Array_clearElement)NULL);
+}
+
+static inline void PtrAr_push(PtrAr *arr, void *elem) {
+    void * *p = (void **)Array_pushN((Array*)arr, 1);
+    *p = elem;
+    return; 
+}            
+
+static inline void PtrAr_set(PtrAr *arr, int index, void *elem, Error *err) {
+    Array_setCheck(arr, index, err);
+    Array_set((Array*)arr, index, (char*)&elem);
+}
+
+#define PtrArIt_declare(var, arr)  PtrArIt var = {arr, -1, false, NULL}            
+
+static inline bool PtrArIt_next(PtrArIt *iterator) {
+    return ArrayIt_next((ArrayIt*)iterator);
+}
+
+
+typedef struct SymbolPtrAr_t {
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(Symbol **);
+   Symbol **data;
+} SymbolPtrAr;
+
+typedef struct SymbolPtrArIt_t {
+   SymbolPtrAr *arr;
+   int index;
+   bool last;
+   Symbol **var;
+} SymbolPtrArIt;
+
+static inline void SymbolPtrAr_clear(SymbolPtrAr *arr) {
+    Array_clear((Array*)arr);
+    SymbolPtrAr zero = {0};
+    *arr = zero;
+}
+
+#define SymbolPtrAr_foreach(var, arr)  for (SymbolPtrArIt_declare(var, arr); SymbolPtrArIt_next(&var); )            
+
+static inline Symbol *SymbolPtrAr_get(SymbolPtrAr *arr, int index, Error *err) {
+    Symbol * v = {0};
+    Array_getCheck(arr, index, v, err);
+    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
+    return v;
+}
+
+static inline void SymbolPtrAr_init(SymbolPtrAr *arr, int nelems) {
+    Array_init((Array*)arr, nelems, sizeof(Symbol *), (Array_clearElement)NULL);
+}
+
+static inline int SymbolPtrAr_len(SymbolPtrAr *arr) {
+    return Array_len((Array*)arr);
+}
+
+static inline void SymbolPtrAr_push(SymbolPtrAr *arr, Symbol *elem) {
+    Symbol * *p = (Symbol **)Array_pushN((Array*)arr, 1);
+    *p = elem;
+    return; 
+}            
+
+#define SymbolPtrArIt_declare(var, arr)  SymbolPtrArIt var = {arr, -1, false, NULL}            
+
+static inline bool SymbolPtrArIt_next(SymbolPtrArIt *iterator) {
+    return ArrayIt_next((ArrayIt*)iterator);
+}
+
+
+typedef struct IntAr_t {
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(int*);
+   int *data;
+} IntAr;
+
+typedef struct IntArIt_t {
+   IntAr *arr;
+   int index;
+   bool last;
+   int *var;
+} IntArIt;
+
+
+
+
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/20/2018 10:23:21 ***
+
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/20/2018 10:23:21 ***
 static inline int BinFile_version(BinFile *self){return self->version;}
 static inline sds BinFile_filename(BinFile *self){return self->filename;}
 static inline void BinFile_setFilename(BinFile *self, sds value){self->filename = value;}
@@ -28,7 +231,7 @@ const int Midiseq_cctype     = 3;
 const int Midiseq_cycletype  = 4;
 const int Midiseq_endgrptype = 5;
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/20/2018 10:23:21 ***
 #define Midiseq_newUninitialized() ((Midiseq*)sysmem_newptrclear(sizeof(Midiseq)))        
 static inline bool Midiseq_useMasterClock(Midiseq *self){return self->useMasterClock;}
 static inline void Midiseq_setUseMasterClock(Midiseq *self, bool value){self->useMasterClock = value;}
@@ -95,7 +298,7 @@ static inline void Midiseq_setSequenceLength(Midiseq *self, Ticks value){self->s
 // @end
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/20/2018 10:23:21 ***
 #define Pad_newUninitialized() ((Pad*)sysmem_newptrclear(sizeof(Pad)))        
 static inline t_symbol *Pad_trackName(Pad *self){return self->trackName;}
 static inline void Pad_setTrackName(Pad *self, t_symbol *value){self->trackName = value;}
@@ -186,7 +389,7 @@ static inline bool PadPtrArIt_next(PadPtrArIt *iterator) {
 
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/20/2018 10:23:21 ***
 #define IndexedOff_declare(name, padIndex, pitch) IndexedOff name = {(padIndex), (pitch)}
 static inline void IndexedOffAr_clear(IndexedOffAr *arr) {
     Array_clear((Array*)arr);
@@ -239,7 +442,7 @@ static inline IndexedOffArSlice IndexedOffAr_binSearchPadIndex(IndexedOffAr *arr
 }
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/20/2018 10:23:21 ***
 #define TimedOff_declare(name, time, pitch) TimedOff name = {(time), (pitch)}
 static inline void TimedOffAr_clear(TimedOffAr *arr) {
     Array_clear((Array*)arr);
@@ -283,9 +486,9 @@ static inline void TimedOffAr_binInsertTime(TimedOffAr *arr, TimedOff elem) {
 }            
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/20/2018 10:23:21 ***
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/20/2018 10:23:21 ***
 static inline void PortFindCellAr_clear(PortFindCellAr *arr) {
     Array_clear((Array*)arr);
     PortFindCellAr zero = {0};
@@ -322,7 +525,7 @@ static inline bool PortFindCellArIt_next(PortFindCellArIt *iterator) {
 }
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/20/2018 10:23:21 ***
 static inline void *PortFind_hub(PortFind *self){return self->hub;}
 static inline void PortFind_setHub(PortFind *self, void *value){self->hub = value;}
 static inline Port_anythingDispatchFunc PortFind_anythingDispatch(PortFind *self){return self->anythingDispatch;}
@@ -332,12 +535,12 @@ static inline void PortFind_setIntDispatch(PortFind *self, Port_intDispatchFunc 
 #define PortFind_declare(name) PortFind _##name; PortFind *name = &_##name; memset(name, 0, sizeof(PortFind)); PortFind_init(name)        
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/20/2018 10:23:21 ***
 #define PadList_newUninitialized() ((PadList*)sysmem_newptrclear(sizeof(PadList)))        
 static inline PadAr *PadList_pads(PadList *self){return &self->pads;}
 static inline PadPtrAr *PadList_running(PadList *self){return &self->running;}
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/20/2018 10:23:21 ***
 static inline void Track_setName(Track *self, Symbol *value){self->name = value;}
 static inline NoteManager *Track_noteManager(Track *self){return self->noteManager;}
 static inline void Track_setNoteManager(Track *self, NoteManager *value){self->noteManager = value;}
@@ -370,10 +573,10 @@ static inline bool TrackArIt_next(TrackArIt *iterator) {
 
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/20/2018 10:23:21 ***
 #define TrackList_newUninitialized() ((TrackList*)sysmem_newptrclear(sizeof(TrackList)))        
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/20/2018 10:23:21 ***
 static inline Port *PortRef_port(PortRef *self){return self->port;}
 static inline int PortRef_outlet(PortRef *self){return self->outlet;}
 
@@ -386,7 +589,7 @@ static inline void PortRef_set(PortRef *pr, Port *port, int outlet) {
 #define PortRef_sendInteger(pr, value, err)    Port_sendInteger(PortRef_port(pr), PortRef_outlet(pr), value, err)
 
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/20/2018 10:23:21 ***
 
 static inline PortRef *DropDown_portRef(DropDown *dd) {
     return &dd->portRef;
@@ -396,7 +599,7 @@ static inline void DropDown_setPortRef(DropDown *dd, PortRef *pr) {
    dd->portRef = *pr;
 }
 
-// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/midiseq.in.h) generated 03/20/2018 10:23:21 ***
 #define Hub_newUninitialized() ((Hub*)sysmem_newptrclear(sizeof(Hub)))        
 static inline PadList *Hub_padList(Hub *self){return self->padList;}
 static inline void Hub_setPadList(Hub *self, PadList *value){self->padList = value;}

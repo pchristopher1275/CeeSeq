@@ -2,6 +2,40 @@
 #define APIF /**/
 sds stripBaseName(const char *path);
 
+@container    
+   {       
+       "type": "array",
+       "typeName": "MEventAr", 
+       "elemName": "MEvent"   
+   }
+@end
+
+@container    
+   {       
+       "type": "array",
+       "typeName": "PtrAr", 
+       "elemName": "void *"   
+   }
+@end
+
+@container    
+   {       
+       "type": "array",
+       "typeName": "SymbolPtrAr", 
+       "elemName": "Symbol *"   
+   }
+@end
+
+@container    
+   {       
+       "type": "array",
+       "typeName": "IntAr", 
+       "elemName": "int"   
+   }
+@end
+
+
+
 @type
    {  
       "typeName": "BinFilePayload",

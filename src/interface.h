@@ -8,6 +8,8 @@ Undefined Undefined_instance = {Undefined_itype, {0}};
 
 // From file 'src/midiseq.in.h'
 
+// From file 'src/sequence.in.h'
+
 // From file 'src/dispatch.in.h'
 #define MarshalSi_itype 12
 #define MarshalSii_itype 13
@@ -17,6 +19,4 @@ Undefined Undefined_instance = {Undefined_itype, {0}};
 #define SelectNextPushedPadDispatch_itype 17
 #define MidiFileDropDispatch_itype 18
 #define ManageChokeGroupsDispatch_itype 19
-
-// From file 'src/sequence.in.h'
 const char *Interface_toString(int itype);

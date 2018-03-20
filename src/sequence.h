@@ -1,5 +1,5 @@
-// *** DO NOT MODIFY THIS FILE (see src/sequence.in.h) generated 03/19/2018 21:37:36 ***
-// *** DO NOT MODIFY THIS FILE (see src/sequence.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/sequence.in.h) generated 03/20/2018 10:23:21 ***
+// *** DO NOT MODIFY THIS FILE (see src/sequence.in.h) generated 03/20/2018 10:23:21 ***
 
 static inline int Outlet_nthIType(int n, int *itype) {
     static int itypes[] = {
@@ -15,13 +15,13 @@ static inline int Outlet_nthIType(int n, int *itype) {
 #define Outlet_foreachIType(itype) for (int __##itype = 0, itype = 0; Outlet_nthIType(__##itype, &itype); __##itype++)
 
 
-// *** DO NOT MODIFY THIS FILE (see src/sequence.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/sequence.in.h) generated 03/20/2018 10:23:21 ***
 static inline Ticks Timed_time(Timed *self){return self->time;}
 static inline int Timed_version(Timed *self){return self->version;}
 static inline Sequence *Timed_sequence(Timed *self){return self->sequence;}
 
 
-// *** DO NOT MODIFY THIS FILE (see src/sequence.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/sequence.in.h) generated 03/20/2018 10:23:21 ***
 #define NoteEventAr_foreach(var, arr)  for (NoteEventArIt_declare(var, arr); NoteEventArIt_next(&var); )            
 
 static inline int NoteEventAr_len(NoteEventAr *arr) {
@@ -41,12 +41,12 @@ static inline bool NoteEventArIt_next(NoteEventArIt *iterator) {
 }
 
 
-// *** DO NOT MODIFY THIS FILE (see src/sequence.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/sequence.in.h) generated 03/20/2018 10:23:21 ***
 
-// *** DO NOT MODIFY THIS FILE (see src/sequence.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/sequence.in.h) generated 03/20/2018 10:23:21 ***
 
 
-// *** DO NOT MODIFY THIS FILE (see src/sequence.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/sequence.in.h) generated 03/20/2018 10:23:21 ***
 
 static inline int Sequence_nthIType(int n, int *itype) {
     static int itypes[] = {
@@ -80,4 +80,4 @@ static inline bool SequenceArIt_next(SequenceArIt *iterator) {
 }
 
 
-// *** DO NOT MODIFY THIS FILE (see src/sequence.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/sequence.in.h) generated 03/20/2018 10:23:21 ***

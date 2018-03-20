@@ -2,7 +2,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-typedef void (*Array_clearElement)(void *);
+typedef void (*Array_clearElement)(char *);
+/*
 typedef struct Array_t {
    int len;
    int cap;
@@ -10,6 +11,7 @@ typedef struct Array_t {
    Array_clearElement clearer;
    char *data;
 } Array;
+*/
 Array *Array_new(int nelems, int elemSize, Array_clearElement clearer);
 void Array_init(Array *arr, int nelems, int elemSize, Array_clearElement clearer);
 void Array_clear(Array *arr);
@@ -241,12 +243,14 @@ int Array_elemSize(Array *arr){
    return arr->elemSize;
 }
 
+/*
 typedef struct ArrayIt {
    Array *arr;
    int index;
    bool last;
    char *element;
 } ArrayIt;
+*/
 
 bool ArrayIt_next(ArrayIt *iterator) {
    if (iterator->index < 0) {
@@ -273,33 +277,9 @@ bool ArrayIt_previous(ArrayIt *iterator) {
    iterator->last    = iterator->index == 0;
    return true;
 }
+
+
 typedef int (*Array_compare)(const void *left, const void *right);
-
-// void *bsearch(const void *key, const void *base, size_t num, size_t size, int (*cmp)(const void *key, const void *elt))
-// {
-//    const char *pivot;
-//    int result;
-  
-//    while (num > 0) {
-//       pivot  = base + (num >> 1) * size; // num/2 * size
-//       result = cmp(key, pivot);
-
-//       if (result == 0) {
-//          return (void *)pivot;
-//       }
-
-//       if (result > 0) {
-//          // key > pivot so move the base to pivot + 1 element
-//          base = pivot + size;
-
-
-//          num--;
-//       }
-//       num >>= 1;
-//    }
-
-//    return NULL;
-// }
 
 typedef struct ArraySlice_t {
    int len;
@@ -308,7 +288,7 @@ typedef struct ArraySlice_t {
    char *var;
 } ArraySlice;
 
-
+// This code is based on bsearch pulled from the linux kernal
 int Array_binSearchWithInsertMulti(Array *arr, char *key, int *insert, Array_compare comparer, char **lowerBound, char **upperBound) {  
    char *base  = arr->data;
    size_t num  = arr->len;

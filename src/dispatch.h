@@ -1,6 +1,6 @@
-// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/20/2018 10:23:21 ***
 
-// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/20/2018 10:23:21 ***
 static inline Symbol *Arguments_s1(Arguments *self){return self->s1;}
 static inline void Arguments_setS1(Arguments *self, Symbol *value){self->s1 = value;}
 static inline void Arguments_setI1(Arguments *self, long value){self->i1 = value;}
@@ -9,7 +9,7 @@ static inline long Arguments_ivalue(Arguments *self){return self->ivalue;}
 static inline void Arguments_setIvalue(Arguments *self, long value){self->ivalue = value;}
 static inline void Arguments_setInlet(Arguments *self, long value){self->inlet = value;}
 
-// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/20/2018 10:23:21 ***
 
 static inline int Marshal_nthIType(int n, int *itype) {
     static int itypes[] = {
@@ -24,7 +24,7 @@ static inline int Marshal_nthIType(int n, int *itype) {
 }
 #define Marshal_foreachIType(itype) for (int __##itype = 0, itype = 0; Marshal_nthIType(__##itype, &itype); __##itype++)
 
-// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/20/2018 10:23:21 ***
 static inline MarshalSi *MarshalSi_castFromMarshal(Marshal *self) {
     if (self->itype == MarshalSi_itype) {
         return (MarshalSi*)self;
@@ -35,7 +35,7 @@ static inline Marshal *MarshalSi_castToMarshal(MarshalSi *self) {
     return (Marshal*)self;
 }
 
-// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/20/2018 10:23:21 ***
 static inline MarshalSii *MarshalSii_castFromMarshal(Marshal *self) {
     if (self->itype == MarshalSii_itype) {
         return (MarshalSii*)self;
@@ -46,7 +46,7 @@ static inline Marshal *MarshalSii_castToMarshal(MarshalSii *self) {
     return (Marshal*)self;
 }
 
-// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/20/2018 10:23:21 ***
 static inline MarshalSs *MarshalSs_castFromMarshal(Marshal *self) {
     if (self->itype == MarshalSs_itype) {
         return (MarshalSs*)self;
@@ -57,7 +57,7 @@ static inline Marshal *MarshalSs_castToMarshal(MarshalSs *self) {
     return (Marshal*)self;
 }
 
-// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/20/2018 10:23:21 ***
 
 static inline int Dispatch_nthIType(int n, int *itype) {
     static int itypes[] = {
@@ -98,7 +98,7 @@ static inline void DispatchPtAr_sort(DispatchPtAr *arr) {
 }                
 
 
-// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/20/2018 10:23:21 ***
 static inline IncrementFrameDispatch *IncrementFrameDispatch_castFromDispatch(Dispatch *self) {
     if (self->itype == IncrementFrameDispatch_itype) {
         return (IncrementFrameDispatch*)self;
@@ -109,7 +109,7 @@ static inline Dispatch *IncrementFrameDispatch_castToDispatch(IncrementFrameDisp
     return (Dispatch*)self;
 }
 
-// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/20/2018 10:23:21 ***
 static inline DecrementFrameDispatch *DecrementFrameDispatch_castFromDispatch(Dispatch *self) {
     if (self->itype == DecrementFrameDispatch_itype) {
         return (DecrementFrameDispatch*)self;
@@ -120,7 +120,7 @@ static inline Dispatch *DecrementFrameDispatch_castToDispatch(DecrementFrameDisp
     return (Dispatch*)self;
 }
 
-// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/20/2018 10:23:21 ***
 static inline SelectNextPushedPadDispatch *SelectNextPushedPadDispatch_castFromDispatch(Dispatch *self) {
     if (self->itype == SelectNextPushedPadDispatch_itype) {
         return (SelectNextPushedPadDispatch*)self;
@@ -131,7 +131,7 @@ static inline Dispatch *SelectNextPushedPadDispatch_castToDispatch(SelectNextPus
     return (Dispatch*)self;
 }
 
-// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/20/2018 10:23:21 ***
 static inline MidiFileDropDispatch *MidiFileDropDispatch_castFromDispatch(Dispatch *self) {
     if (self->itype == MidiFileDropDispatch_itype) {
         return (MidiFileDropDispatch*)self;
@@ -142,7 +142,7 @@ static inline Dispatch *MidiFileDropDispatch_castToDispatch(MidiFileDropDispatch
     return (Dispatch*)self;
 }
 
-// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/19/2018 21:37:36 ***
+// *** DO NOT MODIFY THIS FILE (see src/dispatch.in.h) generated 03/20/2018 10:23:21 ***
 static inline ManageChokeGroupsDispatch *ManageChokeGroupsDispatch_castFromDispatch(Dispatch *self) {
     if (self->itype == ManageChokeGroupsDispatch_itype) {
         return (ManageChokeGroupsDispatch*)self;
