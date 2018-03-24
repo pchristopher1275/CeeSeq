@@ -13,23 +13,24 @@
 
 #include "mem.c"
 #include "core.c"
-#include "types.h"
-#include "array.c"
-#include "interface.h"
+// #include "types.h"
+// #include "array.c"
+// #include "interface.h"
 
 // #include "mEventAr.h"
 // #include "symbolPtrAr.h"
 // #include "ptrAr.h"
 // #include "intAr.h"
 
-#include "sequence.h"
+// #include "sequence.h"
 
-#include "shared.c"
-#include "dispatch.h"
-#include "midiseq.h"
-#include "interface.c"
-#include "dispatch.c"
-#include "midiseq.c"
+
+// #include "dispatch.h"
+// #include "midiseq.h"
+// #include "interface.c"
+// #include "dispatch.c"
+// #include "midiseq.c"
+#include "application.c"
 
 
 typedef struct _CseqHub

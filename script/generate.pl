@@ -9,6 +9,7 @@ my $gVerbose             = 1;
 my $gApplicationName     = "application";
 my $gAcceptAllCalls      = 0;
 my $gNow                 = strftime("%m/%d/%Y %H:%M:%S", localtime);
+my $gUndefinedItype      = 10;
 
 sub run {
     my ($cmd, %opts) = @_;
@@ -960,6 +961,76 @@ sub Expand_emitNl {
 	Expand_emitFull(@_, newline=>1);
 }
 
+
+sub ClassOrInterface_emitAccessors {
+	my ($artifact, $out) = @_;
+	my $typeName = $artifact->{typeName};
+	for my $field (@{$artifact->{fields}}) {
+		if (defined($field->{group})) {
+			next;
+		}
+
+		my $getter       = $field->{getter}; 
+		my $getterReturn = $field->{getterReturn};
+		my $rtype        = $field->{type};
+		my $maybeAmper   = '';
+		if ($getterReturn eq 'pointer') {
+			$rtype      = "$rtype *";
+			$maybeAmper = "&";
+		}
+		my $stype = Util_spaceAdjustType($rtype);
+		my $setter = $field->{setter}; 
+		my ($first, $rest) = ($field->{name} =~ /^(.)(.*)$/);
+		die "INTERNAL ERROR" unless defined($rest);
+		my $setName = 'set' . uc($first) . $rest;
+	
+		my $exCfg = {TYPENAME=>$typeName, STYPE=>$stype, FIELDNAME=>$field->{name}, MAYBEAMPER=>$maybeAmper, SETNAME=>$setName};
+		
+		if (defined($getter)) {			
+			if ($getter ne 'none') {
+		 		die "The 'getter' flag set to something funny: getter=$getter, typeName=$typeName";
+		 	}
+		} else {
+			Expand_emit($out, ["Type:getter"], $exCfg);
+		}
+			
+		if (defined($setter)) {	
+			if ($setter ne 'none') {
+				die "The 'setter' flag set to something funny: setter=$setter, typeName=$typeName";
+			}
+		} else {
+			Expand_emit($out, ["Type:setter"], $exCfg);
+		}
+	}
+}
+
+sub ClassOrInterface_emitStruct {
+	my ($artifact, $out) = @_;
+	Expand_emit($out, ["Struct:head"], {TYPENAME => $artifact->{typeName}});	
+	for my $field (@{$artifact->{fields}}) {
+		my $stype = Util_spaceAdjustType($field->{type});
+		Expand_emit($out, ["Struct:field"], {STYPE=>$stype, NAME => $field->{name}});	
+	}
+	Expand_emit($out, ["Struct:tail"], {});		
+}
+
+sub ClassOrInterface_emitArgDeclare {
+	my ($self, $out) = @_;
+	my $args = "";
+	my $struct = "{";
+	for my $field (@{$self->{fields}}) {
+		if (defined($field->{group})) {
+			next;
+		}
+		$args   .= "$field->{name}, ";
+		$struct .= "($field->{name}), ";
+	}
+	$args   =~ s/,\s*$//;
+	$struct =~ s/,\s*$//;
+	$struct .= "}";
+	Expand_emit($out, ["Type:argDeclare"], {ARGS=>$args, STRUCT=>$struct, TYPENAME=>$self->{typeName}});
+}
+
 sub ClassArtifact_new {
 	return {itype => 'Class'};
 }
@@ -968,6 +1039,33 @@ sub ClassArtifact_isa {
 	return $_[0]->{itype} eq 'Class';
 }
 
+sub ClassArtifact_emitStruct {
+	ClassOrInterface_emitStruct(@_);
+}
+
+sub ClassArtifact_emitArgDeclare {
+	ClassOrInterface_emitArgDeclare(@_);
+}
+
+sub ClassArtifact_emitInlines {
+	my ($self, $out) = @_;
+	Expand_emit($out, ['Type:newUninitialized'], {TYPENAME => $self->{typeName}}) unless $self->{noNewUnitialized};
+	ClassOrInterface_emitAccessors($self, $out);
+	
+	if (defined($self->{argDeclare})) {
+		ClassArtifact_emitArgDeclare($self, $out);
+	}
+	
+	if (defined($self->{implements})) {
+		my $h = {TYPENAME=>$self->{typeName}};
+		for my $ifc (@{$self->{implements}}) {
+			$h->{IFCNAME} = $ifc;
+			Expand_emit($out, ['Interface:castTo', 'Interface:castFrom'], $h);
+		}
+	}
+}
+
+
 sub InterfaceArtifact_new {
 	return {itype => 'Interface'};
 }
@@ -975,6 +1073,132 @@ sub InterfaceArtifact_new {
 sub InterfaceArtifact_isa {
 	return $_[0]->{itype} eq 'Interface';
 }
+
+sub InterfaceArtifact_emitStruct {
+	ClassArtifact_emitStruct(@_);
+}
+
+sub InterfaceArtifact_emitInterfaceMethod {
+	my ($self, $out, $methodIndex, $justProto, $api) = @_;
+	die "Bad type expected Interface found $self->{itype}" unless $self->{itype} eq 'Interface';
+	my $ifcName       = $self->{typeName};
+	my $method        = $self->{methods}[$methodIndex];
+	my $itypeReceiver = $method->{itypeReceiver};
+	my $defMethod     = $method->{defMethod};
+	my $retVoid       = $method->{retVal} eq 'void';
+	my $retPtr        = ($method->{retVal} =~ /\*/);
+	my $absentOk      = defined($defMethod) ? 0 : $method->{absentOk};
+	my $methodName    = $method->{name};
+	my @methodArgs    = @{$method->{args}};
+
+	my $forwardError = 1;
+	if (@methodArgs == 0 || $methodArgs[$#methodArgs] !~ m[Error\s*\*]) {
+		$forwardError = 0;
+	} else {
+		pop @methodArgs;
+	}
+
+	my @argWithVariable;
+	my @variable;
+	my $count = 1;
+	for my $arg (@methodArgs) {
+		if ($arg =~ /\*/) {
+			push @argWithVariable, "${arg}a$count";
+		} else {
+			push @argWithVariable, "$arg a$count";
+		}
+		push @variable, "a$count";
+		$count++;
+	}
+	if ($forwardError) {
+		push @variable, "err"
+	}
+
+	my $typedArgs  = "";
+	my $listArgs   = "";
+	if (@argWithVariable > 0) {
+		$typedArgs = ", " . join(", ", @argWithVariable);
+		$listArgs  = ", " . join(", ", @variable);
+	}
+	
+	
+	my $cfg       = {
+		IFCNAME       => $ifcName,
+		TYPEDRECIEVER => $itypeReceiver ? "int itype" : "$ifcName *self",
+		METHODNAME    => $methodName,
+		DEFRET        => $retPtr ? "NULL" : '0',
+		LISTARGS      => $listArgs,
+		TYPEDARGS     => $typedArgs,
+		RTYPE         => Util_spaceAdjustType($method->{retVal}),
+		ENDPROTO      => ";",
+		SWITCHTARGET  => $itypeReceiver ? "itype" : "self->itype",
+	};
+
+	if ($justProto) {
+		Expand_emit($out, ['Interface:proto'], $cfg);
+		return;
+	}
+
+	$cfg->{ENDPROTO} = "";
+	my ($defClassName, $defMethodName);
+	if (defined($defMethod)) {
+		($defClassName, $defMethodName) = split "_", $defMethod;
+	}
+
+	Expand_emit($out, ['Interface:proto', 'Interface:startFunction'], $cfg);
+	my @implementedBy = sort {$a cmp $b} keys(%{$self->{implementedBy}});
+	for my $implementedBy (@implementedBy) {
+		$cfg->{TYPENAME} = $implementedBy;
+		if (!defined($defMethod) || Api_definedCall($api, $implementedBy, $methodName)) {
+			$cfg->{CALLTYPENAME}     = $implementedBy;
+			$cfg->{CALLMETHODNAME}   = $methodName;	
+			$cfg->{CASTRECIEVER}     = $itypeReceiver ? "itype" : "($implementedBy*)self";
+		} else {
+			$cfg->{CALLTYPENAME}     = $defClassName;
+			$cfg->{CALLMETHODNAME}   = $defMethodName;	
+			$cfg->{CASTRECIEVER}     = $itypeReceiver ? "itype" : "self";
+		}
+		
+		if ($absentOk && !Api_definedCall($api, $implementedBy, $methodName)) {
+			if ($retVoid) {
+				Expand_emit($out, ['Interface:caseAbsentVoid'], $cfg);
+			} else {
+				Expand_emit($out, ['Interface:caseAbsent'], $cfg);
+			}
+		} else {
+			if ($retVoid) {
+				Expand_emit($out, ['Interface:caseVoid'], $cfg);
+			} else {
+				Expand_emit($out, ['Interface:case'], $cfg);
+			}
+		}
+	}
+	if ($retVoid) {
+		Expand_emit($out, ['Interface:endFunctionVoid'], $cfg);
+	} else {
+		Expand_emit($out, ['Interface:endFunction'], $cfg);
+	}
+	print {$out} "\n";
+}
+
+sub InterfaceArtifact_emitInlines {
+	my ($self, $out) = @_;
+	my @itypeList = map {"${_}_itype"} keys(%{$self->{implementedBy}});
+	my $h = {IFCNAME => $self->{typeName}, ITYPELIST=>join(", ", @itypeList)};
+	Expand_emit($out, ['Interface:foreachIType'], $h);
+	ClassOrInterface_emitAccessors($self, $out);
+	if (defined($self->{argDeclare})) {
+		ClassOrInterface_emitArgDeclare($self, $out);
+	}
+}
+
+sub InterfaceArtifact_emitInterfaceMethods {
+	my ($self, $out, $api) = @_;
+	for (my $methodIndex = 0; $methodIndex < @{$self->{methods}}; $methodIndex++) {
+		InterfaceArtifact_emitInterfaceMethod($self, $out, $methodIndex, 0, $api);
+	}
+}
+
 
 sub ContainerArtifact_new {
 	return {itype => 'Container'};
@@ -1021,6 +1245,102 @@ sub ContainerArtifact_emitStruct {
 	return
 }
 
+sub ContainerArtifact_emitInlines {
+	my ($self, $out) = @_;
+	my $TYPENAME    = $self->{typeName};
+	my $ELEMNAME_NS = $self->{elemName};
+	my $CLEARER     = $self->{clearer};
+	my $ELEMNAME    = "";
+	if ($ELEMNAME_NS !~ /\*$/) {
+		$ELEMNAME = "$ELEMNAME_NS ";
+	} else {
+		$ELEMNAME = $ELEMNAME_NS;
+	}
+	my $ELEMNAME_NP = $ELEMNAME_NS;
+	$ELEMNAME_NP =~ s/\*//g;
+	my $ELEMPTR = "";
+	while ($ELEMNAME_NS =~ /\*/ga) {
+		$ELEMPTR .= "*"
+	}
+	$ELEMPTR .= "*";
+	
+
+	if (!defined($CLEARER)) {
+		$CLEARER = "NULL";
+	}
+	my %use0 = (int=>1, double=>1);
+	my $ELEMZERO = "{0}";
+	if ($use0{$ELEMNAME_NS}) {
+		$ELEMZERO = "0";
+	}
+	my $binarySearch = $self->{binarySearch};
+
+	my $needsSlice = 0;
+	if (defined($binarySearch)) {
+		my $needslice = 0;
+		for my $b (@$binarySearch) {
+			if ($b->{multi}) {
+				$needsSlice = 1;
+				last;
+			}
+		}
+	}
+
+	my $dict = {
+		TYPENAME=>$TYPENAME, 
+		ELEMNAME_NS=>$ELEMNAME_NS, 
+		ELEMNAME=>$ELEMNAME, 
+		CLEARER=>$CLEARER, 
+		ELEMZERO=>$ELEMZERO,
+		ELEMPTR=>$ELEMPTR,
+		ELEMNAME_NP=>$ELEMNAME_NP,
+	};
+
+	##
+	## Setup base keys
+	##
+	my @keys = ('Array:new', 'Array:init', 'Array:clear', 'Array:free',
+				'Array:truncate', 'Array:len',  'Array:get', 'Array:getp', 'Array:set', 'Array:setp',
+				'Array:pop', 'Array:push', 'Array:pushp', 'Array:insert', 'Array:insertp', 'Array:remove',
+				'Array:removeN', 'Array:fit', 'Array:last', 'Array:changeLength', 'Array:foreach', 'Array:rforeach',
+				'Array:loop', 'Array:rloop');
+
+	push @keys, ('Array:each', 'Array:reach', 'Array:eachInsert', 'Array:eachInsertAfter', 
+				 'Array:reachInsert', 'Array:reachInsertAfter', 'Array:eachIndexOf', 'Array:eachLast', 'Array:reachLast',
+				 'Array:eachRemove', 'Array:reachRemove');
+
+	if ($needsSlice) {
+		push @keys, "Array:declareSlice", "Array:sliceEmpty", "Array:sliceForeach", "Array:rsliceForeach";
+	}	
+	
+	Expand_emitNl($out, \@keys, $dict);
+	if (defined($binarySearch)) {
+		my $usedEmpty = 0;
+		for my $b (@$binarySearch) {
+			my $COMPARE = $b->{compare} or die "Failed to define compare function for binarySearch";
+			my $TAG     = $b->{tag};
+			my $domulti = $b->{multi};
+			if (!$TAG) {
+				die "Too many binarySearch clauses without a tag" if $usedEmpty;
+				$usedEmpty = 1;
+				$TAG = "";
+			}
+			$dict->{COMPARE} = $COMPARE;
+			$dict->{TAG}     = $TAG;
+
+			my @keys = ('Array:binInsert', 'Array:binRemove', 'Array:sort');
+			if ($domulti) {
+				$dict->{MULTI} = "true";
+				push @keys, "Array:binSearchSliceReturn";
+			} else {
+				$dict->{MULTI} = "false";
+				push @keys, "Array:binSearchElemReturn";
+			}
+			Expand_emitNl($out, \@keys, $dict);
+		}
+	}
+}
+
 sub TemplateFile_scanUntilAtEnd {
 	my ($self) = @_;
 	die "Bad type" unless $self->{itype} eq 'TemplateFile';
@@ -1056,7 +1376,7 @@ sub TemplateFile_scanArtifact {
 	my $startLine = $self->{line};
 	my @text = TemplateFile_scanUntilAtEnd($self);
 	my $buffer = join("\n", @text);
-
+	# print "START\n$buffer\nEND\n";
 	eval {
 		my $art = decode_json($buffer);
 		for my $k (keys(%$art)) {
@@ -1097,11 +1417,64 @@ sub TemplateFile_scanAllArtifacts {
 			push @artifacts, TemplateFile_scanArtifact($self, InterfaceArtifact_new());
 		} elsif (/^\@container/) {
 			push @artifacts, TemplateFile_scanArtifact($self, ContainerArtifact_new());
-		} 
+		} elsif (/^\@header/) {
+			TemplateFile_scanUntilAtEnd($self);
+		}
 	}
 
 	close($self->{inp});
 	return @artifacts;
+}
+
+sub TemplateFile_copyTemplateCode {
+	my ($self, $out) = @_;
+	die "Bad type" unless $self->{itype} eq 'TemplateFile';
+	open my $inp, "<", $self->{file} or die "Failed to open $self->{file}";
+	$self->{inp} = $inp;
+	
+	while (<$inp>) {
+		chomp;
+		$self->{line}++;
+		if (/^\@type/) {
+			TemplateFile_scanUntilAtEnd($self);
+			print {$out} "#line $self->{line} \"$self->{file}\"\n";
+		} elsif (/^\@interface/) {
+			TemplateFile_scanUntilAtEnd($self);
+			print {$out} "#line $self->{line} \"$self->{file}\"\n";
+		} elsif (/^\@container/) {
+			TemplateFile_scanUntilAtEnd($self);
+			print {$out} "#line $self->{line} \"$self->{file}\"\n";
+		} elsif (/^\@header/) {
+			TemplateFile_scanUntilAtEnd($self);
+		} else {
+			print {$out} "$_\n";
+		}
+	}
+	close($self->{inp});
+}
+
+sub TemplateFile_copyHeader {
+	my ($self, $out) = @_;
+	die "Bad type" unless $self->{itype} eq 'TemplateFile';
+	open my $inp, "<", $self->{file} or die "Failed to open $self->{file}";
+	$self->{inp} = $inp;
+	while (<$inp>) {
+		chomp;
+		$self->{line}++;
+		if (/^\@type/) {
+			TemplateFile_scanUntilAtEnd($self);
+		} elsif (/^\@interface/) {
+			TemplateFile_scanUntilAtEnd($self);
+		} elsif (/^\@container/) {
+			TemplateFile_scanUntilAtEnd($self);
+		} elsif (/^\@header/) {
+			my @lines = TemplateFile_scanUntilAtEnd($self);
+			for my $line (@lines) {
+				print {$out} "$line\n";
+			}
+		} 
+	}
+	close($self->{inp});	
 }
 
 sub TemplateFile_new {
@@ -1122,10 +1495,34 @@ sub ArtifactList_scanFromTemplateFiles {
 		push @artifacts, TemplateFile_scanAllArtifacts($templateFile);
 	}
 
+	## Pull any types out of Class and Interface
+	my @additionalArtifacts;
+	for my $artifact (@artifacts) {
+		next unless (ClassArtifact_isa($artifact) || InterfaceArtifact_isa($artifact));
+		my $containers = $artifact->{containers};
+		next unless defined($containers); 
+		for my $cont (@{$containers}) {
+			if ($cont->{type} eq 'array') {
+				my $container = ContainerArtifact_new();
+				for my $k (keys(%$cont)) {
+					$container->{$k} = $cont->{$k};
+				}	
+				push @additionalArtifacts, $container;
+			} else {
+				die "Unknown container type $cont->{type}";
+			}
+		}
+	}
+	push @artifacts, @additionalArtifacts;
+
 	## Add itype to fields as needed. Crossreference classes and interfaces
 	my %artMap = map {$_->{typeName} => $_} @artifacts;
+	my $nextItype = $gUndefinedItype + 1;
 	for my $artifact (@artifacts) {
 		if (ClassArtifact_isa($artifact)) {
+			if (defined($artifact->{implements}) && @{$artifact->{implements}} > 0) {
+				$artifact->{itypeIndex} = $nextItype++;	
+			}	
 			my $implements = $artifact->{implements};
 			next unless defined($implements);
 			unshift @{$artifact->{fields}}, {name=>"itype", type=>"int"}; 
@@ -1159,35 +1556,6 @@ sub ArtifactList_emitPredefined {
 	}
 }
 
-sub writeStruct {
-	my ($out, $classOrInterface) = @_;
-	pexpand($out, ["Struct:head"], {TYPENAME => $classOrInterface->{typeName}});	
-	for my $field (@{$classOrInterface->{fields}}) {
-		my $stype = spaceAdjustType($field->{type});
-		pexpand($out, ["Struct:field"], {STYPE=>$stype, NAME => $field->{name}});	
-	}
-	pexpand($out, ["Struct:tail"], {});
-}
-
-sub Util_spaceAdjustType {
-	my ($type) = @_;
-	return $type =~ /\*$/ ? $type : "$type ";
-}
-
-sub Artifact_emitStruct {
-	my ($artifact, $out) = @_;
-	if (ClassArtifact_isa($artifact) || InterfaceArtifact_isa($artifact)) {
-		Expand_emit($out, ["Struct:head"], {TYPENAME => $artifact->{typeName}});	
-		for my $field (@{$artifact->{fields}}) {
-			my $stype = Util_spaceAdjustType($field->{type});
-			Expand_emit($out, ["Struct:field"], {STYPE=>$stype, NAME => $field->{name}});	
-		}
-		Expand_emit($out, ["Struct:tail"], {});		
-	} elsif (ContainerArtifact_isa($artifact)) {
-		ContainerArtifact_emitStruct($artifact, $out);
-	}
-}
-
 sub ArtifactList_emitStructs {
 	my ($self, $out) = @_;
 	my $artifacts = $self->{artifacts};
@@ -1214,8 +1582,8 @@ sub ArtifactList_emitStructs {
 	}
 
 	## Start by writing the Array structs
-	ContainerArtifact_emitStruct({itype => 'Container', typeName=>"Array", elemName=>"char"}, $out);
-	
+	Artifact_emitStruct({itype => 'Container', typeName=>"Array", elemName=>"char"}, $out);
+	print {$out} "#include \"array.c\"\n";
 
 	my %written;
 	my %queued;
@@ -1240,6 +1608,92 @@ sub ArtifactList_emitStructs {
 	};
 	while (@structNamesToWrite) {
 		$wt->(pop @structNamesToWrite, \@structNamesToWrite);
+	}
+}
+
+sub ArtifactList_emitInterfaceDefines {
+	my ($self, $out) = @_;
+	
+	Expand_emit($out, ["Interface:undefined"], {ITYPE=>$gUndefinedItype});
+	for my $artifact (@{$self->{artifacts}}) {
+		if (ClassArtifact_isa($artifact) && defined($artifact->{itypeIndex})) {
+			printf {$out} "#define $artifact->{typeName}_itype $artifact->{itypeIndex}\n";
+		}
+	}
+	for my $artifact (@{$self->{artifacts}}) {
+		if (InterfaceArtifact_isa($artifact)) {
+			for (my $methodIndex = 0; $methodIndex < @{$artifact->{methods}}; $methodIndex++) {
+				my $method = $artifact->{methods}[$methodIndex];
+				InterfaceArtifact_emitInterfaceMethod($artifact, $out, $methodIndex, 1);
+			}
+		}
+	}
+}
+
+sub ArtifactList_emitInlines {
+	my ($self, $out, $api) = @_;
+	for my $artifact (@{$self->{artifacts}}) {
+		Artifact_emitInlines($artifact, $out, $api);
+	}
+}
+
+sub ArtifactList_emitInterfaceMethods {
+	my ($self, $out, $api) = @_;	
+	## Write all interface methods
+	for my $artifact (@{$self->{artifacts}}) {
+		Artifact_emitInterfaceMethods($artifact, $out, $api);
+	}
+
+	## Write toString
+	my $cfg = {
+		RTYPE         => Util_spaceAdjustType("const char *"),
+		IFCNAME       => "Interface",
+		METHODNAME    => "toString",
+	};
+	Expand_emit($out, ['Interface:protoToString'], $cfg);
+	Expand_emit($out, ['Interface:startFunction'], {SWITCHTARGET => "itype"});
+	Expand_emit($out, ['Interface:caseToString'], {TYPENAME => "Undefined"});
+	for my $artifact (@{$self->{artifacts}}) {
+		next unless ClassArtifact_isa($artifact);
+		next unless @{$artifact->{implements} || []} > 0;
+		Expand_emit($out, ['Interface:caseToString'], {TYPENAME => $artifact->{typeName}});
+	}
+	Expand_emit($out, ['Interface:endFunctionToString'], {});		
+}
+
+sub Util_spaceAdjustType {
+	my ($type) = @_;
+	return $type =~ /\*$/ ? $type : "$type ";
+}
+
+sub Artifact_emitStruct {
+	my ($artifact, $out) = @_;
+	my %vtable = (
+		"Container" => \&ContainerArtifact_emitStruct,
+		"Class"     => \&ClassArtifact_emitStruct,
+		"Interface" => \&InterfaceArtifact_emitStruct,
+	);
+	my $f = $vtable{$artifact->{itype}};
+	die "Bad artifact passed to Artifact_emitStruct '$artifact->{itype}'" unless defined($f);
+	$f->($artifact, $out);
+}
+
+sub Artifact_emitInlines {
+	my ($artifact, $out) = @_;
+	my %vtable = (
+		"Container" => \&ContainerArtifact_emitInlines,
+		"Class"     => \&ClassArtifact_emitInlines,
+		"Interface" => \&InterfaceArtifact_emitInlines,
+	);
+	my $f = $vtable{$artifact->{itype}};
+	die "Bad artifact passed to Artifact_emitInlines '$artifact->{itype}'" unless defined($f);
+	$f->($artifact, $out);
+}
+
+sub Artifact_emitInterfaceMethods {
+	my ($artifact, $out, $api) = @_;
+	if (InterfaceArtifact_isa($artifact)) {
+		InterfaceArtifact_emitInterfaceMethods($artifact, $out, $api);
 	}
 }
 
@@ -1289,6 +1743,55 @@ sub Called_isName {
 sub Called_is {
 	my ($self, $className, $methodName) = @_;
 	return $self->{allUsed} || $self->{used}{$className}{$methodName};	
+}
+
+sub Api_new {
+	return {itype => 'Api'};
+}
+
+sub Api_scan {
+	my ($self, $templateFiles) = @_;
+
+	my @funcs = ("const char *Interface_toString(int itype)");
+	for my $source (@$templateFiles) {
+		open my $fd, $source or die "Failed to open $source";
+		while (<$fd>) {
+			next unless /^\s*APIF/;
+			my $line = $_;
+			chomp($line);
+			my $bracket = '{';
+			$line =~ s/\s*$bracket?\s*$//;
+			$line =~ s/^\s*APIF\s*//;
+			push @funcs, $line;
+		}
+		close($fd);
+	}
+	my %definedCalls;
+	for my $func (@funcs) {
+		die "INTERNAL ERROR '$func'" unless $func =~ /([[:alpha:]][[:alnum:]]*)_([[:alpha:]][[:alnum:]]*)/;
+		my $className  = $1;
+		my $methodName = $2;
+		my $subhash = $definedCalls{$className};
+		if (!defined($subhash)) {
+			$subhash = {};
+			$definedCalls{$className} = $subhash;
+		}
+		$subhash->{$methodName} = 1;
+	}
+	$self->{funcs}        = \@funcs;
+	$self->{definedCalls} = \%definedCalls;
+}
+
+sub Api_emitPrototypes {
+	my ($self, $out) = @_;
+	for my $line (@{$self->{funcs}}) {
+		print {$out} $line,";\n";
+	}
+}
+
+sub Api_definedCall {
+	my ($self, $className, $methodName) = @_;
+	return $self->{definedCalls}{$className}{$methodName};
 }
 
 sub Main_handleArgs {
@@ -1341,9 +1844,32 @@ sub Main_listTemplateFiles {
 }
 
 sub Main_emitWarning {
-	my ($out, $file) = @_;
-	my $message = defined($file) ? "source = $file" : '';
-	print {$out} "// $message     *** DO NOT MODIFY THIS FILE generated $gNow ***\n";
+	my ($out) = @_;
+	for my $i (0 .. 9) {
+		print {$out} "// *** DO NOT MODIFY THIS FILE generated $gNow ***\n";
+	}
+}
+
+sub Main_readIgnores {
+	my $file = "generate_ignores.json";
+	if (-r $file) {
+		my @line;
+		open my $fd, "<", $file or die "Failed to open $file";
+		while (<$fd>) {
+			push @line, $_;
+		}
+		close($fd);
+		my $buffer = join('', @line);
+		my $hash = decode_json($buffer);
+		die "Ill formed file $file" unless defined($hash->{ignores});
+		return sub {
+			my ($file) = @_;
+			my ($base) = ($file =~ m{/([^/]+)$});
+			return 0 unless defined($base);
+			return $hash->{ignores}{$base};
+		};
+	}
+	return sub {return 0;};
 }
 
 sub Main_main {
@@ -1351,22 +1877,40 @@ sub Main_main {
 	die "Requires at least one argument" unless @args > 0;
 	my $srcDir = $args[0];
 	my @templateFiles = Main_listTemplateFiles(shift @args, @args);
+	my $ignoreSub       = Main_readIgnores();
+	@templateFiles = grep {!$ignoreSub->($_)} @templateFiles;
 	my $called = Called_new();
-	Called_scan($called, \@templateFiles);
+	my $api    = Api_new();
+	my @extraCallFiles = ("$srcDir/shared.c", "$srcDir/hub.c");
+	Called_scan($called, [@extraCallFiles, @templateFiles]);
+	if ($gAcceptAllCalls) {
+		Called_setAllUsed($called);
+	}
 	Expand_setCalled($called);
+	Api_scan($api, \@templateFiles);
 	
 	my $artifactList = ArtifactList_new();
 	ArtifactList_scanFromTemplateFiles($artifactList, @templateFiles);
 
 	my $outFile = "$srcDir/$gApplicationName.c";
 	open my $out, ">", $outFile or die "Failed to open $outFile";
-
 	Main_emitWarning($out);
 	ArtifactList_emitPredefined($artifactList, $out);
 	ArtifactList_emitStructs($artifactList, $out);
+	Api_emitPrototypes($api, $out);
+	ArtifactList_emitInterfaceDefines($artifactList, $out);
+	ArtifactList_emitInlines($artifactList, $out);
+	for my $tFile (@templateFiles) {
+		my $templateFile = TemplateFile_new($tFile);
+		TemplateFile_copyHeader($templateFile, $out);	
+	}
+	ArtifactList_emitInterfaceMethods($artifactList, $out, $api);
+	for my $tFile (@templateFiles) {
+		my $templateFile = TemplateFile_new($tFile);
+		TemplateFile_copyTemplateCode($templateFile, $out);	
+	}
 	close($out);
 	
-
 	return;
 }	
 

@@ -260,8 +260,8 @@ bool ArrayIt_next(ArrayIt *iterator) {
       return false;
    }
    iterator->index++;
-   iterator->element = Array_get(iterator->arr, iterator->index);
-   iterator->last    = iterator->index+1 >= Array_len(iterator->arr);
+   iterator->var  = Array_get(iterator->arr, iterator->index);
+   iterator->last = iterator->index+1 >= Array_len(iterator->arr);
    return true;
 }
 
@@ -273,8 +273,8 @@ bool ArrayIt_previous(ArrayIt *iterator) {
       return false;
    }
    iterator->index--;
-   iterator->element = Array_get(iterator->arr, iterator->index);
-   iterator->last    = iterator->index == 0;
+   iterator->var  = Array_get(iterator->arr, iterator->index);
+   iterator->last = iterator->index == 0;
    return true;
 }
 

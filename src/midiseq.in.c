@@ -234,12 +234,12 @@ const int Midiseq_endgrptype = 5;
             "type":"Track *"
          },
          
-         {  
-            "name":"sequenceList",
-            "type":"SequenceAr",
-            "getterReturn":"pointer",
-            "setter":"none"
-         },
+         // {  
+         //    "name":"sequenceList",
+         //    "type":"SequenceAr",
+         //    "getterReturn":"pointer",
+         //    "setter":"none"
+         // },
          {  
             "name":"useMasterClock",
             "type":"bool"
@@ -581,33 +581,36 @@ static inline void DropDown_setPortRef(DropDown *dd, PortRef *pr) {
             "getterReturn":"pointer",
             "setter":"none"
          },
-         {
-            "name": "recordBuffer",
-            "type": "RecordBuffer *"
-         },
+
+         // {
+         //    "name": "recordBuffer",
+         //    "type": "RecordBuffer *"
+         // },
          
-         {
-            "name": "runningSequences",
-            "type": "SequenceAr",
-            "getterReturn":"pointer",
-            "setter":"none"
-         },
+         // {
+         //    "name": "runningSequences",
+         //    "type": "SequenceAr",
+         //    "getterReturn":"pointer",
+         //    "setter":"none"
+         // },
          {
             "name": "masterClock",
             "type": "Ticks"
-         },
-         {
-            "name":"queue",
-            "type":"TimedAr",
-            "getterReturn":"pointer",
-            "setter":"none"
          }
+         //,
+         // {
+         //    "name":"queue",
+         //    "type":"TimedAr",
+         //    "getterReturn":"pointer",
+         //    "setter":"none"
+         // }
          
       ]
    }
 
 @end
 
+@header
 #define Hub_padsPerFrame           24
 #define Hub_framesPerBank           8
 #define Hub_padsPerBank            (Hub_padsPerFrame*Hub_framesPerBank)
@@ -625,6 +628,8 @@ static inline void DropDown_setPortRef(DropDown *dd, PortRef *pr) {
 #include <string.h>
 #include <stdlib.h>
 #include <inttypes.h>
+#include "shared.c"
+@end
 
 //
 // Memory allocation Notes. These are the functions that are used in sdsalloc.h
@@ -1414,7 +1419,7 @@ APIF void Pad_init(Pad *pad)
         Pad p = {0};
         *pad = p;
         pad->sequence = Midiseq_new();
-        SequenceAr_init(&pad->sequenceList, 0);
+        // SequenceAr_init(&pad->sequenceList, 0);
     }
 }
 
@@ -1429,7 +1434,7 @@ APIF void Pad_clear(Pad *pad)
 {
     if (pad != NULL) {
         Midiseq_free(pad->sequence);
-        SequenceAr_clear(&pad->sequenceList);
+        // SequenceAr_clear(&pad->sequenceList);
         memset(pad, 0, sizeof(Pad));
     }
 }
