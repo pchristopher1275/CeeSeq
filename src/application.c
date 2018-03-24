@@ -1,13 +1,13 @@
-// *** DO NOT MODIFY THIS FILE generated 03/24/2018 08:36:13 ***
-// *** DO NOT MODIFY THIS FILE generated 03/24/2018 08:36:13 ***
-// *** DO NOT MODIFY THIS FILE generated 03/24/2018 08:36:13 ***
-// *** DO NOT MODIFY THIS FILE generated 03/24/2018 08:36:13 ***
-// *** DO NOT MODIFY THIS FILE generated 03/24/2018 08:36:13 ***
-// *** DO NOT MODIFY THIS FILE generated 03/24/2018 08:36:13 ***
-// *** DO NOT MODIFY THIS FILE generated 03/24/2018 08:36:13 ***
-// *** DO NOT MODIFY THIS FILE generated 03/24/2018 08:36:13 ***
-// *** DO NOT MODIFY THIS FILE generated 03/24/2018 08:36:13 ***
-// *** DO NOT MODIFY THIS FILE generated 03/24/2018 08:36:13 ***
+// *** DO NOT MODIFY THIS FILE generated 03/24/2018 08:58:29 ***
+// *** DO NOT MODIFY THIS FILE generated 03/24/2018 08:58:29 ***
+// *** DO NOT MODIFY THIS FILE generated 03/24/2018 08:58:29 ***
+// *** DO NOT MODIFY THIS FILE generated 03/24/2018 08:58:29 ***
+// *** DO NOT MODIFY THIS FILE generated 03/24/2018 08:58:29 ***
+// *** DO NOT MODIFY THIS FILE generated 03/24/2018 08:58:29 ***
+// *** DO NOT MODIFY THIS FILE generated 03/24/2018 08:58:29 ***
+// *** DO NOT MODIFY THIS FILE generated 03/24/2018 08:58:29 ***
+// *** DO NOT MODIFY THIS FILE generated 03/24/2018 08:58:29 ***
+// *** DO NOT MODIFY THIS FILE generated 03/24/2018 08:58:29 ***
 struct Arguments_t;
 typedef struct Arguments_t Arguments;
 struct Marshal_t;
@@ -244,6 +244,11 @@ struct Arguments_t
     long ivalue;
     long inlet;
 };
+struct PortRef_t
+{
+    Port *port;
+    int outlet;
+};
 typedef struct SymbolPtrAr_t {
    int len;
    int cap;
@@ -259,11 +264,6 @@ typedef struct SymbolPtrArIt_t {
    Symbol **var;
 } SymbolPtrArIt;
 
-struct PortRef_t
-{
-    Port *port;
-    int outlet;
-};
 struct DropDown_t
 {
     SymbolPtrAr table;
@@ -594,7 +594,7 @@ static inline void Arguments_setIvalue(Arguments *self, long value){self->ivalue
 static inline void Arguments_setInlet(Arguments *self, long value){self->inlet = value;}
 static inline int Marshal_nthIType(int n, int *itype) {
     static int itypes[] = {
-        MarshalSi_itype, MarshalSii_itype, MarshalSs_itype
+        MarshalSs_itype, MarshalSii_itype, MarshalSi_itype
     };
     static int len = sizeof(itypes)/sizeof(int);
     if (n < 0 || n >= len) {
@@ -633,7 +633,7 @@ static inline Marshal *MarshalSs_castToMarshal(MarshalSs *self) {
 }
 static inline int Dispatch_nthIType(int n, int *itype) {
     static int itypes[] = {
-        IncrementFrameDispatch_itype, ManageChokeGroupsDispatch_itype, DecrementFrameDispatch_itype, SelectNextPushedPadDispatch_itype, MidiFileDropDispatch_itype
+        MidiFileDropDispatch_itype, ManageChokeGroupsDispatch_itype, DecrementFrameDispatch_itype, IncrementFrameDispatch_itype, SelectNextPushedPadDispatch_itype
     };
     static int len = sizeof(itypes)/sizeof(int);
     if (n < 0 || n >= len) {
