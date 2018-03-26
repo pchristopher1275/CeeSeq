@@ -10,6 +10,7 @@ my $gApplicationName     = "application";
 my $gAcceptAllCalls      = 0;
 my $gNow                 = strftime("%m/%d/%Y %H:%M:%S", localtime);
 my $gUndefinedItype      = 10;
+my $gMasterSourceDir     = undef;
 
 sub run {
     my ($cmd, %opts) = @_;
@@ -374,11 +375,7 @@ ENDxxxxxxxxxx
 		implies => [],
 		symbol  => '${TYPENAME}_each',
 		tmpl    => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}_each(it, arr) for (${ELEMNAME_NP} ${ELEMPTR}s##it = arr->data, \
-            @                    								   ${ELEMPTR}e##it = arr->data + arr->len, \
-            @                    								   ${ELEMPTR}it    = s##it;\
-            @              							it < e##it;\
-            @              							it++)
+			@#define ${TYPENAME}_each(it, arr) for (${ELEMNAME_NS}* it = arr->data; it < arr->data + arr->len; it++)
 ENDxxxxxxxxxx
 	},	
 
@@ -387,11 +384,7 @@ ENDxxxxxxxxxx
 		implies => [],
 		symbol  => '${TYPENAME}_reach',
 		tmpl    => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}_reach(it, arr) for (${ELEMNAME_NP} ${ELEMPTR}s##it = arr->data, \
-            @                        							    ${ELEMPTR}e##it = arr->data + arr->len, \
-            @                    								    ${ELEMPTR}it    = e##it-1;\
-            @               						it >= s##it;\
-            @               						it--)
+			@#define ${TYPENAME}_reach(it, arr) for (${ELEMNAME_NS}* it = arr->data+arr->len-1; it >= arr->data; it--)
 ENDxxxxxxxxxx
 	},	
 
@@ -413,25 +406,6 @@ ENDxxxxxxxxxx
 	},	
 
 	{
-		key     =>  'Array:eachRemove',
-		implies => ["Array:eachRemoveImpl"],
-		symbol  => '${TYPENAME}_eachRemove',
-		tmpl    => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}_eachRemove(it, arr) ${TYPENAME}_eachRemoveImpl(it, arr, 0)
-ENDxxxxxxxxxx
-	},	
-
-	{
-		key     =>  'Array:reachRemove',
-		implies => ["Array:eachRemoveImpl"],
-		symbol  => '${TYPENAME}_reachRemove',
-		tmpl    => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}_reachRemove(it, arr) ${TYPENAME}_eachRemoveImpl(it, arr, -1)
-ENDxxxxxxxxxx
-	},	
-
-
-	{
 		key     =>  'Array:eachInsertImpl',
 		implies => ["Array:eachIndexOf", "Array:insertp"],
 		symbol  => '',
@@ -447,69 +421,6 @@ ENDxxxxxxxxxx
 			@} while(0); continue
 ENDxxxxxxxxxx
 	},
-
-	{
-		key     =>  'Array:eachInsert',
-		implies => ["Array:eachInsertImpl"],
-		symbol  => '${TYPENAME}_eachInsert',
-		tmpl    => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}_eachInsert(it, arr, valPtr) ${TYPENAME}_eachInsertImpl(it, arr, valPtr, 0, 1)
-ENDxxxxxxxxxx
-	},	
-
-	{
-		key     =>  'Array:eachInsertAfter',
-		implies => ["Array:eachInsertImpl"],
-		symbol  => '${TYPENAME}_eachInsertAfter',
-		tmpl    => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}_eachInsertAfter(it, arr, valPtr) ${TYPENAME}_eachInsertImpl(it, arr, valPtr, 1, 1)
-ENDxxxxxxxxxx
-	},	
-
-	{
-		key     =>  'Array:reachInsert',
-		implies => ["Array:eachInsertImpl"],
-		symbol  => '${TYPENAME}_reachInsert',
-		tmpl    => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}_reachInsert(it, arr, valPtr) ${TYPENAME}_eachInsertImpl(it, arr, valPtr, 0, 0)
-ENDxxxxxxxxxx
-	},	
-
-	{
-		key     =>  'Array:reachInsertAfter',
-		implies => ["Array:reachInsertImpl"],
-		symbol  => '${TYPENAME}_reachInsertAfter',
-		tmpl    => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}_reachInsertAfter(it, arr, valPtr) ${TYPENAME}_eachInsertImpl(it, arr, valPtr, 1, -1)
-ENDxxxxxxxxxx
-	},	
-
-	{
-		key     =>  'Array:eachIndexOf',
-		implies => [],
-		symbol  => '${TYPENAME}_eachIndexOf',
-		tmpl    => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}_eachIndexOf(it) ((int)(it - s##it))
-ENDxxxxxxxxxx
-	},	
-
-	{
-		key     =>  'Array:eachLast',
-		implies => [],
-		symbol  => '${TYPENAME}_eachLast',
-		tmpl    => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}_eachLast(it) ((it + 1) >= e##it)
-ENDxxxxxxxxxx
-	},	
-
-	{
-		key     =>  'Array:reachLast',
-		implies => [],
-		symbol  => '${TYPENAME}_reachLast',
-		tmpl    => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}_reachLast(it) ((it - 1) < s##it)
-ENDxxxxxxxxxx
-	},	
 
 	{
 		key =>    'Array:rforeach',
@@ -1305,10 +1216,7 @@ sub ContainerArtifact_emitInlines {
 				'Array:removeN', 'Array:fit', 'Array:last', 'Array:changeLength', 'Array:foreach', 'Array:rforeach',
 				'Array:loop', 'Array:rloop');
 
-	push @keys, ('Array:each', 'Array:reach', 'Array:eachInsert', 'Array:eachInsertAfter', 
-				 'Array:reachInsert', 'Array:reachInsertAfter', 'Array:eachIndexOf', 'Array:eachLast', 'Array:reachLast',
-				 'Array:eachRemove', 'Array:reachRemove');
-
+	push @keys, ('Array:each', 'Array:reach');
 	if ($needsSlice) {
 		push @keys, "Array:declareSlice", "Array:sliceEmpty", "Array:sliceForeach", "Array:rsliceForeach";
 	}	
@@ -1583,7 +1491,7 @@ sub ArtifactList_emitStructs {
 
 	## Start by writing the Array structs
 	Artifact_emitStruct({itype => 'Container', typeName=>"Array", elemName=>"char"}, $out);
-	print {$out} "#include \"array.c\"\n";
+	print {$out} "#include \"$gMasterSourceDir/array.c\"\n";
 
 	my %written;
 	my %queued;
@@ -1811,6 +1719,10 @@ sub Main_handleArgs {
 			$gApplicationName = $needArg->("-g");
 		} elsif ($a =~ /-a/) {
 			$gAcceptAllCalls = 1;
+		} elsif ($a =~ /-m/) {
+			$gMasterSourceDir = $needArg->("-m");
+		} elsif ($a =~ /^-/){
+			die "Unknown option $a"
 		} else {
 			push @afterArgs, $a;
 		}
@@ -1832,11 +1744,14 @@ sub Main_listTemplateFiles {
 	}
 	
 	if (defined($includeList)) {
-		my %includeHash = map {$_ => 1} @$includeList;
+		my @inc         = map {m{([^/]+)$}; $1} @$includeList;
+		my %includeHash = map {$_ => 1} @inc;
 		my @a = @templateFiles;
 		@templateFiles = ();
 		for my $file (@a) {
-			push @templateFiles, $file if $includeHash{$file};
+			$file =~ m{([^/]+)$};
+			my $rfile = $1;
+			push @templateFiles, $file if $includeHash{$rfile};
 		}
 	}
 
@@ -1876,12 +1791,18 @@ sub Main_main {
 	my @args = Main_handleArgs();
 	die "Requires at least one argument" unless @args > 0;
 	my $srcDir = $args[0];
-	my @templateFiles = Main_listTemplateFiles(shift @args, @args);
+	my @templateFiles = Main_listTemplateFiles(shift @args, \@args);
 	my $ignoreSub       = Main_readIgnores();
 	@templateFiles = grep {!$ignoreSub->($_)} @templateFiles;
+	
 	my $called = Called_new();
 	my $api    = Api_new();
-	my @extraCallFiles = ("$srcDir/shared.c", "$srcDir/hub.c");
+
+	if (!defined($gMasterSourceDir)) {
+		$gMasterSourceDir = $srcDir;
+	}
+	$gMasterSourceDir =~ s[/$][];
+	my @extraCallFiles = ("$gMasterSourceDir/shared.c", "$gMasterSourceDir/hub.c");
 	Called_scan($called, [@extraCallFiles, @templateFiles]);
 	if ($gAcceptAllCalls) {
 		Called_setAllUsed($called);

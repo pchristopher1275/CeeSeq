@@ -1,13 +1,13 @@
 #include "../src/core.c"
 #include "../src/unit.c"
-#include "../src/array.c"
 
 
-// typedef struct Foo_t {
-// 	int i;
-// 	double d;
-// } Foo;
-#include "util/types.h"
+struct Foo_t;
+void record_clearer(struct Foo_t *left);
+int Foo_cmp(struct Foo_t *left, struct Foo_t *right);
+int Foo_cmpBoth(struct Foo_t *left, struct Foo_t *right);
+
+#include "util/applicationFor_tarray.c"
 
 int Foo_cmp(Foo *left, Foo *right) {
 	if (left->i < right->i) {
@@ -49,7 +49,7 @@ void record_clearer(Foo *left) {
 	}
 }
 
-#include "util/for_tarray.h"
+
 
 #define Array_cap(arr) ((Array*)arr)->cap
 
@@ -736,7 +736,7 @@ Unit_declare(testForeach) {
 				count++;
 				break;
 			}
-			while (IntArrIter_next(&it)) {
+			while (IntArrIt_next(&it)) {
 				count++;
 			}
 			chk(count == 5);
@@ -749,7 +749,7 @@ Unit_declare(testForeach) {
 				count--;
 				break;
 			}
-			while (IntArrIter_previous(&it)) {
+			while (IntArrIt_previous(&it)) {
 				chk(*it.var == 3*count+17);
 				count--;
 			}
@@ -809,7 +809,7 @@ Unit_declare(testForeach) {
 				count++;
 				break;
 			}
-			while (FooArrIter_next(&it)) {
+			while (FooArrIt_next(&it)) {
 				count++;
 			}
 			chk(count == 5);
@@ -822,7 +822,7 @@ Unit_declare(testForeach) {
 				count--;
 				break;
 			}
-			while (FooArrIter_previous(&it)) {
+			while (FooArrIt_previous(&it)) {
 				chk(it.var->i == 3*count+17);
 				count--;
 			}
@@ -842,25 +842,13 @@ Unit_declare(testEach) {
 		int count = 0;
 		IntArr_each(it, arr) {
 			chk(*it == 3*count);
-			chk(IntArr_eachIndexOf(it) == count);
 			count++;
-			if (count == 5) {
-				chk(IntArr_eachLast(it));
-			} else {
-				chk(!IntArr_eachLast(it));
-			}
 		}
 		chk(count == 5);
 
 		count = 5-1;
 		IntArr_reach(it, arr) {
 			chk(*it == 3*count);
-			
-			if (count == 0) {
-				chk(IntArr_reachLast(it));
-			} else {
-				chk(!IntArr_reachLast(it));
-			}
 			count--;
 		}
 
@@ -889,26 +877,16 @@ Unit_declare(testEach) {
 			chk(it->i == 3*count);
 			chk(it->d == 6*count);
 			count++;
-			if (count == 5) {
-				chk(FooArr_eachLast(it));
-			} else {
-				chk(!FooArr_eachLast(it));
-			}
 		}
 		chk(count == 5);
 
-		count = 5-1;
+		count = 5;
 		FooArr_reach(it, arr) {
-			chk(it->i == 3*count);
-			chk(it->d == 6*count);
-			if (count == 0) {
-				chk(FooArr_reachLast(it));
-			} else {
-				chk(!FooArr_reachLast(it));
-			}
+			chk(it->i == 3*(count-1));
+			chk(it->d == 6*(count-1));
 			count--;
 		}
-
+		chk(count == 0);
 
 		FooArr_each(it, arr) {
 			it->i += 17;
@@ -923,66 +901,6 @@ Unit_declare(testEach) {
 
 		FooArr_free(arr);
 	}	
-
-	{
-		IntArr *arr = IntArr_new(0);
-		for (int i = 0; i < 3; i++) {
-			IntArr_push(arr, i+1);
-		}
-
-		IntArr_each(it, arr) {
-			int n = -*it;
-			IntArr_eachInsert(it, arr, &n);
-			fatal(false); // This is never reached
-		}
-
-		int count = 1;
-		IntArr_each(it, arr) {
-			if (*it < 0) {
-				chk(count == -*it);
-			} else {
-				chk(count == *it);
-				count++;
-			}
-		}
-
-		IntArr_each(it, arr) {
-			if (*it < 0) {
-				IntArr_eachRemove(it, arr);	
-			} 
-		}
-
-		count = 1;
-		IntArr_each(it, arr) {
-			chk(*it == count);
-			count++;
-		}
-
-		count = 3;
-		IntArr_reach(it, arr) {
-			chk(*it == count);
-			count--;
-			int n = -*it;
-			IntArr_reachInsert(it, arr, &n);
-		}
-		chk(IntArr_len(arr) == 6);
-
-		count = 3;
-		IntArr_reach(it, arr) {
-			if (*it < 0) {
-				IntArr_reachRemove(it, arr);
-			}
-			chk(*it == count);
-			count--;
-		}
-		chk(IntArr_len(arr) == 3);
-		IntArr_each(it, arr) {
-			chk(*it == IntArr_eachIndexOf(it)+1);
-		}
-
-		IntArr_free(arr);
-	}
-
 }
 
 
