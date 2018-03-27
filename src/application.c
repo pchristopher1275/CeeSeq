@@ -1,13 +1,13 @@
-// *** DO NOT MODIFY THIS FILE generated 03/27/2018 10:19:58 ***
-// *** DO NOT MODIFY THIS FILE generated 03/27/2018 10:19:58 ***
-// *** DO NOT MODIFY THIS FILE generated 03/27/2018 10:19:58 ***
-// *** DO NOT MODIFY THIS FILE generated 03/27/2018 10:19:58 ***
-// *** DO NOT MODIFY THIS FILE generated 03/27/2018 10:19:58 ***
-// *** DO NOT MODIFY THIS FILE generated 03/27/2018 10:19:58 ***
-// *** DO NOT MODIFY THIS FILE generated 03/27/2018 10:19:58 ***
-// *** DO NOT MODIFY THIS FILE generated 03/27/2018 10:19:58 ***
-// *** DO NOT MODIFY THIS FILE generated 03/27/2018 10:19:58 ***
-// *** DO NOT MODIFY THIS FILE generated 03/27/2018 10:19:58 ***
+// *** DO NOT MODIFY THIS FILE generated 03/27/2018 16:10:58 ***
+// *** DO NOT MODIFY THIS FILE generated 03/27/2018 16:10:58 ***
+// *** DO NOT MODIFY THIS FILE generated 03/27/2018 16:10:58 ***
+// *** DO NOT MODIFY THIS FILE generated 03/27/2018 16:10:58 ***
+// *** DO NOT MODIFY THIS FILE generated 03/27/2018 16:10:58 ***
+// *** DO NOT MODIFY THIS FILE generated 03/27/2018 16:10:58 ***
+// *** DO NOT MODIFY THIS FILE generated 03/27/2018 16:10:58 ***
+// *** DO NOT MODIFY THIS FILE generated 03/27/2018 16:10:58 ***
+// *** DO NOT MODIFY THIS FILE generated 03/27/2018 16:10:58 ***
+// *** DO NOT MODIFY THIS FILE generated 03/27/2018 16:10:58 ***
 struct Arguments_t;
 typedef struct Arguments_t Arguments;
 struct Marshal_t;
@@ -549,7 +549,24 @@ void Array_binRemove(Array *arr, char *elem, Array_compare comparer, bool all) {
    }
 }
 
-char *Array_binSearch(Array *arr, char *elem, Array_compare comparer, ArraySlice *slice) {
+// char *Array_binSearchOLD(Array *arr, char *elem, Array_compare comparer, ArraySlice *slice) {
+//    int insert = -1;
+//    char *lower = NULL;
+//    char *upper = NULL;
+//    int index  = Array_binSearchWithInsertMulti(arr, elem, &insert, comparer, &lower, &upper);
+//    if (index < 0) {
+//       return NULL;
+//    }
+//    if (slice != NULL) {
+//       slice->index = 0;
+//       slice->var   = upper;
+//       slice->len   = (int)(upper-lower)/arr->elemSize;
+//       slice->data  = lower;
+//    }
+//    return lower;
+// }
+
+char *Array_binSearch(Array *arr, char *elem, Array_compare comparer, ArrayFIt *iterator) {
    int insert = -1;
    char *lower = NULL;
    char *upper = NULL;
@@ -557,14 +574,17 @@ char *Array_binSearch(Array *arr, char *elem, Array_compare comparer, ArraySlice
    if (index < 0) {
       return NULL;
    }
-   if (slice != NULL) {
-      slice->index = 0;
-      slice->var   = upper;
-      slice->len   = (int)(upper-lower)/arr->elemSize;
-      slice->data  = lower;
+   if (iterator != NULL) {
+      iterator->arr    = arr;
+      iterator->lBound = (int)((lower - arr->data)/arr->elemSize);
+      iterator->uBound = (int)((upper - arr->data)/arr->elemSize);
+      iterator->index  = iterator->lBound-1;
+      iterator->var    = NULL;
    }
+   
    return lower;
 }
+
 struct Track_t
 {
     Symbol *name;
@@ -1190,7 +1210,7 @@ static inline void Arguments_setIvalue(Arguments *self, long value){self->ivalue
 static inline void Arguments_setInlet(Arguments *self, long value){self->inlet = value;}
 static inline int Marshal_nthIType(int n, int *itype) {
     static int itypes[] = {
-        MarshalSi_itype, MarshalSs_itype, MarshalSii_itype
+        MarshalSs_itype, MarshalSii_itype, MarshalSi_itype
     };
     static int len = sizeof(itypes)/sizeof(int);
     if (n < 0 || n >= len) {
@@ -1229,7 +1249,7 @@ static inline Marshal *MarshalSs_castToMarshal(MarshalSs *self) {
 }
 static inline int Dispatch_nthIType(int n, int *itype) {
     static int itypes[] = {
-        ManageChokeGroupsDispatch_itype, SelectNextPushedPadDispatch_itype, IncrementFrameDispatch_itype, DecrementFrameDispatch_itype, MidiFileDropDispatch_itype
+        IncrementFrameDispatch_itype, DecrementFrameDispatch_itype, SelectNextPushedPadDispatch_itype, ManageChokeGroupsDispatch_itype, MidiFileDropDispatch_itype
     };
     static int len = sizeof(itypes)/sizeof(int);
     if (n < 0 || n >= len) {
@@ -1564,28 +1584,30 @@ static inline void IndexedOffAr_clear(IndexedOffAr *arr) {
     *arr = zero;
 }
 
-#define IndexedOffAr_declareSlice(name) IndexedOffArSlice name = {0}            
-
 #define IndexedOffAr_foreach(var, arr)  for (IndexedOffArFIt_declare(var, arr); IndexedOffArFIt_next(&var); )            
 
 static inline void IndexedOffAr_init(IndexedOffAr *arr, int nelems) {
     Array_init((Array*)arr, nelems, sizeof(IndexedOff), (Array_clearElement)NULL);
 }
 
+#define IndexedOffAr_loop(var) while (IndexedOffArFIt_next(&var)) 
+
 static inline void IndexedOffAr_remove(IndexedOffAr *arr, int index, Error *err) {
     Array_removeNCheck(arr, index, 1, err);
     Array_removeN((Array*)arr, index, 1);
 }    
 
-#define IndexedOffAr_sliceEmpty(slice) (slice.data == NULL)
-
-#define IndexedOffAr_sliceForeach(slice) for (slice.index=0, slice.var=slice.data; slice.index < slice.len; slice.index++, slice.var++)
-
 static inline void IndexedOffAr_truncate(IndexedOffAr *arr) {
     Array_truncate((Array*)arr);
 }
 
+static inline bool IndexedOffArFIt_atEnd(IndexedOffArFIt *iterator) {
+    return iterator->index+1 >= iterator->uBound;
+}
+
 #define IndexedOffArFIt_declare(var, arr)  IndexedOffArFIt var = {arr, 0, (arr)->len, -1, NULL}
+
+#define IndexedOffArFIt_declare0(var)  IndexedOffArFIt var = {0}
 
 static inline bool IndexedOffArFIt_next(IndexedOffArFIt *iterator) {
     return ArrayFIt_next((ArrayFIt*)iterator);
@@ -1601,11 +1623,15 @@ static inline void IndexedOffAr_binRemovePadIndex(IndexedOffAr *arr, IndexedOff 
     Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)compare, true);
 }        
 
-static inline IndexedOffArSlice IndexedOffAr_binSearchPadIndex(IndexedOffAr *arr, IndexedOff elem) {
+static inline IndexedOffArFIt IndexedOffAr_binSearchPadIndex(IndexedOffAr *arr, IndexedOff elem) {
     int (*compare)(IndexedOff *, IndexedOff *) = IndexedOff_cmpPadIndex;
-    IndexedOffArSlice slice = {0};
-    Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, (ArraySlice*)&slice);
-    return slice;
+    IndexedOffArFIt it = {0};
+   if (Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, (ArrayFIt*)&it) != NULL) {
+       return it;
+    }
+   it.index  = arr->len;
+   it.uBound = 0;
+    return it;
 }
 
 static inline void TimedOffAr_clear(TimedOffAr *arr) {
@@ -3695,13 +3721,13 @@ APIF void NoteManager_midievent(NoteManager *manager, MEvent cell, int padIndexF
 
 APIF void NoteManager_padNoteOff(NoteManager *manager, int padIndex)
 {
-    IndexedOffAr_declareSlice(slice);
     IndexedOff_declare(off, padIndex, 0);
+    IndexedOffArFIt_declare0(slice);
     slice = IndexedOffAr_binSearchPadIndex(&manager->endgroups, off);
-    if (IndexedOffAr_sliceEmpty(slice)) {
+    if (IndexedOffArFIt_atEnd(&slice)) {
         return;
     }
-    IndexedOffAr_sliceForeach(slice) {
+    IndexedOffAr_loop(slice) {
         NoteManager_sendNoteOn(manager, slice.var->pitch, 0);
     }
     IndexedOffAr_binRemovePadIndex(&manager->endgroups, off);

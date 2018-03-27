@@ -1,13 +1,13 @@
-// *** DO NOT MODIFY THIS FILE generated 03/27/2018 10:19:50 ***
-// *** DO NOT MODIFY THIS FILE generated 03/27/2018 10:19:50 ***
-// *** DO NOT MODIFY THIS FILE generated 03/27/2018 10:19:50 ***
-// *** DO NOT MODIFY THIS FILE generated 03/27/2018 10:19:50 ***
-// *** DO NOT MODIFY THIS FILE generated 03/27/2018 10:19:50 ***
-// *** DO NOT MODIFY THIS FILE generated 03/27/2018 10:19:50 ***
-// *** DO NOT MODIFY THIS FILE generated 03/27/2018 10:19:50 ***
-// *** DO NOT MODIFY THIS FILE generated 03/27/2018 10:19:50 ***
-// *** DO NOT MODIFY THIS FILE generated 03/27/2018 10:19:50 ***
-// *** DO NOT MODIFY THIS FILE generated 03/27/2018 10:19:50 ***
+// *** DO NOT MODIFY THIS FILE generated 03/27/2018 15:59:48 ***
+// *** DO NOT MODIFY THIS FILE generated 03/27/2018 15:59:48 ***
+// *** DO NOT MODIFY THIS FILE generated 03/27/2018 15:59:48 ***
+// *** DO NOT MODIFY THIS FILE generated 03/27/2018 15:59:48 ***
+// *** DO NOT MODIFY THIS FILE generated 03/27/2018 15:59:48 ***
+// *** DO NOT MODIFY THIS FILE generated 03/27/2018 15:59:48 ***
+// *** DO NOT MODIFY THIS FILE generated 03/27/2018 15:59:48 ***
+// *** DO NOT MODIFY THIS FILE generated 03/27/2018 15:59:48 ***
+// *** DO NOT MODIFY THIS FILE generated 03/27/2018 15:59:48 ***
+// *** DO NOT MODIFY THIS FILE generated 03/27/2018 15:59:48 ***
 struct Foo_t;
 typedef struct Foo_t Foo;
 struct IntArr_t;
@@ -489,7 +489,24 @@ void Array_binRemove(Array *arr, char *elem, Array_compare comparer, bool all) {
    }
 }
 
-char *Array_binSearch(Array *arr, char *elem, Array_compare comparer, ArraySlice *slice) {
+// char *Array_binSearchOLD(Array *arr, char *elem, Array_compare comparer, ArraySlice *slice) {
+//    int insert = -1;
+//    char *lower = NULL;
+//    char *upper = NULL;
+//    int index  = Array_binSearchWithInsertMulti(arr, elem, &insert, comparer, &lower, &upper);
+//    if (index < 0) {
+//       return NULL;
+//    }
+//    if (slice != NULL) {
+//       slice->index = 0;
+//       slice->var   = upper;
+//       slice->len   = (int)(upper-lower)/arr->elemSize;
+//       slice->data  = lower;
+//    }
+//    return lower;
+// }
+
+char *Array_binSearch(Array *arr, char *elem, Array_compare comparer, ArrayFIt *iterator) {
    int insert = -1;
    char *lower = NULL;
    char *upper = NULL;
@@ -497,14 +514,17 @@ char *Array_binSearch(Array *arr, char *elem, Array_compare comparer, ArraySlice
    if (index < 0) {
       return NULL;
    }
-   if (slice != NULL) {
-      slice->index = 0;
-      slice->var   = upper;
-      slice->len   = (int)(upper-lower)/arr->elemSize;
-      slice->data  = lower;
+   if (iterator != NULL) {
+      iterator->arr    = arr;
+      iterator->lBound = (int)((lower - arr->data)/arr->elemSize);
+      iterator->uBound = (int)((upper - arr->data)/arr->elemSize);
+      iterator->index  = iterator->lBound-1;
+      iterator->var    = NULL;
    }
+   
    return lower;
 }
+
 struct Foo_t
 {
     int i;
@@ -693,7 +713,13 @@ static inline void IntArr_truncate(IntArr *arr) {
     Array_truncate((Array*)arr);
 }
 
+static inline bool IntArrFIt_atEnd(IntArrFIt *iterator) {
+    return iterator->index+1 >= iterator->uBound;
+}
+
 #define IntArrFIt_declare(var, arr)  IntArrFIt var = {arr, 0, (arr)->len, -1, NULL}
+
+#define IntArrFIt_declare0(var)  IntArrFIt var = {0}
 
 static inline bool IntArrFIt_next(IntArrFIt *iterator) {
     return ArrayFIt_next((ArrayFIt*)iterator);
@@ -703,7 +729,13 @@ static inline bool IntArrFIt_remove(IntArrFIt *iterator) {
     return ArrayFIt_remove((ArrayFIt*)iterator);
 }
 
+static inline bool IntArrRIt_atEnd(IntArrRIt *iterator) {
+    return iterator->index-1 < iterator->lBound;
+}
+
 #define IntArrRIt_declare(var, arr)  IntArrRIt var = {arr, 0, (arr)->len, (arr)->len, NULL}
+
+#define IntArrRIt_declare0(var)  IntArrRIt var = {0}
 
 static inline bool IntArrRIt_next(IntArrRIt *iterator) {
     return ArrayRIt_next((ArrayRIt*)iterator);
@@ -833,7 +865,13 @@ static inline void FooArr_truncate(FooArr *arr) {
     Array_truncate((Array*)arr);
 }
 
+static inline bool FooArrFIt_atEnd(FooArrFIt *iterator) {
+    return iterator->index+1 >= iterator->uBound;
+}
+
 #define FooArrFIt_declare(var, arr)  FooArrFIt var = {arr, 0, (arr)->len, -1, NULL}
+
+#define FooArrFIt_declare0(var)  FooArrFIt var = {0}
 
 static inline bool FooArrFIt_next(FooArrFIt *iterator) {
     return ArrayFIt_next((ArrayFIt*)iterator);
@@ -843,7 +881,13 @@ static inline bool FooArrFIt_remove(FooArrFIt *iterator) {
     return ArrayFIt_remove((ArrayFIt*)iterator);
 }
 
+static inline bool FooArrRIt_atEnd(FooArrRIt *iterator) {
+    return iterator->index-1 < iterator->lBound;
+}
+
 #define FooArrRIt_declare(var, arr)  FooArrRIt var = {arr, 0, (arr)->len, (arr)->len, NULL}
+
+#define FooArrRIt_declare0(var)  FooArrRIt var = {0}
 
 static inline bool FooArrRIt_next(FooArrRIt *iterator) {
     return ArrayRIt_next((ArrayRIt*)iterator);
@@ -903,11 +947,15 @@ static inline void FooArr_binRemoveMulti(FooArr *arr, Foo elem) {
     Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)compare, true);
 }        
 
-static inline FooArrSlice FooArr_binSearchMulti(FooArr *arr, Foo elem) {
+static inline FooArrFIt FooArr_binSearchMulti(FooArr *arr, Foo elem) {
     int (*compare)(Foo *, Foo *) = Foo_cmp;
-    FooArrSlice slice = {0};
-    Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, (ArraySlice*)&slice);
-    return slice;
+    FooArrFIt it = {0};
+   if (Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, (ArrayFIt*)&it) != NULL) {
+       return it;
+    }
+   it.index  = arr->len;
+   it.uBound = 0;
+    return it;
 }
 
 static inline void FooArr_sortMulti(FooArr *arr) {
@@ -925,11 +973,15 @@ static inline void FooArr_binRemoveBothMulti(FooArr *arr, Foo elem) {
     Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)compare, true);
 }        
 
-static inline FooArrSlice FooArr_binSearchBothMulti(FooArr *arr, Foo elem) {
+static inline FooArrFIt FooArr_binSearchBothMulti(FooArr *arr, Foo elem) {
     int (*compare)(Foo *, Foo *) = Foo_cmpBoth;
-    FooArrSlice slice = {0};
-    Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, (ArraySlice*)&slice);
-    return slice;
+    FooArrFIt it = {0};
+   if (Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, (ArrayFIt*)&it) != NULL) {
+       return it;
+    }
+   it.index  = arr->len;
+   it.uBound = 0;
+    return it;
 }
 
 static inline void FooArr_sortBothMulti(FooArr *arr) {

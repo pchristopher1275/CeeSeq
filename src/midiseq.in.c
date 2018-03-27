@@ -2039,13 +2039,13 @@ APIF void NoteManager_midievent(NoteManager *manager, MEvent cell, int padIndexF
 
 APIF void NoteManager_padNoteOff(NoteManager *manager, int padIndex)
 {
-    IndexedOffAr_declareSlice(slice);
     IndexedOff_declare(off, padIndex, 0);
+    IndexedOffArFIt_declare0(slice);
     slice = IndexedOffAr_binSearchPadIndex(&manager->endgroups, off);
-    if (IndexedOffAr_sliceEmpty(slice)) {
+    if (IndexedOffArFIt_atEnd(&slice)) {
         return;
     }
-    IndexedOffAr_sliceForeach(slice) {
+    IndexedOffAr_loop(slice) {
         NoteManager_sendNoteOn(manager, slice.var->pitch, 0);
     }
     IndexedOffAr_binRemovePadIndex(&manager->endgroups, off);

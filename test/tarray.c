@@ -1053,16 +1053,16 @@ Unit_declare(testBinMulti) {
 
 	chk(FooArr_len(arr) == 8);
 
-	FooArr_declareSlice(slice);
 	Foo foo1 = {-1, 0};
+	FooArrFIt_declare0(slice);
 	slice = FooArr_binSearchMulti(arr, foo1);
-	fatal(FooArr_sliceEmpty(slice));
+	fatal(FooArrFIt_atEnd(&slice));
 
 	Foo foo2 = {1, 0};
 	slice = FooArr_binSearchMulti(arr, foo2);
-	fatal(!FooArr_sliceEmpty(slice));
+	fatal(!FooArrFIt_atEnd(&slice));
 	int count = 0;
-	FooArr_sliceForeach(slice) {
+	FooArr_loop(slice) {
 		chk(slice.var->i == 1);
 		count++;
 	}
@@ -1070,11 +1070,11 @@ Unit_declare(testBinMulti) {
 	
 	Foo foo3 = {2, 0};
 	slice = FooArr_binSearchMulti(arr, foo3);
-	fatal(!FooArr_sliceEmpty(slice));
+	fatal(!FooArrFIt_atEnd(&slice));
 	count = 0;
-	FooArr_sliceForeach(slice) {
+	FooArr_loop(slice) {
 		chk(slice.var->i == 2);
-		chk(slice.var->d == slice.index);
+		chk(slice.var->d == slice.index-slice.lBound);
 		count++;
 	}
 	chk(count == 4);
@@ -1082,7 +1082,7 @@ Unit_declare(testBinMulti) {
 	Foo foo4  = {2, 0};
 	Foo *res4 = FooArr_binSearch(arr, foo4);
 	fatal(res4 != NULL);
-	chk(res4 == slice.data);
+	chk(res4 == slice.arr->data + slice.lBound);
 
 	Foo foo5 = {1, 0};
 	Foo *res5 = FooArr_binSearch(arr, foo5);
@@ -1092,14 +1092,13 @@ Unit_declare(testBinMulti) {
 	chk(res5 == NULL);
 
 	Foo foo6 = {2, 0};
-	FooArr_declareSlice(res6);
+	FooArrFIt_declare0(res6);
 	res6 = FooArr_binSearchMulti(arr, foo6);
-	chk(!FooArr_sliceEmpty(res6));
+	chk(!FooArrFIt_atEnd(&res6));
 	FooArr_binRemoveMulti(arr, foo6);
 	res6 = FooArr_binSearchMulti(arr, foo6);
-	chk(FooArr_sliceEmpty(res6));
+	chk(FooArrFIt_atEnd(&res6));
 	
-
 	FooArr_free(arr);
 }
 
@@ -1111,13 +1110,13 @@ Unit_declare(testMixedBinary) {
 		FooArr_binInsertBoth(arr, foo);
 	}
 
-	FooArr_declareSlice(slice);
-	Foo foo1 = {0, 0};
 	// Do a search using just i, and verify that all the elements come out.
+	Foo foo1 = {0, 0};
+	FooArrFIt_declare0(slice);
 	slice = FooArr_binSearchMulti(arr, foo1);
-	fatal(!FooArr_sliceEmpty(slice));
+	fatal(!FooArrFIt_atEnd(&slice));
 	int count = 9;
-	FooArr_sliceForeach(slice) {
+	FooArr_loop(slice) {
 		chk(slice.var->i == 0);
 		chk(slice.var->d == -count);
 		count--;

@@ -352,6 +352,27 @@ ENDxxxxxxxxxx
 	},	
 
 	{
+		key =>    'ArrayFIt:atEnd',
+		symbol => '${TYPENAME}FIt_atEnd',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline bool ${TYPENAME}FIt_atEnd(${TYPENAME}FIt *iterator) {
+			@	return iterator->index+1 >= iterator->uBound;
+			@}
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key =>    'ArrayRIt:atEnd',
+		symbol => '${TYPENAME}RIt_atEnd',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline bool ${TYPENAME}RIt_atEnd(${TYPENAME}RIt *iterator) {
+			@	return iterator->index-1 < iterator->lBound;
+			@}
+ENDxxxxxxxxxx
+	},	
+
+
+	{
 		key =>    'ArrayFIt:remove',
 		symbol => '${TYPENAME}FIt_remove',
 		tmpl   => <<'ENDxxxxxxxxxx', 
@@ -399,12 +420,28 @@ ENDxxxxxxxxxx
 			@#define ${TYPENAME}FIt_declare(var, arr)  ${TYPENAME}FIt var = {arr, 0, (arr)->len, -1, NULL}
 ENDxxxxxxxxxx
 	},	
+
+	{
+		key    =>    'ArrayFIt:declare0',
+		symbol => '${TYPENAME}FIt_declare0',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}FIt_declare0(var)  ${TYPENAME}FIt var = {0}
+ENDxxxxxxxxxx
+	},	
 		
 	{
 		key    =>    'ArrayRIt:declare',
 		symbol => '${TYPENAME}RIt_declare',
 		tmpl   => <<'ENDxxxxxxxxxx', 
 			@#define ${TYPENAME}RIt_declare(var, arr)  ${TYPENAME}RIt var = {arr, 0, (arr)->len, (arr)->len, NULL}
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key    =>    'ArrayRIt:declare0',
+		symbol => '${TYPENAME}RIt_declare0',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}RIt_declare0(var)  ${TYPENAME}RIt var = {0}
 ENDxxxxxxxxxx
 	},	
 
@@ -551,18 +588,35 @@ ENDxxxxxxxxxx
 ENDxxxxxxxxxx
 	},	
 
+# 	{
+# 		key =>    'Array:binSearchSliceReturn',
+# 		symbol => '${TYPENAME}_binSearch${TAG}',
+# 		tmpl   => <<'ENDxxxxxxxxxx', 
+# 			@static inline ${TYPENAME}Slice ${TYPENAME}_binSearch${TAG}(${TYPENAME} *arr, ${ELEMNAME}elem) {
+# 			@	int (*compare)(${ELEMNAME}*, ${ELEMNAME}*) = ${COMPARE};
+# 			@	${TYPENAME}Slice slice = {0};
+# 			@	Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, (ArraySlice*)&slice);
+# 			@	return slice;
+# 			@}
+# ENDxxxxxxxxxx
+# 	},
+
 	{
 		key =>    'Array:binSearchSliceReturn',
 		symbol => '${TYPENAME}_binSearch${TAG}',
 		tmpl   => <<'ENDxxxxxxxxxx', 
-			@static inline ${TYPENAME}Slice ${TYPENAME}_binSearch${TAG}(${TYPENAME} *arr, ${ELEMNAME}elem) {
+			@static inline ${TYPENAME}FIt ${TYPENAME}_binSearch${TAG}(${TYPENAME} *arr, ${ELEMNAME}elem) {
 			@	int (*compare)(${ELEMNAME}*, ${ELEMNAME}*) = ${COMPARE};
-			@	${TYPENAME}Slice slice = {0};
-			@	Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, (ArraySlice*)&slice);
-			@	return slice;
+			@	${TYPENAME}FIt it = {0};
+			@   if (Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, (ArrayFIt*)&it) != NULL) {
+			@   	return it;
+			@	}
+			@   it.index  = arr->len;
+			@   it.uBound = 0;
+			@	return it;
 			@}
 ENDxxxxxxxxxx
-	},	
+	},
 
 	{
 		key =>    'Array:binSearchElemReturn',
@@ -1236,7 +1290,8 @@ sub ContainerArtifact_emitInlines {
 				'Array:truncate', 'Array:len',  'Array:get', 'Array:getp', 'Array:set', 'Array:setp',
 				'Array:pop', 'Array:push', 'Array:pushp', 'Array:insert', 'Array:insertp', 'Array:remove',
 				'Array:removeN', 'Array:fit', 'Array:last', 'Array:changeLength', 'Array:foreach', 'Array:rforeach',
-				'Array:loop', 'Array:rloop', "ArrayFIt:next", "ArrayRIt:next", "ArrayFIt:remove", "ArrayRIt:remove");
+				'Array:loop', 'Array:rloop', "ArrayFIt:next", "ArrayRIt:next", "ArrayFIt:remove", "ArrayRIt:remove",
+				"ArrayFIt:declare0", "ArrayFIt:declare", "ArrayRIt:declare0", "ArrayRIt:declare", "ArrayFIt:atEnd", "ArrayRIt:atEnd");
 
 	push @keys, ('Array:each', 'Array:reach');
 	if ($needsSlice) {

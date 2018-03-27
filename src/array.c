@@ -447,7 +447,24 @@ void Array_binRemove(Array *arr, char *elem, Array_compare comparer, bool all) {
    }
 }
 
-char *Array_binSearch(Array *arr, char *elem, Array_compare comparer, ArraySlice *slice) {
+// char *Array_binSearchOLD(Array *arr, char *elem, Array_compare comparer, ArraySlice *slice) {
+//    int insert = -1;
+//    char *lower = NULL;
+//    char *upper = NULL;
+//    int index  = Array_binSearchWithInsertMulti(arr, elem, &insert, comparer, &lower, &upper);
+//    if (index < 0) {
+//       return NULL;
+//    }
+//    if (slice != NULL) {
+//       slice->index = 0;
+//       slice->var   = upper;
+//       slice->len   = (int)(upper-lower)/arr->elemSize;
+//       slice->data  = lower;
+//    }
+//    return lower;
+// }
+
+char *Array_binSearch(Array *arr, char *elem, Array_compare comparer, ArrayFIt *iterator) {
    int insert = -1;
    char *lower = NULL;
    char *upper = NULL;
@@ -455,11 +472,14 @@ char *Array_binSearch(Array *arr, char *elem, Array_compare comparer, ArraySlice
    if (index < 0) {
       return NULL;
    }
-   if (slice != NULL) {
-      slice->index = 0;
-      slice->var   = upper;
-      slice->len   = (int)(upper-lower)/arr->elemSize;
-      slice->data  = lower;
+   if (iterator != NULL) {
+      iterator->arr    = arr;
+      iterator->lBound = (int)((lower - arr->data)/arr->elemSize);
+      iterator->uBound = (int)((upper - arr->data)/arr->elemSize);
+      iterator->index  = iterator->lBound-1;
+      iterator->var    = NULL;
    }
+   
    return lower;
 }
+
