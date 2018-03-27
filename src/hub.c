@@ -223,8 +223,11 @@ void CseqHub_playnotes(CseqHub *x)
     }
 
     PadPtrAr *running = PadList_running(CseqHub_padList(x));
+
+    int count = 0;
     PadPtrAr_foreach(it, running) {
         Pad *pad                 = *it.var;
+        dblog("count = %d: %s (%d, %d, %d)", count++, pad == NULL ? "yes" : "no", it.index, it.lBound, it.uBound);
         Midiseq *mseq            = Pad_sequence(pad);
         NoteManager *noteManager = Track_noteManager(Pad_track(pad));
         while ( (status = Midiseq_nextevent(mseq, now, &cell, err)) == Midiseq_nextEventContinue) {
@@ -247,13 +250,43 @@ void CseqHub_playnotes(CseqHub *x)
             }
         }
         else if (status == Midiseq_nextEventComplete) {
-            PadPtrAr_remove(running, it.index, err);
-            if (Error_maypost(err)) {
-                continue;
-            }            
-            it.index--;             
+            PadPtrArFIt_remove(&it);            
         }
     }
+
+
+    // PadPtrAr_foreach(it, running) {
+
+    //     Pad *pad                 = *it.var;
+    //     Midiseq *mseq            = Pad_sequence(pad);
+    //     NoteManager *noteManager = Track_noteManager(Pad_track(pad));
+    //     while ( (status = Midiseq_nextevent(mseq, now, &cell, err)) == Midiseq_nextEventContinue) {
+    //         if (MEvent_type(cell) == Midiseq_endgrptype) {
+    //             Pad_setInEndgroup(pad, true);
+    //         }
+
+    //         NoteManager_midievent(noteManager, cell, (Pad_noteReleasePending(pad) && Pad_inEndgroup(pad)) ? Pad_padIndex(pad) : -1);
+    //     }
+    //     if (Error_maypost(err)) {
+    //         continue;
+    //     }
+    //     if (status == Midiseq_nextEventBreak) {
+    //         Ticks delta = cell.t-now;
+    //         if (smallestDelta < 0) {
+    //             smallestDelta = delta;
+    //         }
+    //         else if (delta < smallestDelta) {
+    //             smallestDelta = delta;
+    //         }
+    //     }
+    //     else if (status == Midiseq_nextEventComplete) {
+    //         PadPtrAr_remove(running, it.index, err);
+    //         if (Error_maypost(err)) {
+    //             continue;
+    //         }            
+    //         it.index--;             
+    //     }
+    // }
     if (smallestDelta >= 0) {
         t_atom callbackInterval = {0};
         atom_setfloat(&callbackInterval, smallestDelta);

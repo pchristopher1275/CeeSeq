@@ -697,23 +697,12 @@ Unit_declare(testForeach) {
 		IntArr_foreach(it, arr) {
 			chk(*it.var == 3*count);
 			count++;
-			if (count == 5) {
-				chk(it.last);
-			} else {
-				chk(!it.last);
-			}
 		}
 		chk(count == 5);
 
 		count = 5-1;
 		IntArr_rforeach(it, arr) {
 			chk(*it.var == 3*count);
-			
-			if (count == 0) {
-				chk(it.last);
-			} else {
-				chk(!it.last);
-			}
 			count--;
 		}
 
@@ -731,12 +720,13 @@ Unit_declare(testForeach) {
 
 		{
 			count = 0;
-			IntArr_loop(it, arr) {
+			IntArrFIt_declare(it, arr);
+			IntArr_loop(it) {
 				chk(*it.var == 3*count+17);
 				count++;
 				break;
 			}
-			while (IntArrIt_next(&it)) {
+			while (IntArrFIt_next(&it)) {
 				count++;
 			}
 			chk(count == 5);
@@ -744,12 +734,13 @@ Unit_declare(testForeach) {
 
 		{
 			count = 5-1;
-			IntArr_rloop(it, arr) {
+			IntArrRIt_declare(it, arr);
+			IntArr_rloop(it) {
 				chk(*it.var == 3*count+17);
 				count--;
 				break;
 			}
-			while (IntArrIt_previous(&it)) {
+			while (IntArrRIt_next(&it)) {
 				chk(*it.var == 3*count+17);
 				count--;
 			}
@@ -770,11 +761,6 @@ Unit_declare(testForeach) {
 			chk(it.var->i == 3*count);
 			chk(it.var->d == 6*count);
 			count++;
-			if (count == 5) {
-				chk(it.last);
-			} else {
-				chk(!it.last);
-			}
 		}
 		chk(count == 5);
 
@@ -782,11 +768,6 @@ Unit_declare(testForeach) {
 		FooArr_rforeach(it, arr) {
 			chk(it.var->i == 3*count);
 			chk(it.var->d == 6*count);
-			if (count == 0) {
-				chk(it.last);
-			} else {
-				chk(!it.last);
-			}
 			count--;
 		}
 
@@ -804,12 +785,13 @@ Unit_declare(testForeach) {
 
 		{
 			count = 0;
-			FooArr_loop(it, arr) {
+			FooArrFIt_declare(it, arr);
+			FooArr_loop(it) {
 				chk(it.var->i == 3*count+17);
 				count++;
 				break;
 			}
-			while (FooArrIt_next(&it)) {
+			while (FooArrFIt_next(&it)) {
 				count++;
 			}
 			chk(count == 5);
@@ -817,12 +799,13 @@ Unit_declare(testForeach) {
 
 		{
 			count = 5-1;
-			FooArr_rloop(it, arr) {
+			FooArrRIt_declare(it, arr);
+			FooArr_rloop(it) {
 				chk(it.var->i == 3*count+17);
 				count--;
 				break;
 			}
-			while (FooArrIt_previous(&it)) {
+			while (FooArrRIt_next(&it)) {
 				chk(it.var->i == 3*count+17);
 				count--;
 			}
@@ -863,6 +846,7 @@ Unit_declare(testEach) {
 			count++;
 		}
 		chk(count == 5);
+		IntArr_free(arr);
 	}
 
 	{
@@ -903,6 +887,62 @@ Unit_declare(testEach) {
 	}	
 }
 
+Unit_declare(testIteratorRemove) {
+	{
+		IntArr *arr = IntArr_new(0);
+		for (int i = 0; i < 5; i++) {
+			IntArr_push(arr, i);
+		}
+		chk(IntArr_len(arr) == 5);
+
+		int count = 0;
+		int last  = -1;
+		IntArr_foreach(it, arr) {
+			chk(last < *it.var);
+			last = *it.var;
+			if (*it.var % 2 == 0) {
+				IntArrFIt_remove(&it);
+				chk(it.var == NULL);
+			}
+			count++;
+		}
+		chk(count == 5);
+		chk(IntArr_len(arr) == 2);
+
+		IntArr_foreach(it, arr) {
+			int v = *it.var;
+			chk(v == 1 || v == 3);
+		}
+		IntArr_free(arr);
+	}
+	{
+		IntArr *arr = IntArr_new(0);
+		for (int i = 0; i < 5; i++) {
+			IntArr_push(arr, i);
+		}
+		chk(IntArr_len(arr) == 5);
+
+		int count = 0;
+		int last  = 100;
+		IntArr_rforeach(it, arr) {
+			chk(last > *it.var);
+			last = *it.var;
+			if (*it.var % 2 == 1) {
+				IntArrRIt_remove(&it);
+				chk(it.var == NULL);
+			}
+			count++;
+		}
+		chk(count == 5);
+		chk(IntArr_len(arr) == 3);
+
+		IntArr_rforeach(it, arr) {
+			int v = *it.var;
+			chk(v == 0 || v == 2 || v == 4);
+		}
+		IntArr_free(arr);
+	}
+}
 
 Unit_declare(testSort) {
 	{
@@ -1101,6 +1141,7 @@ int main(int argc, char *argv[]) {
 	Unit_test(testRemove);
 	Unit_test(testForeach);
 	Unit_test(testEach);
+	Unit_test(testIteratorRemove);
 	Unit_test(testSort);
 	Unit_test(testBinSearch);
 	Unit_test(testBinMulti);

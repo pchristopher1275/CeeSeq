@@ -89,15 +89,32 @@ ENDxxxxxxxxxx
 
 
 	{
-		key =>    'ArrayIt:struct',
+		key =>    'ArrayFIt:struct',
 		symbol => '',
 		tmpl   => <<'ENDxxxxxxxxxx', 
-			@typedef struct ${TYPENAME}It_t {
+			@typedef struct ${TYPENAME}FIt_t {
 			@   ${TYPENAME} *arr;
+			@   int lBound;
+			@   int uBound;
+			@
 			@   int index;
-			@   bool last;
 			@   ${ELEMNAME}*var;
-			@} ${TYPENAME}It;
+			@} ${TYPENAME}FIt;
+ENDxxxxxxxxxx
+	},
+
+		{
+		key =>    'ArrayRIt:struct',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@typedef struct ${TYPENAME}RIt_t {
+			@   ${TYPENAME} *arr;
+			@   int lBound;
+			@   int uBound;
+			@
+			@   int index;
+			@   ${ELEMNAME}*var;
+			@} ${TYPENAME}RIt;
 ENDxxxxxxxxxx
 	},
 
@@ -325,50 +342,117 @@ ENDxxxxxxxxxx
 	},	
 
 	{
-		key =>    'ArrayIt:next',
-		symbol => '${TYPENAME}It_next',
+		key =>    'ArrayFIt:next',
+		symbol => '${TYPENAME}FIt_next',
 		tmpl   => <<'ENDxxxxxxxxxx', 
-			@static inline bool ${TYPENAME}It_next(${TYPENAME}It *iterator) {
-			@	return ArrayIt_next((ArrayIt*)iterator);
+			@static inline bool ${TYPENAME}FIt_next(${TYPENAME}FIt *iterator) {
+			@	return ArrayFIt_next((ArrayFIt*)iterator);
 			@}
 ENDxxxxxxxxxx
 	},	
 
 	{
-		key =>    'ArrayIt:previous',
-		symbol => '${TYPENAME}It_previous',
+		key =>    'ArrayFIt:remove',
+		symbol => '${TYPENAME}FIt_remove',
 		tmpl   => <<'ENDxxxxxxxxxx', 
-			@static inline bool ${TYPENAME}It_previous(${TYPENAME}It *iterator) {
-			@	return ArrayIt_previous((ArrayIt*)iterator);
-			@}			
+			@static inline bool ${TYPENAME}FIt_remove(${TYPENAME}FIt *iterator) {
+			@	return ArrayFIt_remove((ArrayFIt*)iterator);
+			@}
 ENDxxxxxxxxxx
 	},	
 
 	{
-		key    =>    'ArrayIt:declare',
-		symbol => '${TYPENAME}It_declare',
+		key =>    'ArrayRIt:next',
+		symbol => '${TYPENAME}RIt_next',
 		tmpl   => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}It_declare(var, arr)  ${TYPENAME}It var = {arr, -1, false, NULL}			
+			@static inline bool ${TYPENAME}RIt_next(${TYPENAME}RIt *iterator) {
+			@	return ArrayRIt_next((ArrayRIt*)iterator);
+			@}
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key =>    'ArrayRIt:remove',
+		symbol => '${TYPENAME}RIt_remove',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline bool ${TYPENAME}RIt_remove(${TYPENAME}RIt *iterator) {
+			@	return ArrayRIt_remove((ArrayRIt*)iterator);
+			@}
+ENDxxxxxxxxxx
+	},	
+
+
+# 	{
+# 		key =>    'ArrayIt:previous',
+# 		symbol => '${TYPENAME}It_previous',
+# 		tmpl   => <<'ENDxxxxxxxxxx', 
+# 			@static inline bool ${TYPENAME}It_previous(${TYPENAME}It *iterator) {
+# 			@	return ArrayIt_previous((ArrayIt*)iterator);
+# 			@}			
+# ENDxxxxxxxxxx
+# 	},	
+
+	{
+		key    =>    'ArrayFIt:declare',
+		symbol => '${TYPENAME}FIt_declare',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}FIt_declare(var, arr)  ${TYPENAME}FIt var = {arr, 0, (arr)->len, -1, NULL}
 ENDxxxxxxxxxx
 	},	
 		
 	{
-		key =>    'ArrayIt:rdeclare',
-		implies => ['Array:len'],
-		symbol => '${TYPENAME}It_rdeclare',
+		key    =>    'ArrayRIt:declare',
+		symbol => '${TYPENAME}RIt_declare',
 		tmpl   => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}It_rdeclare(var, arr)  ${TYPENAME}It var = {arr, ${TYPENAME}_len(arr), false, NULL}			
+			@#define ${TYPENAME}RIt_declare(var, arr)  ${TYPENAME}RIt var = {arr, 0, (arr)->len, (arr)->len, NULL}
+ENDxxxxxxxxxx
+	},	
+
+
+# 	{
+# 		key =>    'ArrayIt:rdeclare',
+# 		implies => ['Array:len'],
+# 		symbol => '${TYPENAME}It_rdeclare',
+# 		tmpl   => <<'ENDxxxxxxxxxx', 
+# 			@#define ${TYPENAME}It_rdeclare(var, arr)  ${TYPENAME}It var = {arr, ${TYPENAME}_len(arr), false, NULL}			
+# ENDxxxxxxxxxx
+# 	},	
+
+	{
+		key     =>  'Array:foreach',
+		implies => ["ArrayFIt:declare", "ArrayFIt:next"],
+		symbol  => '${TYPENAME}_foreach',
+		tmpl    => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}_foreach(var, arr)  for (${TYPENAME}FIt_declare(var, arr); ${TYPENAME}FIt_next(&var); )			
 ENDxxxxxxxxxx
 	},	
 
 	{
-		key     =>  'Array:foreach',
-		implies => ["ArrayIt:declare", "ArrayIt:next"],
-		symbol  => '${TYPENAME}_foreach',
-		tmpl    => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}_foreach(var, arr)  for (${TYPENAME}It_declare(var, arr); ${TYPENAME}It_next(&var); )			
+		key =>    'Array:rforeach',
+		implies => ["ArrayRIt:declare", "ArrayRIt:next"],
+		symbol => '${TYPENAME}_rforeach',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}_rforeach(var, arr)  for (${TYPENAME}RIt_declare(var, arr); ${TYPENAME}RIt_next(&var); )			
 ENDxxxxxxxxxx
 	},	
+
+	{
+		key =>    'Array:loop',
+		implies => ["ArrayFIt:next"],
+		symbol => '${TYPENAME}_loop',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}_loop(var) while (${TYPENAME}FIt_next(&var)) 
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Array:rloop',
+		implies => ["ArrayRIt:next"],
+		symbol => '${TYPENAME}_rloop',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}_rloop(var) while (${TYPENAME}RIt_next(&var)) 			
+ENDxxxxxxxxxx
+	},
 
 	{
 		key     =>  'Array:each',
@@ -387,68 +471,6 @@ ENDxxxxxxxxxx
 			@#define ${TYPENAME}_reach(it, arr) for (${ELEMNAME_NS}* it = arr->data+arr->len-1; it >= arr->data; it--)
 ENDxxxxxxxxxx
 	},	
-
-	{
-		key     =>  'Array:eachRemoveImpl',
-		implies => ["Array:eachIndexOf", "Array:remove"],
-		symbol  => '',
-		tmpl    => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}_eachRemoveImpl(it, arr, itOffset) do {\
-			@   int index##it = ${TYPENAME}_eachIndexOf(it);\
-			@   Error_declare(err##it);\
-			@   ${TYPENAME}_remove(arr, index##it, err##it);\
-			@   Error_maypost(err##it);\
-			@	s##it     = arr->data, \
-            @   e##it     = arr->data + arr->len, \
-            @   it        = s##it + (index##it + (itOffset));\
-			@} while(0); continue
-ENDxxxxxxxxxx
-	},	
-
-	{
-		key     =>  'Array:eachInsertImpl',
-		implies => ["Array:eachIndexOf", "Array:insertp"],
-		symbol  => '',
-		tmpl    => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}_eachInsertImpl(it, arr, valPtr, insertOffset, itOffset) do {\
-			@   int index##it = ${TYPENAME}_eachIndexOf(it);\
-			@   Error_declare(err##it);\
-			@   ${TYPENAME}_insertp(arr, index##it + (insertOffset), valPtr, err##it);\
-			@   Error_maypost(err##it);\
-			@	s##it     = arr->data, \
-            @   e##it     = arr->data + arr->len, \
-            @   it        = s##it + (index##it+(itOffset));\
-			@} while(0); continue
-ENDxxxxxxxxxx
-	},
-
-	{
-		key =>    'Array:rforeach',
-		implies => ["ArrayIt:rdeclare", "ArrayIt:previous"],
-		symbol => '${TYPENAME}_rforeach',
-		tmpl   => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}_rforeach(var, arr)  for (${TYPENAME}It_rdeclare(var, arr); ${TYPENAME}It_previous(&var); )			
-ENDxxxxxxxxxx
-	},	
-
-	{
-		key =>    'Array:loop',
-		implies => ["ArrayIt:declare", "ArrayIt:next"],
-		symbol => '${TYPENAME}_loop',
-		tmpl   => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}_loop(var, arr) ${TYPENAME}It_declare(var, arr); while (${TYPENAME}It_next(&var)) 
-ENDxxxxxxxxxx
-	},
-
-	{
-		key =>    'Array:rloop',
-		implies => ["ArrayIt:rdeclare", "ArrayIt:previous"],
-		symbol => '${TYPENAME}_rloop',
-		tmpl   => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}_rloop(var, arr)    ${TYPENAME}It_rdeclare(var, arr); while (${TYPENAME}It_previous(&var)) 			
-ENDxxxxxxxxxx
-	},
-
 
 	{
 		key =>    'Array:slice',
@@ -823,7 +845,7 @@ sub Expand_expand {
 		}
 	}
 
-	my %special = ("Array:struct" => 1, "Array:slice" => 2, "ArrayIt:struct" => 3);
+	my %special = ("Array:struct" => 1, "Array:slice" => 2, "ArrayFIt:struct" => 3, "ArrayFIt:struct" => 4);
 	my $srt = sub {
 		my $ls = $special{$a};
 		my $rs = $special{$b};
@@ -1148,7 +1170,7 @@ sub ContainerArtifact_emitStruct {
 		}
 	}
 	
-	my @keys = ("Array:struct", 'ArrayIt:struct');
+	my @keys = ("Array:struct", 'ArrayFIt:struct', 'ArrayRIt:struct');
 	if ($needsSlice) {
 		push @keys, "Array:slice";
 	}
@@ -1214,7 +1236,7 @@ sub ContainerArtifact_emitInlines {
 				'Array:truncate', 'Array:len',  'Array:get', 'Array:getp', 'Array:set', 'Array:setp',
 				'Array:pop', 'Array:push', 'Array:pushp', 'Array:insert', 'Array:insertp', 'Array:remove',
 				'Array:removeN', 'Array:fit', 'Array:last', 'Array:changeLength', 'Array:foreach', 'Array:rforeach',
-				'Array:loop', 'Array:rloop');
+				'Array:loop', 'Array:rloop', "ArrayFIt:next", "ArrayRIt:next", "ArrayFIt:remove", "ArrayRIt:remove");
 
 	push @keys, ('Array:each', 'Array:reach');
 	if ($needsSlice) {
@@ -1464,6 +1486,15 @@ sub ArtifactList_emitPredefined {
 	}
 }
 
+sub Util_copyFile {
+	my ($file, $out) = @_;
+	open my $inp, "<", $file or die "Failed to open $file";
+	while (<$inp>) {
+		print {$out} $_;
+	}
+	close($inp);
+}
+
 sub ArtifactList_emitStructs {
 	my ($self, $out) = @_;
 	my $artifacts = $self->{artifacts};
@@ -1491,8 +1522,8 @@ sub ArtifactList_emitStructs {
 
 	## Start by writing the Array structs
 	Artifact_emitStruct({itype => 'Container', typeName=>"Array", elemName=>"char"}, $out);
-	print {$out} "#include \"$gMasterSourceDir/array.c\"\n";
-
+	Util_copyFile("$gMasterSourceDir/array.c", $out);
+	
 	my %written;
 	my %queued;
 	my $wt;
@@ -1731,7 +1762,7 @@ sub Main_handleArgs {
 }
 
 sub Main_listTemplateFiles {
-	my ($srcDir, $includeList) = @_;
+	my ($srcDir, @includeList) = @_;
 	$srcDir =~ s[/$][];
 	my @lines = backtick "ls $srcDir/*.in.c";
 	my @templateFiles;
@@ -1743,8 +1774,8 @@ sub Main_listTemplateFiles {
 		} 
 	}
 	
-	if (defined($includeList)) {
-		my @inc         = map {m{([^/]+)$}; $1} @$includeList;
+	if (@includeList > 0) {
+		my @inc         = map {m{([^/]+)$}; $1} @includeList;
 		my %includeHash = map {$_ => 1} @inc;
 		my @a = @templateFiles;
 		@templateFiles = ();
@@ -1791,7 +1822,7 @@ sub Main_main {
 	my @args = Main_handleArgs();
 	die "Requires at least one argument" unless @args > 0;
 	my $srcDir = $args[0];
-	my @templateFiles = Main_listTemplateFiles(shift @args, \@args);
+	my @templateFiles = Main_listTemplateFiles(shift @args, @args);
 	my $ignoreSub       = Main_readIgnores();
 	@templateFiles = grep {!$ignoreSub->($_)} @templateFiles;
 	
@@ -1807,12 +1838,12 @@ sub Main_main {
 	if ($gAcceptAllCalls) {
 		Called_setAllUsed($called);
 	}
+
 	Expand_setCalled($called);
 	Api_scan($api, \@templateFiles);
-	
 	my $artifactList = ArtifactList_new();
 	ArtifactList_scanFromTemplateFiles($artifactList, @templateFiles);
-
+	
 	my $outFile = "$srcDir/$gApplicationName.c";
 	open my $out, ">", $outFile or die "Failed to open $outFile";
 	Main_emitWarning($out);

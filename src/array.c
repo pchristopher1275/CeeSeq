@@ -121,7 +121,7 @@ void Array_mayGrow(Array *arr, int increment) {
    }\
 } while (0)
 
-char *Array_get(Array *arr, int index) {
+static inline char *Array_get(Array *arr, int index) {
    return (arr->data + index*arr->elemSize);
 }
 
@@ -252,32 +252,78 @@ typedef struct ArrayIt {
 } ArrayIt;
 */
 
-bool ArrayIt_next(ArrayIt *iterator) {
-   if (iterator->index < 0) {
-      iterator->index = -1;
-   }
-   if (iterator->index+1 >= Array_len(iterator->arr)) {
+
+// bool ArrayIt_next(ArrayIt *iterator) {
+//    if (iterator->jump >= 0) {
+//       iterator->index = iterator->jump;
+//       iterator->jump  = -1;
+//    }
+//    if (iterator->index+1 < 0 || iterator->index+1 >= Array_len(iterator->arr)) {
+//       return false;
+//    }
+
+//    iterator->index++;
+//    iterator->var  = Array_get(iterator->arr, iterator->index);
+//    return true;
+// }
+
+// bool ArrayIt_previous(ArrayIt *iterator) {
+//    if (iterator->jump >= 0) {
+//       iterator->index = iterator->jump;
+//       iterator->jump  = -1;
+//    }
+//    if (iterator->index-1 < 0 || iterator->index-1 >= Array_len(iterator->arr)) {
+//       return false;
+//    }   
+   
+//    iterator->index--;
+//    iterator->var  = Array_get(iterator->arr, iterator->index);
+
+//    return true;
+// }
+
+
+bool ArrayFIt_next(ArrayFIt *iterator) {
+   if (iterator->index+1 < iterator->lBound || iterator->index+1 >= iterator->uBound) {
       return false;
    }
    iterator->index++;
-   iterator->var  = Array_get(iterator->arr, iterator->index);
-   iterator->last = iterator->index+1 >= Array_len(iterator->arr);
+   iterator->var = Array_get(iterator->arr, iterator->index);
    return true;
 }
 
-bool ArrayIt_previous(ArrayIt *iterator) {
-   if (iterator->index >= Array_len(iterator->arr)) {
-      iterator->index = Array_len(iterator->arr);
-   }
-   if (iterator->index-1 < 0) {
+bool ArrayRIt_next(ArrayRIt *iterator) {
+   if (iterator->index-1 < iterator->lBound || iterator->index-1 >= iterator->uBound) {
       return false;
    }
    iterator->index--;
    iterator->var  = Array_get(iterator->arr, iterator->index);
-   iterator->last = iterator->index == 0;
    return true;
 }
 
+
+bool ArrayFIt_remove(ArrayFIt *iterator) {
+   if (iterator->index < iterator->lBound || iterator->index >= iterator->uBound) {
+      return false;
+   }   
+
+   int index = iterator->index;
+   iterator->index--;
+   iterator->var = NULL;
+   iterator->uBound--;
+   Array_removeN(iterator->arr, index, 1);
+   return true;
+}
+
+bool ArrayRIt_remove(ArrayRIt *iterator) {
+   if (iterator->index < iterator->lBound || iterator->index >= iterator->uBound) {
+      return false;
+   }   
+
+   iterator->var = NULL;
+   Array_removeN(iterator->arr, iterator->index, 1);
+   return true;
+}
 
 typedef int (*Array_compare)(const void *left, const void *right);
 

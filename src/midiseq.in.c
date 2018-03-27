@@ -982,7 +982,7 @@ APIF void Midiseq_insertEndgroup(Midiseq *mseq, Error *err)
     MEventAr_rforeach(it, &mseq->events) {
         if (it.var->type == Midiseq_notetype) {
             cell.t = it.var->t;
-            while (MEventArIt_previous(&it)) {
+            while (MEventArRIt_next(&it)) {
                 if (cell.t != it.var->t) {
                     break;
                 }

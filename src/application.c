@@ -1,13 +1,13 @@
-// *** DO NOT MODIFY THIS FILE generated 03/24/2018 08:58:29 ***
-// *** DO NOT MODIFY THIS FILE generated 03/24/2018 08:58:29 ***
-// *** DO NOT MODIFY THIS FILE generated 03/24/2018 08:58:29 ***
-// *** DO NOT MODIFY THIS FILE generated 03/24/2018 08:58:29 ***
-// *** DO NOT MODIFY THIS FILE generated 03/24/2018 08:58:29 ***
-// *** DO NOT MODIFY THIS FILE generated 03/24/2018 08:58:29 ***
-// *** DO NOT MODIFY THIS FILE generated 03/24/2018 08:58:29 ***
-// *** DO NOT MODIFY THIS FILE generated 03/24/2018 08:58:29 ***
-// *** DO NOT MODIFY THIS FILE generated 03/24/2018 08:58:29 ***
-// *** DO NOT MODIFY THIS FILE generated 03/24/2018 08:58:29 ***
+// *** DO NOT MODIFY THIS FILE generated 03/27/2018 10:19:58 ***
+// *** DO NOT MODIFY THIS FILE generated 03/27/2018 10:19:58 ***
+// *** DO NOT MODIFY THIS FILE generated 03/27/2018 10:19:58 ***
+// *** DO NOT MODIFY THIS FILE generated 03/27/2018 10:19:58 ***
+// *** DO NOT MODIFY THIS FILE generated 03/27/2018 10:19:58 ***
+// *** DO NOT MODIFY THIS FILE generated 03/27/2018 10:19:58 ***
+// *** DO NOT MODIFY THIS FILE generated 03/27/2018 10:19:58 ***
+// *** DO NOT MODIFY THIS FILE generated 03/27/2018 10:19:58 ***
+// *** DO NOT MODIFY THIS FILE generated 03/27/2018 10:19:58 ***
+// *** DO NOT MODIFY THIS FILE generated 03/27/2018 10:19:58 ***
 struct Arguments_t;
 typedef struct Arguments_t Arguments;
 struct Marshal_t;
@@ -82,14 +82,489 @@ typedef struct Array_t {
    char *data;
 } Array;
 
-typedef struct ArrayIt_t {
+typedef struct ArrayFIt_t {
+   Array *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   char *var;
+} ArrayFIt;
+
+typedef struct ArrayRIt_t {
+   Array *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   char *var;
+} ArrayRIt;
+
+
+#include <stdbool.h>
+#include <stdlib.h>
+
+typedef void (*Array_clearElement)(char *);
+/*
+typedef struct Array_t {
+   int len;
+   int cap;
+   int elemSize;
+   Array_clearElement clearer;
+   char *data;
+} Array;
+*/
+Array *Array_new(int nelems, int elemSize, Array_clearElement clearer);
+void Array_init(Array *arr, int nelems, int elemSize, Array_clearElement clearer);
+void Array_clear(Array *arr);
+void Array_free(Array *arr);
+void Array_truncate(Array *arr);
+int Array_len(Array *arr);
+void Array_set(Array *arr, int index, char *newElem);
+void Array_popN(Array *arr, int N);
+void Array_mayGrow(Array *arr, int increment);
+char *Array_pushN(Array *arr, int N);
+char *Array_insertN(Array *arr, int index, int N);
+void Array_removeN(Array *arr, int index, int N);
+void Array_fit(Array *arr);
+
+// REMEMBER: when you specify a range of elements to operate on, always select the range as
+// [start, end) : here start is the first index of the subsequence, and end is ONE-PAST the last
+// index of the subsequence. With this, the number of elements in the subsequence is end-start.
+
+#define Array_formatIndexError(err, m, n, o) Error_format((err), "Index out of range (%d, %d, %d)", (m), (n), (o))
+
+Array *Array_new(int nelems, int elemSize, Array_clearElement clearer) {
+   Array *arr = (Array*)Mem_malloc(sizeof(Array));
+   Array_init(arr, nelems, elemSize, clearer);
+   return arr;
+}
+
+void Array_init(Array *arr, int nelems, int elemSize, Array_clearElement clearer) {
+   arr->elemSize = elemSize;
+   arr->len      = nelems > 0 ? nelems : 0;
+   arr->cap      = nelems > 0 ? nelems : 0;
+   arr->data     = NULL;
+   arr->clearer  = clearer;
+   if (nelems > 0) {
+      arr->data = (char*)Mem_malloc(nelems*elemSize); 
+   } 
+}
+
+void Array_clear(Array *arr) {
+   Array_truncate(arr);
+   if (arr->cap > 0) {
+      Mem_free(arr->data);
+   }
+   memset(arr, 0, sizeof(Array));
+}
+
+void Array_free(Array *arr) {
+   Array_clear(arr);
+   Mem_free(arr);
+}
+
+void Array_truncate(Array *arr) {
+   if (arr->clearer != NULL) {
+      char *start = arr->data;
+      char *end   = arr->data + arr->len*arr->elemSize;
+      for (char *p = start; p < end; p += arr->elemSize) {
+         arr->clearer(p);
+      }
+   }
+   memset(arr->data, 0, arr->len*arr->elemSize);
+   arr->len = 0;
+}
+
+void Array_changeLength(Array *arr, int newLength) {
+   if (newLength == arr->len) {
+      return;
+   } else if (newLength < arr->len) {
+      if (arr->clearer != NULL) {
+         char *start = arr->data + newLength*arr->elemSize;
+         char *end   = arr->data + arr->len*arr->elemSize;
+         for (char *p = start; p < end; p += arr->elemSize) {
+            arr->clearer(p);
+         }
+      }
+      memset(arr->data + newLength*arr->elemSize, 0, (arr->len-newLength)*arr->elemSize);
+      arr->len = newLength;
+      return;
+   } 
+
+   if (arr->cap < newLength) {
+      Array_mayGrow(arr, newLength-arr->len);
+   }
+   arr->len = newLength;
+}
+
+int Array_len(Array *arr) {
+   return arr->len;
+}
+
+void Array_mayGrow(Array *arr, int increment) {
+   if (arr->len + increment >= arr->cap) {
+      int requiredBytes = (arr->len + increment)*arr->elemSize;
+      int dblCurrBytes  = 2*arr->cap*arr->elemSize;
+      int szBytes       = dblCurrBytes >= requiredBytes ? dblCurrBytes : requiredBytes;
+      arr->cap          = szBytes/arr->elemSize;
+      arr->data         = (char*)Mem_realloc(arr->data, szBytes);
+   }
+}
+
+#define Array_at(arr, index) ((arr)->data + index*(arr)->elemSize)
+
+#define Array_getCheck(arr_in, index_in, failedReturn, err) do {\
+   Array *_arr = (Array *)(arr_in);\
+   int _index  = (index_in);\
+   if (_index < 0 || _index >= _arr->len) {\
+      Array_formatIndexError((err), _index, 0, _arr->len);\
+      return failedReturn;\
+   }\
+} while (0)
+
+static inline char *Array_get(Array *arr, int index) {
+   return (arr->data + index*arr->elemSize);
+}
+
+#define Array_setCheck(arr_in, index_in, err) do {\
+   Array *_arr   = (Array *)(arr_in);\
+   int _index  = (index_in);\
+   if (_index < 0 || _index >= _arr->len) {\
+      Array_formatIndexError((err), _index, 0, _arr->len);\
+      return;\
+   }\
+} while (0)
+
+void Array_set(Array *arr, int index, char *newElem) {
+   char *p = arr->data + index*arr->elemSize;
+   if (arr->clearer != NULL) {
+      arr->clearer(p);
+   }
+   memmove(p, newElem, arr->elemSize);
+}
+
+
+#define Array_popNCheck(arr_in, N_in, err) do {\
+   Array *_arr = (Array *)(arr_in);\
+   int _N    = (N_in);\
+   if (_N < 1 || _N > _arr->len) {\
+      Array_formatIndexError((err), 0, _N, _arr->len);\
+      return;\
+   }\
+} while (0)
+
+void Array_popN(Array *arr, int N) {
+   char *end   = arr->data + arr->len*arr->elemSize;
+   arr->len   -= N;
+   char *start = arr->data + arr->len*arr->elemSize;
+   if (arr->clearer != NULL) {
+      for (char *p = start; p != end; p += arr->elemSize) {
+            arr->clearer(p);
+      }
+   }
+   memset(start, 0, (size_t)(end-start));
+} 
+
+char *Array_pushN(Array *arr, int N) {
+   Array_mayGrow(arr, N);
+   char *pushed = arr->data + arr->len*arr->elemSize;
+   arr->len    += N;
+   return pushed;
+}
+
+#define Array_insertNCheck(arr_in, index_in, N_in, err) do {\
+   Array *_arr   = (Array *)(arr_in);\
+   int _index  = (index_in);\
+   int _N      = (N_in);\
+   if (_index < 0 || _N < 1 || _index > _arr->len) {\
+      /*Notice that it IS legal to insert at index == a->len. This just means push onto the end of the list*/ \
+      Array_formatIndexError((err), _index, _N, _arr->len);\
+      return;\
+   }\
+} while (0)
+
+char *Array_insertN(Array *arr, int index, int N) {
+   Array_mayGrow(arr, N);
+   char *subStart  = arr->data + index*arr->elemSize;
+   char *subEnd    = arr->data + (index+N)*arr->elemSize;
+   char *arrayEnd  = arr->data + arr->len*arr->elemSize;
+   arr->len       += N;
+   
+   memmove(subEnd, subStart, (size_t)(arrayEnd-subStart));
+   memset(subStart, 0,      (size_t)(subEnd-subStart));
+   return subStart;
+}
+
+#define Array_removeNCheck(arr_in, index_in, N_in, err) do {\
+   Array *_arr = (Array *)(arr_in);\
+   int _index  = (index_in);\
+   int _N      = (N_in);\
+   if (_index < 0 || _N < 1 || (_index + _N-1) >= _arr->len) {\
+      Array_formatIndexError((err), _index, _N, _arr->len);\
+      return;\
+   }\
+} while (0)
+
+void Array_removeN(Array *arr, int index, int N) {
+   char *removeStart = arr->data + index*arr->elemSize;
+   char *removeEnd   = arr->data + (index+N)*arr->elemSize;
+   char *clearStart  = arr->data + (arr->len-N)*arr->elemSize; 
+   char *clearEnd    = arr->data + arr->len*arr->elemSize;
+   arr->len         -= N;
+
+
+   if (arr->clearer != NULL) {
+      for (char *p = removeStart; p < removeEnd; p += arr->elemSize) {
+            arr->clearer(p);
+      }
+   }
+
+   memmove(removeStart,  removeEnd, (size_t)(clearEnd-removeEnd));
+   memset(clearStart,    0,         (size_t)(clearEnd-clearStart));
+   return;
+}
+
+void Array_fit(Array *arr) {
+   if (arr->len <= 0) {
+      if (arr->cap > 0) {
+         Mem_free(arr->data);
+      }
+      arr->data = NULL;
+      arr->len  = 0;
+      arr->cap  = 0;
+      return;
+   }
+
+   int szBytes = arr->len*arr->elemSize;
+   arr->data   = (char*)Mem_realloc(arr->data, szBytes);
+   arr->cap    = arr->len;
+}
+
+int Array_elemSize(Array *arr){
+   return arr->elemSize;
+}
+
+/*
+typedef struct ArrayIt {
    Array *arr;
    int index;
    bool last;
-   char *var;
+   char *element;
 } ArrayIt;
+*/
 
-#include "array.c"
+
+// bool ArrayIt_next(ArrayIt *iterator) {
+//    if (iterator->jump >= 0) {
+//       iterator->index = iterator->jump;
+//       iterator->jump  = -1;
+//    }
+//    if (iterator->index+1 < 0 || iterator->index+1 >= Array_len(iterator->arr)) {
+//       return false;
+//    }
+
+//    iterator->index++;
+//    iterator->var  = Array_get(iterator->arr, iterator->index);
+//    return true;
+// }
+
+// bool ArrayIt_previous(ArrayIt *iterator) {
+//    if (iterator->jump >= 0) {
+//       iterator->index = iterator->jump;
+//       iterator->jump  = -1;
+//    }
+//    if (iterator->index-1 < 0 || iterator->index-1 >= Array_len(iterator->arr)) {
+//       return false;
+//    }   
+   
+//    iterator->index--;
+//    iterator->var  = Array_get(iterator->arr, iterator->index);
+
+//    return true;
+// }
+
+
+bool ArrayFIt_next(ArrayFIt *iterator) {
+   if (iterator->index+1 < iterator->lBound || iterator->index+1 >= iterator->uBound) {
+      return false;
+   }
+   iterator->index++;
+   iterator->var = Array_get(iterator->arr, iterator->index);
+   return true;
+}
+
+bool ArrayRIt_next(ArrayRIt *iterator) {
+   if (iterator->index-1 < iterator->lBound || iterator->index-1 >= iterator->uBound) {
+      return false;
+   }
+   iterator->index--;
+   iterator->var  = Array_get(iterator->arr, iterator->index);
+   return true;
+}
+
+
+bool ArrayFIt_remove(ArrayFIt *iterator) {
+   if (iterator->index < iterator->lBound || iterator->index >= iterator->uBound) {
+      return false;
+   }   
+
+   int index = iterator->index;
+   iterator->index--;
+   iterator->var = NULL;
+   iterator->uBound--;
+   Array_removeN(iterator->arr, index, 1);
+   return true;
+}
+
+bool ArrayRIt_remove(ArrayRIt *iterator) {
+   if (iterator->index < iterator->lBound || iterator->index >= iterator->uBound) {
+      return false;
+   }   
+
+   iterator->var = NULL;
+   Array_removeN(iterator->arr, iterator->index, 1);
+   return true;
+}
+
+typedef int (*Array_compare)(const void *left, const void *right);
+
+typedef struct ArraySlice_t {
+   int len;
+   char *data;
+   int index;
+   char *var;
+} ArraySlice;
+
+// This code is based on bsearch pulled from the linux kernal
+int Array_binSearchWithInsertMulti(Array *arr, char *key, int *insert, Array_compare comparer, char **lowerBound, char **upperBound) {  
+   char *base  = arr->data;
+   size_t num  = arr->len;
+   size_t size = arr->elemSize;
+   char *high  = NULL;
+   char *pivot = NULL;
+   // If there are no elements in the incomming array, and lowerBound != NULL, this makes sure that the insert index is set.
+   int result = 1; 
+   while (num > 0) {
+      pivot  = base + (num >> 1) * size;
+      result = comparer((void*)key, (void*)pivot);
+
+      if (result == 0) {
+         if (lowerBound != NULL) {
+            break;
+         }
+         // Found a solution, find the right most element if this is a multi
+         char *end = arr->data + arr->len*size;
+         while (pivot+size < end && comparer(key, pivot+size) == 0) {
+            pivot += size;
+         }
+         return (int)(((size_t)(pivot-arr->data))/size);
+      }
+
+      if (result > 0) {
+         // key > elt: push base to 1 element greater than pivot
+         base = pivot + size;
+         num--;
+      } else {
+         // key < elt: we set high to point to the smallest element which compares key < elt
+         high = pivot;
+      }
+
+      num >>= 1;
+   }
+
+   if (result != 0 || lowerBound == NULL) {
+      if (high == NULL) {
+         // high == NULL implies that NO elements in the array where such that key <= elt, which implies that you should insert at the
+         // end of the array.
+         *insert = arr->len;
+      } else {
+         *insert = (int)(((size_t)(high-arr->data))/size);
+      }
+      return -1;
+   }
+
+   // Linear search to find the bounds of the multi
+   char *lower = pivot;
+   char *upper = pivot;
+   char *start = arr->data;
+   char *end   = arr->data + arr->len*size;
+   while (lower-size >= start && comparer(key, lower-size) == 0) {
+      lower -= size;
+   }
+   while (upper+size < end && comparer(key, upper+size) == 0) {
+      upper += size;
+   }
+
+   // Remember that lowerBound and upperBound can be NULL
+   *lowerBound = lower;
+   *upperBound = upper+size; // NOTE: upperBound points 1 PAST the end of the sequence
+   
+   return (int)(((size_t)(upper-arr->data))/size);
+}
+
+
+void Array_sort(Array *arr, Array_compare comparer) {
+   qsort(arr->data, arr->len, arr->elemSize, (void*)comparer);
+}
+
+void Array_binInsert(Array *arr, char *elem, Array_compare comparer, bool append) {
+   int insert = -1;
+   int index  = Array_binSearchWithInsertMulti(arr, elem, &insert, comparer, NULL, NULL);
+   if (index < 0) {
+      Error_declare(err);
+      char *d = Array_insertN(arr, insert, 1);
+      memmove(d, elem, arr->elemSize);
+      Error_clear(err);
+      return;
+   }
+
+   char *target = NULL;
+   if (append) {
+      target = Array_insertN(arr, index+1, 1);
+   } else {
+      target = Array_get(arr, index); 
+      if (arr->clearer) {
+         arr->clearer(target);
+      }
+   }
+   memmove(target, elem, arr->elemSize);
+   return;
+}
+
+void Array_binRemove(Array *arr, char *elem, Array_compare comparer, bool all) {
+   int insert = -1;
+   char *lower = NULL;
+   char *upper = NULL;
+   int index  = Array_binSearchWithInsertMulti(arr, elem, &insert, comparer, &lower, &upper);
+   if (index < 0) {
+      return;
+   }
+   if (all) {
+      size_t N = (size_t)(upper-lower)/arr->elemSize;
+      size_t ind = (lower-arr->data)/arr->elemSize;
+      Array_removeN(arr, ind, N);
+   } else {
+      Array_removeN(arr, index, 1);
+   }
+}
+
+char *Array_binSearch(Array *arr, char *elem, Array_compare comparer, ArraySlice *slice) {
+   int insert = -1;
+   char *lower = NULL;
+   char *upper = NULL;
+   int index  = Array_binSearchWithInsertMulti(arr, elem, &insert, comparer, &lower, &upper);
+   if (index < 0) {
+      return NULL;
+   }
+   if (slice != NULL) {
+      slice->index = 0;
+      slice->var   = upper;
+      slice->len   = (int)(upper-lower)/arr->elemSize;
+      slice->data  = lower;
+   }
+   return lower;
+}
 struct Track_t
 {
     Symbol *name;
@@ -103,12 +578,23 @@ typedef struct TrackAr_t {
    Track *data;
 } TrackAr;
 
-typedef struct TrackArIt_t {
+typedef struct TrackArFIt_t {
    TrackAr *arr;
+   int lBound;
+   int uBound;
+
    int index;
-   bool last;
    Track *var;
-} TrackArIt;
+} TrackArFIt;
+
+typedef struct TrackArRIt_t {
+   TrackAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   Track *var;
+} TrackArRIt;
 
 struct PortFindCell_t
 {
@@ -123,12 +609,23 @@ typedef struct PortFindCellAr_t {
    PortFindCell *data;
 } PortFindCellAr;
 
-typedef struct PortFindCellArIt_t {
+typedef struct PortFindCellArFIt_t {
    PortFindCellAr *arr;
+   int lBound;
+   int uBound;
+
    int index;
-   bool last;
    PortFindCell *var;
-} PortFindCellArIt;
+} PortFindCellArFIt;
+
+typedef struct PortFindCellArRIt_t {
+   PortFindCellAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   PortFindCell *var;
+} PortFindCellArRIt;
 
 struct TimedOff_t
 {
@@ -143,12 +640,23 @@ typedef struct TimedOffAr_t {
    TimedOff *data;
 } TimedOffAr;
 
-typedef struct TimedOffArIt_t {
+typedef struct TimedOffArFIt_t {
    TimedOffAr *arr;
+   int lBound;
+   int uBound;
+
    int index;
-   bool last;
    TimedOff *var;
-} TimedOffArIt;
+} TimedOffArFIt;
+
+typedef struct TimedOffArRIt_t {
+   TimedOffAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   TimedOff *var;
+} TimedOffArRIt;
 
 struct IndexedOff_t
 {
@@ -170,12 +678,23 @@ typedef struct IndexedOffArSlice_t {
     IndexedOff *var;
 } IndexedOffArSlice;
 
-typedef struct IndexedOffArIt_t {
+typedef struct IndexedOffArFIt_t {
    IndexedOffAr *arr;
+   int lBound;
+   int uBound;
+
    int index;
-   bool last;
    IndexedOff *var;
-} IndexedOffArIt;
+} IndexedOffArFIt;
+
+typedef struct IndexedOffArRIt_t {
+   IndexedOffAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   IndexedOff *var;
+} IndexedOffArRIt;
 
 typedef struct PadPtrAr_t {
    int len;
@@ -185,12 +704,23 @@ typedef struct PadPtrAr_t {
    Pad **data;
 } PadPtrAr;
 
-typedef struct PadPtrArIt_t {
+typedef struct PadPtrArFIt_t {
    PadPtrAr *arr;
+   int lBound;
+   int uBound;
+
    int index;
-   bool last;
    Pad **var;
-} PadPtrArIt;
+} PadPtrArFIt;
+
+typedef struct PadPtrArRIt_t {
+   PadPtrAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   Pad **var;
+} PadPtrArRIt;
 
 struct Pad_t
 {
@@ -214,12 +744,23 @@ typedef struct PadAr_t {
    Pad *data;
 } PadAr;
 
-typedef struct PadArIt_t {
+typedef struct PadArFIt_t {
    PadAr *arr;
+   int lBound;
+   int uBound;
+
    int index;
-   bool last;
    Pad *var;
-} PadArIt;
+} PadArFIt;
+
+typedef struct PadArRIt_t {
+   PadAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   Pad *var;
+} PadArRIt;
 
 typedef struct DispatchPtAr_t {
    int len;
@@ -229,21 +770,24 @@ typedef struct DispatchPtAr_t {
    Dispatch **data;
 } DispatchPtAr;
 
-typedef struct DispatchPtArIt_t {
+typedef struct DispatchPtArFIt_t {
    DispatchPtAr *arr;
-   int index;
-   bool last;
-   Dispatch **var;
-} DispatchPtArIt;
+   int lBound;
+   int uBound;
 
-struct Arguments_t
-{
-    Symbol *s1;
-    long i1;
-    long i2;
-    long ivalue;
-    long inlet;
-};
+   int index;
+   Dispatch **var;
+} DispatchPtArFIt;
+
+typedef struct DispatchPtArRIt_t {
+   DispatchPtAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   Dispatch **var;
+} DispatchPtArRIt;
+
 struct PortRef_t
 {
     Port *port;
@@ -257,18 +801,37 @@ typedef struct SymbolPtrAr_t {
    Symbol **data;
 } SymbolPtrAr;
 
-typedef struct SymbolPtrArIt_t {
+typedef struct SymbolPtrArFIt_t {
    SymbolPtrAr *arr;
+   int lBound;
+   int uBound;
+
    int index;
-   bool last;
    Symbol **var;
-} SymbolPtrArIt;
+} SymbolPtrArFIt;
+
+typedef struct SymbolPtrArRIt_t {
+   SymbolPtrAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   Symbol **var;
+} SymbolPtrArRIt;
 
 struct DropDown_t
 {
     SymbolPtrAr table;
     int selected;
     PortRef portRef;
+};
+struct Arguments_t
+{
+    Symbol *s1;
+    long i1;
+    long i2;
+    long ivalue;
+    long inlet;
 };
 struct Hub_t
 {
@@ -322,12 +885,23 @@ typedef struct MEventAr_t {
    MEvent *data;
 } MEventAr;
 
-typedef struct MEventArIt_t {
+typedef struct MEventArFIt_t {
    MEventAr *arr;
+   int lBound;
+   int uBound;
+
    int index;
-   bool last;
    MEvent *var;
-} MEventArIt;
+} MEventArFIt;
+
+typedef struct MEventArRIt_t {
+   MEventAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   MEvent *var;
+} MEventArRIt;
 
 struct Midiseq_t
 {
@@ -357,12 +931,23 @@ typedef struct IntAr_t {
    int *data;
 } IntAr;
 
-typedef struct IntArIt_t {
+typedef struct IntArFIt_t {
    IntAr *arr;
+   int lBound;
+   int uBound;
+
    int index;
-   bool last;
    int *var;
-} IntArIt;
+} IntArFIt;
+
+typedef struct IntArRIt_t {
+   IntAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   int *var;
+} IntArRIt;
 
 typedef struct PtrAr_t {
    int len;
@@ -372,12 +957,23 @@ typedef struct PtrAr_t {
    void **data;
 } PtrAr;
 
-typedef struct PtrArIt_t {
+typedef struct PtrArFIt_t {
    PtrAr *arr;
+   int lBound;
+   int uBound;
+
    int index;
-   bool last;
    void **var;
-} PtrArIt;
+} PtrArFIt;
+
+typedef struct PtrArRIt_t {
+   PtrAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   void **var;
+} PtrArRIt;
 
 struct ManageChokeGroupsDispatch_t
 {
@@ -594,7 +1190,7 @@ static inline void Arguments_setIvalue(Arguments *self, long value){self->ivalue
 static inline void Arguments_setInlet(Arguments *self, long value){self->inlet = value;}
 static inline int Marshal_nthIType(int n, int *itype) {
     static int itypes[] = {
-        MarshalSs_itype, MarshalSii_itype, MarshalSi_itype
+        MarshalSi_itype, MarshalSs_itype, MarshalSii_itype
     };
     static int len = sizeof(itypes)/sizeof(int);
     if (n < 0 || n >= len) {
@@ -633,7 +1229,7 @@ static inline Marshal *MarshalSs_castToMarshal(MarshalSs *self) {
 }
 static inline int Dispatch_nthIType(int n, int *itype) {
     static int itypes[] = {
-        MidiFileDropDispatch_itype, ManageChokeGroupsDispatch_itype, DecrementFrameDispatch_itype, IncrementFrameDispatch_itype, SelectNextPushedPadDispatch_itype
+        ManageChokeGroupsDispatch_itype, SelectNextPushedPadDispatch_itype, IncrementFrameDispatch_itype, DecrementFrameDispatch_itype, MidiFileDropDispatch_itype
     };
     static int len = sizeof(itypes)/sizeof(int);
     if (n < 0 || n >= len) {
@@ -700,7 +1296,7 @@ static inline void MEventAr_fit(MEventAr *arr) {
     Array_fit((Array*)arr);
 }
 
-#define MEventAr_foreach(var, arr)  for (MEventArIt_declare(var, arr); MEventArIt_next(&var); )            
+#define MEventAr_foreach(var, arr)  for (MEventArFIt_declare(var, arr); MEventArFIt_next(&var); )            
 
 static inline MEvent MEventAr_get(MEventAr *arr, int index, Error *err) {
     MEvent v = {0};
@@ -738,19 +1334,19 @@ static inline void MEventAr_push(MEventAr *arr, MEvent elem) {
     return; 
 }            
 
-#define MEventAr_rforeach(var, arr)  for (MEventArIt_rdeclare(var, arr); MEventArIt_previous(&var); )            
+#define MEventAr_rforeach(var, arr)  for (MEventArRIt_declare(var, arr); MEventArRIt_next(&var); )            
 
-#define MEventArIt_declare(var, arr)  MEventArIt var = {arr, -1, false, NULL}            
+#define MEventArFIt_declare(var, arr)  MEventArFIt var = {arr, 0, (arr)->len, -1, NULL}
 
-static inline bool MEventArIt_next(MEventArIt *iterator) {
-    return ArrayIt_next((ArrayIt*)iterator);
+static inline bool MEventArFIt_next(MEventArFIt *iterator) {
+    return ArrayFIt_next((ArrayFIt*)iterator);
 }
 
-static inline bool MEventArIt_previous(MEventArIt *iterator) {
-    return ArrayIt_previous((ArrayIt*)iterator);
-}            
+#define MEventArRIt_declare(var, arr)  MEventArRIt var = {arr, 0, (arr)->len, (arr)->len, NULL}
 
-#define MEventArIt_rdeclare(var, arr)  MEventArIt var = {arr, MEventAr_len(arr), false, NULL}            
+static inline bool MEventArRIt_next(MEventArRIt *iterator) {
+    return ArrayRIt_next((ArrayRIt*)iterator);
+}
 
 static inline void *PtrAr_get(PtrAr *arr, int index, Error *err) {
     void * v = {0};
@@ -765,7 +1361,7 @@ static inline void SymbolPtrAr_clear(SymbolPtrAr *arr) {
     *arr = zero;
 }
 
-#define SymbolPtrAr_foreach(var, arr)  for (SymbolPtrArIt_declare(var, arr); SymbolPtrArIt_next(&var); )            
+#define SymbolPtrAr_foreach(var, arr)  for (SymbolPtrArFIt_declare(var, arr); SymbolPtrArFIt_next(&var); )            
 
 static inline Symbol *SymbolPtrAr_get(SymbolPtrAr *arr, int index, Error *err) {
     Symbol * v = {0};
@@ -788,10 +1384,10 @@ static inline void SymbolPtrAr_push(SymbolPtrAr *arr, Symbol *elem) {
     return; 
 }            
 
-#define SymbolPtrArIt_declare(var, arr)  SymbolPtrArIt var = {arr, -1, false, NULL}            
+#define SymbolPtrArFIt_declare(var, arr)  SymbolPtrArFIt var = {arr, 0, (arr)->len, -1, NULL}
 
-static inline bool SymbolPtrArIt_next(SymbolPtrArIt *iterator) {
-    return ArrayIt_next((ArrayIt*)iterator);
+static inline bool SymbolPtrArFIt_next(SymbolPtrArFIt *iterator) {
+    return ArrayFIt_next((ArrayFIt*)iterator);
 }
 
 static inline int BinFile_version(BinFile *self){return self->version;}
@@ -902,7 +1498,7 @@ static inline void PadAr_fit(PadAr *arr) {
     Array_fit((Array*)arr);
 }
 
-#define PadAr_foreach(var, arr)  for (PadArIt_declare(var, arr); PadArIt_next(&var); )            
+#define PadAr_foreach(var, arr)  for (PadArFIt_declare(var, arr); PadArFIt_next(&var); )            
 
 static inline Pad *PadAr_getp(PadAr *arr, int index, Error *err) {
     Array_getCheck(arr, index, NULL, err);
@@ -923,10 +1519,10 @@ static inline void PadAr_push(PadAr *arr, Pad elem) {
     return; 
 }            
 
-#define PadArIt_declare(var, arr)  PadArIt var = {arr, -1, false, NULL}            
+#define PadArFIt_declare(var, arr)  PadArFIt var = {arr, 0, (arr)->len, -1, NULL}
 
-static inline bool PadArIt_next(PadArIt *iterator) {
-    return ArrayIt_next((ArrayIt*)iterator);
+static inline bool PadArFIt_next(PadArFIt *iterator) {
+    return ArrayFIt_next((ArrayFIt*)iterator);
 }
 
 static inline void PadPtrAr_clear(PadPtrAr *arr) {
@@ -935,7 +1531,7 @@ static inline void PadPtrAr_clear(PadPtrAr *arr) {
     *arr = zero;
 }
 
-#define PadPtrAr_foreach(var, arr)  for (PadPtrArIt_declare(var, arr); PadPtrArIt_next(&var); )            
+#define PadPtrAr_foreach(var, arr)  for (PadPtrArFIt_declare(var, arr); PadPtrArFIt_next(&var); )            
 
 static inline void PadPtrAr_init(PadPtrAr *arr, int nelems) {
     Array_init((Array*)arr, nelems, sizeof(Pad *), (Array_clearElement)NULL);
@@ -952,10 +1548,14 @@ static inline void PadPtrAr_remove(PadPtrAr *arr, int index, Error *err) {
     Array_removeN((Array*)arr, index, 1);
 }    
 
-#define PadPtrArIt_declare(var, arr)  PadPtrArIt var = {arr, -1, false, NULL}            
+#define PadPtrArFIt_declare(var, arr)  PadPtrArFIt var = {arr, 0, (arr)->len, -1, NULL}
 
-static inline bool PadPtrArIt_next(PadPtrArIt *iterator) {
-    return ArrayIt_next((ArrayIt*)iterator);
+static inline bool PadPtrArFIt_next(PadPtrArFIt *iterator) {
+    return ArrayFIt_next((ArrayFIt*)iterator);
+}
+
+static inline bool PadPtrArFIt_remove(PadPtrArFIt *iterator) {
+    return ArrayFIt_remove((ArrayFIt*)iterator);
 }
 
 static inline void IndexedOffAr_clear(IndexedOffAr *arr) {
@@ -966,7 +1566,7 @@ static inline void IndexedOffAr_clear(IndexedOffAr *arr) {
 
 #define IndexedOffAr_declareSlice(name) IndexedOffArSlice name = {0}            
 
-#define IndexedOffAr_foreach(var, arr)  for (IndexedOffArIt_declare(var, arr); IndexedOffArIt_next(&var); )            
+#define IndexedOffAr_foreach(var, arr)  for (IndexedOffArFIt_declare(var, arr); IndexedOffArFIt_next(&var); )            
 
 static inline void IndexedOffAr_init(IndexedOffAr *arr, int nelems) {
     Array_init((Array*)arr, nelems, sizeof(IndexedOff), (Array_clearElement)NULL);
@@ -985,10 +1585,10 @@ static inline void IndexedOffAr_truncate(IndexedOffAr *arr) {
     Array_truncate((Array*)arr);
 }
 
-#define IndexedOffArIt_declare(var, arr)  IndexedOffArIt var = {arr, -1, false, NULL}            
+#define IndexedOffArFIt_declare(var, arr)  IndexedOffArFIt var = {arr, 0, (arr)->len, -1, NULL}
 
-static inline bool IndexedOffArIt_next(IndexedOffArIt *iterator) {
-    return ArrayIt_next((ArrayIt*)iterator);
+static inline bool IndexedOffArFIt_next(IndexedOffArFIt *iterator) {
+    return ArrayFIt_next((ArrayFIt*)iterator);
 }
 
 static inline void IndexedOffAr_binInsertPadIndex(IndexedOffAr *arr, IndexedOff elem) {
@@ -1014,7 +1614,7 @@ static inline void TimedOffAr_clear(TimedOffAr *arr) {
     *arr = zero;
 }
 
-#define TimedOffAr_foreach(var, arr)  for (TimedOffArIt_declare(var, arr); TimedOffArIt_next(&var); )            
+#define TimedOffAr_foreach(var, arr)  for (TimedOffArFIt_declare(var, arr); TimedOffArFIt_next(&var); )            
 
 static inline void TimedOffAr_init(TimedOffAr *arr, int nelems) {
     Array_init((Array*)arr, nelems, sizeof(TimedOff), (Array_clearElement)NULL);
@@ -1034,10 +1634,10 @@ static inline void TimedOffAr_truncate(TimedOffAr *arr) {
     Array_truncate((Array*)arr);
 }
 
-#define TimedOffArIt_declare(var, arr)  TimedOffArIt var = {arr, -1, false, NULL}            
+#define TimedOffArFIt_declare(var, arr)  TimedOffArFIt var = {arr, 0, (arr)->len, -1, NULL}
 
-static inline bool TimedOffArIt_next(TimedOffArIt *iterator) {
-    return ArrayIt_next((ArrayIt*)iterator);
+static inline bool TimedOffArFIt_next(TimedOffArFIt *iterator) {
+    return ArrayFIt_next((ArrayFIt*)iterator);
 }
 
 static inline void TimedOffAr_binInsertTime(TimedOffAr *arr, TimedOff elem) {
@@ -1051,7 +1651,7 @@ static inline void PortFindCellAr_clear(PortFindCellAr *arr) {
     *arr = zero;
 }
 
-#define PortFindCellAr_foreach(var, arr)  for (PortFindCellArIt_declare(var, arr); PortFindCellArIt_next(&var); )            
+#define PortFindCellAr_foreach(var, arr)  for (PortFindCellArFIt_declare(var, arr); PortFindCellArFIt_next(&var); )            
 
 static inline PortFindCell PortFindCellAr_get(PortFindCellAr *arr, int index, Error *err) {
     PortFindCell v = {0};
@@ -1074,13 +1674,13 @@ static inline void PortFindCellAr_push(PortFindCellAr *arr, PortFindCell elem) {
     return; 
 }            
 
-#define PortFindCellArIt_declare(var, arr)  PortFindCellArIt var = {arr, -1, false, NULL}            
+#define PortFindCellArFIt_declare(var, arr)  PortFindCellArFIt var = {arr, 0, (arr)->len, -1, NULL}
 
-static inline bool PortFindCellArIt_next(PortFindCellArIt *iterator) {
-    return ArrayIt_next((ArrayIt*)iterator);
+static inline bool PortFindCellArFIt_next(PortFindCellArFIt *iterator) {
+    return ArrayFIt_next((ArrayFIt*)iterator);
 }
 
-#define TrackAr_foreach(var, arr)  for (TrackArIt_declare(var, arr); TrackArIt_next(&var); )            
+#define TrackAr_foreach(var, arr)  for (TrackArFIt_declare(var, arr); TrackArFIt_next(&var); )            
 
 static inline Track *TrackAr_getp(TrackAr *arr, int index, Error *err) {
     Array_getCheck(arr, index, NULL, err);
@@ -1101,10 +1701,10 @@ static inline void TrackAr_push(TrackAr *arr, Track elem) {
     return; 
 }            
 
-#define TrackArIt_declare(var, arr)  TrackArIt var = {arr, -1, false, NULL}            
+#define TrackArFIt_declare(var, arr)  TrackArFIt var = {arr, 0, (arr)->len, -1, NULL}
 
-static inline bool TrackArIt_next(TrackArIt *iterator) {
-    return ArrayIt_next((ArrayIt*)iterator);
+static inline bool TrackArFIt_next(TrackArFIt *iterator) {
+    return ArrayFIt_next((ArrayFIt*)iterator);
 }
 
 #define Hub_padsPerFrame           24
@@ -2038,7 +2638,7 @@ APIF void Midiseq_insertEndgroup(Midiseq *mseq, Error *err)
     MEventAr_rforeach(it, &mseq->events) {
         if (it.var->type == Midiseq_notetype) {
             cell.t = it.var->t;
-            while (MEventArIt_previous(&it)) {
+            while (MEventArRIt_next(&it)) {
                 if (cell.t != it.var->t) {
                     break;
                 }
