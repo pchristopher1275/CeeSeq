@@ -3,15 +3,7 @@
 #include <stdlib.h>
 
 typedef void (*Array_clearElement)(char *);
-/*
-typedef struct Array_t {
-   int len;
-   int cap;
-   int elemSize;
-   Array_clearElement clearer;
-   char *data;
-} Array;
-*/
+
 Array *Array_new(int nelems, int elemSize, Array_clearElement clearer);
 void Array_init(Array *arr, int nelems, int elemSize, Array_clearElement clearer);
 void Array_clear(Array *arr);
@@ -243,46 +235,6 @@ int Array_elemSize(Array *arr){
    return arr->elemSize;
 }
 
-/*
-typedef struct ArrayIt {
-   Array *arr;
-   int index;
-   bool last;
-   char *element;
-} ArrayIt;
-*/
-
-
-// bool ArrayIt_next(ArrayIt *iterator) {
-//    if (iterator->jump >= 0) {
-//       iterator->index = iterator->jump;
-//       iterator->jump  = -1;
-//    }
-//    if (iterator->index+1 < 0 || iterator->index+1 >= Array_len(iterator->arr)) {
-//       return false;
-//    }
-
-//    iterator->index++;
-//    iterator->var  = Array_get(iterator->arr, iterator->index);
-//    return true;
-// }
-
-// bool ArrayIt_previous(ArrayIt *iterator) {
-//    if (iterator->jump >= 0) {
-//       iterator->index = iterator->jump;
-//       iterator->jump  = -1;
-//    }
-//    if (iterator->index-1 < 0 || iterator->index-1 >= Array_len(iterator->arr)) {
-//       return false;
-//    }   
-   
-//    iterator->index--;
-//    iterator->var  = Array_get(iterator->arr, iterator->index);
-
-//    return true;
-// }
-
-
 bool ArrayFIt_next(ArrayFIt *iterator) {
    if (iterator->index+1 < iterator->lBound || iterator->index+1 >= iterator->uBound) {
       return false;
@@ -446,23 +398,6 @@ void Array_binRemove(Array *arr, char *elem, Array_compare comparer, bool all) {
       Array_removeN(arr, index, 1);
    }
 }
-
-// char *Array_binSearchOLD(Array *arr, char *elem, Array_compare comparer, ArraySlice *slice) {
-//    int insert = -1;
-//    char *lower = NULL;
-//    char *upper = NULL;
-//    int index  = Array_binSearchWithInsertMulti(arr, elem, &insert, comparer, &lower, &upper);
-//    if (index < 0) {
-//       return NULL;
-//    }
-//    if (slice != NULL) {
-//       slice->index = 0;
-//       slice->var   = upper;
-//       slice->len   = (int)(upper-lower)/arr->elemSize;
-//       slice->data  = lower;
-//    }
-//    return lower;
-// }
 
 char *Array_binSearch(Array *arr, char *elem, Array_compare comparer, ArrayFIt *iterator) {
    int insert = -1;

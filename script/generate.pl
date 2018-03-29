@@ -402,17 +402,6 @@ ENDxxxxxxxxxx
 ENDxxxxxxxxxx
 	},	
 
-
-# 	{
-# 		key =>    'ArrayIt:previous',
-# 		symbol => '${TYPENAME}It_previous',
-# 		tmpl   => <<'ENDxxxxxxxxxx', 
-# 			@static inline bool ${TYPENAME}It_previous(${TYPENAME}It *iterator) {
-# 			@	return ArrayIt_previous((ArrayIt*)iterator);
-# 			@}			
-# ENDxxxxxxxxxx
-# 	},	
-
 	{
 		key    =>    'ArrayFIt:declare',
 		symbol => '${TYPENAME}FIt_declare',
@@ -444,16 +433,6 @@ ENDxxxxxxxxxx
 			@#define ${TYPENAME}RIt_declare0(var)  ${TYPENAME}RIt var = {0}
 ENDxxxxxxxxxx
 	},	
-
-
-# 	{
-# 		key =>    'ArrayIt:rdeclare',
-# 		implies => ['Array:len'],
-# 		symbol => '${TYPENAME}It_rdeclare',
-# 		tmpl   => <<'ENDxxxxxxxxxx', 
-# 			@#define ${TYPENAME}It_rdeclare(var, arr)  ${TYPENAME}It var = {arr, ${TYPENAME}_len(arr), false, NULL}			
-# ENDxxxxxxxxxx
-# 	},	
 
 	{
 		key     =>  'Array:foreach',
@@ -587,19 +566,6 @@ ENDxxxxxxxxxx
 			@}				
 ENDxxxxxxxxxx
 	},	
-
-# 	{
-# 		key =>    'Array:binSearchSliceReturn',
-# 		symbol => '${TYPENAME}_binSearch${TAG}',
-# 		tmpl   => <<'ENDxxxxxxxxxx', 
-# 			@static inline ${TYPENAME}Slice ${TYPENAME}_binSearch${TAG}(${TYPENAME} *arr, ${ELEMNAME}elem) {
-# 			@	int (*compare)(${ELEMNAME}*, ${ELEMNAME}*) = ${COMPARE};
-# 			@	${TYPENAME}Slice slice = {0};
-# 			@	Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, (ArraySlice*)&slice);
-# 			@	return slice;
-# 			@}
-# ENDxxxxxxxxxx
-# 	},
 
 	{
 		key =>    'Array:binSearchSliceReturn',
@@ -798,18 +764,18 @@ ENDxxxxxxxxxx
 		key =>    'Interface:foreachIType',
 		symbol => '',
 		tmpl   => <<'ENDxxxxxxxxxx', 
-static inline int ${IFCNAME}_nthIType(int n, int *itype) {
-	static int itypes[] = {
-		${ITYPELIST}
-	};
-	static int len = sizeof(itypes)/sizeof(int);
-	if (n < 0 || n >= len) {
-		return 0;
-	}
-	*itype = itypes[n];
-	return 1;
-}
-#define ${IFCNAME}_foreachIType(itype) for (int __##itype = 0, itype = 0; ${IFCNAME}_nthIType(__##itype, &itype); __##itype++)
+			@static inline int ${IFCNAME}_nthIType(int n, int *itype) {
+			@	static int itypes[] = {
+			@		${ITYPELIST}
+			@	};
+			@	static int len = sizeof(itypes)/sizeof(int);
+			@	if (n < 0 || n >= len) {
+			@		return 0;
+			@	}
+			@	*itype = itypes[n];
+			@	return 1;
+			@}
+			@#define ${IFCNAME}_foreachIType(itype) for (int __##itype = 0, itype = 0; ${IFCNAME}_nthIType(__##itype, &itype); __##itype++)
 ENDxxxxxxxxxx
 	},
 
