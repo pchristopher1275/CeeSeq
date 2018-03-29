@@ -1,13 +1,13 @@
-// *** DO NOT MODIFY THIS FILE generated 03/27/2018 16:10:58 ***
-// *** DO NOT MODIFY THIS FILE generated 03/27/2018 16:10:58 ***
-// *** DO NOT MODIFY THIS FILE generated 03/27/2018 16:10:58 ***
-// *** DO NOT MODIFY THIS FILE generated 03/27/2018 16:10:58 ***
-// *** DO NOT MODIFY THIS FILE generated 03/27/2018 16:10:58 ***
-// *** DO NOT MODIFY THIS FILE generated 03/27/2018 16:10:58 ***
-// *** DO NOT MODIFY THIS FILE generated 03/27/2018 16:10:58 ***
-// *** DO NOT MODIFY THIS FILE generated 03/27/2018 16:10:58 ***
-// *** DO NOT MODIFY THIS FILE generated 03/27/2018 16:10:58 ***
-// *** DO NOT MODIFY THIS FILE generated 03/27/2018 16:10:58 ***
+// *** DO NOT MODIFY THIS FILE generated 03/29/2018 13:47:57 ***
+// *** DO NOT MODIFY THIS FILE generated 03/29/2018 13:47:57 ***
+// *** DO NOT MODIFY THIS FILE generated 03/29/2018 13:47:57 ***
+// *** DO NOT MODIFY THIS FILE generated 03/29/2018 13:47:57 ***
+// *** DO NOT MODIFY THIS FILE generated 03/29/2018 13:47:57 ***
+// *** DO NOT MODIFY THIS FILE generated 03/29/2018 13:47:57 ***
+// *** DO NOT MODIFY THIS FILE generated 03/29/2018 13:47:57 ***
+// *** DO NOT MODIFY THIS FILE generated 03/29/2018 13:47:57 ***
+// *** DO NOT MODIFY THIS FILE generated 03/29/2018 13:47:57 ***
+// *** DO NOT MODIFY THIS FILE generated 03/29/2018 13:47:57 ***
 struct Arguments_t;
 typedef struct Arguments_t Arguments;
 struct Marshal_t;
@@ -581,10 +581,152 @@ char *Array_binSearch(Array *arr, char *elem, Array_compare comparer, ArrayFIt *
       iterator->index  = iterator->lBound-1;
       iterator->var    = NULL;
    }
-   
+
    return lower;
 }
 
+//
+// Priority queue. This code is ported from https://golang.org/src/container/heap/heap.go
+//
+
+#define PQ_LESS(i, j) ((comparer(arr->data + arr->elemSize*i, arr->data + arr->elemSize*j)) < 0)
+#define PQ_SWAP(i, j) do {\
+   memmove(arr->data + arr->elemSize*arr->len, arr->data + arr->elemSize*i,        arr->elemSize);\
+   memmove(arr->data + arr->elemSize*i,        arr->data + arr->elemSize*j,        arr->elemSize);\
+   memmove(arr->data + arr->elemSize*j,        arr->data + arr->elemSize*arr->len, arr->elemSize);\
+} while (0)
+
+
+/*
+func up(h Interface, j int) {
+   for {
+      i := (j - 1) / 2 // parent
+      if i == j || !h.Less(j, i) {
+         break
+      }
+      h.Swap(i, j)
+      j = i
+   }
+}
+*/
+
+void Array_pqUp(Array *arr, int j, int (*comparer)(char *, char*)) 
+{
+   Array_mayGrow(arr, 1); // use the first unused element of the array as the swap space
+   for (;;) {
+      int i = (j-1)/2; // parent
+      if (i == j || !PQ_LESS(j, i)) {
+         break;
+      }
+      PQ_SWAP(i, j);
+      j = i;
+   }
+}
+
+/*
+func down(h Interface, i0, n int) bool {
+   i := i0
+   for {
+      j1 := 2*i + 1
+      if j1 >= n || j1 < 0 { // j1 < 0 after int overflow
+         break
+      }
+      j := j1 // left child
+      if j2 := j1 + 1; j2 < n && h.Less(j2, j1) {
+         j = j2 // = 2*i + 2  // right child
+      }
+      if !h.Less(j, i) {
+         break
+      }
+      h.Swap(i, j)
+      i = j
+   }
+   return i > i0
+}
+*/
+bool Array_pqDown(Array *arr, int i0, int n, int (*comparer)(char *, char*)) {
+   Array_mayGrow(arr, 1);
+   int i = i0;
+   for (;;) {
+      int j1 = 2*i + 1; // left child
+      if (j1 >= n || j1 < 0) { // j1 < 0 after int overflow
+         break; 
+      }
+      int j = j1; 
+      int j2 = j1 + 1; // right child
+      if (j2 < n && PQ_LESS(j2, j1)) {
+         j = j2;
+      }
+      if (PQ_LESS(j, i)) {
+         break;
+      }
+      PQ_SWAP(i, j);
+      i = j;
+   }
+   return i > i0;
+}
+
+/*
+func Init(h Interface) {
+   // heapify
+   n := h.Len()
+   for i := n/2 - 1; i >= 0; i-- {
+      down(h, i, n)
+   }
+}
+*/
+
+void Array_pqSort(Array *arr, int (*comparer)(char *, char*)) 
+{
+   int n = Array_len(arr);
+   for (int i = n/2-1; i >= 0; i--) {
+      Array_pqDown(arr, i, n, comparer);
+   }
+}
+
+/*
+func Push(h Interface, x interface{}) {
+   h.Push(x)
+   up(h, h.Len()-1)
+}
+*/
+
+void Array_pqPush(Array *arr, char *elem, int (*comparer)(char *, char*))
+{
+   char *dst = Array_pushN(arr, 1);
+   memmove(dst, elem, arr->elemSize);
+   Array_pqUp(arr, Array_len(arr)-1, comparer);
+}
+
+/*
+func Pop(h Interface) interface{} {
+   n := h.Len() - 1
+   h.Swap(0, n)
+   down(h, 0, n)
+   return h.Pop()
+}
+*/
+
+void Array_pqPop(Array *arr, char *elem, int (*comparer)(char *, char*)) 
+{
+
+   int n = Array_len(arr)-1;
+   memmove(elem, arr->data, arr->elemSize);
+   PQ_SWAP(0, n);
+   Array_pqDown(arr, 0, n, comparer);
+   // XXX: how to handle the clearer in this??
+   Array_popN(arr, 1);
+}
+
+char *Array_pqPeek(Array *arr) {
+   if (Array_len(arr) > 0) {
+      return arr->data;
+   }
+   return NULL;
+}
+
+#undef PQ_LESS
+#undef PQ_SWAP
 struct Track_t
 {
     Symbol *name;
@@ -808,11 +950,6 @@ typedef struct DispatchPtArRIt_t {
    Dispatch **var;
 } DispatchPtArRIt;
 
-struct PortRef_t
-{
-    Port *port;
-    int outlet;
-};
 typedef struct SymbolPtrAr_t {
    int len;
    int cap;
@@ -839,6 +976,11 @@ typedef struct SymbolPtrArRIt_t {
    Symbol **var;
 } SymbolPtrArRIt;
 
+struct PortRef_t
+{
+    Port *port;
+    int outlet;
+};
 struct DropDown_t
 {
     SymbolPtrAr table;
@@ -1249,7 +1391,7 @@ static inline Marshal *MarshalSs_castToMarshal(MarshalSs *self) {
 }
 static inline int Dispatch_nthIType(int n, int *itype) {
     static int itypes[] = {
-        IncrementFrameDispatch_itype, DecrementFrameDispatch_itype, SelectNextPushedPadDispatch_itype, ManageChokeGroupsDispatch_itype, MidiFileDropDispatch_itype
+        ManageChokeGroupsDispatch_itype, MidiFileDropDispatch_itype, DecrementFrameDispatch_itype, SelectNextPushedPadDispatch_itype, IncrementFrameDispatch_itype
     };
     static int len = sizeof(itypes)/sizeof(int);
     if (n < 0 || n >= len) {
