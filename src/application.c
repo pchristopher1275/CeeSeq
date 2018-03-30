@@ -1,13 +1,13 @@
-// *** DO NOT MODIFY THIS FILE generated 03/29/2018 13:47:57 ***
-// *** DO NOT MODIFY THIS FILE generated 03/29/2018 13:47:57 ***
-// *** DO NOT MODIFY THIS FILE generated 03/29/2018 13:47:57 ***
-// *** DO NOT MODIFY THIS FILE generated 03/29/2018 13:47:57 ***
-// *** DO NOT MODIFY THIS FILE generated 03/29/2018 13:47:57 ***
-// *** DO NOT MODIFY THIS FILE generated 03/29/2018 13:47:57 ***
-// *** DO NOT MODIFY THIS FILE generated 03/29/2018 13:47:57 ***
-// *** DO NOT MODIFY THIS FILE generated 03/29/2018 13:47:57 ***
-// *** DO NOT MODIFY THIS FILE generated 03/29/2018 13:47:57 ***
-// *** DO NOT MODIFY THIS FILE generated 03/29/2018 13:47:57 ***
+// *** DO NOT MODIFY THIS FILE generated 03/29/2018 19:44:15 ***
+// *** DO NOT MODIFY THIS FILE generated 03/29/2018 19:44:15 ***
+// *** DO NOT MODIFY THIS FILE generated 03/29/2018 19:44:15 ***
+// *** DO NOT MODIFY THIS FILE generated 03/29/2018 19:44:15 ***
+// *** DO NOT MODIFY THIS FILE generated 03/29/2018 19:44:15 ***
+// *** DO NOT MODIFY THIS FILE generated 03/29/2018 19:44:15 ***
+// *** DO NOT MODIFY THIS FILE generated 03/29/2018 19:44:15 ***
+// *** DO NOT MODIFY THIS FILE generated 03/29/2018 19:44:15 ***
+// *** DO NOT MODIFY THIS FILE generated 03/29/2018 19:44:15 ***
+// *** DO NOT MODIFY THIS FILE generated 03/29/2018 19:44:15 ***
 struct Arguments_t;
 typedef struct Arguments_t Arguments;
 struct Marshal_t;
@@ -22,6 +22,8 @@ typedef struct Dispatch_t DecrementFrameDispatch;
 typedef struct Dispatch_t SelectNextPushedPadDispatch;
 typedef struct Dispatch_t MidiFileDropDispatch;
 typedef struct Dispatch_t ManageChokeGroupsDispatch;
+struct Port_t;
+typedef struct Port_t Port;
 struct MEventAr_t;
 typedef struct MEventAr_t MEventAr;
 struct PtrAr_t;
@@ -105,15 +107,7 @@ typedef struct ArrayRIt_t {
 #include <stdlib.h>
 
 typedef void (*Array_clearElement)(char *);
-/*
-typedef struct Array_t {
-   int len;
-   int cap;
-   int elemSize;
-   Array_clearElement clearer;
-   char *data;
-} Array;
-*/
+
 Array *Array_new(int nelems, int elemSize, Array_clearElement clearer);
 void Array_init(Array *arr, int nelems, int elemSize, Array_clearElement clearer);
 void Array_clear(Array *arr);
@@ -345,46 +339,6 @@ int Array_elemSize(Array *arr){
    return arr->elemSize;
 }
 
-/*
-typedef struct ArrayIt {
-   Array *arr;
-   int index;
-   bool last;
-   char *element;
-} ArrayIt;
-*/
-
-
-// bool ArrayIt_next(ArrayIt *iterator) {
-//    if (iterator->jump >= 0) {
-//       iterator->index = iterator->jump;
-//       iterator->jump  = -1;
-//    }
-//    if (iterator->index+1 < 0 || iterator->index+1 >= Array_len(iterator->arr)) {
-//       return false;
-//    }
-
-//    iterator->index++;
-//    iterator->var  = Array_get(iterator->arr, iterator->index);
-//    return true;
-// }
-
-// bool ArrayIt_previous(ArrayIt *iterator) {
-//    if (iterator->jump >= 0) {
-//       iterator->index = iterator->jump;
-//       iterator->jump  = -1;
-//    }
-//    if (iterator->index-1 < 0 || iterator->index-1 >= Array_len(iterator->arr)) {
-//       return false;
-//    }   
-   
-//    iterator->index--;
-//    iterator->var  = Array_get(iterator->arr, iterator->index);
-
-//    return true;
-// }
-
-
 bool ArrayFIt_next(ArrayFIt *iterator) {
    if (iterator->index+1 < iterator->lBound || iterator->index+1 >= iterator->uBound) {
       return false;
@@ -548,23 +502,6 @@ void Array_binRemove(Array *arr, char *elem, Array_compare comparer, bool all) {
       Array_removeN(arr, index, 1);
    }
 }
-
-// char *Array_binSearchOLD(Array *arr, char *elem, Array_compare comparer, ArraySlice *slice) {
-//    int insert = -1;
-//    char *lower = NULL;
-//    char *upper = NULL;
-//    int index  = Array_binSearchWithInsertMulti(arr, elem, &insert, comparer, &lower, &upper);
-//    if (index < 0) {
-//       return NULL;
-//    }
-//    if (slice != NULL) {
-//       slice->index = 0;
-//       slice->var   = upper;
-//       slice->len   = (int)(upper-lower)/arr->elemSize;
-//       slice->data  = lower;
-//    }
-//    return lower;
-// }
 
 char *Array_binSearch(Array *arr, char *elem, Array_compare comparer, ArrayFIt *iterator) {
    int insert = -1;
@@ -761,7 +698,7 @@ typedef struct TrackArRIt_t {
 struct PortFindCell_t
 {
     Port *reciever;
-    t_symbol *varname;
+    Symbol *varname;
 };
 typedef struct PortFindCellAr_t {
    int len;
@@ -886,7 +823,7 @@ typedef struct PadPtrArRIt_t {
 
 struct Pad_t
 {
-    t_symbol *trackName;
+    Symbol *trackName;
     int padIndex;
     Midiseq *sequence;
     bool chokeGroupGlobal;
@@ -950,6 +887,11 @@ typedef struct DispatchPtArRIt_t {
    Dispatch **var;
 } DispatchPtArRIt;
 
+struct PortRef_t
+{
+    Port *port;
+    int outlet;
+};
 typedef struct SymbolPtrAr_t {
    int len;
    int cap;
@@ -976,11 +918,6 @@ typedef struct SymbolPtrArRIt_t {
    Symbol **var;
 } SymbolPtrArRIt;
 
-struct PortRef_t
-{
-    Port *port;
-    int outlet;
-};
 struct DropDown_t
 {
     SymbolPtrAr table;
@@ -1037,7 +974,7 @@ struct NoteManager_t
     TimedOffAr pending;
     IndexedOffAr endgroups;
     Port *output;
-    t_atom *atoms;
+    Atom *atoms;
 };
 typedef struct MEventAr_t {
    int len;
@@ -1137,6 +1074,20 @@ typedef struct PtrArRIt_t {
    void **var;
 } PtrArRIt;
 
+struct Port_t
+{
+    t_object d_obj;
+    long inletnum;
+    PtrAr proxy;
+    PtrAr outlet;
+    Symbol *track;
+    Symbol *id;
+    long intInlets;
+    long intOutlets;
+    void *hub;
+    Port_anythingDispatchFunc anythingDispatch;
+    Port_intDispatchFunc intDispatch;
+};
 struct ManageChokeGroupsDispatch_t
 {
     int itype;
@@ -1205,7 +1156,10 @@ int Dispatch_cmp(Dispatch **leftp, Dispatch **rightp);
 void Dispatch_freeDefault(Dispatch *d);
 void Dispatch_initDispatchPtArDefault(int itype, DispatchPtAr *disPtAr, Error *err);
 void DispatchPtAr_populate(DispatchPtAr *self, Error *err);
-int Midiseq_Midiseq_convertIntFileLine(const char *src, Error *err, const char *function, const char *file, int line);
+int port_parseEvSymbol(Symbol *id);
+void Port_send(Port *port, int outletIndex, short argc, Atom *argv, Error *err);
+void Port_sendInteger(Port *p, int outlet, long value);
+int Midiseq_convertIntFileLine(const char *src, Error *err, const char *function, const char *file, int line);
 Midiseq *Midiseq_new();
 void Midiseq_toBinFile(Midiseq *mseq, BinFile *bf, Error *err);
 Midiseq *Midiseq_fromBinFile(BinFile *bf, Error *err);
@@ -1352,7 +1306,7 @@ static inline void Arguments_setIvalue(Arguments *self, long value){self->ivalue
 static inline void Arguments_setInlet(Arguments *self, long value){self->inlet = value;}
 static inline int Marshal_nthIType(int n, int *itype) {
     static int itypes[] = {
-        MarshalSs_itype, MarshalSii_itype, MarshalSi_itype
+        MarshalSii_itype, MarshalSi_itype, MarshalSs_itype
     };
     static int len = sizeof(itypes)/sizeof(int);
     if (n < 0 || n >= len) {
@@ -1391,7 +1345,7 @@ static inline Marshal *MarshalSs_castToMarshal(MarshalSs *self) {
 }
 static inline int Dispatch_nthIType(int n, int *itype) {
     static int itypes[] = {
-        ManageChokeGroupsDispatch_itype, MidiFileDropDispatch_itype, DecrementFrameDispatch_itype, SelectNextPushedPadDispatch_itype, IncrementFrameDispatch_itype
+        MidiFileDropDispatch_itype, ManageChokeGroupsDispatch_itype, DecrementFrameDispatch_itype, SelectNextPushedPadDispatch_itype, IncrementFrameDispatch_itype
     };
     static int len = sizeof(itypes)/sizeof(int);
     if (n < 0 || n >= len) {
@@ -1448,6 +1402,22 @@ static inline ManageChokeGroupsDispatch *ManageChokeGroupsDispatch_castFromDispa
 static inline Dispatch *ManageChokeGroupsDispatch_castToDispatch(ManageChokeGroupsDispatch *self) {
     return (Dispatch*)self;
 }
+static inline long Port_inletnum(Port *self){return self->inletnum;}
+static inline PtrAr Port_proxy(Port *self){return self->proxy;}
+static inline PtrAr Port_outlet(Port *self){return self->outlet;}
+static inline Symbol *Port_track(Port *self){return self->track;}
+static inline Symbol *Port_id(Port *self){return self->id;}
+static inline void Port_setId(Port *self, Symbol *value){self->id = value;}
+static inline long Port_intInlets(Port *self){return self->intInlets;}
+static inline void Port_setIntInlets(Port *self, long value){self->intInlets = value;}
+static inline long Port_intOutlets(Port *self){return self->intOutlets;}
+static inline void Port_setIntOutlets(Port *self, long value){self->intOutlets = value;}
+static inline void *Port_hub(Port *self){return self->hub;}
+static inline void Port_setHub(Port *self, void *value){self->hub = value;}
+static inline Port_anythingDispatchFunc Port_anythingDispatch(Port *self){return self->anythingDispatch;}
+static inline void Port_setAnythingDispatch(Port *self, Port_anythingDispatchFunc value){self->anythingDispatch = value;}
+static inline Port_intDispatchFunc Port_intDispatch(Port *self){return self->intDispatch;}
+static inline void Port_setIntDispatch(Port *self, Port_intDispatchFunc value){self->intDispatch = value;}
 static inline void MEventAr_clear(MEventAr *arr) {
     Array_clear((Array*)arr);
     MEventAr zero = {0};
@@ -1510,11 +1480,44 @@ static inline bool MEventArRIt_next(MEventArRIt *iterator) {
     return ArrayRIt_next((ArrayRIt*)iterator);
 }
 
+static inline void PtrAr_changeLength(PtrAr *arr, int newLength) {
+    Array_changeLength((Array*)arr, newLength);
+}                        
+
+static inline void PtrAr_clear(PtrAr *arr) {
+    Array_clear((Array*)arr);
+    PtrAr zero = {0};
+    *arr = zero;
+}
+
+#define PtrAr_foreach(var, arr)  for (PtrArFIt_declare(var, arr); PtrArFIt_next(&var); )            
+
 static inline void *PtrAr_get(PtrAr *arr, int index, Error *err) {
     void * v = {0};
     Array_getCheck(arr, index, v, err);
     memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
     return v;
+}
+
+static inline void PtrAr_init(PtrAr *arr, int nelems) {
+    Array_init((Array*)arr, nelems, sizeof(void *), (Array_clearElement)NULL);
+}
+
+static inline void PtrAr_push(PtrAr *arr, void *elem) {
+    void * *p = (void **)Array_pushN((Array*)arr, 1);
+    *p = elem;
+    return; 
+}            
+
+static inline void PtrAr_set(PtrAr *arr, int index, void *elem, Error *err) {
+    Array_setCheck(arr, index, err);
+    Array_set((Array*)arr, index, (char*)&elem);
+}
+
+#define PtrArFIt_declare(var, arr)  PtrArFIt var = {arr, 0, (arr)->len, -1, NULL}
+
+static inline bool PtrArFIt_next(PtrArFIt *iterator) {
+    return ArrayFIt_next((ArrayFIt*)iterator);
 }
 
 static inline void SymbolPtrAr_clear(SymbolPtrAr *arr) {
@@ -1565,8 +1568,8 @@ static inline void Midiseq_setUseMasterClock(Midiseq *self, bool value){self->us
 static inline Ticks Midiseq_sequenceLength(Midiseq *self){return self->sequenceLength;}
 static inline void Midiseq_setSequenceLength(Midiseq *self, Ticks value){self->sequenceLength = value;}
 #define Pad_newUninitialized() ((Pad*)sysmem_newptrclear(sizeof(Pad)))        
-static inline t_symbol *Pad_trackName(Pad *self){return self->trackName;}
-static inline void Pad_setTrackName(Pad *self, t_symbol *value){self->trackName = value;}
+static inline Symbol *Pad_trackName(Pad *self){return self->trackName;}
+static inline void Pad_setTrackName(Pad *self, Symbol *value){self->trackName = value;}
 static inline int Pad_padIndex(Pad *self){return self->padIndex;}
 static inline void Pad_setPadIndex(Pad *self, int value){self->padIndex = value;}
 static inline Midiseq *Pad_sequence(Pad *self){return self->sequence;}
@@ -1889,10 +1892,7 @@ static inline bool TrackArFIt_next(TrackArFIt *iterator) {
 #define Hub_relativeSelectedPad(hub) hub_padIndexToRelativePad(Hub_selectedPad(hub))
 
 #define Hub_padIndexFromInNote(hub, inputNote) (Hub_bank(hub)*Hub_padsPerBank + Hub_frame(hub)*Hub_padsPerFrame + (inputNote - Hub_firstMidiNote))
-#include <string.h>
-#include <stdlib.h>
-#include <inttypes.h>
-#include "shared.c"
+
 void Marshal_process(Marshal *self, Arguments *a1, long a2, Atom *a3, Error *err)
 {
     switch(self->itype) {
@@ -2319,19 +2319,31 @@ APIF void DispatchPtAr_populate(DispatchPtAr *self, Error *err) {
 #define APIF /**/
 sds stripBaseName(const char *path);
 
-#line 11 "src/midiseq.in.c"
-
-#line 19 "src/midiseq.in.c"
-
-#line 27 "src/midiseq.in.c"
-
-#line 35 "src/midiseq.in.c"
+#line 22 "src/midiseq.in.c"
 
 
+Port PORT_NULL_IMPL =
+{
+    {
+        0
+    }
+};
 
-#line 51 "src/midiseq.in.c"
+#define Port_null (&PORT_NULL_IMPL)
 
-#line 81 "src/midiseq.in.c"
+#line 40 "src/midiseq.in.c"
+
+#line 48 "src/midiseq.in.c"
+
+#line 56 "src/midiseq.in.c"
+
+#line 64 "src/midiseq.in.c"
+
+
+
+#line 80 "src/midiseq.in.c"
+
+#line 110 "src/midiseq.in.c"
 #define BinFile_nullLengthFieldSizeStr "11"
 #define BinFile_maxLength              2147483647
 #define BinFileFlag_tag                1
@@ -2347,91 +2359,32 @@ const int Midiseq_cctype     = 3;
 const int Midiseq_cycletype  = 4;
 const int Midiseq_endgrptype = 5;
 
-#line 129 "src/midiseq.in.c"
-
-// @type
-//    {  
-//       "typeName":"NoteEvent",
-//       "fields":[  
-//          {  
-//             "name":"type",
-//             "type":"uint8_t"
-//          },
-//          {  
-//             "name":"pitch",
-//             "type":"uint8_t"
-//          },
-//          {  
-//             "name":"velocity",
-//             "type":"uint8_t"
-//          },
-//          {  
-//             "name":"t",
-//             "type":"Ticks"
-//          },
-//          {  
-//             "name":"duration",
-//             "type":"Ticks"
-//          },
-//       ],
-//       "containers": [
-//          {"type": "array", "typeName": "NoteEventAr", "elemName": "NoteEvent"}
-//       ]      
-//    }
-// @end
-
-// @type
-//    {  
-//       "typeName":"NoteSequence",
-//       "fields":[  
-//          {  
-//             "name":"useMasterClock",
-//             "type":"bool"
-//          },
-//          {  
-//             "name":"sequenceLength",
-//             "type":"Ticks"
-//          },
-//          {  
-//             "name":"events",
-//             "type":"NoteEventAr"
-//          },
-//          {  
-//             "name":"startTime",
-//             "type":"Ticks"
-//          },
-//          {  
-//             "name":"ptr",
-//             "type":"int"
-//          }
-//       ]      
-//    }
-// @end
+#line 158 "src/midiseq.in.c"
 
 
-#line 253 "src/midiseq.in.c"
+#line 223 "src/midiseq.in.c"
 
 
-#line 281 "src/midiseq.in.c"
+#line 251 "src/midiseq.in.c"
 
-#line 308 "src/midiseq.in.c"
+#line 278 "src/midiseq.in.c"
 
-#line 332 "src/midiseq.in.c"
+#line 302 "src/midiseq.in.c"
 
-#line 355 "src/midiseq.in.c"
+#line 325 "src/midiseq.in.c"
 
-#line 379 "src/midiseq.in.c"
+#line 349 "src/midiseq.in.c"
 #define PortFind_declare(name) PortFind _##name; PortFind *name = &_##name; memset(name, 0, sizeof(PortFind)); PortFind_init(name)        
 
 
-#line 401 "src/midiseq.in.c"
+#line 371 "src/midiseq.in.c"
 
-#line 424 "src/midiseq.in.c"
+#line 394 "src/midiseq.in.c"
 
 
-#line 439 "src/midiseq.in.c"
+#line 409 "src/midiseq.in.c"
 
-#line 456 "src/midiseq.in.c"
+#line 426 "src/midiseq.in.c"
 
 #define PortRef_declare(name, port, outlet)    PortRef _##name = {port, outlet}; PortRef *name = &_##name
 static inline void PortRef_set(PortRef *pr, Port *port, int outlet) {
@@ -2442,7 +2395,7 @@ static inline void PortRef_set(PortRef *pr, Port *port, int outlet) {
 #define PortRef_sendInteger(pr, value, err)    Port_sendInteger(PortRef_port(pr), PortRef_outlet(pr), value, err)
 
 
-#line 490 "src/midiseq.in.c"
+#line 460 "src/midiseq.in.c"
 
 static inline PortRef *DropDown_portRef(DropDown *dd) {
     return &dd->portRef;
@@ -2452,7 +2405,45 @@ static inline void DropDown_setPortRef(DropDown *dd, PortRef *pr) {
    dd->portRef = *pr;
 }
 
-#line 611 "src/midiseq.in.c"
+#line 581 "src/midiseq.in.c"
+
+
+
+// Will parse id's of the form ev\d+ and return the \d+ number. Returns -1 otherwise
+APIF int port_parseEvSymbol(Symbol *id)
+{
+    int r = -1;
+    int consumed = 0;
+    if (id == NULL) {
+        return -1;
+    }
+
+    if (sscanf(Symbol_cstr(id), "ev%d%n", &r, &consumed) != 1) {
+        return -1;
+    }
+    if (strlen(Symbol_cstr(id)) != consumed) {
+        return -1;
+    }
+    return r;
+}
+
+APIF void Port_send(Port *port, int outletIndex, short argc, Atom *argv, Error *err)
+{   
+    Symbol *selector = Atom_toSymbol(argv + 0);
+    void *out = PtrAr_get(&port->outlet, outletIndex, err);
+    Error_returnVoidOnError(err);
+    outlet_anything(out, selector, argc-1, argv+1);  
+}
+
+APIF void Port_sendInteger(Port *p, int outlet, long value) 
+{
+    Error_declare(err);
+    void *out = PtrAr_get(&p->outlet, outlet, err);
+    if (Error_maypost(err)) {
+        return;
+    }
+    outlet_int(out, value);   
+}
 
 
 //
@@ -2471,7 +2462,7 @@ static inline void DropDown_setPortRef(DropDown *dd, PortRef *pr) {
 //
 // U t i l i t y
 //
-APIF int Midiseq_Midiseq_convertIntFileLine(const char *src, Error *err, const char *function, const char *file, int line)
+APIF int Midiseq_convertIntFileLine(const char *src, Error *err, const char *function, const char *file, int line)
 {
     errno = 0;
     long v = strtol(src, NULL, 10);
@@ -2485,7 +2476,7 @@ APIF int Midiseq_Midiseq_convertIntFileLine(const char *src, Error *err, const c
 }
 
 
-#define Midiseq_convertInt(src, err) Midiseq_Midiseq_convertIntFileLine(src, err, __func__, __FILE__, __LINE__)
+#define Midiseq_convertInt(src, err) Midiseq_convertIntFileLine(src, err, __func__, __FILE__, __LINE__)
 
 //
 // M I D I S E Q
@@ -3132,9 +3123,9 @@ APIF long PortFind_iterator(PortFind *pf, t_object *targetBox)
         return 0;
     }
 
-    Symbol *varname = object_attr_getsym(targetBox, gensym("varname"));
+    Symbol *varname = object_attr_getsym(targetBox, Symbol_gen("varname"));
     if (varname == NULL) {
-        varname = gensym("unknown");
+        varname = Symbol_gen("unknown");
     }
 
     PortFindCell pfc = {0};
@@ -3143,9 +3134,9 @@ APIF long PortFind_iterator(PortFind *pf, t_object *targetBox)
     pfc.varname         = varname;
     PortFindCellAr_push(&pf->objects, pfc);
 
-    Port_hub(port)              = PortFind_hub(pf);
-    Port_anythingDispatch(port) = PortFind_anythingDispatch(pf);
-    Port_intDispatch(port)      = PortFind_intDispatch(pf);
+    Port_setHub(port, PortFind_hub(pf));
+    Port_setAnythingDispatch(port, PortFind_anythingDispatch(pf));
+    Port_setIntDispatch(port, PortFind_intDispatch(pf));
 
     return 0;
 }
@@ -3159,12 +3150,12 @@ APIF int PortFind_discover(PortFind *pf, t_object *sourceMaxObject, void *hub, E
 
     t_object *patcher = NULL;
     long result       = 0;
-    t_max_err maxErr = object_obex_lookup(sourceMaxObject, gensym("#P"), &patcher);
+    t_max_err maxErr = object_obex_lookup(sourceMaxObject, Symbol_gen("#P"), &patcher);
     if (maxErr != MAX_ERR_NONE) {
         Error_format(err, "Failed object_obex_lookup (%s)", Error_maxErrToString(maxErr));
         return 0;
     }
-    object_method(patcher, gensym("iterate"), PortFind_iterator, (void *)pf, PI_WANTBOX | PI_DEEP, &result);
+    object_method(patcher, Symbol_gen("iterate"), PortFind_iterator, (void *)pf, PI_WANTBOX | PI_DEEP, &result);
 
     PortFind_setHub(pf, NULL);
     PortFind_setAnythingDispatch(pf, NULL);
@@ -3496,7 +3487,7 @@ APIF void TrackList_init(TrackList *tl, PortFind *pf) {
     {
         // Insert the null track at position 1 of the tracklist
         Track t = {0};
-        t.name  = gensym("null");
+        t.name  = Symbol_gen("null");
         t.noteManager = NoteManager_new(Port_null);
         TrackAr_push(&tl->list, t);
     }
@@ -3594,7 +3585,7 @@ APIF void DropDown_init(DropDown *dd, const char **table, PortRef *pr) {
     SymbolPtrAr_init(&dd->table, 0);
     const char **ptr = table;
     while (*ptr) {
-        Symbol *s = gensym(*ptr);
+        Symbol *s = Symbol_gen(*ptr);
         SymbolPtrAr_push(&dd->table, s);
         ptr++;
     }
@@ -3661,8 +3652,8 @@ APIF void DropDown_updateSelected(DropDown *dd, Error *err) {
     Symbol *s = SymbolPtrAr_get(&dd->table, dd->selected, err);
     Error_returnVoidOnError(err);
 
-    t_atom a[2] = {{0}};
-    atom_setsym(a + 0, gensym("set"));
+    Atom a[2] = {{0}};
+    atom_setsym(a + 0, Symbol_gen("set"));
     atom_setsym(a + 1, s);
     PortRef_send(DropDown_portRef(dd), 2, a, err);
 }
@@ -3676,17 +3667,19 @@ APIF void DropDown_setSelected(DropDown *dd, int selected, Error *err) {
 }
 
 APIF void DropDown_initializeMenu(DropDown *dd, Error *err) {
-    t_atom clear  = {0};
-    t_atom append = {0};
-    atom_setsym(&clear, gensym("clear"));
-    atom_setsym(&append, gensym("append"));
+    // Atom clear  = {0};
+    // Atom append = {0};
+    // atom_setsym(&clear, Symbol_gen("clear"));
+    // atom_setsym(&append, Symbol_gen("append"));
+    Atom clear = Atom_fromSymbol(Symbol_gen("clear"));
+    Atom append = Atom_fromSymbol(Symbol_gen("append"));
+
 
     PortRef_send(&dd->portRef, 1, &clear, err);
     Error_returnVoidOnError(err);
 
     SymbolPtrAr_foreach(it, &dd->table) {
-        t_atom a[2] = {append, {0}};
-        atom_setsym(a+1, *it.var);
+        Atom a[2] = {append, Atom_fromSymbol(*it.var)};
         PortRef_send(&dd->portRef, 2, a, err);
         Error_returnVoidOnError(err);        
     }
@@ -3725,7 +3718,7 @@ const int NoteManager_atomcount = 4;
 APIF NoteManager *NoteManager_new(Port *port)
 {
     NoteManager *nm = (NoteManager*)Mem_malloc(sizeof(NoteManager));
-    nm->atoms       = (t_atom*)Mem_malloc(sizeof(t_atom) * NoteManager_atomcount);
+    nm->atoms       = (Atom*)Mem_malloc(sizeof(Atom) * NoteManager_atomcount);
     nm->output      = port;
     TimedOffAr_init(&nm->pending, 0);
     IndexedOffAr_init(&nm->endgroups, 0);
@@ -3787,11 +3780,11 @@ const int NOTEON_COMMAND = 144;
 
 APIF void NoteManager_sendNoteOn(NoteManager *manager, int pitch, int velocity)
 {
-    t_atom *av = manager->atoms;
-    atom_setsym(av + 0, gensym("midievent"));
-    atom_setlong(av + 1, NOTEON_COMMAND);
-    atom_setlong(av + 2, pitch);
-    atom_setlong(av + 3, velocity);
+    Atom *av = manager->atoms;
+    av[0] = Atom_fromSymbol(Symbol_gen("midievent"));
+    av[1] = Atom_fromInteger(NOTEON_COMMAND);
+    av[2] = Atom_fromInteger(pitch);
+    av[3] = Atom_fromInteger(velocity);
     Error_declare(err);
     Port_send(manager->output, 0, 4, av, err);
     Error_maypost(err);
@@ -3893,14 +3886,14 @@ APIF Hub *Hub_new(PortFind *pf, Error *err) {
 }
 
 APIF void Hub_init(Hub *hub, PortFind *pf, Error *err) {
-    Hub_setCurrBankPort(hub, PortFind_findById(pf, gensym("currBank")));
-    Hub_setCurrFramePort(hub, PortFind_findById(pf, gensym("currFrame")));
-    Hub_setSelBankPort(hub, PortFind_findById(pf, gensym("selBank")));
-    Hub_setSelFramePort(hub, PortFind_findById(pf, gensym("selFrame")));
-    Hub_setSelPadPort(hub, PortFind_findById(pf, gensym("selPad")));
+    Hub_setCurrBankPort(hub, PortFind_findById(pf, Symbol_gen("currBank")));
+    Hub_setCurrFramePort(hub, PortFind_findById(pf, Symbol_gen("currFrame")));
+    Hub_setSelBankPort(hub, PortFind_findById(pf, Symbol_gen("selBank")));
+    Hub_setSelFramePort(hub, PortFind_findById(pf, Symbol_gen("selFrame")));
+    Hub_setSelPadPort(hub, PortFind_findById(pf, Symbol_gen("selPad")));
 
 
-    Port *cg = PortFind_findById(pf, gensym("chokeGroup"));
+    Port *cg = PortFind_findById(pf, Symbol_gen("chokeGroup"));
     PortRef_declare(portRef, cg, 0);
     DropDown_initCGLocalGlobal(Hub_cgLocalGlobalMenu(hub), portRef);
 
@@ -3919,9 +3912,7 @@ APIF void Hub_init(Hub *hub, PortFind *pf, Error *err) {
     DropDown_initializeMenu(Hub_cgIndexMenu(hub), err);
     Error_returnVoidOnError(err);    
 
-    t_atom a[2] = {{0}};
-    atom_setsym(a+0,  gensym("cantchange"));
-    atom_setlong(a+1, 1);
+    Atom a[2] = {Atom_fromSymbol(Symbol_gen("cantchange")), Atom_fromInteger(1)};
     Port_send(Hub_currBankPort(hub), 0, 2, a, err);
     Error_returnVoidOnError(err);
 
@@ -3947,99 +3938,11 @@ APIF void Hub_free(Hub *hub) {
     TrackList_free(Hub_trackList(hub));
 }
 
-// APIF void Hub_incrementFrame(Hub *hub)
-// {
-//     if (Hub_frame(hub) >= (Hub_framesPerBank-1)) {
-//         return;
-//     }
-
-//     Hub_setFrame(hub, Hub_frame(hub)+1);
-//     Hub_updateGuiCurrentCoordinates(hub);
-// }
-
-
-// APIF void Hub_decrementFrame(Hub *hub)
-// {
-//     if (Hub_frame(hub) <= 0) {
-//         return;
-//     }
-
-//     Hub_setFrame(hub, Hub_frame(hub)-1);
-//     Hub_updateGuiCurrentCoordinates(hub);
-// }
-
-
-// APIF void Hub_selectNextPushedPad(Hub *hub)
-// {
-//     Hub_setGrabNextTappedPad(hub, true);
-// }
-
 APIF void Hub_updateGuiCurrentCoordinates(Hub *hub) 
 {
     Port_sendInteger(Hub_currBankPort(hub),  0, Hub_bank(hub));
     Port_sendInteger(Hub_currFramePort(hub), 0, Hub_frame(hub));
 }
-
-// APIF void Hub_midiFileDrop(Hub *hub, t_atom *pathAtom) {
-//     Error_declare(err);
-//     if (pathAtom == NULL) {
-//         post("midiFileDrop requires at least 1 symbol argument");
-//         return;
-//     }
-//     Symbol *path = atom_getsym(pathAtom);
-//     if (path == gensym("")) {
-//         post("midiFileDrop requires at least 1 symbol argument");
-//         return;
-//     }
-//     const char *colon = strchr(Symbol_cstr(path), ':');
-//     if (colon == NULL) {
-//         post("midiFileDrop expected to find colon (:) in filename");
-//         return;
-//     }
-//     sds filename = sdsnew(colon+1);
-//     Midiseq *mseq = Midiseq_fromfile(filename, err);
-//     if (Error_iserror(err)) {
-//         post("midiFileDrop: %s", Error_message(err));
-//         Error_clear(err);
-//         return;
-//     }
-//     sdsfree(filename);
-//     Pad *pad = PadList_pad(Hub_padList(hub), Hub_selectedPad(hub), err);
-//     if (Error_iserror(err)) {
-//         post("midiFileDrop: %s", Error_message(err));
-//         Midiseq_free(mseq);
-//         Error_clear(err);
-//         return;
-//     }
-//     Pad_setSequence(pad, mseq);
-// }
-
-
-// APIF void Hub_manageChokeGroups(Hub *hub, long value, long inlet, Error *err) {
-//     Pad *pad = PadList_pad(Hub_padList(hub), Hub_selectedPad(hub), err);
-//     switch (inlet) {
-//         case 0:
-//             DropDown_setSelected(Hub_cgLocalGlobalMenu(hub), value, err);
-//             Error_returnVoidOnError(err);
-//             Pad_setChokeGroupGlobal(pad, value ? true : false);
-//             break;
-//         case 1:
-//             DropDown_setSelected(Hub_cgInstrumentMenu(hub), value, err);
-//             Error_returnVoidOnError(err);
-//             Pad_setChokeGroupInstrument(pad, value);
-//             break;
-//         case 2:
-//             DropDown_setSelected(Hub_cgIndexMenu(hub), value, err);
-//             Error_returnVoidOnError(err);
-//             Pad_setChokeGroupIndex(pad, value);
-//             break;
-//         default:
-//             Error_format(err, "INTERNAL ERROR: bad inlet %ld", inlet);
-//             return;
-//     }
-//     Pad_computeChokeGroup(pad);
-//     return;
-// }
 
 APIF void Hub_changeSelectedPad(Hub *hub, int selectedPadIndex, Error *err) {
     Hub_setSelectedPad(hub, selectedPadIndex);
@@ -4129,7 +4032,7 @@ APIF void Hub_intDispatch(Hub *hub, Port *port, long value, long inlet)
     int ev = port_parseEvSymbol(Port_id(port));
     if (ev >= 0) {
         dblog("Ev sent to %d: inlet %ld", ev, inlet);
-    } else if (Port_id(port) == gensym("chokeGroup")) {
+    } else if (Port_id(port) == Symbol_gen("chokeGroup")) {
         Error_declare(err);
         Hub_manageChokeGroups(hub, value, inlet, err);
         if (Error_maypost(err)) {
@@ -4485,7 +4388,7 @@ APIF Symbol *BinFile_readSymbol(BinFile *bf, Error *err) {
     BinFile_fillBuffer(bf, length, err);
     Error_returnNullOnError(err);
     
-    return gensym(BinFile_buffer(bf));
+    return Symbol_gen(BinFile_buffer(bf));
 }
 
 APIF void BinFile_writeTicks(BinFile *bf, Ticks value, Error *err) {

@@ -2,6 +2,35 @@
 #define APIF /**/
 sds stripBaseName(const char *path);
 
+@type
+{
+   "typeName": "Port",
+   "fields": [
+         {"name": "d_obj",            "type": "t_object"},
+         {"name": "inletnum",         "type": "long"},
+         {"name": "proxy",            "type": "PtrAr"},
+         {"name": "outlet",           "type": "PtrAr"},
+         {"name": "track",            "type": "Symbol *"},
+         {"name": "id",               "type": "Symbol *"},
+         {"name": "intInlets",        "type": "long"},
+         {"name": "intOutlets",       "type": "long"},
+         {"name": "hub",              "type": "void *"},
+         {"name": "anythingDispatch", "type": "Port_anythingDispatchFunc"},
+         {"name": "intDispatch",      "type": "Port_intDispatchFunc"}
+   ]
+}
+@end
+
+
+Port PORT_NULL_IMPL =
+{
+    {
+        0
+    }
+};
+
+#define Port_null (&PORT_NULL_IMPL)
+
 @container    
    {       
        "type": "array",
@@ -128,65 +157,6 @@ const int Midiseq_endgrptype = 5;
    }
 @end
 
-// @type
-//    {  
-//       "typeName":"NoteEvent",
-//       "fields":[  
-//          {  
-//             "name":"type",
-//             "type":"uint8_t"
-//          },
-//          {  
-//             "name":"pitch",
-//             "type":"uint8_t"
-//          },
-//          {  
-//             "name":"velocity",
-//             "type":"uint8_t"
-//          },
-//          {  
-//             "name":"t",
-//             "type":"Ticks"
-//          },
-//          {  
-//             "name":"duration",
-//             "type":"Ticks"
-//          },
-//       ],
-//       "containers": [
-//          {"type": "array", "typeName": "NoteEventAr", "elemName": "NoteEvent"}
-//       ]      
-//    }
-// @end
-
-// @type
-//    {  
-//       "typeName":"NoteSequence",
-//       "fields":[  
-//          {  
-//             "name":"useMasterClock",
-//             "type":"bool"
-//          },
-//          {  
-//             "name":"sequenceLength",
-//             "type":"Ticks"
-//          },
-//          {  
-//             "name":"events",
-//             "type":"NoteEventAr"
-//          },
-//          {  
-//             "name":"startTime",
-//             "type":"Ticks"
-//          },
-//          {  
-//             "name":"ptr",
-//             "type":"int"
-//          }
-//       ]      
-//    }
-// @end
-
 
 @type
    {  
@@ -194,7 +164,7 @@ const int Midiseq_endgrptype = 5;
       "fields":[  
          {  
             "name":"trackName",
-            "type":"t_symbol *"
+            "type":"Symbol *"
          },
          {  
             "name":"padIndex",
@@ -325,7 +295,7 @@ const int Midiseq_endgrptype = 5;
          },
          {  
             "name":"atoms",
-            "type":"t_atom *"
+            "type":"Atom *"
          }
       ]
    }
@@ -341,7 +311,7 @@ const int Midiseq_endgrptype = 5;
          },
          {  
             "name":"varname",
-            "type":"t_symbol *"
+            "type":"Symbol *"
          }
       ],
       "containers": [
@@ -625,11 +595,46 @@ static inline void DropDown_setPortRef(DropDown *dd, PortRef *pr) {
 #define Hub_relativeSelectedPad(hub) hub_padIndexToRelativePad(Hub_selectedPad(hub))
 
 #define Hub_padIndexFromInNote(hub, inputNote) (Hub_bank(hub)*Hub_padsPerBank + Hub_frame(hub)*Hub_padsPerFrame + (inputNote - Hub_firstMidiNote))
-#include <string.h>
-#include <stdlib.h>
-#include <inttypes.h>
-#include "shared.c"
+// #include "shared.c"
 @end
+
+
+// Will parse id's of the form ev\d+ and return the \d+ number. Returns -1 otherwise
+APIF int port_parseEvSymbol(Symbol *id)
+{
+    int r = -1;
+    int consumed = 0;
+    if (id == NULL) {
+        return -1;
+    }
+
+    if (sscanf(Symbol_cstr(id), "ev%d%n", &r, &consumed) != 1) {
+        return -1;
+    }
+    if (strlen(Symbol_cstr(id)) != consumed) {
+        return -1;
+    }
+    return r;
+}
+
+APIF void Port_send(Port *port, int outletIndex, short argc, Atom *argv, Error *err)
+{   
+    Symbol *selector = Atom_toSymbol(argv + 0);
+    void *out = PtrAr_get(&port->outlet, outletIndex, err);
+    Error_returnVoidOnError(err);
+    outlet_anything(out, selector, argc-1, argv+1);  
+}
+
+APIF void Port_sendInteger(Port *p, int outlet, long value) 
+{
+    Error_declare(err);
+    void *out = PtrAr_get(&p->outlet, outlet, err);
+    if (Error_maypost(err)) {
+        return;
+    }
+    outlet_int(out, value);   
+}
+
 
 //
 // Memory allocation Notes. These are the functions that are used in sdsalloc.h
@@ -647,7 +652,7 @@ static inline void DropDown_setPortRef(DropDown *dd, PortRef *pr) {
 //
 // U t i l i t y
 //
-APIF int Midiseq_Midiseq_convertIntFileLine(const char *src, Error *err, const char *function, const char *file, int line)
+APIF int Midiseq_convertIntFileLine(const char *src, Error *err, const char *function, const char *file, int line)
 {
     errno = 0;
     long v = strtol(src, NULL, 10);
@@ -661,7 +666,7 @@ APIF int Midiseq_Midiseq_convertIntFileLine(const char *src, Error *err, const c
 }
 
 
-#define Midiseq_convertInt(src, err) Midiseq_Midiseq_convertIntFileLine(src, err, __func__, __FILE__, __LINE__)
+#define Midiseq_convertInt(src, err) Midiseq_convertIntFileLine(src, err, __func__, __FILE__, __LINE__)
 
 //
 // M I D I S E Q
@@ -1308,9 +1313,9 @@ APIF long PortFind_iterator(PortFind *pf, t_object *targetBox)
         return 0;
     }
 
-    Symbol *varname = object_attr_getsym(targetBox, gensym("varname"));
+    Symbol *varname = object_attr_getsym(targetBox, Symbol_gen("varname"));
     if (varname == NULL) {
-        varname = gensym("unknown");
+        varname = Symbol_gen("unknown");
     }
 
     PortFindCell pfc = {0};
@@ -1319,9 +1324,9 @@ APIF long PortFind_iterator(PortFind *pf, t_object *targetBox)
     pfc.varname         = varname;
     PortFindCellAr_push(&pf->objects, pfc);
 
-    Port_hub(port)              = PortFind_hub(pf);
-    Port_anythingDispatch(port) = PortFind_anythingDispatch(pf);
-    Port_intDispatch(port)      = PortFind_intDispatch(pf);
+    Port_setHub(port, PortFind_hub(pf));
+    Port_setAnythingDispatch(port, PortFind_anythingDispatch(pf));
+    Port_setIntDispatch(port, PortFind_intDispatch(pf));
 
     return 0;
 }
@@ -1335,12 +1340,12 @@ APIF int PortFind_discover(PortFind *pf, t_object *sourceMaxObject, void *hub, E
 
     t_object *patcher = NULL;
     long result       = 0;
-    t_max_err maxErr = object_obex_lookup(sourceMaxObject, gensym("#P"), &patcher);
+    t_max_err maxErr = object_obex_lookup(sourceMaxObject, Symbol_gen("#P"), &patcher);
     if (maxErr != MAX_ERR_NONE) {
         Error_format(err, "Failed object_obex_lookup (%s)", Error_maxErrToString(maxErr));
         return 0;
     }
-    object_method(patcher, gensym("iterate"), PortFind_iterator, (void *)pf, PI_WANTBOX | PI_DEEP, &result);
+    object_method(patcher, Symbol_gen("iterate"), PortFind_iterator, (void *)pf, PI_WANTBOX | PI_DEEP, &result);
 
     PortFind_setHub(pf, NULL);
     PortFind_setAnythingDispatch(pf, NULL);
@@ -1672,7 +1677,7 @@ APIF void TrackList_init(TrackList *tl, PortFind *pf) {
     {
         // Insert the null track at position 1 of the tracklist
         Track t = {0};
-        t.name  = gensym("null");
+        t.name  = Symbol_gen("null");
         t.noteManager = NoteManager_new(Port_null);
         TrackAr_push(&tl->list, t);
     }
@@ -1770,7 +1775,7 @@ APIF void DropDown_init(DropDown *dd, const char **table, PortRef *pr) {
     SymbolPtrAr_init(&dd->table, 0);
     const char **ptr = table;
     while (*ptr) {
-        Symbol *s = gensym(*ptr);
+        Symbol *s = Symbol_gen(*ptr);
         SymbolPtrAr_push(&dd->table, s);
         ptr++;
     }
@@ -1837,8 +1842,8 @@ APIF void DropDown_updateSelected(DropDown *dd, Error *err) {
     Symbol *s = SymbolPtrAr_get(&dd->table, dd->selected, err);
     Error_returnVoidOnError(err);
 
-    t_atom a[2] = {{0}};
-    atom_setsym(a + 0, gensym("set"));
+    Atom a[2] = {{0}};
+    atom_setsym(a + 0, Symbol_gen("set"));
     atom_setsym(a + 1, s);
     PortRef_send(DropDown_portRef(dd), 2, a, err);
 }
@@ -1852,17 +1857,19 @@ APIF void DropDown_setSelected(DropDown *dd, int selected, Error *err) {
 }
 
 APIF void DropDown_initializeMenu(DropDown *dd, Error *err) {
-    t_atom clear  = {0};
-    t_atom append = {0};
-    atom_setsym(&clear, gensym("clear"));
-    atom_setsym(&append, gensym("append"));
+    // Atom clear  = {0};
+    // Atom append = {0};
+    // atom_setsym(&clear, Symbol_gen("clear"));
+    // atom_setsym(&append, Symbol_gen("append"));
+    Atom clear = Atom_fromSymbol(Symbol_gen("clear"));
+    Atom append = Atom_fromSymbol(Symbol_gen("append"));
+
 
     PortRef_send(&dd->portRef, 1, &clear, err);
     Error_returnVoidOnError(err);
 
     SymbolPtrAr_foreach(it, &dd->table) {
-        t_atom a[2] = {append, {0}};
-        atom_setsym(a+1, *it.var);
+        Atom a[2] = {append, Atom_fromSymbol(*it.var)};
         PortRef_send(&dd->portRef, 2, a, err);
         Error_returnVoidOnError(err);        
     }
@@ -1901,7 +1908,7 @@ const int NoteManager_atomcount = 4;
 APIF NoteManager *NoteManager_new(Port *port)
 {
     NoteManager *nm = (NoteManager*)Mem_malloc(sizeof(NoteManager));
-    nm->atoms       = (t_atom*)Mem_malloc(sizeof(t_atom) * NoteManager_atomcount);
+    nm->atoms       = (Atom*)Mem_malloc(sizeof(Atom) * NoteManager_atomcount);
     nm->output      = port;
     TimedOffAr_init(&nm->pending, 0);
     IndexedOffAr_init(&nm->endgroups, 0);
@@ -1963,11 +1970,11 @@ const int NOTEON_COMMAND = 144;
 
 APIF void NoteManager_sendNoteOn(NoteManager *manager, int pitch, int velocity)
 {
-    t_atom *av = manager->atoms;
-    atom_setsym(av + 0, gensym("midievent"));
-    atom_setlong(av + 1, NOTEON_COMMAND);
-    atom_setlong(av + 2, pitch);
-    atom_setlong(av + 3, velocity);
+    Atom *av = manager->atoms;
+    av[0] = Atom_fromSymbol(Symbol_gen("midievent"));
+    av[1] = Atom_fromInteger(NOTEON_COMMAND);
+    av[2] = Atom_fromInteger(pitch);
+    av[3] = Atom_fromInteger(velocity);
     Error_declare(err);
     Port_send(manager->output, 0, 4, av, err);
     Error_maypost(err);
@@ -2069,14 +2076,14 @@ APIF Hub *Hub_new(PortFind *pf, Error *err) {
 }
 
 APIF void Hub_init(Hub *hub, PortFind *pf, Error *err) {
-    Hub_setCurrBankPort(hub, PortFind_findById(pf, gensym("currBank")));
-    Hub_setCurrFramePort(hub, PortFind_findById(pf, gensym("currFrame")));
-    Hub_setSelBankPort(hub, PortFind_findById(pf, gensym("selBank")));
-    Hub_setSelFramePort(hub, PortFind_findById(pf, gensym("selFrame")));
-    Hub_setSelPadPort(hub, PortFind_findById(pf, gensym("selPad")));
+    Hub_setCurrBankPort(hub, PortFind_findById(pf, Symbol_gen("currBank")));
+    Hub_setCurrFramePort(hub, PortFind_findById(pf, Symbol_gen("currFrame")));
+    Hub_setSelBankPort(hub, PortFind_findById(pf, Symbol_gen("selBank")));
+    Hub_setSelFramePort(hub, PortFind_findById(pf, Symbol_gen("selFrame")));
+    Hub_setSelPadPort(hub, PortFind_findById(pf, Symbol_gen("selPad")));
 
 
-    Port *cg = PortFind_findById(pf, gensym("chokeGroup"));
+    Port *cg = PortFind_findById(pf, Symbol_gen("chokeGroup"));
     PortRef_declare(portRef, cg, 0);
     DropDown_initCGLocalGlobal(Hub_cgLocalGlobalMenu(hub), portRef);
 
@@ -2095,9 +2102,7 @@ APIF void Hub_init(Hub *hub, PortFind *pf, Error *err) {
     DropDown_initializeMenu(Hub_cgIndexMenu(hub), err);
     Error_returnVoidOnError(err);    
 
-    t_atom a[2] = {{0}};
-    atom_setsym(a+0,  gensym("cantchange"));
-    atom_setlong(a+1, 1);
+    Atom a[2] = {Atom_fromSymbol(Symbol_gen("cantchange")), Atom_fromInteger(1)};
     Port_send(Hub_currBankPort(hub), 0, 2, a, err);
     Error_returnVoidOnError(err);
 
@@ -2123,99 +2128,11 @@ APIF void Hub_free(Hub *hub) {
     TrackList_free(Hub_trackList(hub));
 }
 
-// APIF void Hub_incrementFrame(Hub *hub)
-// {
-//     if (Hub_frame(hub) >= (Hub_framesPerBank-1)) {
-//         return;
-//     }
-
-//     Hub_setFrame(hub, Hub_frame(hub)+1);
-//     Hub_updateGuiCurrentCoordinates(hub);
-// }
-
-
-// APIF void Hub_decrementFrame(Hub *hub)
-// {
-//     if (Hub_frame(hub) <= 0) {
-//         return;
-//     }
-
-//     Hub_setFrame(hub, Hub_frame(hub)-1);
-//     Hub_updateGuiCurrentCoordinates(hub);
-// }
-
-
-// APIF void Hub_selectNextPushedPad(Hub *hub)
-// {
-//     Hub_setGrabNextTappedPad(hub, true);
-// }
-
 APIF void Hub_updateGuiCurrentCoordinates(Hub *hub) 
 {
     Port_sendInteger(Hub_currBankPort(hub),  0, Hub_bank(hub));
     Port_sendInteger(Hub_currFramePort(hub), 0, Hub_frame(hub));
 }
-
-// APIF void Hub_midiFileDrop(Hub *hub, t_atom *pathAtom) {
-//     Error_declare(err);
-//     if (pathAtom == NULL) {
-//         post("midiFileDrop requires at least 1 symbol argument");
-//         return;
-//     }
-//     Symbol *path = atom_getsym(pathAtom);
-//     if (path == gensym("")) {
-//         post("midiFileDrop requires at least 1 symbol argument");
-//         return;
-//     }
-//     const char *colon = strchr(Symbol_cstr(path), ':');
-//     if (colon == NULL) {
-//         post("midiFileDrop expected to find colon (:) in filename");
-//         return;
-//     }
-//     sds filename = sdsnew(colon+1);
-//     Midiseq *mseq = Midiseq_fromfile(filename, err);
-//     if (Error_iserror(err)) {
-//         post("midiFileDrop: %s", Error_message(err));
-//         Error_clear(err);
-//         return;
-//     }
-//     sdsfree(filename);
-//     Pad *pad = PadList_pad(Hub_padList(hub), Hub_selectedPad(hub), err);
-//     if (Error_iserror(err)) {
-//         post("midiFileDrop: %s", Error_message(err));
-//         Midiseq_free(mseq);
-//         Error_clear(err);
-//         return;
-//     }
-//     Pad_setSequence(pad, mseq);
-// }
-
-
-// APIF void Hub_manageChokeGroups(Hub *hub, long value, long inlet, Error *err) {
-//     Pad *pad = PadList_pad(Hub_padList(hub), Hub_selectedPad(hub), err);
-//     switch (inlet) {
-//         case 0:
-//             DropDown_setSelected(Hub_cgLocalGlobalMenu(hub), value, err);
-//             Error_returnVoidOnError(err);
-//             Pad_setChokeGroupGlobal(pad, value ? true : false);
-//             break;
-//         case 1:
-//             DropDown_setSelected(Hub_cgInstrumentMenu(hub), value, err);
-//             Error_returnVoidOnError(err);
-//             Pad_setChokeGroupInstrument(pad, value);
-//             break;
-//         case 2:
-//             DropDown_setSelected(Hub_cgIndexMenu(hub), value, err);
-//             Error_returnVoidOnError(err);
-//             Pad_setChokeGroupIndex(pad, value);
-//             break;
-//         default:
-//             Error_format(err, "INTERNAL ERROR: bad inlet %ld", inlet);
-//             return;
-//     }
-//     Pad_computeChokeGroup(pad);
-//     return;
-// }
 
 APIF void Hub_changeSelectedPad(Hub *hub, int selectedPadIndex, Error *err) {
     Hub_setSelectedPad(hub, selectedPadIndex);
@@ -2305,7 +2222,7 @@ APIF void Hub_intDispatch(Hub *hub, Port *port, long value, long inlet)
     int ev = port_parseEvSymbol(Port_id(port));
     if (ev >= 0) {
         dblog("Ev sent to %d: inlet %ld", ev, inlet);
-    } else if (Port_id(port) == gensym("chokeGroup")) {
+    } else if (Port_id(port) == Symbol_gen("chokeGroup")) {
         Error_declare(err);
         Hub_manageChokeGroups(hub, value, inlet, err);
         if (Error_maypost(err)) {
@@ -2661,7 +2578,7 @@ APIF Symbol *BinFile_readSymbol(BinFile *bf, Error *err) {
     BinFile_fillBuffer(bf, length, err);
     Error_returnNullOnError(err);
     
-    return gensym(BinFile_buffer(bf));
+    return Symbol_gen(BinFile_buffer(bf));
 }
 
 APIF void BinFile_writeTicks(BinFile *bf, Ticks value, Error *err) {

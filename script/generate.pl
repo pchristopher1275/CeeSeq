@@ -1854,7 +1854,7 @@ sub Main_main {
 		$gMasterSourceDir = $srcDir;
 	}
 	$gMasterSourceDir =~ s[/$][];
-	my @extraCallFiles = ("$gMasterSourceDir/shared.c", "$gMasterSourceDir/hub.c");
+	my @extraCallFiles = ("$gMasterSourceDir/shared.c", "$gMasterSourceDir/hub.c", "$gMasterSourceDir/port.c",);
 	Called_scan($called, [@extraCallFiles, @templateFiles]);
 	if ($gAcceptAllCalls) {
 		Called_setAllUsed($called);

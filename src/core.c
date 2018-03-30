@@ -210,21 +210,21 @@ typedef struct Atom_t {
     } value;
 } Atom;
 
-static inline Atom Atom_integer(long value) {
+static inline Atom Atom_fromInteger(long value) {
     Atom a = {0};
     a.atype = Atom_typeInteger;
     a.value.integer = value;
     return a;
 }
 
-static inline Atom Atom_symbol(Symbol *value) {
+static inline Atom Atom_fromSymbol(Symbol *value) {
     Atom a = {0};
     a.atype = Atom_typeSymbol;
     a.value.symbol = value;
     return a;
 }
 
-static inline Atom Atom_float(double value) {
+static inline Atom Atom_fromFloat(double value) {
     Atom a = {0};
     a.atype = Atom_typeFloat;
     a.value.number = value;
@@ -256,19 +256,19 @@ static inline double Atom_toFloat(Atom *a) {
 
 #define Atom t_atom
 
-static inline Atom Atom_integer(long value) {
+static inline Atom Atom_fromInteger(long value) {
     Atom a = {0};
     atom_setlong(&a, value);
     return a;
 }
 
-static inline Atom Atom_symbol(Symbol *value) {
+static inline Atom Atom_fromSymbol(Symbol *value) {
     Atom a = {0};
     atom_setsym(&a, value);
     return a;
 }
 
-static inline Atom Atom_float(double value) {
+static inline Atom Atom_fromFloat(double value) {
     Atom a = {0};
     atom_setfloat(&a, value);
     return a;

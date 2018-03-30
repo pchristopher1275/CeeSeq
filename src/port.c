@@ -6,6 +6,10 @@
 */
 
 #include <stdlib.h>
+#include <string.h>
+#include <inttypes.h>
+#include <ctype.h>
+
 #include "ext.h"
 #include "ext_common.h"
 #include "ext_obex.h"
@@ -14,9 +18,8 @@
 
 #include "mem.c"
 #include "core.c"
-#include "array.c"
-#include "ptrAr.h"
 #include "shared.c"
+#include "application.c"
 
 #ifndef PORT_BUILD_NUMBER
 #define PORT_BUILD_NUMBER 0
@@ -62,13 +65,11 @@ void *Port_new(Symbol *s, long argc, t_atom *argv)
     Port *port = (Port *)object_alloc(Port_class);
     attr_args_process(port, argc, argv);
     if (Port_id(port) == NULL) {
-        Port_id(port) = gensym("unknown");
+        Port_setId(port, Symbol_gen("unknown"));
     }
     if (Port_id(port) == NULL) {
-        Port_id(port) = gensym("unknown");
+        Port_setId(port, Symbol_gen("unknown"));
     }
-
-    port->porttype              = Port_vstType;
     PtrAr_init(&port->proxy, 0);
     PtrAr_init(&port->outlet, 0);
 
@@ -93,17 +94,17 @@ void *Port_new(Symbol *s, long argc, t_atom *argv)
 
     } else if (Port_intInlets(port) > 0 || Port_intOutlets(port) > 0) {
         if (Port_intInlets(port) <= 0) {
-            Port_intInlets(port) = 1;
+            Port_setIntInlets(port, 1);
         }
         if (Port_intOutlets(port) <= 0) {
-            Port_intOutlets(port) = 1;
+            Port_setIntOutlets(port, 1);
         } 
         PtrAr_changeLength(&port->proxy,  Port_intInlets(port));
         PtrAr_changeLength(&port->outlet, Port_intOutlets(port));
         for (int i = Port_intInlets(port)-1; i >= 0; i--) {
             void *p = NULL;
             if (i != 0) {
-                p = proxy_new(port, (long)i, &Port_inletnum(port));
+                p = proxy_new(port, (long)i, &port->inletnum);
             }
             PtrAr_set(&port->proxy, i, p, err);
             if (Error_maypost(err)) {
@@ -121,11 +122,9 @@ void *Port_new(Symbol *s, long argc, t_atom *argv)
         PtrAr_push(&port->outlet, outlet_new(port, NULL));
     }
 
-    Port_hub(port)              = NULL;
-    Port_anythingDispatch(port) = NULL;
-    Port_intDispatch(port)      = NULL;
-    Port_sendBuffer(port)       = NULL;
-
+    Port_setHub(port, NULL);
+    Port_setAnythingDispatch(port, NULL);
+    Port_setIntDispatch(port, NULL);
     return port;
 }
 

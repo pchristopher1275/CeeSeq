@@ -16,10 +16,10 @@
 APIF void NoteOutletFormater_sendNote(NoteOutletFormater *self, PortRef *ref, uint8_t pitch, uint8_t velocity) 
 {
     Atom *av = self->atoms;
-    atom_setsym(av + 0, gensym("midievent"));
-    atom_setlong(av + 1, NOTEON_COMMAND);
-    atom_setlong(av + 2, pitch);
-    atom_setlong(av + 3, velocity);
+    av[0] = Atom_fromSymbol(Symbol_gen("midievent"));
+    av[1] = Atom_fromInteger(NOTEON_COMMAND);
+    av[2] = Atom_fromInteger(pitch);
+    av[3] = Atom_fromInteger(velocity);
     Error_declare(err);
     PortRef_send(ref, 0, 4, av, err);
     Error_maypost(err);
@@ -44,10 +44,10 @@ APIF void BendOutletFormater_sendFloat(BendOutletFormater *self, double value)
     int lsb = v & 0x7F;
     int msb = (v >> 7) & 0x7F;
     Atom *av = self->atoms;
-    atom_setsym(av + 0, gensym("midievent"));
-    atom_setlong(av + 1, BEND_COMMAND);
-    atom_setlong(av + 2, msb);
-    atom_setlong(av + 3, lsb);
+    av[0] = Atom_fromSymbol(Symbol_gen("midievent"));
+    av[1] = Atom_fromInteger(BEND_COMMAND);
+    av[2] = Atom_fromInteger(msb);
+    av[3] = Atom_fromInteger(lsb);
     Error_declare(err);
     PortRef_send(ref, 0, 4, av, err);
     Error_maypost(err);   
@@ -71,10 +71,10 @@ APIF void CCOutletFormater_sendFloat(CCOutletFormater *self, double value)
 {
     int v = (int)value;
     Atom *av = self->atoms;
-    atom_setsym(av + 0, gensym("midievent"));
-    atom_setlong(av + 1, CC_COMMAND);
-    atom_setlong(av + 2, self->cc);
-    atom_setlong(av + 3, v);
+    av[0] = Atom_fromSymbol(Symbol_gen("midievent"));
+    av[1] = Atom_fromInteger(CC_COMMAND);
+    av[2] = Atom_fromInteger(self->cc);
+    av[3] = Atom_fromInteger(v);
     Error_declare(err);
     PortRef_send(ref, 0, 4, av, err);
     Error_maypost(err);   
@@ -424,7 +424,7 @@ Sequence *TimedAr_dequeue(TimedAr *self, Ticks current) {
 	return NULL;
 }
 
-void TimedAr_invalidateSeqAr(TimedAr *self, SequencePtAr *removes) 
+void TimedAr_invalidateSequence(TimedAr *self, SequencePtAr *removes) 
 {
     SequencePtAr_sortPtr(removes);
     TimedAr_foreach(it, self) {

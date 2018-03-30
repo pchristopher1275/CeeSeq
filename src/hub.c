@@ -1,9 +1,7 @@
-/**
-    @file
-    CseqHub - an ITM-based delay
-
-    @ingroup	examples
-*/
+#include <stdlib.h>
+#include <string.h>
+#include <inttypes.h>
+#include <ctype.h>
 
 #include "ext.h"
 #include "ext_common.h"
@@ -13,27 +11,11 @@
 
 #include "mem.c"
 #include "core.c"
-// #include "types.h"
-// #include "array.c"
-// #include "interface.h"
-
-// #include "mEventAr.h"
-// #include "symbolPtrAr.h"
-// #include "ptrAr.h"
-// #include "intAr.h"
-
-// #include "sequence.h"
-
-
-// #include "dispatch.h"
-// #include "midiseq.h"
-// #include "interface.c"
-// #include "dispatch.c"
-// #include "midiseq.c"
+#include "shared.c"
 #include "application.c"
 
 
-typedef struct _CseqHub
+typedef struct CseqHub_t
 {
     t_object d_obj;
 
@@ -53,7 +35,7 @@ typedef struct _CseqHub
 #define CseqHub_grabNextTappedPad(cseq) Hub_grabNextTappedPad(CseqHub_hub(cseq))
 #define CseqHub_padIndexFromInNote(cseq, inputNote) Hub_padIndexFromInNote(CseqHub_hub(cseq), inputNote)
 
-void *CseqHub_new(Symbol *s, long argc, t_atom *argv);
+void *CseqHub_new(Symbol *s, long argc, Atom *argv);
 void CseqHub_free(CseqHub *x);
 void CseqHub_assist(CseqHub *x, void *b, long m, long a, char *s);
 void CseqHub_int(CseqHub *x, long n);
@@ -95,19 +77,19 @@ void ext_main(void *r)
 
 // initial optional arg is delay time
 
-void *CseqHub_new(Symbol *s, long argc, t_atom *argv)
+void *CseqHub_new(Symbol *s, long argc, Atom *argv)
 {
     Error_declare(err);
     CseqHub *x = (CseqHub *)object_alloc(CseqHub_class);
     x->inletnum        = 0;
     x->proxy           = proxy_new(x, 1, &x->inletnum);
-    x->schedular       = (t_object *)time_new((t_object *)x, gensym("schedular"), (method)CseqHub_playnotes,
+    x->schedular       = (t_object *)time_new((t_object *)x, Symbol_gen("schedular"), (method)CseqHub_playnotes,
         TIME_FLAGS_TICKSONLY | TIME_FLAGS_USECLOCK);
     Hub *hub = CseqHub_hub(x);
     Hub zero = {0};
     *hub = zero;
 
-    t_atom a = {0};
+    Atom a = {0};
     atom_setfloat(&a, 0.0);
     time_setvalue(x->schedular, NULL, 1, &a);
 
@@ -117,8 +99,8 @@ void *CseqHub_new(Symbol *s, long argc, t_atom *argv)
 
     Hub_init(hub, pf, err);    
     
-    // Symbol *pianoName = gensym("piano");
-    Symbol *organName = gensym("organ");
+    // Symbol *pianoName = Symbol_gen("piano");
+    Symbol *organName = Symbol_gen("organ");
     const int npads = Hub_padsPerBank;
     Hub_setPadList(CseqHub_hub(x), PadList_new(npads));
     PadAr *pads = PadList_pads(CseqHub_padList(x));
@@ -224,10 +206,8 @@ void CseqHub_playnotes(CseqHub *x)
 
     PadPtrAr *running = PadList_running(CseqHub_padList(x));
 
-    int count = 0;
     PadPtrAr_foreach(it, running) {
         Pad *pad                 = *it.var;
-        dblog("count = %d: %s (%d, %d, %d)", count++, pad == NULL ? "yes" : "no", it.index, it.lBound, it.uBound);
         Midiseq *mseq            = Pad_sequence(pad);
         NoteManager *noteManager = Track_noteManager(Pad_track(pad));
         while ( (status = Midiseq_nextevent(mseq, now, &cell, err)) == Midiseq_nextEventContinue) {
@@ -254,41 +234,8 @@ void CseqHub_playnotes(CseqHub *x)
         }
     }
 
-
-    // PadPtrAr_foreach(it, running) {
-
-    //     Pad *pad                 = *it.var;
-    //     Midiseq *mseq            = Pad_sequence(pad);
-    //     NoteManager *noteManager = Track_noteManager(Pad_track(pad));
-    //     while ( (status = Midiseq_nextevent(mseq, now, &cell, err)) == Midiseq_nextEventContinue) {
-    //         if (MEvent_type(cell) == Midiseq_endgrptype) {
-    //             Pad_setInEndgroup(pad, true);
-    //         }
-
-    //         NoteManager_midievent(noteManager, cell, (Pad_noteReleasePending(pad) && Pad_inEndgroup(pad)) ? Pad_padIndex(pad) : -1);
-    //     }
-    //     if (Error_maypost(err)) {
-    //         continue;
-    //     }
-    //     if (status == Midiseq_nextEventBreak) {
-    //         Ticks delta = cell.t-now;
-    //         if (smallestDelta < 0) {
-    //             smallestDelta = delta;
-    //         }
-    //         else if (delta < smallestDelta) {
-    //             smallestDelta = delta;
-    //         }
-    //     }
-    //     else if (status == Midiseq_nextEventComplete) {
-    //         PadPtrAr_remove(running, it.index, err);
-    //         if (Error_maypost(err)) {
-    //             continue;
-    //         }            
-    //         it.index--;             
-    //     }
-    // }
     if (smallestDelta >= 0) {
-        t_atom callbackInterval = {0};
+        Atom callbackInterval = {0};
         atom_setfloat(&callbackInterval, smallestDelta);
         time_setvalue(x->schedular, NULL, 1, &callbackInterval);
         time_schedule(x->schedular, NULL);
