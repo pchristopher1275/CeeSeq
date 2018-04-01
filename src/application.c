@@ -1,13 +1,13 @@
-// *** DO NOT MODIFY THIS FILE generated 03/29/2018 19:44:15 ***
-// *** DO NOT MODIFY THIS FILE generated 03/29/2018 19:44:15 ***
-// *** DO NOT MODIFY THIS FILE generated 03/29/2018 19:44:15 ***
-// *** DO NOT MODIFY THIS FILE generated 03/29/2018 19:44:15 ***
-// *** DO NOT MODIFY THIS FILE generated 03/29/2018 19:44:15 ***
-// *** DO NOT MODIFY THIS FILE generated 03/29/2018 19:44:15 ***
-// *** DO NOT MODIFY THIS FILE generated 03/29/2018 19:44:15 ***
-// *** DO NOT MODIFY THIS FILE generated 03/29/2018 19:44:15 ***
-// *** DO NOT MODIFY THIS FILE generated 03/29/2018 19:44:15 ***
-// *** DO NOT MODIFY THIS FILE generated 03/29/2018 19:44:15 ***
+// *** DO NOT MODIFY THIS FILE generated 03/31/2018 22:02:21 ***
+// *** DO NOT MODIFY THIS FILE generated 03/31/2018 22:02:21 ***
+// *** DO NOT MODIFY THIS FILE generated 03/31/2018 22:02:21 ***
+// *** DO NOT MODIFY THIS FILE generated 03/31/2018 22:02:21 ***
+// *** DO NOT MODIFY THIS FILE generated 03/31/2018 22:02:21 ***
+// *** DO NOT MODIFY THIS FILE generated 03/31/2018 22:02:21 ***
+// *** DO NOT MODIFY THIS FILE generated 03/31/2018 22:02:21 ***
+// *** DO NOT MODIFY THIS FILE generated 03/31/2018 22:02:21 ***
+// *** DO NOT MODIFY THIS FILE generated 03/31/2018 22:02:21 ***
+// *** DO NOT MODIFY THIS FILE generated 03/31/2018 22:02:21 ***
 struct Arguments_t;
 typedef struct Arguments_t Arguments;
 struct Marshal_t;
@@ -22,6 +22,10 @@ typedef struct Dispatch_t DecrementFrameDispatch;
 typedef struct Dispatch_t SelectNextPushedPadDispatch;
 typedef struct Dispatch_t MidiFileDropDispatch;
 typedef struct Dispatch_t ManageChokeGroupsDispatch;
+struct StringPtAr_t;
+typedef struct StringPtAr_t StringPtAr;
+struct SymbolAr_t;
+typedef struct SymbolAr_t SymbolAr;
 struct Port_t;
 typedef struct Port_t Port;
 struct MEventAr_t;
@@ -887,10 +891,13 @@ typedef struct DispatchPtArRIt_t {
    Dispatch **var;
 } DispatchPtArRIt;
 
-struct PortRef_t
+struct Arguments_t
 {
-    Port *port;
-    int outlet;
+    Symbol *s1;
+    long i1;
+    long i2;
+    long ivalue;
+    long inlet;
 };
 typedef struct SymbolPtrAr_t {
    int len;
@@ -918,19 +925,16 @@ typedef struct SymbolPtrArRIt_t {
    Symbol **var;
 } SymbolPtrArRIt;
 
+struct PortRef_t
+{
+    Port *port;
+    int outlet;
+};
 struct DropDown_t
 {
     SymbolPtrAr table;
     int selected;
     PortRef portRef;
-};
-struct Arguments_t
-{
-    Symbol *s1;
-    long i1;
-    long i2;
-    long ivalue;
-    long inlet;
 };
 struct Hub_t
 {
@@ -1013,8 +1017,8 @@ struct Midiseq_t
 struct BinFile_t
 {
     int version;
-    sds filename;
-    sds buffer;
+    String *filename;
+    String *buffer;
     FILE *stream;
     BinFilePayload *payload;
 };
@@ -1076,7 +1080,7 @@ typedef struct PtrArRIt_t {
 
 struct Port_t
 {
-    t_object d_obj;
+    MaxObject obj;
     long inletnum;
     PtrAr proxy;
     PtrAr outlet;
@@ -1088,6 +1092,58 @@ struct Port_t
     Port_anythingDispatchFunc anythingDispatch;
     Port_intDispatchFunc intDispatch;
 };
+typedef struct SymbolAr_t {
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(Symbol **);
+   Symbol **data;
+} SymbolAr;
+
+typedef struct SymbolArFIt_t {
+   SymbolAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   Symbol **var;
+} SymbolArFIt;
+
+typedef struct SymbolArRIt_t {
+   SymbolAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   Symbol **var;
+} SymbolArRIt;
+
+typedef struct StringPtAr_t {
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(String **);
+   String **data;
+} StringPtAr;
+
+typedef struct StringPtArFIt_t {
+   StringPtAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   String **var;
+} StringPtArFIt;
+
+typedef struct StringPtArRIt_t {
+   StringPtAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   String **var;
+} StringPtArRIt;
+
 struct ManageChokeGroupsDispatch_t
 {
     int itype;
@@ -1156,6 +1212,8 @@ int Dispatch_cmp(Dispatch **leftp, Dispatch **rightp);
 void Dispatch_freeDefault(Dispatch *d);
 void Dispatch_initDispatchPtArDefault(int itype, DispatchPtAr *disPtAr, Error *err);
 void DispatchPtAr_populate(DispatchPtAr *self, Error *err);
+void String_split(String *src, const char *delim, StringPtAr *stringPtAr);
+int Symbol_cmpUnderlying(Symbol **left, Symbol **right);
 int port_parseEvSymbol(Symbol *id);
 void Port_send(Port *port, int outletIndex, short argc, Atom *argv, Error *err);
 void Port_sendInteger(Port *p, int outlet, long value);
@@ -1173,7 +1231,7 @@ void Midiseq_push(Midiseq *mseq, MEvent cell);
 MEvent *Midiseq_get(Midiseq *mseq, int index, Error *err);
 void Midiseq_setMidicsvExecPath();
 void Midiseq_dblog(Midiseq *mseq);
-int midiseq_tokenize(FILE *fd, int *nfields, sds **fields, Error *err);
+int midiseq_tokenize(FILE *fd, StringPtAr **ret, Error *err);
 int Midiseq_assignLength(Midiseq *mseq);
 int Midiseq_insertCell(Midiseq *mseq, MEvent cell, int index, Error *err);
 void Midiseq_insertEndgroup(Midiseq *mseq, Error *err);
@@ -1183,8 +1241,10 @@ int Midiseq_nextevent(Midiseq *mseq, Ticks until, MEvent *cell, Error *err);
 int Midiseq_fastfwrd(Midiseq *mseq, long t, Error *err);
 Midiseq *Midiseq_fromfile(const char *fullpath, Error *err);
 void PortFind_init(PortFind *pf);
-long PortFind_iterator(PortFind *pf, t_object *targetBox);
-int PortFind_discover(PortFind *pf, t_object *sourceMaxObject, void *hub, Error *err);
+long PortFind_iterator(PortFind *pf, MaxObject *targetBox);
+int PortFind_discover(PortFind *pf, MaxObject *sourceMaxObject, void *hub, Error *err);
+long PortFind_iterator(PortFind *pf, MaxObject *targetBox);
+int PortFind_discover(PortFind *pf, MaxObject *sourceMaxObject, void *hub, Error *err);
 void PortFind_clear(PortFind *pf);
 Port *PortFind_findByVarname(PortFind *pf, Symbol *symbol);
 Port *PortFind_findByTrack(PortFind *pf, Symbol *symbol);
@@ -1266,8 +1326,8 @@ off_t BinFile_tell(BinFile *bf, Error *err);
 void BinFile_fillBuffer(BinFile *bf, long size, Error *err);
 void BinFile_writeInteger(BinFile *bf, long value, Error *err);
 long BinFile_readInteger(BinFile *bf, Error *err);
-void BinFile_writeString(BinFile *bf, sds value, Error *err);
-sds BinFile_readString(BinFile *bf, Error *err);
+void BinFile_writeString(BinFile *bf, String *value, Error *err);
+String *BinFile_readString(BinFile *bf, Error *err);
 void BinFile_writeSymbol(BinFile *bf, Symbol *value, Error *err);
 Symbol *BinFile_readSymbol(BinFile *bf, Error *err);
 void BinFile_writeTicks(BinFile *bf, Ticks value, Error *err);
@@ -1306,7 +1366,7 @@ static inline void Arguments_setIvalue(Arguments *self, long value){self->ivalue
 static inline void Arguments_setInlet(Arguments *self, long value){self->inlet = value;}
 static inline int Marshal_nthIType(int n, int *itype) {
     static int itypes[] = {
-        MarshalSii_itype, MarshalSi_itype, MarshalSs_itype
+        MarshalSi_itype, MarshalSii_itype, MarshalSs_itype
     };
     static int len = sizeof(itypes)/sizeof(int);
     if (n < 0 || n >= len) {
@@ -1345,7 +1405,7 @@ static inline Marshal *MarshalSs_castToMarshal(MarshalSs *self) {
 }
 static inline int Dispatch_nthIType(int n, int *itype) {
     static int itypes[] = {
-        MidiFileDropDispatch_itype, ManageChokeGroupsDispatch_itype, DecrementFrameDispatch_itype, SelectNextPushedPadDispatch_itype, IncrementFrameDispatch_itype
+        ManageChokeGroupsDispatch_itype, MidiFileDropDispatch_itype, IncrementFrameDispatch_itype, DecrementFrameDispatch_itype, SelectNextPushedPadDispatch_itype
     };
     static int len = sizeof(itypes)/sizeof(int);
     if (n < 0 || n >= len) {
@@ -1402,6 +1462,30 @@ static inline ManageChokeGroupsDispatch *ManageChokeGroupsDispatch_castFromDispa
 static inline Dispatch *ManageChokeGroupsDispatch_castToDispatch(ManageChokeGroupsDispatch *self) {
     return (Dispatch*)self;
 }
+static inline int StringPtAr_len(StringPtAr *arr) {
+    return Array_len((Array*)arr);
+}
+
+static inline void StringPtAr_push(StringPtAr *arr, String *elem) {
+    String * *p = (String **)Array_pushN((Array*)arr, 1);
+    *p = elem;
+    return; 
+}            
+
+static inline void StringPtAr_truncate(StringPtAr *arr) {
+    Array_truncate((Array*)arr);
+}
+
+static inline void SymbolAr_binInsertUnderlying(SymbolAr *arr, Symbol *elem) {
+    int (*compare)(Symbol **, Symbol **) = Symbol_cmpUnderlying;
+    Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)compare, false);
+}            
+
+static inline Symbol **SymbolAr_binSearchUnderlying(SymbolAr *arr, Symbol *elem) {
+    int (*compare)(Symbol **, Symbol **) = Symbol_cmpUnderlying;
+    return (Symbol **)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, NULL);
+}
+
 static inline long Port_inletnum(Port *self){return self->inletnum;}
 static inline PtrAr Port_proxy(Port *self){return self->proxy;}
 static inline PtrAr Port_outlet(Port *self){return self->outlet;}
@@ -1556,10 +1640,8 @@ static inline bool SymbolPtrArFIt_next(SymbolPtrArFIt *iterator) {
 }
 
 static inline int BinFile_version(BinFile *self){return self->version;}
-static inline sds BinFile_filename(BinFile *self){return self->filename;}
-static inline void BinFile_setFilename(BinFile *self, sds value){self->filename = value;}
-static inline sds BinFile_buffer(BinFile *self){return self->buffer;}
-static inline void BinFile_setBuffer(BinFile *self, sds value){self->buffer = value;}
+static inline String *BinFile_filename(BinFile *self){return self->filename;}
+static inline String *BinFile_buffer(BinFile *self){return self->buffer;}
 static inline FILE *BinFile_stream(BinFile *self){return self->stream;}
 static inline void BinFile_setStream(BinFile *self, FILE *value){self->stream = value;}
 #define Midiseq_newUninitialized() ((Midiseq*)sysmem_newptrclear(sizeof(Midiseq)))        
@@ -2214,12 +2296,12 @@ APIF void MidiFileDropDispatch_exec(MidiFileDropDispatch *self, Hub *hub, Argume
      Error_format0(err, "midiFileDrop expected to find colon (:) in filename");
      return;
    }
-   sds filename = sdsnew(colon+1);
+   String *filename = String_fmt("%s", colon+1);
    Midiseq *mseq = Midiseq_fromfile(filename, err);
    if (Error_iserror(err)) {
      return;
    }
-   sdsfree(filename);
+   String_free(filename);
    Pad *pad = PadList_pad(Hub_padList(hub), Hub_selectedPad(hub), err);
    if (Error_iserror(err)) {
      Midiseq_free(mseq);
@@ -2317,9 +2399,55 @@ APIF void DispatchPtAr_populate(DispatchPtAr *self, Error *err) {
 
 
 #define APIF /**/
-sds stripBaseName(const char *path);
+String *stripBaseName(const char *path);
 
-#line 22 "src/midiseq.in.c"
+#line 12 "src/midiseq.in.c"
+
+APIF void String_split(String *src, const char *delim, StringPtAr *stringPtAr)
+{
+    static StringBody *buffer = String_empty();
+    StringBody *body = (StringBody*)(src->sizeof(int));
+    if (buffer->len < body->len) {
+        String_resize(&buffer, body->len);
+    }
+    strncpy(buffer->ch, body->ch, body->len+1);
+    StringPtAr_truncate(stringPtAr);   
+    char *string = buffer->ch;
+    char *token  = NULL;
+    while ((token = strsep(&string, delim)) != NULL) {
+        StringPtAr_push(stringPtAr, String_fmt("%s", token));
+    }
+    return;
+}
+
+#line 40 "src/midiseq.in.c"
+
+APIF int Symbol_cmpUnderlying(Symbol **left, Symbol **right) 
+{
+    return strcmp(Symbol_cstr(*left), Symbol_cstr(*right)); 
+}
+
+#ifdef TEST_BUILD
+SymbolAr gSymbols = {0};
+
+Symbol *Symbol_gen(const char *word) 
+{
+    Symbol s  = {word};
+    Symbol *r = SymbolAr_binSearchUnderlying(&gSymbols, &s);
+    if (r != NULL) {
+        return r;
+    }
+    Symbol *n = Mem_malloc(sizeof(Symbol));
+    n->name = strdup(word);
+    SymbolAr_binInsertUnderlying(&gSymbols, n);
+    return n;
+}
+
+#endif
+
+
+
+#line 84 "src/midiseq.in.c"
 
 
 Port PORT_NULL_IMPL =
@@ -2331,19 +2459,19 @@ Port PORT_NULL_IMPL =
 
 #define Port_null (&PORT_NULL_IMPL)
 
-#line 40 "src/midiseq.in.c"
-
-#line 48 "src/midiseq.in.c"
-
-#line 56 "src/midiseq.in.c"
-
-#line 64 "src/midiseq.in.c"
-
-
-
-#line 80 "src/midiseq.in.c"
+#line 102 "src/midiseq.in.c"
 
 #line 110 "src/midiseq.in.c"
+
+#line 118 "src/midiseq.in.c"
+
+#line 126 "src/midiseq.in.c"
+
+
+
+#line 142 "src/midiseq.in.c"
+
+#line 172 "src/midiseq.in.c"
 #define BinFile_nullLengthFieldSizeStr "11"
 #define BinFile_maxLength              2147483647
 #define BinFileFlag_tag                1
@@ -2359,32 +2487,32 @@ const int Midiseq_cctype     = 3;
 const int Midiseq_cycletype  = 4;
 const int Midiseq_endgrptype = 5;
 
-#line 158 "src/midiseq.in.c"
+#line 220 "src/midiseq.in.c"
 
 
-#line 223 "src/midiseq.in.c"
+#line 285 "src/midiseq.in.c"
 
 
-#line 251 "src/midiseq.in.c"
+#line 313 "src/midiseq.in.c"
 
-#line 278 "src/midiseq.in.c"
+#line 340 "src/midiseq.in.c"
 
-#line 302 "src/midiseq.in.c"
+#line 364 "src/midiseq.in.c"
 
-#line 325 "src/midiseq.in.c"
+#line 387 "src/midiseq.in.c"
 
-#line 349 "src/midiseq.in.c"
+#line 411 "src/midiseq.in.c"
 #define PortFind_declare(name) PortFind _##name; PortFind *name = &_##name; memset(name, 0, sizeof(PortFind)); PortFind_init(name)        
 
 
-#line 371 "src/midiseq.in.c"
+#line 433 "src/midiseq.in.c"
 
-#line 394 "src/midiseq.in.c"
+#line 456 "src/midiseq.in.c"
 
 
-#line 409 "src/midiseq.in.c"
+#line 471 "src/midiseq.in.c"
 
-#line 426 "src/midiseq.in.c"
+#line 488 "src/midiseq.in.c"
 
 #define PortRef_declare(name, port, outlet)    PortRef _##name = {port, outlet}; PortRef *name = &_##name
 static inline void PortRef_set(PortRef *pr, Port *port, int outlet) {
@@ -2395,7 +2523,7 @@ static inline void PortRef_set(PortRef *pr, Port *port, int outlet) {
 #define PortRef_sendInteger(pr, value, err)    Port_sendInteger(PortRef_port(pr), PortRef_outlet(pr), value, err)
 
 
-#line 460 "src/midiseq.in.c"
+#line 522 "src/midiseq.in.c"
 
 static inline PortRef *DropDown_portRef(DropDown *dd) {
     return &dd->portRef;
@@ -2405,7 +2533,7 @@ static inline void DropDown_setPortRef(DropDown *dd, PortRef *pr) {
    dd->portRef = *pr;
 }
 
-#line 581 "src/midiseq.in.c"
+#line 643 "src/midiseq.in.c"
 
 
 
@@ -2468,7 +2596,7 @@ APIF int Midiseq_convertIntFileLine(const char *src, Error *err, const char *fun
     long v = strtol(src, NULL, 10);
     if (errno != 0) {
         Error_formatFileLine(err, function, file, line,
-            sdscatprintf(sdsempty(), "Failed to convert int error code %s",
+            String_fmt("Failed to convert int error code %s",
             (errno == EINVAL ? "EINVAL" : errno == ERANGE ? "ERANGE" : "Unknown")));
 
     }
@@ -2679,14 +2807,14 @@ APIF MEvent *Midiseq_get(Midiseq *mseq, int index, Error *err)
 
 
 bool Midiseq_pathsAllocated = false;
-sds Midiseq_midiCsvExecPath = NULL;
-sds Midiseq_csvMidiExecPath = NULL;
+String *Midiseq_midiCsvExecPath = NULL;
+String *Midiseq_csvMidiExecPath = NULL;
 
 APIF void Midiseq_setMidicsvExecPath()
 {
     if (!Midiseq_pathsAllocated) {
-        Midiseq_midiCsvExecPath = sdscatprintf(sdsempty(), "%s/packages/midicsv-1.1/midicsv", CSEQ_HOME);
-        Midiseq_csvMidiExecPath = sdscatprintf(sdsempty(), "%s/packages/midicsv-1.1/csvmidi", CSEQ_HOME);
+        Midiseq_midiCsvExecPath = String_fmt("%s/packages/midicsv-1.1/midicsv", CSEQ_HOME);
+        Midiseq_csvMidiExecPath = String_fmt("%s/packages/midicsv-1.1/csvmidi", CSEQ_HOME);
         Midiseq_pathsAllocated = true;
     }
 }
@@ -2722,21 +2850,16 @@ APIF void Midiseq_dblog(Midiseq *mseq)
 //
 // F R O M     F I L E
 //
-APIF int midiseq_tokenize(FILE *fd, int *nfields, sds **fields, Error *err)
+APIF int midiseq_tokenize(FILE *fd, StringPtAr **ret, Error *err)
 {
-    char line[Midiseq_maxLineLength] = "";
-    char *flag = fgets(line, Midiseq_maxLineLength, fd);
-    if (flag == NULL) {
-        if (!feof(fd)) {
-            Error_format0(err, "Bad IO");
-            return 1;
-        }
-        return -1;
+    static String *buffer = String_empty();
+    String_readline(&buffer, fd, err);
+    if (Error_iserror(err)) {
+        return 1;
     }
-    *fields = sdssplitlen(line, strlen(line), ",", 1, nfields);
-    for (int i = 0; i < *nfields; i++) {
-        (*fields)[i] = sdstrim((*fields)[i], " ");
-    }
+    static StringPtAr arBuffer = {0};
+    *ret = &arBuffer;
+    String_split(buffer, ",", &arBuffer);
     return 0;
 }
 
@@ -2923,10 +3046,7 @@ APIF int Midiseq_fastfwrd(Midiseq *mseq, long t, Error *err)
 APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
 {
     char tempfile[] = "/tmp/MidiseqMaxMSPXXXXXX";
-    sds buffer = sdsempty();
     FILE *fd = NULL;
-    int nfields = 0;
-    sds *fields = NULL;
     bool allOK = false;
     Midiseq *mseq = (Midiseq*)sysmem_newptrclear(sizeof(Midiseq));
     Midiseq_init(mseq);
@@ -2939,7 +3059,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
     }
     close(tempFd);
 
-    buffer = sdscatprintf(buffer, "'%s' '%s' > '%s'", Midiseq_midiCsvExecPath, fullpath, tempfile);
+    String *buffer = String_fmt("'%s' '%s' > '%s'", Midiseq_midiCsvExecPath, fullpath, tempfile);
     int exitCode = system(buffer);
     if (exitCode != 0) {
         Error_format(err, "Failed '%s' with exit code %d", buffer, exitCode);
@@ -2960,17 +3080,23 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
     int ons[128] = {0};
     int linenum = 0;
     while (true) {
-        int q = midiseq_tokenize(fd, &nfields, &fields, err);
-        if (q != 0) {
-            if (Error_iserror(err)) {
-                goto END;
-            }
-            break;
+        StringPtAr *fieldsAr = NULL;
+        midiseq_tokenize(fd, &fieldsAr, err);
+        if (Error_iserror(err)) {
+            goto END;
         }
         linenum++;
 
-        if (nfields < 3) {
+        if (StringPtAr_len(fieldsAr) < 3) {
             Error_format(err, "Not enough fields in midicsv file '%s' line %d", tempfile, linenum);
+            goto END;
+        }
+
+        int nfields   = StringPtAr_len(fieldsAr);
+
+        // THIS IS AWEFUL
+        char **fields = (char**)fieldsAr->data;
+        if (Error_iserror(err)) {
             goto END;
         }
 
@@ -3067,9 +3193,6 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
             }
             tickFactor = (float)(desiredPPQN)/(float)(ppqn);
         }
-
-        // Free anything left over from tokenization
-        sdsfreesplitres(fields, nfields);
         fields = NULL;
         nfields = 0;
     }
@@ -3089,10 +3212,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
 
     END:
     if (buffer != NULL) {
-        sdsfree(buffer);
-    }
-    if (fields != NULL) {
-        sdsfreesplitres(fields, nfields);
+        String_free(buffer);
     }
     if (fd != NULL) {
         fclose(fd);
@@ -3115,10 +3235,10 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
 APIF void PortFind_init(PortFind *pf) {
     PortFindCellAr_init(&pf->objects, 0);
 }
-
-APIF long PortFind_iterator(PortFind *pf, t_object *targetBox)
+#ifdef TEST_BUILD
+APIF long PortFind_iterator(PortFind *pf, MaxObject *targetBox)
 {
-    t_object *obj = jbox_get_object(targetBox);
+    MaxObject *obj = jbox_get_object(targetBox);
     if (Symbol_gen("Port") != object_classname(obj)) {
         return 0;
     }
@@ -3141,14 +3261,13 @@ APIF long PortFind_iterator(PortFind *pf, t_object *targetBox)
     return 0;
 }
 
-
-APIF int PortFind_discover(PortFind *pf, t_object *sourceMaxObject, void *hub, Error *err)
+APIF int PortFind_discover(PortFind *pf, MaxObject *sourceMaxObject, void *hub, Error *err)
 {
     PortFind_setHub(pf, hub);
     PortFind_setAnythingDispatch(pf, (Port_anythingDispatchFunc)Hub_anythingDispatch);
     PortFind_setIntDispatch(pf, (Port_intDispatchFunc)Hub_intDispatch);
 
-    t_object *patcher = NULL;
+    MaxObject *patcher = NULL;
     long result       = 0;
     t_max_err maxErr = object_obex_lookup(sourceMaxObject, Symbol_gen("#P"), &patcher);
     if (maxErr != MAX_ERR_NONE) {
@@ -3163,6 +3282,21 @@ APIF int PortFind_discover(PortFind *pf, t_object *sourceMaxObject, void *hub, E
 
     return 0;
 }
+
+#else 
+APIF long PortFind_iterator(PortFind *pf, MaxObject *targetBox)
+{
+    return 0;
+}
+APIF int PortFind_discover(PortFind *pf, MaxObject *sourceMaxObject, void *hub, Error *err)
+{
+    return 0;
+}
+#endif
+
+
+
+
 
 APIF void PortFind_clear(PortFind *pf)
 {
@@ -4089,8 +4223,8 @@ APIF void Hub_fromBinFileUninitialized(Hub *hub, BinFile *bf, Error *err) {
 
 APIF BinFile *BinFile_new() {
     BinFile *bf = (BinFile*)sysmem_newptrclear(sizeof(BinFile));
-    BinFile_setFilename(bf, sdsempty());
-    BinFile_setBuffer(bf, sdsempty());
+    bf->filename = String_empty();
+    bf->buffer   = String_empty();
     return bf;
 }
 
@@ -4102,8 +4236,8 @@ APIF BinFile *BinFile_newWriter(const char *file, Error *err) {
         BinFile_free(bf);
         return NULL;
     }
-    sdsfree(BinFile_filename(bf));
-    BinFile_setFilename(bf, sdsnew(file));
+    String_free(bf->filename);
+    bf->filename = String_fmt("%s", file);
 
     if (fprintf(BinFile_stream(bf), "%d ", BinFile_version(bf)) < 0) {
         Error_format(err, "Failed to write version number to file %s", file);
@@ -4122,7 +4256,7 @@ APIF BinFile *BinFile_newReader(const char *file, Error *err) {
         BinFile_free(bf);
         return NULL;
     }
-    BinFile_setFilename(bf, sdsnew(file));
+    bf->filename = String_fmt("%s", file);
     if (fscanf(BinFile_stream(bf), "%d ", &bf->version)) {
         Error_format(err, "Failed to read version number from file  %s", file);
         BinFile_free(bf);
@@ -4136,12 +4270,9 @@ APIF void BinFile_free(BinFile *bf) {
         fclose(BinFile_stream(bf));
         BinFile_setStream(bf, NULL);
     }
-    
-    sdsfree(BinFile_filename(bf));
-    BinFile_setFilename(bf, NULL);
-    sdsfree(BinFile_buffer(bf));
-    BinFile_setBuffer(bf, NULL);
-    sysmem_freeptr(bf);
+    String_free(bf->filename);
+    String_free(bf->buffer);
+    Mem_free(bf);
 }
 
 APIF int binFile_hexDigitToInt(char hex) {
@@ -4310,12 +4441,12 @@ APIF off_t BinFile_tell(BinFile *bf, Error *err) {
 
 APIF void BinFile_fillBuffer(BinFile *bf, long size, Error *err) {
     // Want buffer to contain size+1 characters INCLUDING the null byte
-    if (sdslen(BinFile_buffer(bf)) < size) {
+    if (String_len(bf->buffer) < size) {
         // NOTE: I verified that this call DOES NOT shrink the buffer.
         // NOTE: sdsMakeRoomFor always allocates sdslen()+1 bytes  
-        BinFile_setBuffer(bf, sdsgrowzero(BinFile_buffer(bf), (size_t)size));
+        String_resize(&bf->buffer, size);
     }
-    sdssetlen(BinFile_buffer(bf), size);
+    
     if (fread(BinFile_buffer(bf), size, 1, BinFile_stream(bf)) != size) {
         Error_format(err, "Failed fread while working with %s", BinFile_filename(bf));
         return;   
@@ -4327,13 +4458,16 @@ APIF void BinFile_fillBuffer(BinFile *bf, long size, Error *err) {
 }
 
 APIF void BinFile_writeInteger(BinFile *bf, long value, Error *err) {
-    sdsclear(BinFile_buffer(bf));
-    sdscatprintf(BinFile_buffer(bf), "%ld", value);
+    // XXX: BORKEN
+    // sdsclear(BinFile_buffer(bf));
+    // sdscatprintf(BinFile_buffer(bf), "%ld", value);
     
-    BinFile_writeLength(bf, sdslen(BinFile_buffer(bf)), err);
+
+
+    BinFile_writeLength(bf, String_len(BinFile_buffer(bf)), err);
     Error_returnVoidOnError(err);
 
-    if (fwrite(BinFile_buffer(bf), sdslen(BinFile_buffer(bf)), 0, BinFile_stream(bf)) != sdslen(BinFile_buffer(bf))) {
+    if (fwrite(BinFile_buffer(bf), String_len(BinFile_buffer(bf)), 0, BinFile_stream(bf)) != String_len(BinFile_buffer(bf))) {
         Error_format(err, "Failed fwrite while writing %s", BinFile_filename(bf));
         return;
     }
@@ -4354,11 +4488,11 @@ APIF long BinFile_readInteger(BinFile *bf, Error *err) {
     return value;
 }
 
-APIF void BinFile_writeString(BinFile *bf, sds value, Error *err) {
-    BinFile_writeLength(bf, sdslen(value), err);
+APIF void BinFile_writeString(BinFile *bf, String *value, Error *err) {
+    BinFile_writeLength(bf, String_len(value), err);
     Error_returnVoidOnError(err);
 
-    if (fwrite(BinFile_buffer(bf), sdslen(BinFile_buffer(bf)), 1, BinFile_stream(bf)) != sdslen(BinFile_buffer(bf))) {
+    if (fwrite(BinFile_buffer(bf), String_len(BinFile_buffer(bf)), 1, BinFile_stream(bf)) != String_len(BinFile_buffer(bf))) {
         Error_format(err, "Failed fprintf while writing %s", BinFile_filename(bf));
         return;
     }
@@ -4366,14 +4500,14 @@ APIF void BinFile_writeString(BinFile *bf, sds value, Error *err) {
 }
 
 // must call sdsfree on any non-NULL return value
-APIF sds BinFile_readString(BinFile *bf, Error *err) {
+APIF String *BinFile_readString(BinFile *bf, Error *err) {
     uint32_t length = BinFile_readLength(bf, err);
     Error_returnNullOnError(err);
 
     BinFile_fillBuffer(bf, length, err);
     Error_returnNullOnError(err);    
     
-    return sdsdup(BinFile_buffer(bf));
+    return String_dup(BinFile_buffer(bf));
 }
 
 APIF void BinFile_writeSymbol(BinFile *bf, Symbol *value, Error *err) {
@@ -4392,13 +4526,14 @@ APIF Symbol *BinFile_readSymbol(BinFile *bf, Error *err) {
 }
 
 APIF void BinFile_writeTicks(BinFile *bf, Ticks value, Error *err) {
-    sdsclear(BinFile_buffer(bf));
-    sdscatprintf(BinFile_buffer(bf), "%lld", value);
+    // XXX: BORKEN
+    // sdsclear(BinFile_buffer(bf));
+    // sdscatprintf(BinFile_buffer(bf), "%lld", value);
 
-    BinFile_writeLength(bf, sdslen(BinFile_buffer(bf)), err);
+    BinFile_writeLength(bf, String_len(BinFile_buffer(bf)), err);
     Error_returnVoidOnError(err);
 
-    if (fwrite(BinFile_buffer(bf), sdslen(BinFile_buffer(bf)), 1, BinFile_stream(bf)) != sdslen(BinFile_buffer(bf))) {
+    if (fwrite(BinFile_buffer(bf), String_len(BinFile_buffer(bf)), 1, BinFile_stream(bf)) != String_len(BinFile_buffer(bf))) {
         Error_format(err, "Failed fprintf while writing %s", BinFile_filename(bf));
         return;
     }

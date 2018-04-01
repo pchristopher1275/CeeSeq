@@ -9,9 +9,7 @@
 #include "ext_time.h"
 #include "ext_itm.h"
 
-#include "mem.c"
 #include "core.c"
-#include "shared.c"
 #include "application.c"
 
 
@@ -50,12 +48,12 @@ static t_class *CseqHub_class = NULL;
 void ext_main(void *r)
 {
     // NOTE: If class_new makes a copy of className, than className has essentially leaked.
-    sds className = NULL;
+    String *className = NULL;
     if (CSEQ_BUILD_NUMBER == 0) {
-        className = sdsnew("Hub");
+        className = String_fmt("Hub");
     }
     else {
-        className = sdscatprintf(sdsempty(), "Hub%d", CSEQ_BUILD_NUMBER);
+        className = String_fmt("Hub%d", CSEQ_BUILD_NUMBER);
     }
     Error_declare(err);
     DBLog_init("hub", err);

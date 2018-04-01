@@ -1,0 +1,5 @@
+{
+   "ignores": {
+       "sequence.in.c": true 
+   }
+}

@@ -1,12 +1,74 @@
 
 #define APIF /**/
-sds stripBaseName(const char *path);
+String *stripBaseName(const char *path);
+
+@container 
+{
+    "type": "array",
+    "typeName": "StringPtAr",
+    "elemName": "String *",
+    "clearer":  "String_freep"
+}
+@end
+
+APIF void String_split(String *src, const char *delim, StringPtAr *stringPtAr)
+{
+    static StringBody *buffer = String_empty();
+    StringBody *body = (StringBody*)(src->sizeof(int));
+    if (buffer->len < body->len) {
+        String_resize(&buffer, body->len);
+    }
+    strncpy(buffer->ch, body->ch, body->len+1);
+    StringPtAr_truncate(stringPtAr);   
+    char *string = buffer->ch;
+    char *token  = NULL;
+    while ((token = strsep(&string, delim)) != NULL) {
+        StringPtAr_push(stringPtAr, String_fmt("%s", token));
+    }
+    return;
+}
+
+@container    
+   {       
+       "type": "array",
+       "typeName": "SymbolAr", 
+       "elemName": "Symbol *",
+       "binarySearch": [
+           {"compare": "Symbol_cmpUnderlying", "tag": "Underlying"}
+        ]   
+   }
+@end
+
+APIF int Symbol_cmpUnderlying(Symbol **left, Symbol **right) 
+{
+    return strcmp(Symbol_cstr(*left), Symbol_cstr(*right)); 
+}
+
+#ifdef TEST_BUILD
+SymbolAr gSymbols = {0};
+
+Symbol *Symbol_gen(const char *word) 
+{
+    Symbol s  = {word};
+    Symbol *r = SymbolAr_binSearchUnderlying(&gSymbols, &s);
+    if (r != NULL) {
+        return r;
+    }
+    Symbol *n = Mem_malloc(sizeof(Symbol));
+    n->name = strdup(word);
+    SymbolAr_binInsertUnderlying(&gSymbols, n);
+    return n;
+}
+
+#endif
+
+
 
 @type
 {
    "typeName": "Port",
    "fields": [
-         {"name": "d_obj",            "type": "t_object"},
+         {"name": "obj",              "type": "MaxObject"},
          {"name": "inletnum",         "type": "long"},
          {"name": "proxy",            "type": "PtrAr"},
          {"name": "outlet",           "type": "PtrAr"},
@@ -32,51 +94,51 @@ Port PORT_NULL_IMPL =
 #define Port_null (&PORT_NULL_IMPL)
 
 @container    
-   {       
-       "type": "array",
-       "typeName": "MEventAr", 
-       "elemName": "MEvent"   
-   }
+{       
+   "type": "array",
+   "typeName": "MEventAr", 
+   "elemName": "MEvent"   
+}
 @end
 
 @container    
-   {       
-       "type": "array",
-       "typeName": "PtrAr", 
-       "elemName": "void *"   
-   }
+{       
+   "type": "array",
+   "typeName": "PtrAr", 
+   "elemName": "void *"   
+}
 @end
 
 @container    
-   {       
-       "type": "array",
-       "typeName": "SymbolPtrAr", 
-       "elemName": "Symbol *"   
-   }
+{       
+   "type": "array",
+   "typeName": "SymbolPtrAr", 
+   "elemName": "Symbol *"   
+}
 @end
 
 @container    
-   {       
-       "type": "array",
-       "typeName": "IntAr", 
-       "elemName": "int"   
-   }
+{       
+   "type": "array",
+   "typeName": "IntAr", 
+   "elemName": "int"   
+}
 @end
 
 
 
 @type
-   {  
-      "typeName": "BinFilePayload",
-      "fields":[  
-         {  
-            "getter":"none",
-            "name":"portFind",
-            "setter":"none",
-            "type":"PortFind *"
-         }
-      ]
-   }
+{  
+  "typeName": "BinFilePayload",
+  "fields":[  
+     {  
+        "getter":"none",
+        "name":"portFind",
+        "setter":"none",
+        "type":"PortFind *"
+     }
+  ]
+}
 @end
 
 @type
@@ -89,11 +151,11 @@ Port PORT_NULL_IMPL =
          },
          {  
             "name":"filename",
-            "type":"sds"
+            "type":"String *"
          },
          {  
             "name":"buffer",
-            "type":"sds"
+            "type":"String *"
          },
          {  
             "name":"stream",
@@ -658,7 +720,7 @@ APIF int Midiseq_convertIntFileLine(const char *src, Error *err, const char *fun
     long v = strtol(src, NULL, 10);
     if (errno != 0) {
         Error_formatFileLine(err, function, file, line,
-            sdscatprintf(sdsempty(), "Failed to convert int error code %s",
+            String_fmt("Failed to convert int error code %s",
             (errno == EINVAL ? "EINVAL" : errno == ERANGE ? "ERANGE" : "Unknown")));
 
     }
@@ -869,14 +931,14 @@ APIF MEvent *Midiseq_get(Midiseq *mseq, int index, Error *err)
 
 
 bool Midiseq_pathsAllocated = false;
-sds Midiseq_midiCsvExecPath = NULL;
-sds Midiseq_csvMidiExecPath = NULL;
+String *Midiseq_midiCsvExecPath = NULL;
+String *Midiseq_csvMidiExecPath = NULL;
 
 APIF void Midiseq_setMidicsvExecPath()
 {
     if (!Midiseq_pathsAllocated) {
-        Midiseq_midiCsvExecPath = sdscatprintf(sdsempty(), "%s/packages/midicsv-1.1/midicsv", CSEQ_HOME);
-        Midiseq_csvMidiExecPath = sdscatprintf(sdsempty(), "%s/packages/midicsv-1.1/csvmidi", CSEQ_HOME);
+        Midiseq_midiCsvExecPath = String_fmt("%s/packages/midicsv-1.1/midicsv", CSEQ_HOME);
+        Midiseq_csvMidiExecPath = String_fmt("%s/packages/midicsv-1.1/csvmidi", CSEQ_HOME);
         Midiseq_pathsAllocated = true;
     }
 }
@@ -912,21 +974,16 @@ APIF void Midiseq_dblog(Midiseq *mseq)
 //
 // F R O M     F I L E
 //
-APIF int midiseq_tokenize(FILE *fd, int *nfields, sds **fields, Error *err)
+APIF int midiseq_tokenize(FILE *fd, StringPtAr **ret, Error *err)
 {
-    char line[Midiseq_maxLineLength] = "";
-    char *flag = fgets(line, Midiseq_maxLineLength, fd);
-    if (flag == NULL) {
-        if (!feof(fd)) {
-            Error_format0(err, "Bad IO");
-            return 1;
-        }
-        return -1;
+    static String *buffer = String_empty();
+    String_readline(&buffer, fd, err);
+    if (Error_iserror(err)) {
+        return 1;
     }
-    *fields = sdssplitlen(line, strlen(line), ",", 1, nfields);
-    for (int i = 0; i < *nfields; i++) {
-        (*fields)[i] = sdstrim((*fields)[i], " ");
-    }
+    static StringPtAr arBuffer = {0};
+    *ret = &arBuffer;
+    String_split(buffer, ",", &arBuffer);
     return 0;
 }
 
@@ -1113,10 +1170,7 @@ APIF int Midiseq_fastfwrd(Midiseq *mseq, long t, Error *err)
 APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
 {
     char tempfile[] = "/tmp/MidiseqMaxMSPXXXXXX";
-    sds buffer = sdsempty();
     FILE *fd = NULL;
-    int nfields = 0;
-    sds *fields = NULL;
     bool allOK = false;
     Midiseq *mseq = (Midiseq*)sysmem_newptrclear(sizeof(Midiseq));
     Midiseq_init(mseq);
@@ -1129,7 +1183,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
     }
     close(tempFd);
 
-    buffer = sdscatprintf(buffer, "'%s' '%s' > '%s'", Midiseq_midiCsvExecPath, fullpath, tempfile);
+    String *buffer = String_fmt("'%s' '%s' > '%s'", Midiseq_midiCsvExecPath, fullpath, tempfile);
     int exitCode = system(buffer);
     if (exitCode != 0) {
         Error_format(err, "Failed '%s' with exit code %d", buffer, exitCode);
@@ -1150,17 +1204,23 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
     int ons[128] = {0};
     int linenum = 0;
     while (true) {
-        int q = midiseq_tokenize(fd, &nfields, &fields, err);
-        if (q != 0) {
-            if (Error_iserror(err)) {
-                goto END;
-            }
-            break;
+        StringPtAr *fieldsAr = NULL;
+        midiseq_tokenize(fd, &fieldsAr, err);
+        if (Error_iserror(err)) {
+            goto END;
         }
         linenum++;
 
-        if (nfields < 3) {
+        if (StringPtAr_len(fieldsAr) < 3) {
             Error_format(err, "Not enough fields in midicsv file '%s' line %d", tempfile, linenum);
+            goto END;
+        }
+
+        int nfields   = StringPtAr_len(fieldsAr);
+
+        // THIS IS AWEFUL
+        char **fields = (char**)fieldsAr->data;
+        if (Error_iserror(err)) {
             goto END;
         }
 
@@ -1257,9 +1317,6 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
             }
             tickFactor = (float)(desiredPPQN)/(float)(ppqn);
         }
-
-        // Free anything left over from tokenization
-        sdsfreesplitres(fields, nfields);
         fields = NULL;
         nfields = 0;
     }
@@ -1279,10 +1336,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
 
     END:
     if (buffer != NULL) {
-        sdsfree(buffer);
-    }
-    if (fields != NULL) {
-        sdsfreesplitres(fields, nfields);
+        String_free(buffer);
     }
     if (fd != NULL) {
         fclose(fd);
@@ -1305,10 +1359,10 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
 APIF void PortFind_init(PortFind *pf) {
     PortFindCellAr_init(&pf->objects, 0);
 }
-
-APIF long PortFind_iterator(PortFind *pf, t_object *targetBox)
+#ifdef TEST_BUILD
+APIF long PortFind_iterator(PortFind *pf, MaxObject *targetBox)
 {
-    t_object *obj = jbox_get_object(targetBox);
+    MaxObject *obj = jbox_get_object(targetBox);
     if (Symbol_gen("Port") != object_classname(obj)) {
         return 0;
     }
@@ -1331,14 +1385,13 @@ APIF long PortFind_iterator(PortFind *pf, t_object *targetBox)
     return 0;
 }
 
-
-APIF int PortFind_discover(PortFind *pf, t_object *sourceMaxObject, void *hub, Error *err)
+APIF int PortFind_discover(PortFind *pf, MaxObject *sourceMaxObject, void *hub, Error *err)
 {
     PortFind_setHub(pf, hub);
     PortFind_setAnythingDispatch(pf, (Port_anythingDispatchFunc)Hub_anythingDispatch);
     PortFind_setIntDispatch(pf, (Port_intDispatchFunc)Hub_intDispatch);
 
-    t_object *patcher = NULL;
+    MaxObject *patcher = NULL;
     long result       = 0;
     t_max_err maxErr = object_obex_lookup(sourceMaxObject, Symbol_gen("#P"), &patcher);
     if (maxErr != MAX_ERR_NONE) {
@@ -1353,6 +1406,21 @@ APIF int PortFind_discover(PortFind *pf, t_object *sourceMaxObject, void *hub, E
 
     return 0;
 }
+
+#else 
+APIF long PortFind_iterator(PortFind *pf, MaxObject *targetBox)
+{
+    return 0;
+}
+APIF int PortFind_discover(PortFind *pf, MaxObject *sourceMaxObject, void *hub, Error *err)
+{
+    return 0;
+}
+#endif
+
+
+
+
 
 APIF void PortFind_clear(PortFind *pf)
 {
@@ -2279,8 +2347,8 @@ APIF void Hub_fromBinFileUninitialized(Hub *hub, BinFile *bf, Error *err) {
 
 APIF BinFile *BinFile_new() {
     BinFile *bf = (BinFile*)sysmem_newptrclear(sizeof(BinFile));
-    BinFile_setFilename(bf, sdsempty());
-    BinFile_setBuffer(bf, sdsempty());
+    bf->filename = String_empty();
+    bf->buffer   = String_empty();
     return bf;
 }
 
@@ -2292,8 +2360,8 @@ APIF BinFile *BinFile_newWriter(const char *file, Error *err) {
         BinFile_free(bf);
         return NULL;
     }
-    sdsfree(BinFile_filename(bf));
-    BinFile_setFilename(bf, sdsnew(file));
+    String_free(bf->filename);
+    bf->filename = String_fmt("%s", file);
 
     if (fprintf(BinFile_stream(bf), "%d ", BinFile_version(bf)) < 0) {
         Error_format(err, "Failed to write version number to file %s", file);
@@ -2312,7 +2380,7 @@ APIF BinFile *BinFile_newReader(const char *file, Error *err) {
         BinFile_free(bf);
         return NULL;
     }
-    BinFile_setFilename(bf, sdsnew(file));
+    bf->filename = String_fmt("%s", file);
     if (fscanf(BinFile_stream(bf), "%d ", &bf->version)) {
         Error_format(err, "Failed to read version number from file  %s", file);
         BinFile_free(bf);
@@ -2326,12 +2394,9 @@ APIF void BinFile_free(BinFile *bf) {
         fclose(BinFile_stream(bf));
         BinFile_setStream(bf, NULL);
     }
-    
-    sdsfree(BinFile_filename(bf));
-    BinFile_setFilename(bf, NULL);
-    sdsfree(BinFile_buffer(bf));
-    BinFile_setBuffer(bf, NULL);
-    sysmem_freeptr(bf);
+    String_free(bf->filename);
+    String_free(bf->buffer);
+    Mem_free(bf);
 }
 
 APIF int binFile_hexDigitToInt(char hex) {
@@ -2500,12 +2565,12 @@ APIF off_t BinFile_tell(BinFile *bf, Error *err) {
 
 APIF void BinFile_fillBuffer(BinFile *bf, long size, Error *err) {
     // Want buffer to contain size+1 characters INCLUDING the null byte
-    if (sdslen(BinFile_buffer(bf)) < size) {
+    if (String_len(bf->buffer) < size) {
         // NOTE: I verified that this call DOES NOT shrink the buffer.
         // NOTE: sdsMakeRoomFor always allocates sdslen()+1 bytes  
-        BinFile_setBuffer(bf, sdsgrowzero(BinFile_buffer(bf), (size_t)size));
+        String_resize(&bf->buffer, size);
     }
-    sdssetlen(BinFile_buffer(bf), size);
+    
     if (fread(BinFile_buffer(bf), size, 1, BinFile_stream(bf)) != size) {
         Error_format(err, "Failed fread while working with %s", BinFile_filename(bf));
         return;   
@@ -2517,13 +2582,16 @@ APIF void BinFile_fillBuffer(BinFile *bf, long size, Error *err) {
 }
 
 APIF void BinFile_writeInteger(BinFile *bf, long value, Error *err) {
-    sdsclear(BinFile_buffer(bf));
-    sdscatprintf(BinFile_buffer(bf), "%ld", value);
+    // XXX: BORKEN
+    // sdsclear(BinFile_buffer(bf));
+    // sdscatprintf(BinFile_buffer(bf), "%ld", value);
     
-    BinFile_writeLength(bf, sdslen(BinFile_buffer(bf)), err);
+
+
+    BinFile_writeLength(bf, String_len(BinFile_buffer(bf)), err);
     Error_returnVoidOnError(err);
 
-    if (fwrite(BinFile_buffer(bf), sdslen(BinFile_buffer(bf)), 0, BinFile_stream(bf)) != sdslen(BinFile_buffer(bf))) {
+    if (fwrite(BinFile_buffer(bf), String_len(BinFile_buffer(bf)), 0, BinFile_stream(bf)) != String_len(BinFile_buffer(bf))) {
         Error_format(err, "Failed fwrite while writing %s", BinFile_filename(bf));
         return;
     }
@@ -2544,11 +2612,11 @@ APIF long BinFile_readInteger(BinFile *bf, Error *err) {
     return value;
 }
 
-APIF void BinFile_writeString(BinFile *bf, sds value, Error *err) {
-    BinFile_writeLength(bf, sdslen(value), err);
+APIF void BinFile_writeString(BinFile *bf, String *value, Error *err) {
+    BinFile_writeLength(bf, String_len(value), err);
     Error_returnVoidOnError(err);
 
-    if (fwrite(BinFile_buffer(bf), sdslen(BinFile_buffer(bf)), 1, BinFile_stream(bf)) != sdslen(BinFile_buffer(bf))) {
+    if (fwrite(BinFile_buffer(bf), String_len(BinFile_buffer(bf)), 1, BinFile_stream(bf)) != String_len(BinFile_buffer(bf))) {
         Error_format(err, "Failed fprintf while writing %s", BinFile_filename(bf));
         return;
     }
@@ -2556,14 +2624,14 @@ APIF void BinFile_writeString(BinFile *bf, sds value, Error *err) {
 }
 
 // must call sdsfree on any non-NULL return value
-APIF sds BinFile_readString(BinFile *bf, Error *err) {
+APIF String *BinFile_readString(BinFile *bf, Error *err) {
     uint32_t length = BinFile_readLength(bf, err);
     Error_returnNullOnError(err);
 
     BinFile_fillBuffer(bf, length, err);
     Error_returnNullOnError(err);    
     
-    return sdsdup(BinFile_buffer(bf));
+    return String_dup(BinFile_buffer(bf));
 }
 
 APIF void BinFile_writeSymbol(BinFile *bf, Symbol *value, Error *err) {
@@ -2582,13 +2650,14 @@ APIF Symbol *BinFile_readSymbol(BinFile *bf, Error *err) {
 }
 
 APIF void BinFile_writeTicks(BinFile *bf, Ticks value, Error *err) {
-    sdsclear(BinFile_buffer(bf));
-    sdscatprintf(BinFile_buffer(bf), "%lld", value);
+    // XXX: BORKEN
+    // sdsclear(BinFile_buffer(bf));
+    // sdscatprintf(BinFile_buffer(bf), "%lld", value);
 
-    BinFile_writeLength(bf, sdslen(BinFile_buffer(bf)), err);
+    BinFile_writeLength(bf, String_len(BinFile_buffer(bf)), err);
     Error_returnVoidOnError(err);
 
-    if (fwrite(BinFile_buffer(bf), sdslen(BinFile_buffer(bf)), 1, BinFile_stream(bf)) != sdslen(BinFile_buffer(bf))) {
+    if (fwrite(BinFile_buffer(bf), String_len(BinFile_buffer(bf)), 1, BinFile_stream(bf)) != String_len(BinFile_buffer(bf))) {
         Error_format(err, "Failed fprintf while writing %s", BinFile_filename(bf));
         return;
     }

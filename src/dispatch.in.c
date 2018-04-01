@@ -305,12 +305,12 @@ APIF void MidiFileDropDispatch_exec(MidiFileDropDispatch *self, Hub *hub, Argume
      Error_format0(err, "midiFileDrop expected to find colon (:) in filename");
      return;
    }
-   sds filename = sdsnew(colon+1);
+   String *filename = String_fmt("%s", colon+1);
    Midiseq *mseq = Midiseq_fromfile(filename, err);
    if (Error_iserror(err)) {
      return;
    }
-   sdsfree(filename);
+   String_free(filename);
    Pad *pad = PadList_pad(Hub_padList(hub), Hub_selectedPad(hub), err);
    if (Error_iserror(err)) {
      Midiseq_free(mseq);

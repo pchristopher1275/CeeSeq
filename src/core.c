@@ -1,9 +1,5 @@
 #ifndef CORE_C
 #define CORE_C
-#include <stdbool.h>
-#include <stdio.h>
-#include <time.h>
-#include "sds.c"
 
 #ifndef APIF
 #  define APIF /**/
@@ -14,6 +10,172 @@
 #else
 #  define Error_maxErrorInteger t_max_err
 #endif
+
+
+//
+// M E M O R Y
+//
+
+#ifdef TEST_BUILD
+// 
+// T e s t i n g   M e m o r y  F u n c t i o n s
+//
+
+void *Mem_reallocFull(void *ptr, size_t size, const char *file, int line) {
+    void *raw           = NULL;
+    size_t previousSize = 0;
+    if (ptr != NULL) {
+        raw          = ptr-sizeof(size_t);
+        previousSize = *((size_t*)raw);
+    }
+
+    raw = realloc(raw, size + sizeof(size_t));
+    if (raw == NULL) {
+        return NULL;
+    }
+
+    // NOTE: size DOES not include the size of the capacity
+    *((size_t*)raw) = size;
+    if (size > previousSize) {
+        memset(raw+sizeof(size_t)+previousSize, 0, size-previousSize);
+    }
+
+    return raw + sizeof(size_t);
+}
+
+void Mem_freeFull(void *ptr, const char *file, int line) {
+    if (ptr != NULL) {
+        void *raw = ptr-sizeof(size_t);
+        free(raw);
+    }
+}
+
+#define Mem_realloc(ptr, size) Mem_reallocFull((ptr), (size), __FILE__, __LINE__)
+#define Mem_malloc(size)       Mem_reallocFull(NULL,  (size), __FILE__, __LINE__)
+#define Mem_free(ptr)          Mem_freeFull((ptr), __FILE__, __LINE__)
+
+#else
+
+//
+// M a x   M e m o r y   F u n c t i o n s 
+//
+#define Mem_malloc(size)       (void*)sysmem_newptr(size)
+#define Mem_realloc(ptr, size) (void*)sysmem_resizeptr((ptr), (size))
+#define Mem_free(ptr)          sysmem_freeptr(ptr)
+#endif 
+
+//
+// String
+//
+
+typedef struct StringBody_t {
+    int len; // len DOES NOT include the null terminator
+    char ch[0];
+} StringBody;
+
+typedef const char String;
+void String_free(String *s);
+
+
+APIF String *String_fmt(const char *format, ...) 
+{
+    va_list ap;
+    va_start(ap, format);
+    size_t needed = vsnprintf(NULL, 0, format, ap);
+    va_end(ap);
+    StringBody *body = (StringBody*)Mem_malloc(needed+1+sizeof(int));
+    body->len        = needed;
+    va_start(ap, format);
+    vsnprintf(body->ch, needed+1, format, ap);
+    va_end(ap);
+    return body->ch;
+}
+
+APIF int String_len(String *s) {
+    StringBody *body = (StringBody*)(s-sizeof(int));
+    return body->len;
+}
+
+APIF void String_freep(String **sp) 
+{
+    String_free(*sp);
+}
+
+APIF void String_free(String *s) 
+{
+    StringBody *body = (StringBody*)(s-sizeof(int));
+    Mem_free(body);
+}
+
+APIF int String_cmp(String *self, String *other)
+{
+    return strcmp(self, other);
+}
+
+APIF int String_equal(String *self, String *other)
+{
+    return String_cmp(self, other) == 0;
+}
+
+APIF int String_cequal(String *self, const char *other)
+{
+    return String_cmp(self, other) == 0;   
+}
+
+APIF String *String_empty()
+{
+    StringBody *body = (StringBody*)Mem_malloc(1+sizeof(int));
+    body->len = 0;
+    body->ch[0] = '\0';
+    return body->ch;
+}
+
+APIF void String_trim(String **sp)
+{
+    String *s = *sp;
+    StringBody *body = (StringBody*)(s-sizeof(int));
+    char *b = body->ch;
+    while (*b && isspace(*b)) {
+        b++;
+    }
+
+    char *e = body->ch + body->len - 1;
+    while (*e && isspace(*e)) {
+        e--;
+    }
+
+    if (b >= e) {
+        String_free(s);
+        *sp = String_empty();
+    }
+
+    e++;
+    *e = '\0';
+    *sp = String_fmt("%s", b);
+    String_free(s);
+}
+
+APIF String *String_dup(String *src) 
+{
+    return String_fmt("%s", src);
+}
+
+// newLen DOES NOT include the null byte
+APIF void String_resize(String **src, int newLen)
+{
+    StringBody *body = (StringBody*)(*src - sizeof(int));
+    if (newLen < 0) {
+        return;
+    }
+    StringBody *nw = Mem_malloc(newLen + 1 + sizeof(int));
+    nw->len        = newLen;
+    int cpyLen = body->len < newLen ? body->len : newLen;
+    strncpy(nw->ch, *src, cpyLen);
+    body->ch[cpyLen] = '\0';
+    String_free(*src);
+    *src = nw->ch;
+}
+
 //
 // T E X T    L O G G I N G
 //
@@ -21,11 +183,11 @@
 FILE *dbLog_outputFd = NULL;
 
 
-sds DBLog_stripBaseNameString = NULL;
-APIF sds DBLog_stripBaseName(const char *path)
+String *DBLog_stripBaseNameString = NULL;
+APIF const char *DBLog_stripBaseName(const char *path)
 {
     if (DBLog_stripBaseNameString != NULL) {
-        sdsfree(DBLog_stripBaseNameString);
+        String_free(DBLog_stripBaseNameString);
     }
     const char *p = strrchr(path, '/');
     if (p == NULL) {
@@ -35,23 +197,23 @@ APIF sds DBLog_stripBaseName(const char *path)
         p++;
     }
 
-    DBLog_stripBaseNameString = sdsnew(p);
+    DBLog_stripBaseNameString = String_fmt("%s", p);
     return DBLog_stripBaseNameString;
 }
 
 
-APIF void DBLog_printSDS(const char *file, int line, sds message)
+APIF void DBLog_printSDS(const char *file, int line, String *message)
 {
     if (dbLog_outputFd != NULL) {
         fprintf(dbLog_outputFd, "[%s: %d] %s\n", DBLog_stripBaseName(file), line, message);
         fflush(dbLog_outputFd);
     }
-    sdsfree(message);
+    String_free(message);
 }
 
 
-#define dblog(format, ...) DBLog_printSDS(__FILE__, __LINE__, sdscatprintf(sdsempty(), format, __VA_ARGS__))
-#define dblog0(format) DBLog_printSDS(__FILE__, __LINE__, sdsnew(format))
+#define dblog(format, ...) DBLog_printSDS(__FILE__, __LINE__, String_fmt(format, __VA_ARGS__))
+#define dblog0(format) DBLog_printSDS(__FILE__, __LINE__, String_fmt("%s", format))
 
 //
 // E R R O R    C L A S S
@@ -59,7 +221,7 @@ APIF void DBLog_printSDS(const char *file, int line, sds message)
 typedef struct Error_t
 {
     bool iserror;
-    sds message;
+    String *message;
 } Error;
 
 #ifdef TEST_BUILD
@@ -77,7 +239,7 @@ APIF static inline bool Error_iserror(Error *err)
 }
 
 
-APIF sds Error_message(Error *err)
+APIF const char *Error_message(Error *err)
 {
     if (err->iserror) {
         return err->message;
@@ -89,24 +251,24 @@ APIF sds Error_message(Error *err)
 APIF void Error_clear(Error *err)
 {
     if (err->message != NULL) {
-        sdsfree(err->message);
+        String_free(err->message);
     }
     err->message = NULL;
     err->iserror = false;
 }
 
 
-APIF void Error_formatFileLine(Error *dst, const char *function, const char *file, int line, sds message)
+APIF void Error_formatFileLine(Error *dst, const char *function, const char *file, int line, String *message)
 {
     Error_clear(dst);
-    dst->message = sdscatprintf(sdsempty(), "[%s:%s:%d] %s", function, DBLog_stripBaseName(file), line, message);
+    dst->message = String_fmt("[%s:%s:%d] %s", function, DBLog_stripBaseName(file), line, message);
     dst->iserror = true;
-    sdsfree(message);
+    String_free(message);
 }
 
 
-#define Error_format(dst, format, ...) Error_formatFileLine(dst, __func__, __FILE__, __LINE__, sdscatprintf(sdsempty(), (format), __VA_ARGS__))
-#define Error_format0(dst, format) Error_formatFileLine(dst, __func__, __FILE__, __LINE__, sdscatprintf(sdsempty(), (format)))
+#define Error_format(dst, format, ...) Error_formatFileLine(dst, __func__, __FILE__, __LINE__, String_fmt((format), __VA_ARGS__))
+#define Error_format0(dst, format)     Error_formatFileLine(dst, __func__, __FILE__, __LINE__, String_fmt(format))
 
 
 
@@ -152,6 +314,24 @@ APIF int Error_maypost(Error *err)
 #define Error_gotoLabelOnError(err, label)     if (Error_iserror(err)) goto label
 
 
+//
+// More    S T R I N G
+//
+APIF void String_readline(String **buffer, FILE *inp, Error *err)
+{
+    static char *linep     = NULL;
+    static size_t linecapp = 0;
+    ssize_t len = getline(&linep, &linecapp, inp);
+    if (len < 0) {
+        Error_format0(err, "String_readline failed");
+        return;
+    }
+    StringBody *body = (StringBody*)(*buffer-sizeof(int));
+    if (body->len < len) {
+        String_resize(buffer, len);
+    }
+    strncpy(body->ch, linep, len);
+}
 
 //
 // D B L O G    a g a i n
@@ -159,7 +339,7 @@ APIF int Error_maypost(Error *err)
 APIF void DBLog_init(const char *tag, Error *err)
 {
     if (dbLog_outputFd == NULL) {        
-        sds outputFile = sdscatprintf(sdsempty(), "%s/%s_DBLog.txt", CSEQ_HOME, tag);
+        String *outputFile = String_fmt("%s/%s_DBLog.txt", CSEQ_HOME, tag);
         dbLog_outputFd = fopen(outputFile, "w");
         if (dbLog_outputFd == NULL) {
             Error_format(err, "DBLog_init failed to open log file %s", outputFile);
@@ -169,22 +349,27 @@ APIF void DBLog_init(const char *tag, Error *err)
             ltime=time(NULL);                     /* get current cal time */
             dblog("DBLog starting at %s", asctime(localtime(&ltime)));
         }
-        sdsfree(outputFile);
+        String_free(outputFile);
     }
 }
+
+//
+// M A X   O B J E C T
+//
+#ifdef TEST_BUILD
+#  define MaxObject int
+#else
+#  define MaxObject t_object
+#endif 
 
 //
 // S Y M B O L
 //
 #ifdef TEST_BUILD
-typedef struct Symbol_t {sds name;} Symbol;
+typedef struct Symbol_t {const char *name;} Symbol;
+Symbol *Symbol_gen(const char *word);
 static inline const char *Symbol_cstr(Symbol *s) {
     return s->name;
-}
-static inline Symbol *Symbol_gen(const char *word) {
-    Symbol *s = Mem_malloc(sizeof(Symbol));
-    s->name = sdsnew(word);
-    return s;
 }
 
 #else

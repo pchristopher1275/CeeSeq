@@ -16,9 +16,7 @@
 #include "ext_time.h"
 #include "ext_itm.h"
 
-#include "mem.c"
 #include "core.c"
-#include "shared.c"
 #include "application.c"
 
 #ifndef PORT_BUILD_NUMBER
