@@ -44,7 +44,7 @@ my @templates = (
 		key =>    'Type:newUninitialized',
 		symbol => '${TYPENAME}_newUninitialized',
 		tmpl   => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}_newUninitialized() ((${TYPENAME}*)sysmem_newptrclear(sizeof(${TYPENAME})))		
+			@#define ${TYPENAME}_newUninitialized() ((${TYPENAME}*)Mem_malloc(sizeof(${TYPENAME})))		
 ENDxxxxxxxxxx
 	},
 

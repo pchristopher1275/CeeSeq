@@ -1,13 +1,13 @@
-// *** DO NOT MODIFY THIS FILE generated 04/01/2018 13:59:33 ***
-// *** DO NOT MODIFY THIS FILE generated 04/01/2018 13:59:33 ***
-// *** DO NOT MODIFY THIS FILE generated 04/01/2018 13:59:33 ***
-// *** DO NOT MODIFY THIS FILE generated 04/01/2018 13:59:33 ***
-// *** DO NOT MODIFY THIS FILE generated 04/01/2018 13:59:33 ***
-// *** DO NOT MODIFY THIS FILE generated 04/01/2018 13:59:33 ***
-// *** DO NOT MODIFY THIS FILE generated 04/01/2018 13:59:33 ***
-// *** DO NOT MODIFY THIS FILE generated 04/01/2018 13:59:33 ***
-// *** DO NOT MODIFY THIS FILE generated 04/01/2018 13:59:33 ***
-// *** DO NOT MODIFY THIS FILE generated 04/01/2018 13:59:33 ***
+// *** DO NOT MODIFY THIS FILE generated 04/01/2018 14:29:59 ***
+// *** DO NOT MODIFY THIS FILE generated 04/01/2018 14:29:59 ***
+// *** DO NOT MODIFY THIS FILE generated 04/01/2018 14:29:59 ***
+// *** DO NOT MODIFY THIS FILE generated 04/01/2018 14:29:59 ***
+// *** DO NOT MODIFY THIS FILE generated 04/01/2018 14:29:59 ***
+// *** DO NOT MODIFY THIS FILE generated 04/01/2018 14:29:59 ***
+// *** DO NOT MODIFY THIS FILE generated 04/01/2018 14:29:59 ***
+// *** DO NOT MODIFY THIS FILE generated 04/01/2018 14:29:59 ***
+// *** DO NOT MODIFY THIS FILE generated 04/01/2018 14:29:59 ***
+// *** DO NOT MODIFY THIS FILE generated 04/01/2018 14:29:59 ***
 struct Arguments_t;
 typedef struct Arguments_t Arguments;
 struct Marshal_t;
@@ -891,13 +891,10 @@ typedef struct DispatchPtArRIt_t {
    Dispatch **var;
 } DispatchPtArRIt;
 
-struct Arguments_t
+struct PortRef_t
 {
-    Symbol *s1;
-    long i1;
-    long i2;
-    long ivalue;
-    long inlet;
+    Port *port;
+    int outlet;
 };
 typedef struct SymbolPtrAr_t {
    int len;
@@ -925,16 +922,19 @@ typedef struct SymbolPtrArRIt_t {
    Symbol **var;
 } SymbolPtrArRIt;
 
-struct PortRef_t
-{
-    Port *port;
-    int outlet;
-};
 struct DropDown_t
 {
     SymbolPtrAr table;
     int selected;
     PortRef portRef;
+};
+struct Arguments_t
+{
+    Symbol *s1;
+    long i1;
+    long i2;
+    long ivalue;
+    long inlet;
 };
 struct Hub_t
 {
@@ -1366,7 +1366,7 @@ static inline void Arguments_setIvalue(Arguments *self, long value){self->ivalue
 static inline void Arguments_setInlet(Arguments *self, long value){self->inlet = value;}
 static inline int Marshal_nthIType(int n, int *itype) {
     static int itypes[] = {
-        MarshalSii_itype, MarshalSs_itype, MarshalSi_itype
+        MarshalSi_itype, MarshalSii_itype, MarshalSs_itype
     };
     static int len = sizeof(itypes)/sizeof(int);
     if (n < 0 || n >= len) {
@@ -1405,7 +1405,7 @@ static inline Marshal *MarshalSs_castToMarshal(MarshalSs *self) {
 }
 static inline int Dispatch_nthIType(int n, int *itype) {
     static int itypes[] = {
-        DecrementFrameDispatch_itype, SelectNextPushedPadDispatch_itype, ManageChokeGroupsDispatch_itype, IncrementFrameDispatch_itype, MidiFileDropDispatch_itype
+        MidiFileDropDispatch_itype, ManageChokeGroupsDispatch_itype, IncrementFrameDispatch_itype, DecrementFrameDispatch_itype, SelectNextPushedPadDispatch_itype
     };
     static int len = sizeof(itypes)/sizeof(int);
     if (n < 0 || n >= len) {
@@ -1644,12 +1644,12 @@ static inline String *BinFile_filename(BinFile *self){return self->filename;}
 static inline String *BinFile_buffer(BinFile *self){return self->buffer;}
 static inline FILE *BinFile_stream(BinFile *self){return self->stream;}
 static inline void BinFile_setStream(BinFile *self, FILE *value){self->stream = value;}
-#define Midiseq_newUninitialized() ((Midiseq*)sysmem_newptrclear(sizeof(Midiseq)))        
+#define Midiseq_newUninitialized() ((Midiseq*)Mem_malloc(sizeof(Midiseq)))        
 static inline bool Midiseq_useMasterClock(Midiseq *self){return self->useMasterClock;}
 static inline void Midiseq_setUseMasterClock(Midiseq *self, bool value){self->useMasterClock = value;}
 static inline Ticks Midiseq_sequenceLength(Midiseq *self){return self->sequenceLength;}
 static inline void Midiseq_setSequenceLength(Midiseq *self, Ticks value){self->sequenceLength = value;}
-#define Pad_newUninitialized() ((Pad*)sysmem_newptrclear(sizeof(Pad)))        
+#define Pad_newUninitialized() ((Pad*)Mem_malloc(sizeof(Pad)))        
 static inline Symbol *Pad_trackName(Pad *self){return self->trackName;}
 static inline void Pad_setTrackName(Pad *self, Symbol *value){self->trackName = value;}
 static inline int Pad_padIndex(Pad *self){return self->padIndex;}
@@ -1677,16 +1677,16 @@ static inline Port_anythingDispatchFunc PortFind_anythingDispatch(PortFind *self
 static inline void PortFind_setAnythingDispatch(PortFind *self, Port_anythingDispatchFunc value){self->anythingDispatch = value;}
 static inline Port_intDispatchFunc PortFind_intDispatch(PortFind *self){return self->intDispatch;}
 static inline void PortFind_setIntDispatch(PortFind *self, Port_intDispatchFunc value){self->intDispatch = value;}
-#define PadList_newUninitialized() ((PadList*)sysmem_newptrclear(sizeof(PadList)))        
+#define PadList_newUninitialized() ((PadList*)Mem_malloc(sizeof(PadList)))        
 static inline PadAr *PadList_pads(PadList *self){return &self->pads;}
 static inline PadPtrAr *PadList_running(PadList *self){return &self->running;}
 static inline void Track_setName(Track *self, Symbol *value){self->name = value;}
 static inline NoteManager *Track_noteManager(Track *self){return self->noteManager;}
 static inline void Track_setNoteManager(Track *self, NoteManager *value){self->noteManager = value;}
-#define TrackList_newUninitialized() ((TrackList*)sysmem_newptrclear(sizeof(TrackList)))        
+#define TrackList_newUninitialized() ((TrackList*)Mem_malloc(sizeof(TrackList)))        
 static inline Port *PortRef_port(PortRef *self){return self->port;}
 static inline int PortRef_outlet(PortRef *self){return self->outlet;}
-#define Hub_newUninitialized() ((Hub*)sysmem_newptrclear(sizeof(Hub)))        
+#define Hub_newUninitialized() ((Hub*)Mem_malloc(sizeof(Hub)))        
 static inline PadList *Hub_padList(Hub *self){return self->padList;}
 static inline void Hub_setPadList(Hub *self, PadList *value){self->padList = value;}
 static inline TrackList *Hub_trackList(Hub *self){return self->trackList;}
@@ -2622,7 +2622,7 @@ APIF int Midiseq_convertIntFileLine(const char *src, Error *err, const char *fun
 #define Midiseq_maxLineLength 1024
 
 // Create new empty midi sequence
-#define Midiseq_newUninitialized() ((Midiseq*)sysmem_newptrclear(sizeof(Midiseq)))
+// #define Midiseq_newUninitialized() ((Midiseq*)sysmem_newptrclear(sizeof(Midiseq)))
 APIF Midiseq *Midiseq_new()
 {
     Midiseq *midi = Midiseq_newUninitialized();
@@ -2682,7 +2682,7 @@ APIF Midiseq *Midiseq_fromBinFile(BinFile *bf, Error *err) {
     Midiseq *mseq = Midiseq_newUninitialized();
     Midiseq_fromBinFileUnititialized(mseq, bf, err);
     if (Error_iserror(err)) {
-        sysmem_freeptr(mseq);
+        Mem_free(mseq);
         return NULL;
     }
     return mseq;
@@ -2862,7 +2862,10 @@ APIF void Midiseq_dblog(Midiseq *mseq)
 //
 APIF int midiseq_tokenize(FILE *fd, StringPtAr **ret, Error *err)
 {
-    static String *buffer = String_empty();
+    static String *buffer = NULL;
+    if (buffer == NULL) {
+        buffer = String_empty();
+    }
     String_readline(&buffer, fd, err);
     if (Error_iserror(err)) {
         return 1;
@@ -3058,7 +3061,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
     char tempfile[] = "/tmp/MidiseqMaxMSPXXXXXX";
     FILE *fd = NULL;
     bool allOK = false;
-    Midiseq *mseq = (Midiseq*)sysmem_newptrclear(sizeof(Midiseq));
+    Midiseq *mseq = (Midiseq*)Mem_malloc(sizeof(Midiseq));
     Midiseq_init(mseq);
 
     // Call midicsv. To do this we create a new destination file, then route our output to it
@@ -3137,8 +3140,8 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
 
             if (isOn) {
                 cell.type = Midiseq_notetype;
-                cell.b.b[0]  = (uint8)pitch;
-                cell.b.b[1]  = (uint8)velocity;
+                cell.b.b[0]  = (uint8_t)pitch;
+                cell.b.b[1]  = (uint8_t)velocity;
                 if (ons[pitch] != 0) {
                     Error_format(err, "Found an unbalanced NOTE-ON: while working on` file '%s' line %d", tempfile, linenum);
                     goto END;
@@ -3188,8 +3191,8 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
                 goto END;
             }
             cell.type = Midiseq_cctype;
-            cell.b.b[0]  = (uint8)cc;
-            cell.b.b[1]  = (uint8)val;
+            cell.b.b[0]  = (uint8_t)cc;
+            cell.b.b[1]  = (uint8_t)val;
             Midiseq_push(mseq, cell);
         }
         else if (strcmp(typ, "Header") == 0) {
@@ -3245,7 +3248,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
 APIF void PortFind_init(PortFind *pf) {
     PortFindCellAr_init(&pf->objects, 0);
 }
-#ifdef TEST_BUILD
+#ifndef TEST_BUILD
 APIF long PortFind_iterator(PortFind *pf, MaxObject *targetBox)
 {
     MaxObject *obj = jbox_get_object(targetBox);
@@ -3385,7 +3388,7 @@ APIF void Pad_init(Pad *pad)
 APIF void Pad_free(Pad *pad) {
     if (pad != NULL) {
         Pad_clear(pad);
-        sysmem_freeptr(pad);
+        Mem_free(pad);
     }
 }
 
@@ -3432,7 +3435,7 @@ APIF Pad *Pad_fromBinFile(BinFile *bf, Error *err) {
     Pad *pad = Pad_newUninitialized();
     Pad_fromBinFileUninitialized(pad, bf, err);
     if (Error_iserror(err)) {
-        sysmem_freeptr(pad);
+        Mem_free(pad);
         return NULL;
     }
     return pad;
@@ -3717,10 +3720,8 @@ APIF void TrackList_toBinFile(TrackList *tl, BinFile *bf, Error *err) {
 //
 // D R O P   D O W N
 //
-#define DropDown_newUnitialized() (DropDown*)sysmem_newptrclear(sizeof(DropDown));
-
 APIF DropDown *DropDown_new(const char **table, PortRef *pr) {
-    DropDown *dd = DropDown_newUnitialized();
+    DropDown *dd = Mem_calloc(sizeof(DropDown));
     DropDown_init(dd, table, pr);
     return dd;
 }
@@ -3795,10 +3796,10 @@ APIF void DropDown_free(DropDown *dd) {
 APIF void DropDown_updateSelected(DropDown *dd, Error *err) {
     Symbol *s = SymbolPtrAr_get(&dd->table, dd->selected, err);
     Error_returnVoidOnError(err);
-
-    Atom a[2] = {{0}};
-    atom_setsym(a + 0, Symbol_gen("set"));
-    atom_setsym(a + 1, s);
+    Atom a[2] = {
+        Atom_fromSymbol(Symbol_gen("set")),
+        Atom_fromSymbol(s)
+    };
     PortRef_send(DropDown_portRef(dd), 2, a, err);
 }
 
@@ -4025,7 +4026,7 @@ APIF Hub *Hub_new(PortFind *pf, Error *err) {
     return hub;
 
     END:
-    sysmem_freeptr(hub);
+    Mem_free(hub);
     return NULL;
 }
 
@@ -4232,7 +4233,7 @@ APIF void Hub_fromBinFileUninitialized(Hub *hub, BinFile *bf, Error *err) {
 //
 
 APIF BinFile *BinFile_new() {
-    BinFile *bf = (BinFile*)sysmem_newptrclear(sizeof(BinFile));
+    BinFile *bf = Mem_calloc(sizeof(BinFile));
     bf->filename = String_empty();
     bf->buffer   = String_empty();
     return bf;
@@ -4457,14 +4458,15 @@ APIF void BinFile_fillBuffer(BinFile *bf, long size, Error *err) {
         String_resize(&bf->buffer, size);
     }
     
-    if (fread(BinFile_buffer(bf), size, 1, BinFile_stream(bf)) != size) {
+    if (fread((char*)bf->buffer, size, 1, BinFile_stream(bf)) != size) {
         Error_format(err, "Failed fread while working with %s", BinFile_filename(bf));
         return;   
     }
     // NOTE: this means that the buffer can be used like a string in the correct context. IT DOES NOT say that there aren't
     // other nulls embedded in the string. I think that the way I'm preparing this string, there might be 2 nulls at the end
     // of it. 
-    BinFile_buffer(bf)[size] = '\0';
+    char *p = (char*)bf->buffer;
+    p[size] = '\0';
 }
 
 APIF void BinFile_writeInteger(BinFile *bf, long value, Error *err) {

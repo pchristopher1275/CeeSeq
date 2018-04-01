@@ -23,6 +23,7 @@
 
 #define Mem_realloc(ptr, size) realloc(ptr, size)
 #define Mem_malloc(size)       malloc(size)
+#define Mem_calloc(size)       calloc(1, size)
 #define Mem_free(ptr)          free(ptr)
 
 
@@ -32,6 +33,7 @@
 // M a x   M e m o r y   F u n c t i o n s 
 //
 #define Mem_malloc(size)       (void*)sysmem_newptr(size)
+#define Mem_calloc(size)       (void*)sysmem_newptrclear(size)
 #define Mem_realloc(ptr, size) (void*)sysmem_resizeptr((ptr), (size))
 #define Mem_free(ptr)          sysmem_freeptr(ptr)
 #endif 
@@ -500,7 +502,7 @@ typedef struct MEvent_t
     Ticks t;
     Ticks duration;
 } MEvent;
-#define MEvent_newUninitialized() ((MEvent*)sysmem_newptrclear(sizeof(MEvent)))
+#define MEvent_newUninitialized() ((MEvent*)Mem_malloc(sizeof(MEvent)))
 #define MEvent_type(cell) ((cell).type)
 #define MEvent_t(cell) ((cell).t)
 #define MEvent_notePitch(cell) ((cell).b.b[0])

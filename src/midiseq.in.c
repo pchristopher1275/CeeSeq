@@ -745,7 +745,7 @@ APIF int Midiseq_convertIntFileLine(const char *src, Error *err, const char *fun
 #define Midiseq_maxLineLength 1024
 
 // Create new empty midi sequence
-#define Midiseq_newUninitialized() ((Midiseq*)sysmem_newptrclear(sizeof(Midiseq)))
+// #define Midiseq_newUninitialized() ((Midiseq*)sysmem_newptrclear(sizeof(Midiseq)))
 APIF Midiseq *Midiseq_new()
 {
     Midiseq *midi = Midiseq_newUninitialized();
@@ -805,7 +805,7 @@ APIF Midiseq *Midiseq_fromBinFile(BinFile *bf, Error *err) {
     Midiseq *mseq = Midiseq_newUninitialized();
     Midiseq_fromBinFileUnititialized(mseq, bf, err);
     if (Error_iserror(err)) {
-        sysmem_freeptr(mseq);
+        Mem_free(mseq);
         return NULL;
     }
     return mseq;
@@ -985,7 +985,10 @@ APIF void Midiseq_dblog(Midiseq *mseq)
 //
 APIF int midiseq_tokenize(FILE *fd, StringPtAr **ret, Error *err)
 {
-    static String *buffer = String_empty();
+    static String *buffer = NULL;
+    if (buffer == NULL) {
+        buffer = String_empty();
+    }
     String_readline(&buffer, fd, err);
     if (Error_iserror(err)) {
         return 1;
@@ -1181,7 +1184,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
     char tempfile[] = "/tmp/MidiseqMaxMSPXXXXXX";
     FILE *fd = NULL;
     bool allOK = false;
-    Midiseq *mseq = (Midiseq*)sysmem_newptrclear(sizeof(Midiseq));
+    Midiseq *mseq = (Midiseq*)Mem_malloc(sizeof(Midiseq));
     Midiseq_init(mseq);
 
     // Call midicsv. To do this we create a new destination file, then route our output to it
@@ -1260,8 +1263,8 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
 
             if (isOn) {
                 cell.type = Midiseq_notetype;
-                cell.b.b[0]  = (uint8)pitch;
-                cell.b.b[1]  = (uint8)velocity;
+                cell.b.b[0]  = (uint8_t)pitch;
+                cell.b.b[1]  = (uint8_t)velocity;
                 if (ons[pitch] != 0) {
                     Error_format(err, "Found an unbalanced NOTE-ON: while working on` file '%s' line %d", tempfile, linenum);
                     goto END;
@@ -1311,8 +1314,8 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
                 goto END;
             }
             cell.type = Midiseq_cctype;
-            cell.b.b[0]  = (uint8)cc;
-            cell.b.b[1]  = (uint8)val;
+            cell.b.b[0]  = (uint8_t)cc;
+            cell.b.b[1]  = (uint8_t)val;
             Midiseq_push(mseq, cell);
         }
         else if (strcmp(typ, "Header") == 0) {
@@ -1368,7 +1371,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
 APIF void PortFind_init(PortFind *pf) {
     PortFindCellAr_init(&pf->objects, 0);
 }
-#ifdef TEST_BUILD
+#ifndef TEST_BUILD
 APIF long PortFind_iterator(PortFind *pf, MaxObject *targetBox)
 {
     MaxObject *obj = jbox_get_object(targetBox);
@@ -1508,7 +1511,7 @@ APIF void Pad_init(Pad *pad)
 APIF void Pad_free(Pad *pad) {
     if (pad != NULL) {
         Pad_clear(pad);
-        sysmem_freeptr(pad);
+        Mem_free(pad);
     }
 }
 
@@ -1555,7 +1558,7 @@ APIF Pad *Pad_fromBinFile(BinFile *bf, Error *err) {
     Pad *pad = Pad_newUninitialized();
     Pad_fromBinFileUninitialized(pad, bf, err);
     if (Error_iserror(err)) {
-        sysmem_freeptr(pad);
+        Mem_free(pad);
         return NULL;
     }
     return pad;
@@ -1840,10 +1843,8 @@ APIF void TrackList_toBinFile(TrackList *tl, BinFile *bf, Error *err) {
 //
 // D R O P   D O W N
 //
-#define DropDown_newUnitialized() (DropDown*)sysmem_newptrclear(sizeof(DropDown));
-
 APIF DropDown *DropDown_new(const char **table, PortRef *pr) {
-    DropDown *dd = DropDown_newUnitialized();
+    DropDown *dd = Mem_calloc(sizeof(DropDown));
     DropDown_init(dd, table, pr);
     return dd;
 }
@@ -1918,10 +1919,10 @@ APIF void DropDown_free(DropDown *dd) {
 APIF void DropDown_updateSelected(DropDown *dd, Error *err) {
     Symbol *s = SymbolPtrAr_get(&dd->table, dd->selected, err);
     Error_returnVoidOnError(err);
-
-    Atom a[2] = {{0}};
-    atom_setsym(a + 0, Symbol_gen("set"));
-    atom_setsym(a + 1, s);
+    Atom a[2] = {
+        Atom_fromSymbol(Symbol_gen("set")),
+        Atom_fromSymbol(s)
+    };
     PortRef_send(DropDown_portRef(dd), 2, a, err);
 }
 
@@ -2148,7 +2149,7 @@ APIF Hub *Hub_new(PortFind *pf, Error *err) {
     return hub;
 
     END:
-    sysmem_freeptr(hub);
+    Mem_free(hub);
     return NULL;
 }
 
@@ -2355,7 +2356,7 @@ APIF void Hub_fromBinFileUninitialized(Hub *hub, BinFile *bf, Error *err) {
 //
 
 APIF BinFile *BinFile_new() {
-    BinFile *bf = (BinFile*)sysmem_newptrclear(sizeof(BinFile));
+    BinFile *bf = Mem_calloc(sizeof(BinFile));
     bf->filename = String_empty();
     bf->buffer   = String_empty();
     return bf;
@@ -2580,14 +2581,15 @@ APIF void BinFile_fillBuffer(BinFile *bf, long size, Error *err) {
         String_resize(&bf->buffer, size);
     }
     
-    if (fread(BinFile_buffer(bf), size, 1, BinFile_stream(bf)) != size) {
+    if (fread((char*)bf->buffer, size, 1, BinFile_stream(bf)) != size) {
         Error_format(err, "Failed fread while working with %s", BinFile_filename(bf));
         return;   
     }
     // NOTE: this means that the buffer can be used like a string in the correct context. IT DOES NOT say that there aren't
     // other nulls embedded in the string. I think that the way I'm preparing this string, there might be 2 nulls at the end
     // of it. 
-    BinFile_buffer(bf)[size] = '\0';
+    char *p = (char*)bf->buffer;
+    p[size] = '\0';
 }
 
 APIF void BinFile_writeInteger(BinFile *bf, long value, Error *err) {

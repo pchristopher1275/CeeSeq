@@ -5,6 +5,9 @@
 #include <time.h>
 #include <stdarg.h>
 #include <ctype.h>
+#include <errno.h>
+#include <unistd.h> 
+#include <stdint.h>
 #include "../src/core.c"
 #include "../src/unit.c"
 #include "../src/application.c"
