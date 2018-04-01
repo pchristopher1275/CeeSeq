@@ -13,7 +13,7 @@ String *stripBaseName(const char *path);
 
 APIF void String_split(String *src, const char *delim, StringPtAr *stringPtAr)
 {
-    static StringBody *buffer = String_empty();
+    static StringBody *buffer = String_toStringBody(String_empty());
     StringBody *body = (StringBody*)(src->sizeof(int));
     if (buffer->len < body->len) {
         String_resize(&buffer, body->len);

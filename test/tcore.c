@@ -80,6 +80,27 @@ Unit_declare(testString) {
 
 		String_free(s);
 	}
+
+	{
+		// String readline
+		Error_declare(err);
+		FILE *fd = fopen("test/data/stringReadline.txt", "r");
+		fatal(fd != NULL);
+		String *s = String_empty();
+
+		int count = 0;
+		while (String_readline(&s, fd, err)) {
+			fatal(!Error_iserror(err));
+			int i = -1;
+			fatal(sscanf(s, "%d", &i) == 1);
+			chk(count == i);
+			count++;
+			chk(strcmp(s+2, "0123456789") == 0);
+		}
+		fatal(!Error_iserror(err));
+		String_free(s);
+		fclose(fd);
+	}
 }
 
 int main(int argc, char *argv[]) {

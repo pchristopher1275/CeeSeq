@@ -21,38 +21,43 @@
 // T e s t i n g   M e m o r y  F u n c t i o n s
 //
 
-void *Mem_reallocFull(void *ptr, size_t size, const char *file, int line) {
-    void *raw           = NULL;
-    size_t previousSize = 0;
-    if (ptr != NULL) {
-        raw          = ptr-sizeof(size_t);
-        previousSize = *((size_t*)raw);
-    }
+// void *Mem_reallocFull(void *ptr, size_t size, const char *file, int line) {
+//     void *raw           = NULL;
+//     size_t previousSize = 0;
+//     if (ptr != NULL) {
+//         raw          = ptr-sizeof(size_t);
+//         previousSize = *((size_t*)raw);
+//     }
 
-    raw = realloc(raw, size + sizeof(size_t));
-    if (raw == NULL) {
-        return NULL;
-    }
+//     raw = realloc(raw, size + sizeof(size_t));
+//     if (raw == NULL) {
+//         return NULL;
+//     }
 
-    // NOTE: size DOES not include the size of the capacity
-    *((size_t*)raw) = size;
-    if (size > previousSize) {
-        memset(raw+sizeof(size_t)+previousSize, 0, size-previousSize);
-    }
+//     // NOTE: size DOES not include the size of the capacity
+//     *((size_t*)raw) = size;
+//     if (size > previousSize) {
+//         memset(raw+sizeof(size_t)+previousSize, 0, size-previousSize);
+//     }
 
-    return raw + sizeof(size_t);
-}
+//     return raw + sizeof(size_t);
+// }
 
-void Mem_freeFull(void *ptr, const char *file, int line) {
-    if (ptr != NULL) {
-        void *raw = ptr-sizeof(size_t);
-        free(raw);
-    }
-}
+// void Mem_freeFull(void *ptr, const char *file, int line) {
+//     if (ptr != NULL) {
+//         void *raw = ptr-sizeof(size_t);
+//         free(raw);
+//     }
+// }
 
-#define Mem_realloc(ptr, size) Mem_reallocFull((ptr), (size), __FILE__, __LINE__)
-#define Mem_malloc(size)       Mem_reallocFull(NULL,  (size), __FILE__, __LINE__)
-#define Mem_free(ptr)          Mem_freeFull((ptr), __FILE__, __LINE__)
+// #define Mem_realloc(ptr, size) Mem_reallocFull((ptr), (size), __FILE__, __LINE__)
+// #define Mem_malloc(size)       Mem_reallocFull(NULL,  (size), __FILE__, __LINE__)
+// #define Mem_free(ptr)          Mem_freeFull((ptr), __FILE__, __LINE__)
+
+#define Mem_realloc(ptr, size) realloc(ptr, size)
+#define Mem_malloc(size)       malloc(size)
+#define Mem_free(ptr)          free(ptr)
+
 
 #else
 
@@ -76,6 +81,11 @@ typedef struct StringBody_t {
 typedef const char String;
 void String_free(String *s);
 
+APIF StringBody *String_toStringBody(String *s)
+{
+    return (StringBody*)(s - sizeof(int));
+}
+
 
 APIF String *String_fmt(const char *format, ...) 
 {
@@ -92,7 +102,7 @@ APIF String *String_fmt(const char *format, ...)
 }
 
 APIF int String_len(String *s) {
-    StringBody *body = (StringBody*)(s-sizeof(int));
+    StringBody *body = String_toStringBody(s);
     return body->len;
 }
 
@@ -103,7 +113,7 @@ APIF void String_freep(String **sp)
 
 APIF void String_free(String *s) 
 {
-    StringBody *body = (StringBody*)(s-sizeof(int));
+    StringBody *body = String_toStringBody(s);
     Mem_free(body);
 }
 
@@ -133,7 +143,7 @@ APIF String *String_empty()
 APIF void String_trim(String **sp)
 {
     String *s = *sp;
-    StringBody *body = (StringBody*)(s-sizeof(int));
+    StringBody *body = String_toStringBody(s);
     char *b = body->ch;
     while (*b && isspace(*b)) {
         b++;
@@ -163,15 +173,16 @@ APIF String *String_dup(String *src)
 // newLen DOES NOT include the null byte
 APIF void String_resize(String **src, int newLen)
 {
-    StringBody *body = (StringBody*)(*src - sizeof(int));
+    StringBody *body = String_toStringBody(*src);
     if (newLen < 0) {
         return;
     }
+
     StringBody *nw = Mem_malloc(newLen + 1 + sizeof(int));
     nw->len        = newLen;
     int cpyLen = body->len < newLen ? body->len : newLen;
     strncpy(nw->ch, *src, cpyLen);
-    body->ch[cpyLen] = '\0';
+    nw->ch[cpyLen] = '\0';
     String_free(*src);
     *src = nw->ch;
 }
@@ -317,20 +328,32 @@ APIF int Error_maypost(Error *err)
 //
 // More    S T R I N G
 //
-APIF void String_readline(String **buffer, FILE *inp, Error *err)
+APIF int String_readline(String **buffer, FILE *inp, Error *err)
 {
     static char *linep     = NULL;
     static size_t linecapp = 0;
     ssize_t len = getline(&linep, &linecapp, inp);
     if (len < 0) {
+        if (feof(inp)) {
+            return 0;
+        }
         Error_format0(err, "String_readline failed");
-        return;
+        return 0;
     }
-    StringBody *body = (StringBody*)(*buffer-sizeof(int));
+    if (linep[len-1] == '\n') {
+        linep[len-1] = '\0';
+        len--;
+    }
+    StringBody *body = String_toStringBody(*buffer);
     if (body->len < len) {
-        String_resize(buffer, len);
+        String *s = body->ch;
+        String_resize(&s, len);
+        body = String_toStringBody(s);
     }
     strncpy(body->ch, linep, len);
+    body->ch[len] = '\0';
+    *buffer = body->ch;
+    return 1;
 }
 
 //
