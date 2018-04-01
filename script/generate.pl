@@ -1383,20 +1383,25 @@ sub TemplateFile_copyTemplateCode {
 	open my $inp, "<", $self->{file} or die "Failed to open $self->{file}";
 	$self->{inp} = $inp;
 	
+	my $lineDir = sub {
+		print {$out} "#line ", $self->{line}+1, " \"$self->{file}\"\n";
+	};
+
 	while (<$inp>) {
 		chomp;
 		$self->{line}++;
 		if (/^\@type/) {
 			TemplateFile_scanUntilAtEnd($self);
-			print {$out} "#line $self->{line} \"$self->{file}\"\n";
+			$lineDir->();
 		} elsif (/^\@interface/) {
 			TemplateFile_scanUntilAtEnd($self);
-			print {$out} "#line $self->{line} \"$self->{file}\"\n";
+			$lineDir->();
 		} elsif (/^\@container/) {
 			TemplateFile_scanUntilAtEnd($self);
-			print {$out} "#line $self->{line} \"$self->{file}\"\n";
+			$lineDir->();
 		} elsif (/^\@header/) {
 			TemplateFile_scanUntilAtEnd($self);
+			$lineDir->();
 		} else {
 			print {$out} "$_\n";
 		}

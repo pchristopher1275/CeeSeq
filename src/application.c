@@ -1,13 +1,13 @@
-// *** DO NOT MODIFY THIS FILE generated 03/31/2018 22:02:21 ***
-// *** DO NOT MODIFY THIS FILE generated 03/31/2018 22:02:21 ***
-// *** DO NOT MODIFY THIS FILE generated 03/31/2018 22:02:21 ***
-// *** DO NOT MODIFY THIS FILE generated 03/31/2018 22:02:21 ***
-// *** DO NOT MODIFY THIS FILE generated 03/31/2018 22:02:21 ***
-// *** DO NOT MODIFY THIS FILE generated 03/31/2018 22:02:21 ***
-// *** DO NOT MODIFY THIS FILE generated 03/31/2018 22:02:21 ***
-// *** DO NOT MODIFY THIS FILE generated 03/31/2018 22:02:21 ***
-// *** DO NOT MODIFY THIS FILE generated 03/31/2018 22:02:21 ***
-// *** DO NOT MODIFY THIS FILE generated 03/31/2018 22:02:21 ***
+// *** DO NOT MODIFY THIS FILE generated 04/01/2018 13:59:33 ***
+// *** DO NOT MODIFY THIS FILE generated 04/01/2018 13:59:33 ***
+// *** DO NOT MODIFY THIS FILE generated 04/01/2018 13:59:33 ***
+// *** DO NOT MODIFY THIS FILE generated 04/01/2018 13:59:33 ***
+// *** DO NOT MODIFY THIS FILE generated 04/01/2018 13:59:33 ***
+// *** DO NOT MODIFY THIS FILE generated 04/01/2018 13:59:33 ***
+// *** DO NOT MODIFY THIS FILE generated 04/01/2018 13:59:33 ***
+// *** DO NOT MODIFY THIS FILE generated 04/01/2018 13:59:33 ***
+// *** DO NOT MODIFY THIS FILE generated 04/01/2018 13:59:33 ***
+// *** DO NOT MODIFY THIS FILE generated 04/01/2018 13:59:33 ***
 struct Arguments_t;
 typedef struct Arguments_t Arguments;
 struct Marshal_t;
@@ -1366,7 +1366,7 @@ static inline void Arguments_setIvalue(Arguments *self, long value){self->ivalue
 static inline void Arguments_setInlet(Arguments *self, long value){self->inlet = value;}
 static inline int Marshal_nthIType(int n, int *itype) {
     static int itypes[] = {
-        MarshalSi_itype, MarshalSii_itype, MarshalSs_itype
+        MarshalSii_itype, MarshalSs_itype, MarshalSi_itype
     };
     static int len = sizeof(itypes)/sizeof(int);
     if (n < 0 || n >= len) {
@@ -1405,7 +1405,7 @@ static inline Marshal *MarshalSs_castToMarshal(MarshalSs *self) {
 }
 static inline int Dispatch_nthIType(int n, int *itype) {
     static int itypes[] = {
-        ManageChokeGroupsDispatch_itype, MidiFileDropDispatch_itype, IncrementFrameDispatch_itype, DecrementFrameDispatch_itype, SelectNextPushedPadDispatch_itype
+        DecrementFrameDispatch_itype, SelectNextPushedPadDispatch_itype, ManageChokeGroupsDispatch_itype, IncrementFrameDispatch_itype, MidiFileDropDispatch_itype
     };
     static int len = sizeof(itypes)/sizeof(int);
     if (n < 0 || n >= len) {
@@ -2127,27 +2127,27 @@ const char *Interface_toString(int itype)
     return "Unknown";
 }
 
-#line 14 "src/dispatch.in.c"
+#line 15 "src/dispatch.in.c"
 
-#line 33 "src/dispatch.in.c"
+#line 34 "src/dispatch.in.c"
 
-#line 41 "src/dispatch.in.c"
+#line 42 "src/dispatch.in.c"
 
-#line 49 "src/dispatch.in.c"
+#line 50 "src/dispatch.in.c"
 
-#line 57 "src/dispatch.in.c"
+#line 58 "src/dispatch.in.c"
 
-#line 119 "src/dispatch.in.c"
+#line 120 "src/dispatch.in.c"
 
-#line 127 "src/dispatch.in.c"
+#line 128 "src/dispatch.in.c"
 
-#line 135 "src/dispatch.in.c"
+#line 136 "src/dispatch.in.c"
 
-#line 143 "src/dispatch.in.c"
+#line 144 "src/dispatch.in.c"
 
-#line 151 "src/dispatch.in.c"
+#line 152 "src/dispatch.in.c"
 
-#line 159 "src/dispatch.in.c"
+#line 160 "src/dispatch.in.c"
 
 
 
@@ -2401,14 +2401,19 @@ APIF void DispatchPtAr_populate(DispatchPtAr *self, Error *err) {
 #define APIF /**/
 String *stripBaseName(const char *path);
 
-#line 12 "src/midiseq.in.c"
+#line 13 "src/midiseq.in.c"
 
 APIF void String_split(String *src, const char *delim, StringPtAr *stringPtAr)
 {
-    static StringBody *buffer = String_empty();
-    StringBody *body = (StringBody*)(src->sizeof(int));
+    static StringBody *buffer = NULL;
+    if (buffer == NULL) {
+        buffer = String_toStringBody(String_empty());
+    }
+    StringBody *body = String_toStringBody(src);
     if (buffer->len < body->len) {
-        String_resize(&buffer, body->len);
+        String *s = buffer->ch;
+        String_resize(&s, body->len);
+        buffer = String_toStringBody(s);
     }
     strncpy(buffer->ch, body->ch, body->len+1);
     StringPtAr_truncate(stringPtAr);   
@@ -2420,7 +2425,7 @@ APIF void String_split(String *src, const char *delim, StringPtAr *stringPtAr)
     return;
 }
 
-#line 40 "src/midiseq.in.c"
+#line 46 "src/midiseq.in.c"
 
 APIF int Symbol_cmpUnderlying(Symbol **left, Symbol **right) 
 {
@@ -2433,9 +2438,9 @@ SymbolAr gSymbols = {0};
 Symbol *Symbol_gen(const char *word) 
 {
     Symbol s  = {word};
-    Symbol *r = SymbolAr_binSearchUnderlying(&gSymbols, &s);
-    if (r != NULL) {
-        return r;
+    Symbol **rp = SymbolAr_binSearchUnderlying(&gSymbols, &s);
+    if (rp != NULL) {
+        return *rp;
     }
     Symbol *n = Mem_malloc(sizeof(Symbol));
     n->name = strdup(word);
@@ -2447,7 +2452,7 @@ Symbol *Symbol_gen(const char *word)
 
 
 
-#line 84 "src/midiseq.in.c"
+#line 90 "src/midiseq.in.c"
 
 
 Port PORT_NULL_IMPL =
@@ -2459,19 +2464,19 @@ Port PORT_NULL_IMPL =
 
 #define Port_null (&PORT_NULL_IMPL)
 
-#line 102 "src/midiseq.in.c"
+#line 108 "src/midiseq.in.c"
 
-#line 110 "src/midiseq.in.c"
+#line 116 "src/midiseq.in.c"
 
-#line 118 "src/midiseq.in.c"
+#line 124 "src/midiseq.in.c"
 
-#line 126 "src/midiseq.in.c"
+#line 132 "src/midiseq.in.c"
 
 
 
-#line 142 "src/midiseq.in.c"
+#line 148 "src/midiseq.in.c"
 
-#line 172 "src/midiseq.in.c"
+#line 178 "src/midiseq.in.c"
 #define BinFile_nullLengthFieldSizeStr "11"
 #define BinFile_maxLength              2147483647
 #define BinFileFlag_tag                1
@@ -2487,32 +2492,32 @@ const int Midiseq_cctype     = 3;
 const int Midiseq_cycletype  = 4;
 const int Midiseq_endgrptype = 5;
 
-#line 220 "src/midiseq.in.c"
+#line 226 "src/midiseq.in.c"
 
 
-#line 285 "src/midiseq.in.c"
+#line 291 "src/midiseq.in.c"
 
 
-#line 313 "src/midiseq.in.c"
+#line 319 "src/midiseq.in.c"
 
-#line 340 "src/midiseq.in.c"
+#line 346 "src/midiseq.in.c"
 
-#line 364 "src/midiseq.in.c"
+#line 370 "src/midiseq.in.c"
 
-#line 387 "src/midiseq.in.c"
+#line 393 "src/midiseq.in.c"
 
-#line 411 "src/midiseq.in.c"
+#line 417 "src/midiseq.in.c"
 #define PortFind_declare(name) PortFind _##name; PortFind *name = &_##name; memset(name, 0, sizeof(PortFind)); PortFind_init(name)        
 
 
-#line 433 "src/midiseq.in.c"
+#line 439 "src/midiseq.in.c"
 
-#line 456 "src/midiseq.in.c"
+#line 462 "src/midiseq.in.c"
 
 
-#line 471 "src/midiseq.in.c"
+#line 477 "src/midiseq.in.c"
 
-#line 488 "src/midiseq.in.c"
+#line 494 "src/midiseq.in.c"
 
 #define PortRef_declare(name, port, outlet)    PortRef _##name = {port, outlet}; PortRef *name = &_##name
 static inline void PortRef_set(PortRef *pr, Port *port, int outlet) {
@@ -2523,7 +2528,7 @@ static inline void PortRef_set(PortRef *pr, Port *port, int outlet) {
 #define PortRef_sendInteger(pr, value, err)    Port_sendInteger(PortRef_port(pr), PortRef_outlet(pr), value, err)
 
 
-#line 522 "src/midiseq.in.c"
+#line 528 "src/midiseq.in.c"
 
 static inline PortRef *DropDown_portRef(DropDown *dd) {
     return &dd->portRef;
@@ -2533,8 +2538,9 @@ static inline void DropDown_setPortRef(DropDown *dd, PortRef *pr) {
    dd->portRef = *pr;
 }
 
-#line 643 "src/midiseq.in.c"
+#line 649 "src/midiseq.in.c"
 
+#line 667 "src/midiseq.in.c"
 
 
 // Will parse id's of the form ev\d+ and return the \d+ number. Returns -1 otherwise
@@ -2557,20 +2563,24 @@ APIF int port_parseEvSymbol(Symbol *id)
 
 APIF void Port_send(Port *port, int outletIndex, short argc, Atom *argv, Error *err)
 {   
+#   ifndef TEST_BUILD
     Symbol *selector = Atom_toSymbol(argv + 0);
     void *out = PtrAr_get(&port->outlet, outletIndex, err);
     Error_returnVoidOnError(err);
     outlet_anything(out, selector, argc-1, argv+1);  
+#   endif 
 }
 
 APIF void Port_sendInteger(Port *p, int outlet, long value) 
 {
+#   ifndef TEST_BUILD
     Error_declare(err);
     void *out = PtrAr_get(&p->outlet, outlet, err);
     if (Error_maypost(err)) {
         return;
     }
     outlet_int(out, value);   
+#   endif
 }
 
 

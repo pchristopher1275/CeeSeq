@@ -13,10 +13,15 @@ String *stripBaseName(const char *path);
 
 APIF void String_split(String *src, const char *delim, StringPtAr *stringPtAr)
 {
-    static StringBody *buffer = String_toStringBody(String_empty());
-    StringBody *body = (StringBody*)(src->sizeof(int));
+    static StringBody *buffer = NULL;
+    if (buffer == NULL) {
+        buffer = String_toStringBody(String_empty());
+    }
+    StringBody *body = String_toStringBody(src);
     if (buffer->len < body->len) {
-        String_resize(&buffer, body->len);
+        String *s = buffer->ch;
+        String_resize(&s, body->len);
+        buffer = String_toStringBody(s);
     }
     strncpy(buffer->ch, body->ch, body->len+1);
     StringPtAr_truncate(stringPtAr);   
@@ -50,9 +55,9 @@ SymbolAr gSymbols = {0};
 Symbol *Symbol_gen(const char *word) 
 {
     Symbol s  = {word};
-    Symbol *r = SymbolAr_binSearchUnderlying(&gSymbols, &s);
-    if (r != NULL) {
-        return r;
+    Symbol **rp = SymbolAr_binSearchUnderlying(&gSymbols, &s);
+    if (rp != NULL) {
+        return *rp;
     }
     Symbol *n = Mem_malloc(sizeof(Symbol));
     n->name = strdup(word);
@@ -681,20 +686,24 @@ APIF int port_parseEvSymbol(Symbol *id)
 
 APIF void Port_send(Port *port, int outletIndex, short argc, Atom *argv, Error *err)
 {   
+#   ifndef TEST_BUILD
     Symbol *selector = Atom_toSymbol(argv + 0);
     void *out = PtrAr_get(&port->outlet, outletIndex, err);
     Error_returnVoidOnError(err);
     outlet_anything(out, selector, argc-1, argv+1);  
+#   endif 
 }
 
 APIF void Port_sendInteger(Port *p, int outlet, long value) 
 {
+#   ifndef TEST_BUILD
     Error_declare(err);
     void *out = PtrAr_get(&p->outlet, outlet, err);
     if (Error_maypost(err)) {
         return;
     }
     outlet_int(out, value);   
+#   endif
 }
 
 
