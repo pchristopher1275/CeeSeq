@@ -1187,6 +1187,8 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
     Midiseq *mseq = (Midiseq*)Mem_malloc(sizeof(Midiseq));
     Midiseq_init(mseq);
 
+    String *buffer = String_fmt("'%s' '%s' > '%s'", Midiseq_midiCsvExecPath, fullpath, tempfile);
+
     // Call midicsv. To do this we create a new destination file, then route our output to it
     int tempFd = mkstemp(tempfile);
     if (tempFd < 0) {
@@ -1195,7 +1197,6 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
     }
     close(tempFd);
 
-    String *buffer = String_fmt("'%s' '%s' > '%s'", Midiseq_midiCsvExecPath, fullpath, tempfile);
     int exitCode = system(buffer);
     if (exitCode != 0) {
         Error_format(err, "Failed '%s' with exit code %d", buffer, exitCode);

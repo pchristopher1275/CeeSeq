@@ -367,7 +367,7 @@ static inline const char *Symbol_cstr(Symbol *s) {
 #else
 #define Symbol t_symbol
 #define Symbol_gen gensym
-#define Symbol_cstr(s) (s->s_name)
+#define Symbol_cstr(s) ((s)->s_name)
 #endif
 
 

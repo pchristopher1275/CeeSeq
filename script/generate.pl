@@ -919,9 +919,13 @@ sub ClassOrInterface_emitAccessors {
 	my ($artifact, $out) = @_;
 	my $typeName = $artifact->{typeName};
 	for my $field (@{$artifact->{fields}}) {
+
+		## XXX: this is legacy, can I remove?
 		if (defined($field->{group})) {
 			next;
 		}
+		next if $field->{name} eq 'itype';
+
 
 		my $getter       = $field->{getter}; 
 		my $getterReturn = $field->{getterReturn};

@@ -33,12 +33,12 @@ void Port_int(Port *port, long value);
 void ext_main(void *r)
 {
     // NOTE: If class_new makes a copy of className, than className has essentially leaked.
-    sds className = NULL;
+    String *className = NULL;
     if (PORT_BUILD_NUMBER == 0) {
-        className = sdsnew("Port");
+        className = String_fmt("Port");
     }
     else {
-        className = sdscatprintf(sdsempty(), "Port%d", PORT_BUILD_NUMBER);
+        className = String_fmt("Port%d", PORT_BUILD_NUMBER);
     }
     Error_declare(err);
     DBLog_init("port", err);
