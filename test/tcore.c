@@ -40,8 +40,33 @@ Unit_declare(testString) {
 	}
 
 	{
+		// String trim right
+		String *s = String_fmt("0     ");
+		String_trim(&s);
+		chk(String_cequal(s, "0"));
+		String_free(s);
+	}
+
+	{
+		// String trim left
+		String *s = String_fmt("    0");
+		String_trim(&s);
+		chk(String_cequal(s, "0"));
+		String_free(s);
+	}
+
+
+	{
 		// String empty
 		String *s = String_empty();
+		chk(String_len(s) == 0);
+		chk(*s == '\0');
+		String_free(s);
+	}
+
+	{
+		// Also string empty
+		String *s = String_fmt("");
 		chk(String_len(s) == 0);
 		chk(*s == '\0');
 		String_free(s);

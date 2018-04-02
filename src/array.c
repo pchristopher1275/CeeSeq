@@ -25,7 +25,7 @@ void Array_fit(Array *arr);
 #define Array_formatIndexError(err, m, n, o) Error_format((err), "Index out of range (%d, %d, %d)", (m), (n), (o))
 
 Array *Array_new(int nelems, int elemSize, Array_clearElement clearer) {
-   Array *arr = (Array*)Mem_malloc(sizeof(Array));
+   Array *arr = (Array*)Mem_calloc(sizeof(Array));
    Array_init(arr, nelems, elemSize, clearer);
    return arr;
 }
@@ -37,7 +37,7 @@ void Array_init(Array *arr, int nelems, int elemSize, Array_clearElement clearer
    arr->data     = NULL;
    arr->clearer  = clearer;
    if (nelems > 0) {
-      arr->data = (char*)Mem_malloc(nelems*elemSize); 
+      arr->data = (char*)Mem_calloc(nelems*elemSize); 
    } 
 }
 
@@ -97,8 +97,10 @@ void Array_mayGrow(Array *arr, int increment) {
       int requiredBytes = (arr->len + increment)*arr->elemSize;
       int dblCurrBytes  = 2*arr->cap*arr->elemSize;
       int szBytes       = dblCurrBytes >= requiredBytes ? dblCurrBytes : requiredBytes;
+      int oldCap        = arr->cap;
       arr->cap          = szBytes/arr->elemSize;
       arr->data         = (char*)Mem_realloc(arr->data, szBytes);
+      memset(arr->data + oldCap*arr->elemSize, 0, (arr->cap-oldCap)*arr->elemSize);
    }
 }
 

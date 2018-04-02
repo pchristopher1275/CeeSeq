@@ -36,7 +36,7 @@ APIF void String_split(String *src, const char *delim, StringPtAr *stringPtAr)
 @container    
    {       
        "type": "array",
-       "typeName": "SymbolAr", 
+       "typeName": "SymbolPtAr", 
        "elemName": "Symbol *",
        "binarySearch": [
            {"compare": "Symbol_cmpUnderlying", "tag": "Underlying"}
@@ -50,19 +50,30 @@ APIF int Symbol_cmpUnderlying(Symbol **left, Symbol **right)
 }
 
 #ifdef TEST_BUILD
-SymbolAr gSymbols = {0};
+SymbolPtAr *gSymbols = NULL;
 
 Symbol *Symbol_gen(const char *word) 
 {
+    if (gSymbols == NULL) {
+        gSymbols = SymbolPtAr_new(0);
+    }
     Symbol s  = {word};
-    Symbol **rp = SymbolAr_binSearchUnderlying(&gSymbols, &s);
+    Symbol **rp = SymbolPtAr_binSearchUnderlying(gSymbols, &s);
     if (rp != NULL) {
         return *rp;
     }
     Symbol *n = Mem_malloc(sizeof(Symbol));
     n->name = strdup(word);
-    SymbolAr_binInsertUnderlying(&gSymbols, n);
+    SymbolPtAr_binInsertUnderlying(gSymbols, n);
     return n;
+}
+
+void Symbol_freeAll() 
+{
+    SymbolPtAr_foreach(it, gSymbols) {
+        Mem_free(*it.var);
+    }
+    SymbolPtAr_truncate(gSymbols);
 }
 
 #endif
@@ -985,18 +996,21 @@ APIF void Midiseq_dblog(Midiseq *mseq)
 //
 APIF int midiseq_tokenize(FILE *fd, StringPtAr **ret, Error *err)
 {
-    static String *buffer = NULL;
+    static String *buffer       = NULL;
+    static StringPtAr *arBuffer = NULL;
     if (buffer == NULL) {
-        buffer = String_empty();
+        buffer   = String_empty();
+        arBuffer = StringPtAr_new(0);
     }
-    String_readline(&buffer, fd, err);
-    if (Error_iserror(err)) {
-        return 1;
+    if (!String_readline(&buffer, fd, err)) {
+        return 0;
     }
-    static StringPtAr arBuffer = {0};
-    *ret = &arBuffer;
-    String_split(buffer, ",", &arBuffer);
-    return 0;
+    String_split(buffer, ",", arBuffer);
+    StringPtAr_foreach(it, arBuffer) {
+        String_trim(it.var);
+    }
+    *ret = arBuffer;
+    return 1;
 }
 
 
@@ -1187,9 +1201,8 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
     Midiseq *mseq = (Midiseq*)Mem_malloc(sizeof(Midiseq));
     Midiseq_init(mseq);
 
-    String *buffer = String_fmt("'%s' '%s' > '%s'", Midiseq_midiCsvExecPath, fullpath, tempfile);
-
     // Call midicsv. To do this we create a new destination file, then route our output to it
+    String *buffer = NULL;
     int tempFd = mkstemp(tempfile);
     if (tempFd < 0) {
         Error_format0(err, "Failed to create temp file");
@@ -1197,6 +1210,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
     }
     close(tempFd);
 
+    buffer = String_fmt("'%s' '%s' > '%s'", Midiseq_midiCsvExecPath, fullpath, tempfile);    
     int exitCode = system(buffer);
     if (exitCode != 0) {
         Error_format(err, "Failed '%s' with exit code %d", buffer, exitCode);
@@ -1218,9 +1232,11 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
     int linenum = 0;
     while (true) {
         StringPtAr *fieldsAr = NULL;
-        midiseq_tokenize(fd, &fieldsAr, err);
-        if (Error_iserror(err)) {
-            goto END;
+        if (!midiseq_tokenize(fd, &fieldsAr, err)) {
+            if (Error_iserror(err)) {
+                goto END;
+            }
+            break;
         }
         linenum++;
 
@@ -1354,6 +1370,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
     if (fd != NULL) {
         fclose(fd);
     }
+    
     unlink(tempfile);
 
     if (allOK) {

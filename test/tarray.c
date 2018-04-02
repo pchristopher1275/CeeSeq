@@ -1,3 +1,13 @@
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
+#include <stdarg.h>
+#include <ctype.h>
+#include <errno.h>
+#include <unistd.h> 
+#include <stdint.h>
 #include "../src/core.c"
 #include "../src/unit.c"
 
@@ -202,7 +212,7 @@ Unit_declare(testTruncateClearerAndFit) {
 }
 
 Unit_declare(testChangeLength) {
-	{
+	if (1){
 		IntArr *arr = IntArr_new(0);
 		IntArr_changeLength(arr, 10);
 		chk(IntArr_len(arr) == 10);
@@ -221,7 +231,6 @@ Unit_declare(testChangeLength) {
 		chk(((Array*)arr)->cap >= 5);
 		chk(numRecorded == 0);
 		FooArr_changeLength(arr, 3);
-
 		chk(numRecorded == 2);
 		for (int i = 0; i < numRecorded; i++) {
 			Foo foo = recorded[i];

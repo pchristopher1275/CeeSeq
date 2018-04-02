@@ -23,7 +23,7 @@
 
 #define Mem_realloc(ptr, size) realloc(ptr, size)
 #define Mem_malloc(size)       malloc(size)
-#define Mem_calloc(size)       calloc(1, size)
+#define Mem_calloc(size)       calloc(size, 1)
 #define Mem_free(ptr)          free(ptr)
 
 
@@ -113,24 +113,18 @@ APIF void String_trim(String **sp)
 {
     String *s = *sp;
     StringBody *body = String_toStringBody(s);
-    char *b = body->ch;
-    while (*b && isspace(*b)) {
-        b++;
-    }
 
-    char *e = body->ch + body->len - 1;
-    while (*e && isspace(*e)) {
-        e--;
-    }
 
-    if (b >= e) {
-        String_free(s);
-        *sp = String_empty();
-    }
+    char *p = (char*)s;
+    int l   = body->len;
 
-    e++;
-    *e = '\0';
-    *sp = String_fmt("%s", b);
+    while(isspace(p[l - 1])) {
+        p[--l] = '\0';
+    }
+    while(*p && isspace(*p)) {
+        p++;
+    }
+    *sp = String_fmt("%s", p);
     String_free(s);
 }
 

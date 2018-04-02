@@ -1,13 +1,13 @@
-// *** DO NOT MODIFY THIS FILE generated 04/01/2018 14:53:22 ***
-// *** DO NOT MODIFY THIS FILE generated 04/01/2018 14:53:22 ***
-// *** DO NOT MODIFY THIS FILE generated 04/01/2018 14:53:22 ***
-// *** DO NOT MODIFY THIS FILE generated 04/01/2018 14:53:22 ***
-// *** DO NOT MODIFY THIS FILE generated 04/01/2018 14:53:22 ***
-// *** DO NOT MODIFY THIS FILE generated 04/01/2018 14:53:22 ***
-// *** DO NOT MODIFY THIS FILE generated 04/01/2018 14:53:22 ***
-// *** DO NOT MODIFY THIS FILE generated 04/01/2018 14:53:22 ***
-// *** DO NOT MODIFY THIS FILE generated 04/01/2018 14:53:22 ***
-// *** DO NOT MODIFY THIS FILE generated 04/01/2018 14:53:22 ***
+// *** DO NOT MODIFY THIS FILE generated 04/02/2018 10:55:39 ***
+// *** DO NOT MODIFY THIS FILE generated 04/02/2018 10:55:39 ***
+// *** DO NOT MODIFY THIS FILE generated 04/02/2018 10:55:39 ***
+// *** DO NOT MODIFY THIS FILE generated 04/02/2018 10:55:39 ***
+// *** DO NOT MODIFY THIS FILE generated 04/02/2018 10:55:39 ***
+// *** DO NOT MODIFY THIS FILE generated 04/02/2018 10:55:39 ***
+// *** DO NOT MODIFY THIS FILE generated 04/02/2018 10:55:39 ***
+// *** DO NOT MODIFY THIS FILE generated 04/02/2018 10:55:39 ***
+// *** DO NOT MODIFY THIS FILE generated 04/02/2018 10:55:39 ***
+// *** DO NOT MODIFY THIS FILE generated 04/02/2018 10:55:39 ***
 struct Arguments_t;
 typedef struct Arguments_t Arguments;
 struct Marshal_t;
@@ -24,8 +24,8 @@ typedef struct Dispatch_t MidiFileDropDispatch;
 typedef struct Dispatch_t ManageChokeGroupsDispatch;
 struct StringPtAr_t;
 typedef struct StringPtAr_t StringPtAr;
-struct SymbolAr_t;
-typedef struct SymbolAr_t SymbolAr;
+struct SymbolPtAr_t;
+typedef struct SymbolPtAr_t SymbolPtAr;
 struct Port_t;
 typedef struct Port_t Port;
 struct MEventAr_t;
@@ -133,7 +133,7 @@ void Array_fit(Array *arr);
 #define Array_formatIndexError(err, m, n, o) Error_format((err), "Index out of range (%d, %d, %d)", (m), (n), (o))
 
 Array *Array_new(int nelems, int elemSize, Array_clearElement clearer) {
-   Array *arr = (Array*)Mem_malloc(sizeof(Array));
+   Array *arr = (Array*)Mem_calloc(sizeof(Array));
    Array_init(arr, nelems, elemSize, clearer);
    return arr;
 }
@@ -145,7 +145,7 @@ void Array_init(Array *arr, int nelems, int elemSize, Array_clearElement clearer
    arr->data     = NULL;
    arr->clearer  = clearer;
    if (nelems > 0) {
-      arr->data = (char*)Mem_malloc(nelems*elemSize); 
+      arr->data = (char*)Mem_calloc(nelems*elemSize); 
    } 
 }
 
@@ -205,8 +205,10 @@ void Array_mayGrow(Array *arr, int increment) {
       int requiredBytes = (arr->len + increment)*arr->elemSize;
       int dblCurrBytes  = 2*arr->cap*arr->elemSize;
       int szBytes       = dblCurrBytes >= requiredBytes ? dblCurrBytes : requiredBytes;
+      int oldCap        = arr->cap;
       arr->cap          = szBytes/arr->elemSize;
       arr->data         = (char*)Mem_realloc(arr->data, szBytes);
+      memset(arr->data + oldCap*arr->elemSize, 0, (arr->cap-oldCap)*arr->elemSize);
    }
 }
 
@@ -891,10 +893,13 @@ typedef struct DispatchPtArRIt_t {
    Dispatch **var;
 } DispatchPtArRIt;
 
-struct PortRef_t
+struct Arguments_t
 {
-    Port *port;
-    int outlet;
+    Symbol *s1;
+    long i1;
+    long i2;
+    long ivalue;
+    long inlet;
 };
 typedef struct SymbolPtrAr_t {
    int len;
@@ -922,19 +927,16 @@ typedef struct SymbolPtrArRIt_t {
    Symbol **var;
 } SymbolPtrArRIt;
 
+struct PortRef_t
+{
+    Port *port;
+    int outlet;
+};
 struct DropDown_t
 {
     SymbolPtrAr table;
     int selected;
     PortRef portRef;
-};
-struct Arguments_t
-{
-    Symbol *s1;
-    long i1;
-    long i2;
-    long ivalue;
-    long inlet;
 };
 struct Hub_t
 {
@@ -1092,31 +1094,31 @@ struct Port_t
     Port_anythingDispatchFunc anythingDispatch;
     Port_intDispatchFunc intDispatch;
 };
-typedef struct SymbolAr_t {
+typedef struct SymbolPtAr_t {
    int len;
    int cap;
    int elemSize;
    void (*clearer)(Symbol **);
    Symbol **data;
-} SymbolAr;
+} SymbolPtAr;
 
-typedef struct SymbolArFIt_t {
-   SymbolAr *arr;
+typedef struct SymbolPtArFIt_t {
+   SymbolPtAr *arr;
    int lBound;
    int uBound;
 
    int index;
    Symbol **var;
-} SymbolArFIt;
+} SymbolPtArFIt;
 
-typedef struct SymbolArRIt_t {
-   SymbolAr *arr;
+typedef struct SymbolPtArRIt_t {
+   SymbolPtAr *arr;
    int lBound;
    int uBound;
 
    int index;
    Symbol **var;
-} SymbolArRIt;
+} SymbolPtArRIt;
 
 typedef struct StringPtAr_t {
    int len;
@@ -1412,7 +1414,7 @@ static inline Marshal *MarshalSs_castToMarshal(MarshalSs *self) {
 }
 static inline int Dispatch_nthIType(int n, int *itype) {
     static int itypes[] = {
-        ManageChokeGroupsDispatch_itype, MidiFileDropDispatch_itype, SelectNextPushedPadDispatch_itype, IncrementFrameDispatch_itype, DecrementFrameDispatch_itype
+        IncrementFrameDispatch_itype, ManageChokeGroupsDispatch_itype, SelectNextPushedPadDispatch_itype, MidiFileDropDispatch_itype, DecrementFrameDispatch_itype
     };
     static int len = sizeof(itypes)/sizeof(int);
     if (n < 0 || n >= len) {
@@ -1624,165 +1626,165 @@ static inline bool StringPtArRIt_remove(StringPtArRIt *iterator) {
     return ArrayRIt_remove((ArrayRIt*)iterator);
 }
 
-static inline void SymbolAr_changeLength(SymbolAr *arr, int newLength) {
+static inline void SymbolPtAr_changeLength(SymbolPtAr *arr, int newLength) {
     Array_changeLength((Array*)arr, newLength);
 }                        
 
-static inline void SymbolAr_clear(SymbolAr *arr) {
+static inline void SymbolPtAr_clear(SymbolPtAr *arr) {
     Array_clear((Array*)arr);
-    SymbolAr zero = {0};
+    SymbolPtAr zero = {0};
     *arr = zero;
 }
 
-#define SymbolAr_each(it, arr) for (Symbol ** it = arr->data; it < arr->data + arr->len; it++)
+#define SymbolPtAr_each(it, arr) for (Symbol ** it = arr->data; it < arr->data + arr->len; it++)
 
-static inline void SymbolAr_fit(SymbolAr *arr) {
+static inline void SymbolPtAr_fit(SymbolPtAr *arr) {
     Array_fit((Array*)arr);
 }
 
-#define SymbolAr_foreach(var, arr)  for (SymbolArFIt_declare(var, arr); SymbolArFIt_next(&var); )            
+#define SymbolPtAr_foreach(var, arr)  for (SymbolPtArFIt_declare(var, arr); SymbolPtArFIt_next(&var); )            
 
-static inline void SymbolAr_free(SymbolAr *arr) {
+static inline void SymbolPtAr_free(SymbolPtAr *arr) {
     Array_free((Array*)arr);
 }
 
-static inline Symbol *SymbolAr_get(SymbolAr *arr, int index, Error *err) {
+static inline Symbol *SymbolPtAr_get(SymbolPtAr *arr, int index, Error *err) {
     Symbol * v = {0};
     Array_getCheck(arr, index, v, err);
     memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
     return v;
 }
 
-static inline Symbol **SymbolAr_getp(SymbolAr *arr, int index, Error *err) {
+static inline Symbol **SymbolPtAr_getp(SymbolPtAr *arr, int index, Error *err) {
     Array_getCheck(arr, index, NULL, err);
     return (Symbol **)Array_get((Array*)arr, index);
 }
 
-static inline void SymbolAr_init(SymbolAr *arr, int nelems) {
+static inline void SymbolPtAr_init(SymbolPtAr *arr, int nelems) {
     Array_init((Array*)arr, nelems, sizeof(Symbol *), (Array_clearElement)NULL);
 }
 
-static inline void SymbolAr_insert(SymbolAr *arr, int index, Symbol *elem, Error *err) {
+static inline void SymbolPtAr_insert(SymbolPtAr *arr, int index, Symbol *elem, Error *err) {
     Array_insertNCheck(arr, index, 1, err);
     Symbol * *p = (Symbol **)Array_insertN((Array*)arr, index, 1);
     *p = elem;
 }
 
-static inline void SymbolAr_insertp(SymbolAr *arr, int index, Symbol **elem, Error *err) {
+static inline void SymbolPtAr_insertp(SymbolPtAr *arr, int index, Symbol **elem, Error *err) {
     Array_insertNCheck(arr, index, 1, err);
     Symbol * *p = (Symbol **)Array_insertN((Array*)arr, index, 1);
     *p = *elem;
 }            
 
-static inline int SymbolAr_last(SymbolAr *arr) {
+static inline int SymbolPtAr_last(SymbolPtAr *arr) {
     return Array_len((Array*)arr)-1;
 }            
 
-static inline int SymbolAr_len(SymbolAr *arr) {
+static inline int SymbolPtAr_len(SymbolPtAr *arr) {
     return Array_len((Array*)arr);
 }
 
-#define SymbolAr_loop(var) while (SymbolArFIt_next(&var)) 
+#define SymbolPtAr_loop(var) while (SymbolPtArFIt_next(&var)) 
 
-static inline SymbolAr *SymbolAr_new(int nelems) {
-    return (SymbolAr*)Array_new(nelems, sizeof(Symbol *), (Array_clearElement)NULL);
+static inline SymbolPtAr *SymbolPtAr_new(int nelems) {
+    return (SymbolPtAr*)Array_new(nelems, sizeof(Symbol *), (Array_clearElement)NULL);
 }
 
-static inline void SymbolAr_pop(SymbolAr *arr, Error *err) {
+static inline void SymbolPtAr_pop(SymbolPtAr *arr, Error *err) {
     Array_popNCheck(arr, 1, err);
     Array_popN((Array*)arr, 1);
 }
 
-static inline void SymbolAr_push(SymbolAr *arr, Symbol *elem) {
+static inline void SymbolPtAr_push(SymbolPtAr *arr, Symbol *elem) {
     Symbol * *p = (Symbol **)Array_pushN((Array*)arr, 1);
     *p = elem;
     return; 
 }            
 
-static inline void SymbolAr_pushp(SymbolAr *arr, Symbol **elem) {
+static inline void SymbolPtAr_pushp(SymbolPtAr *arr, Symbol **elem) {
     Symbol * *p = (Symbol **)Array_pushN((Array*)arr, 1);
     *p = *elem;
     return; 
 }
 
-#define SymbolAr_reach(it, arr) for (Symbol ** it = arr->data+arr->len-1; it >= arr->data; it--)
+#define SymbolPtAr_reach(it, arr) for (Symbol ** it = arr->data+arr->len-1; it >= arr->data; it--)
 
-static inline void SymbolAr_remove(SymbolAr *arr, int index, Error *err) {
+static inline void SymbolPtAr_remove(SymbolPtAr *arr, int index, Error *err) {
     Array_removeNCheck(arr, index, 1, err);
     Array_removeN((Array*)arr, index, 1);
 }    
 
-static inline void SymbolAr_removeN(SymbolAr *arr, int index, int N, Error *err) {
+static inline void SymbolPtAr_removeN(SymbolPtAr *arr, int index, int N, Error *err) {
     Array_removeNCheck(arr, index, N, err);
     Array_removeN((Array*)arr, index, N);
 }
 
-#define SymbolAr_rforeach(var, arr)  for (SymbolArRIt_declare(var, arr); SymbolArRIt_next(&var); )            
+#define SymbolPtAr_rforeach(var, arr)  for (SymbolPtArRIt_declare(var, arr); SymbolPtArRIt_next(&var); )            
 
-#define SymbolAr_rloop(var) while (SymbolArRIt_next(&var))             
+#define SymbolPtAr_rloop(var) while (SymbolPtArRIt_next(&var))             
 
-static inline void SymbolAr_set(SymbolAr *arr, int index, Symbol *elem, Error *err) {
+static inline void SymbolPtAr_set(SymbolPtAr *arr, int index, Symbol *elem, Error *err) {
     Array_setCheck(arr, index, err);
     Array_set((Array*)arr, index, (char*)&elem);
 }
 
-static inline void SymbolAr_setp(SymbolAr *arr, int index, Symbol **elem, Error *err) {
+static inline void SymbolPtAr_setp(SymbolPtAr *arr, int index, Symbol **elem, Error *err) {
     Array_setCheck(arr, index, err);
     Array_set((Array*)arr, index, (char*)elem);
 }
 
-static inline void SymbolAr_truncate(SymbolAr *arr) {
+static inline void SymbolPtAr_truncate(SymbolPtAr *arr) {
     Array_truncate((Array*)arr);
 }
 
-static inline bool SymbolArFIt_atEnd(SymbolArFIt *iterator) {
+static inline bool SymbolPtArFIt_atEnd(SymbolPtArFIt *iterator) {
     return iterator->index+1 >= iterator->uBound;
 }
 
-#define SymbolArFIt_declare(var, arr)  SymbolArFIt var = {arr, 0, (arr)->len, -1, NULL}
+#define SymbolPtArFIt_declare(var, arr)  SymbolPtArFIt var = {arr, 0, (arr)->len, -1, NULL}
 
-#define SymbolArFIt_declare0(var)  SymbolArFIt var = {0}
+#define SymbolPtArFIt_declare0(var)  SymbolPtArFIt var = {0}
 
-static inline bool SymbolArFIt_next(SymbolArFIt *iterator) {
+static inline bool SymbolPtArFIt_next(SymbolPtArFIt *iterator) {
     return ArrayFIt_next((ArrayFIt*)iterator);
 }
 
-static inline bool SymbolArFIt_remove(SymbolArFIt *iterator) {
+static inline bool SymbolPtArFIt_remove(SymbolPtArFIt *iterator) {
     return ArrayFIt_remove((ArrayFIt*)iterator);
 }
 
-static inline bool SymbolArRIt_atEnd(SymbolArRIt *iterator) {
+static inline bool SymbolPtArRIt_atEnd(SymbolPtArRIt *iterator) {
     return iterator->index-1 < iterator->lBound;
 }
 
-#define SymbolArRIt_declare(var, arr)  SymbolArRIt var = {arr, 0, (arr)->len, (arr)->len, NULL}
+#define SymbolPtArRIt_declare(var, arr)  SymbolPtArRIt var = {arr, 0, (arr)->len, (arr)->len, NULL}
 
-#define SymbolArRIt_declare0(var)  SymbolArRIt var = {0}
+#define SymbolPtArRIt_declare0(var)  SymbolPtArRIt var = {0}
 
-static inline bool SymbolArRIt_next(SymbolArRIt *iterator) {
+static inline bool SymbolPtArRIt_next(SymbolPtArRIt *iterator) {
     return ArrayRIt_next((ArrayRIt*)iterator);
 }
 
-static inline bool SymbolArRIt_remove(SymbolArRIt *iterator) {
+static inline bool SymbolPtArRIt_remove(SymbolPtArRIt *iterator) {
     return ArrayRIt_remove((ArrayRIt*)iterator);
 }
 
-static inline void SymbolAr_binInsertUnderlying(SymbolAr *arr, Symbol *elem) {
+static inline void SymbolPtAr_binInsertUnderlying(SymbolPtAr *arr, Symbol *elem) {
     int (*compare)(Symbol **, Symbol **) = Symbol_cmpUnderlying;
     Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)compare, false);
 }            
 
-static inline void SymbolAr_binRemoveUnderlying(SymbolAr *arr, Symbol *elem) {
+static inline void SymbolPtAr_binRemoveUnderlying(SymbolPtAr *arr, Symbol *elem) {
     int (*compare)(Symbol **, Symbol **) = Symbol_cmpUnderlying;
     Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)compare, false);
 }        
 
-static inline Symbol **SymbolAr_binSearchUnderlying(SymbolAr *arr, Symbol *elem) {
+static inline Symbol **SymbolPtAr_binSearchUnderlying(SymbolPtAr *arr, Symbol *elem) {
     int (*compare)(Symbol **, Symbol **) = Symbol_cmpUnderlying;
     return (Symbol **)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, NULL);
 }
 
-static inline void SymbolAr_sortUnderlying(SymbolAr *arr) {
+static inline void SymbolPtAr_sortUnderlying(SymbolPtAr *arr) {
     int (*compare)(Symbol **, Symbol **) = Symbol_cmpUnderlying;
     Array_sort((Array*)arr, (Array_compare)compare);
 }                
@@ -4059,26 +4061,37 @@ APIF int Symbol_cmpUnderlying(Symbol **left, Symbol **right)
 }
 
 #ifdef TEST_BUILD
-SymbolAr gSymbols = {0};
+SymbolPtAr *gSymbols = NULL;
 
 Symbol *Symbol_gen(const char *word) 
 {
+    if (gSymbols == NULL) {
+        gSymbols = SymbolPtAr_new(0);
+    }
     Symbol s  = {word};
-    Symbol **rp = SymbolAr_binSearchUnderlying(&gSymbols, &s);
+    Symbol **rp = SymbolPtAr_binSearchUnderlying(gSymbols, &s);
     if (rp != NULL) {
         return *rp;
     }
     Symbol *n = Mem_malloc(sizeof(Symbol));
     n->name = strdup(word);
-    SymbolAr_binInsertUnderlying(&gSymbols, n);
+    SymbolPtAr_binInsertUnderlying(gSymbols, n);
     return n;
+}
+
+void Symbol_freeAll() 
+{
+    SymbolPtAr_foreach(it, gSymbols) {
+        Mem_free(*it.var);
+    }
+    SymbolPtAr_truncate(gSymbols);
 }
 
 #endif
 
 
 
-#line 90 "src/midiseq.in.c"
+#line 101 "src/midiseq.in.c"
 
 
 Port PORT_NULL_IMPL =
@@ -4090,19 +4103,19 @@ Port PORT_NULL_IMPL =
 
 #define Port_null (&PORT_NULL_IMPL)
 
-#line 108 "src/midiseq.in.c"
+#line 119 "src/midiseq.in.c"
 
-#line 116 "src/midiseq.in.c"
+#line 127 "src/midiseq.in.c"
 
-#line 124 "src/midiseq.in.c"
+#line 135 "src/midiseq.in.c"
 
-#line 132 "src/midiseq.in.c"
+#line 143 "src/midiseq.in.c"
 
 
 
-#line 148 "src/midiseq.in.c"
+#line 159 "src/midiseq.in.c"
 
-#line 178 "src/midiseq.in.c"
+#line 189 "src/midiseq.in.c"
 #define BinFile_nullLengthFieldSizeStr "11"
 #define BinFile_maxLength              2147483647
 #define BinFileFlag_tag                1
@@ -4118,32 +4131,32 @@ const int Midiseq_cctype     = 3;
 const int Midiseq_cycletype  = 4;
 const int Midiseq_endgrptype = 5;
 
-#line 226 "src/midiseq.in.c"
+#line 237 "src/midiseq.in.c"
 
 
-#line 291 "src/midiseq.in.c"
+#line 302 "src/midiseq.in.c"
 
 
-#line 319 "src/midiseq.in.c"
+#line 330 "src/midiseq.in.c"
 
-#line 346 "src/midiseq.in.c"
+#line 357 "src/midiseq.in.c"
 
-#line 370 "src/midiseq.in.c"
+#line 381 "src/midiseq.in.c"
 
-#line 393 "src/midiseq.in.c"
+#line 404 "src/midiseq.in.c"
 
-#line 417 "src/midiseq.in.c"
+#line 428 "src/midiseq.in.c"
 #define PortFind_declare(name) PortFind _##name; PortFind *name = &_##name; memset(name, 0, sizeof(PortFind)); PortFind_init(name)        
 
 
-#line 439 "src/midiseq.in.c"
+#line 450 "src/midiseq.in.c"
 
-#line 462 "src/midiseq.in.c"
+#line 473 "src/midiseq.in.c"
 
 
-#line 477 "src/midiseq.in.c"
+#line 488 "src/midiseq.in.c"
 
-#line 494 "src/midiseq.in.c"
+#line 505 "src/midiseq.in.c"
 
 #define PortRef_declare(name, port, outlet)    PortRef _##name = {port, outlet}; PortRef *name = &_##name
 static inline void PortRef_set(PortRef *pr, Port *port, int outlet) {
@@ -4154,7 +4167,7 @@ static inline void PortRef_set(PortRef *pr, Port *port, int outlet) {
 #define PortRef_sendInteger(pr, value, err)    Port_sendInteger(PortRef_port(pr), PortRef_outlet(pr), value, err)
 
 
-#line 528 "src/midiseq.in.c"
+#line 539 "src/midiseq.in.c"
 
 static inline PortRef *DropDown_portRef(DropDown *dd) {
     return &dd->portRef;
@@ -4164,9 +4177,9 @@ static inline void DropDown_setPortRef(DropDown *dd, PortRef *pr) {
    dd->portRef = *pr;
 }
 
-#line 649 "src/midiseq.in.c"
+#line 660 "src/midiseq.in.c"
 
-#line 667 "src/midiseq.in.c"
+#line 678 "src/midiseq.in.c"
 
 
 // Will parse id's of the form ev\d+ and return the \d+ number. Returns -1 otherwise
@@ -4488,18 +4501,21 @@ APIF void Midiseq_dblog(Midiseq *mseq)
 //
 APIF int midiseq_tokenize(FILE *fd, StringPtAr **ret, Error *err)
 {
-    static String *buffer = NULL;
+    static String *buffer       = NULL;
+    static StringPtAr *arBuffer = NULL;
     if (buffer == NULL) {
-        buffer = String_empty();
+        buffer   = String_empty();
+        arBuffer = StringPtAr_new(0);
     }
-    String_readline(&buffer, fd, err);
-    if (Error_iserror(err)) {
-        return 1;
+    if (!String_readline(&buffer, fd, err)) {
+        return 0;
     }
-    static StringPtAr arBuffer = {0};
-    *ret = &arBuffer;
-    String_split(buffer, ",", &arBuffer);
-    return 0;
+    String_split(buffer, ",", arBuffer);
+    StringPtAr_foreach(it, arBuffer) {
+        String_trim(it.var);
+    }
+    *ret = arBuffer;
+    return 1;
 }
 
 
@@ -4690,9 +4706,8 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
     Midiseq *mseq = (Midiseq*)Mem_malloc(sizeof(Midiseq));
     Midiseq_init(mseq);
 
-    String *buffer = String_fmt("'%s' '%s' > '%s'", Midiseq_midiCsvExecPath, fullpath, tempfile);
-
     // Call midicsv. To do this we create a new destination file, then route our output to it
+    String *buffer = NULL;
     int tempFd = mkstemp(tempfile);
     if (tempFd < 0) {
         Error_format0(err, "Failed to create temp file");
@@ -4700,6 +4715,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
     }
     close(tempFd);
 
+    buffer = String_fmt("'%s' '%s' > '%s'", Midiseq_midiCsvExecPath, fullpath, tempfile);    
     int exitCode = system(buffer);
     if (exitCode != 0) {
         Error_format(err, "Failed '%s' with exit code %d", buffer, exitCode);
@@ -4721,9 +4737,11 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
     int linenum = 0;
     while (true) {
         StringPtAr *fieldsAr = NULL;
-        midiseq_tokenize(fd, &fieldsAr, err);
-        if (Error_iserror(err)) {
-            goto END;
+        if (!midiseq_tokenize(fd, &fieldsAr, err)) {
+            if (Error_iserror(err)) {
+                goto END;
+            }
+            break;
         }
         linenum++;
 
@@ -4857,6 +4875,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
     if (fd != NULL) {
         fclose(fd);
     }
+    
     unlink(tempfile);
 
     if (allOK) {
