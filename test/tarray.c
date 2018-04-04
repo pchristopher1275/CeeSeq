@@ -211,8 +211,9 @@ Unit_declare(testTruncateClearerAndFit) {
 	}
 }
 
-Unit_declare(testChangeLength) {
-	if (1){
+Unit_declare(testChangeLength) 
+{
+	{
 		IntArr *arr = IntArr_new(0);
 		IntArr_changeLength(arr, 10);
 		chk(IntArr_len(arr) == 10);

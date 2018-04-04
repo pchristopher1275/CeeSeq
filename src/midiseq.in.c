@@ -62,7 +62,7 @@ Symbol *Symbol_gen(const char *word)
     if (rp != NULL) {
         return *rp;
     }
-    Symbol *n = Mem_malloc(sizeof(Symbol));
+    Symbol *n = Mem_calloc(sizeof(Symbol));
     n->name = strdup(word);
     SymbolPtAr_binInsertUnderlying(gSymbols, n);
     return n;
@@ -348,7 +348,7 @@ const int Midiseq_endgrptype = 5;
             "typeName": "TimedOffAr", 
             "elemName": "TimedOff",
             "binarySearch": [
-               {"compare": "TimedOff_cmpTime", "multi": false, "tag": "Time"}
+               {"compare": "TimedOff_cmpTime", "multi": true, "tag": "Time"}
             ]
          }
       ]
@@ -1070,12 +1070,13 @@ APIF void Midiseq_insertEndgroup(Midiseq *mseq, Error *err)
     MEventAr_rforeach(it, &mseq->events) {
         if (it.var->type == Midiseq_notetype) {
             cell.t = it.var->t;
+            int index = it.index;
             while (MEventArRIt_next(&it)) {
                 if (cell.t != it.var->t) {
                     break;
                 }
+                index++;
             }
-            int index = it.index;
             if (index < 0) {
                 index = 0;
             }
@@ -1198,7 +1199,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
     char tempfile[] = "/tmp/MidiseqMaxMSPXXXXXX";
     FILE *fd = NULL;
     bool allOK = false;
-    Midiseq *mseq = (Midiseq*)Mem_malloc(sizeof(Midiseq));
+    Midiseq *mseq = (Midiseq*)Mem_calloc(sizeof(Midiseq));
     Midiseq_init(mseq);
 
     // Call midicsv. To do this we create a new destination file, then route our output to it
@@ -1247,7 +1248,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
 
         int nfields   = StringPtAr_len(fieldsAr);
 
-        // THIS IS AWEFUL
+        // THIS IS AWEFUL. IMPORTANT you can't touch fields after you call _push or any other method that might reallocate.
         char **fields = (char**)fieldsAr->data;
         if (Error_iserror(err)) {
             goto END;
@@ -1376,6 +1377,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
     if (allOK) {
         return mseq;
     }
+
 
     // Error state
     Midiseq_free(mseq);
@@ -2003,8 +2005,8 @@ const int NoteManager_atomcount = 4;
 
 APIF NoteManager *NoteManager_new(Port *port)
 {
-    NoteManager *nm = (NoteManager*)Mem_malloc(sizeof(NoteManager));
-    nm->atoms       = (Atom*)Mem_malloc(sizeof(Atom) * NoteManager_atomcount);
+    NoteManager *nm = (NoteManager*)Mem_calloc(sizeof(NoteManager));
+    nm->atoms       = (Atom*)Mem_calloc(sizeof(Atom) * NoteManager_atomcount);
     nm->output      = port;
     TimedOffAr_init(&nm->pending, 0);
     IndexedOffAr_init(&nm->endgroups, 0);
@@ -2090,6 +2092,12 @@ APIF void NoteManager_flushOffs(NoteManager *manager)
     TimedOffAr_truncate(&manager->pending);
 }
 
+APIF void NoteManager_allOff(NoteManager *manager)
+{
+    for (int i = 0; i < 128; i++) {
+        NoteManager_sendNoteOn(manager, i, 0);      
+    }
+}
 
 APIF void NoteManager_dblogPending(NoteManager *manager, Ticks current)
 {

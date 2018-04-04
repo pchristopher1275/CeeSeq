@@ -175,6 +175,16 @@ void CseqHub_int(CseqHub *x, long val)
     }
 
     Ticks now = cseqHub_now();
+    
+    //db
+    // Pad *pad     = PadList_pad(CseqHub_padList(x), padIndex, err);
+    // if (Error_maypost(err)) {
+    //     return;
+    // }
+    // NoteManager *noteManager = Track_noteManager(Pad_track(pad));
+    // NoteManager_allOff(noteManager);
+    //end db
+
     PadList_play(CseqHub_padList(x), padIndex, now, now, false, err);
     Error_maypost(err);
     time_stop(x->schedular);
