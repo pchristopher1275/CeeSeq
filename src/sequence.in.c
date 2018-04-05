@@ -785,35 +785,35 @@ APIF void Frontend_recievedPadHit(Hub *hub, long pitchIn, long velocityIn){
   if (padIndex >= PadAr_len(PadList_pads(Hub_padList(hub)))) {
     post("Bad padIndex %d", padIndex);
     return;
-}
+    }
 
-if (velocityIn == 0) {
-    Pad *pad = PadList_pad(Hub_padList(x), padIndex, err);
-    if (Error_maypost(err)) {
-      return;
-  }
-  Pad_setNoteReleasePending(pad, false);
-  SequenceAr_foreach(it, Pad_sequenceList(pad)) {
-   Sequence_padNoteOff(it.var);
-}
-return;
-}
+    if (velocityIn == 0) {
+        Pad *pad = PadList_pad(Hub_padList(x), padIndex, err);
+        if (Error_maypost(err)) {
+          return;
+      }
+      Pad_setNoteReleasePending(pad, false);
+      SequenceAr_foreach(it, Pad_sequenceList(pad)) {
+       Sequence_padNoteOff(it.var);
+    }
+    return;
+    }
 
-if (Hub_grabNextTappedPad(hub)) {
-  Hub_setGrabNextTappedPad(hub, false); 
-  Hub_changeSelectedPad(hub, padIndex, err);
-  Error_maypost(err);
-}
+    if (Hub_grabNextTappedPad(hub)) {
+      Hub_setGrabNextTappedPad(hub, false); 
+      Hub_changeSelectedPad(hub, padIndex, err);
+      Error_maypost(err);
+    }
 
 
-Ticks now = Ticks_now();
-Ticks clockStart = Pad_useMasterClock(pad) ? Hub_masterClock(hub) : now;
-SequenceAr_foreach(it, Pad_sequenceList(pad)) {
-   SequenceAr_binInsertSeqPt(Hub_runningSequences(hub), it.var);
-   Sequence_start(it.var, clockStart, now, Hub_queue(hub), Hub_recordBuffer(hub));
-}
+    Ticks now = Ticks_now();
+    Ticks clockStart = Pad_useMasterClock(pad) ? Hub_masterClock(hub) : now;
+    SequenceAr_foreach(it, Pad_sequenceList(pad)) {
+       SequenceAr_binInsertSeqPt(Hub_runningSequences(hub), it.var);
+       Sequence_start(it.var, clockStart, now, Hub_queue(hub), Hub_recordBuffer(hub));
+    }
 
-Error_clear(err);
+    Error_clear(err);
 }
 
 APIF void Frontend_drive(Hub *hub) {
