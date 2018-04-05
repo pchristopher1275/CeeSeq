@@ -1,13 +1,13 @@
-// *** DO NOT MODIFY THIS FILE generated 04/04/2018 15:39:13 ***
-// *** DO NOT MODIFY THIS FILE generated 04/04/2018 15:39:13 ***
-// *** DO NOT MODIFY THIS FILE generated 04/04/2018 15:39:13 ***
-// *** DO NOT MODIFY THIS FILE generated 04/04/2018 15:39:13 ***
-// *** DO NOT MODIFY THIS FILE generated 04/04/2018 15:39:13 ***
-// *** DO NOT MODIFY THIS FILE generated 04/04/2018 15:39:13 ***
-// *** DO NOT MODIFY THIS FILE generated 04/04/2018 15:39:13 ***
-// *** DO NOT MODIFY THIS FILE generated 04/04/2018 15:39:13 ***
-// *** DO NOT MODIFY THIS FILE generated 04/04/2018 15:39:13 ***
-// *** DO NOT MODIFY THIS FILE generated 04/04/2018 15:39:13 ***
+// *** DO NOT MODIFY THIS FILE generated 04/04/2018 15:47:53 ***
+// *** DO NOT MODIFY THIS FILE generated 04/04/2018 15:47:53 ***
+// *** DO NOT MODIFY THIS FILE generated 04/04/2018 15:47:53 ***
+// *** DO NOT MODIFY THIS FILE generated 04/04/2018 15:47:53 ***
+// *** DO NOT MODIFY THIS FILE generated 04/04/2018 15:47:53 ***
+// *** DO NOT MODIFY THIS FILE generated 04/04/2018 15:47:53 ***
+// *** DO NOT MODIFY THIS FILE generated 04/04/2018 15:47:53 ***
+// *** DO NOT MODIFY THIS FILE generated 04/04/2018 15:47:53 ***
+// *** DO NOT MODIFY THIS FILE generated 04/04/2018 15:47:53 ***
+// *** DO NOT MODIFY THIS FILE generated 04/04/2018 15:47:53 ***
 struct Arguments_t;
 typedef struct Arguments_t Arguments;
 struct Marshal_t;
@@ -908,6 +908,11 @@ struct Arguments_t
     long ivalue;
     long inlet;
 };
+struct PortRef_t
+{
+    Port *port;
+    int outlet;
+};
 typedef struct SymbolPtrAr_t {
    int len;
    int cap;
@@ -934,11 +939,6 @@ typedef struct SymbolPtrArRIt_t {
    Symbol **var;
 } SymbolPtrArRIt;
 
-struct PortRef_t
-{
-    Port *port;
-    int outlet;
-};
 struct DropDown_t
 {
     SymbolPtrAr table;
@@ -1415,7 +1415,7 @@ static inline Marshal *MarshalSs_castToMarshal(MarshalSs *self) {
 }
 static inline int Dispatch_nthIType(int n, int *itype) {
     static int itypes[] = {
-        SelectNextPushedPadDispatch_itype, DecrementFrameDispatch_itype, MidiFileDropDispatch_itype, ManageChokeGroupsDispatch_itype, IncrementFrameDispatch_itype
+        IncrementFrameDispatch_itype, DecrementFrameDispatch_itype, SelectNextPushedPadDispatch_itype, ManageChokeGroupsDispatch_itype, MidiFileDropDispatch_itype
     };
     static int len = sizeof(itypes)/sizeof(int);
     if (n < 0 || n >= len) {
@@ -3289,19 +3289,6 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
     
     unlink(tempfile);
 
-/*
-    MEventAr_foreach(it, &mseq->events) {
-        MEvent cell = *it.var;
-        if (MEvent_type(cell) == Midiseq_notetype) {
-            dblog("N %lld %d %d %lld", MEvent_t(cell), MEvent_notePitch(cell), MEvent_noteVelocity(cell), MEvent_noteDuration(cell));
-        } else if (MEvent_type(cell) == Midiseq_endgrptype) {
-            dblog("END %lld", MEvent_t(cell));
-        } else if (MEvent_type(cell) == Midiseq_cycletype) {
-            dblog("CYC %lld", MEvent_t(cell));
-        }
-    }
-*/
-
     if (allOK) {
         return mseq;
     }
@@ -3982,7 +3969,6 @@ APIF bool NoteManager_insertNoteOff(NoteManager *manager, Ticks timestamp, int p
     }
     else {
         TimedOff_declare(off, timestamp, pitch);
-        dblog("insertNoteOff %d [%lld]", pitch, timestamp);
         TimedOffAr_binInsertTime(&manager->pending, off);
     }
 
@@ -4046,7 +4032,6 @@ APIF Ticks NoteManager_scheduleOffs(NoteManager *manager, Ticks current)
             break;
         }
         NoteManager_sendNoteOn(manager, it.var->pitch , 0);
-        dblog("OFF(schedule) for %d [%lld]", it.var->pitch, it.var->time);
         count++;
     }
     if (count > 0) {
@@ -4072,10 +4057,8 @@ APIF void NoteManager_midievent(NoteManager *manager, MEvent cell, int padIndexF
 
         if (NoteManager_insertNoteOff(manager, offtime, pitch, padIndexForEndgroup)) {
             NoteManager_sendNoteOn(manager, pitch, 0);
-            dblog("OFF(midievent) for %d [%lld]", pitch, MEvent_t(cell));
         }
         NoteManager_sendNoteOn(manager, pitch, velocity);
-        dblog("ON(midievent) for %d [%lld]", pitch, MEvent_t(cell));
     }
 }
 
@@ -4090,7 +4073,6 @@ APIF void NoteManager_padNoteOff(NoteManager *manager, int padIndex)
     }
     IndexedOffAr_loop(slice) {
         NoteManager_sendNoteOn(manager, slice.var->pitch, 0);
-        dblog("OFF(padNoteOff) for %d", slice.var->pitch);
     }
     IndexedOffAr_binRemovePadIndex(&manager->endgroups, off);
     return;

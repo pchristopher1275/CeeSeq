@@ -510,6 +510,23 @@ static inline void PortRef_set(PortRef *pr, Port *port, int outlet) {
 }
 #define PortRef_send(pr, argc, argv, err)      Port_send(PortRef_port(pr), PortRef_outlet(pr), argc, argv, err)
 #define PortRef_sendInteger(pr, value, err)    Port_sendInteger(PortRef_port(pr), PortRef_outlet(pr), value, err)
+PortRef PortRef_nullImpl = {Port_null, 0};
+#define PortRef_null  &PortRef_nullImpl
+
+APIF int PortRef_cmp(PortRef *left, PortRef *right) 
+{
+    if (left->port < right->port) {
+        return -1;
+    } else if (left->port > right->port) {
+        return 1;
+    } else if (left->outlet < right->outlet) {
+        return -1;
+    } else if (left->outlet > right->outlet) {
+        return 1;
+    }
+    return 0;
+}
+
 
 
 @type
@@ -697,6 +714,9 @@ APIF int port_parseEvSymbol(Symbol *id)
 
 APIF void Port_send(Port *port, int outletIndex, short argc, Atom *argv, Error *err)
 {   
+    if (port == Port_null) {
+        return;
+    }
 #   ifndef TEST_BUILD
     Symbol *selector = Atom_toSymbol(argv + 0);
     void *out = PtrAr_get(&port->outlet, outletIndex, err);
@@ -707,6 +727,9 @@ APIF void Port_send(Port *port, int outletIndex, short argc, Atom *argv, Error *
 
 APIF void Port_sendInteger(Port *p, int outlet, long value) 
 {
+    if (port == Port_null) {
+        return;
+    }
 #   ifndef TEST_BUILD
     Error_declare(err);
     void *out = PtrAr_get(&p->outlet, outlet, err);

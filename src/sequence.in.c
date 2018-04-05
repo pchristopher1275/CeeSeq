@@ -80,6 +80,14 @@ APIF void CCOutletFormater_sendFloat(CCOutletFormater *self, double value)
     Error_maypost(err);   
 }
 
+APIF int CCOutletFormater_cmp(CCOutletFormater *self, CCOutletFormater *other) {
+    if (self->cc < other->cc) {
+        return -1;
+    } else if (self->cc > other->cc) {
+        return 1;
+    }
+    return 0;
+}
 
 @type 
 {
@@ -101,12 +109,14 @@ APIF void VstOutletFormater_sendFloat(VstOutletFormater *self, double value)
         {
             "name": "sendNote",
             "retVal": "void",
-            "args": ["PortRef *", "uint8_t", "uint8_t"]
+            "args": ["PortRef *", "uint8_t", "uint8_t"],
+            "absentOk": true
         },
         {
             "name": "sendFloat",
             "retVal": "void",
-            "args": ["PortRef *", "double"]
+            "args": ["PortRef *", "double"],
+            "absentOk": true
         },
         {
             "name": "cmp",
@@ -147,6 +157,21 @@ APIF int OutputOutlet_cmp(OutputOutlet *self, OutputOutlet *other) {
         return q;
     }
     return OutletFormater_cmp(self->formater, other->formater);
+}
+
+APIF int OutputOutlet_cmpDestination(OutputOutlet *self, OutputOutlet *other) 
+{
+    return PortRef_cmp(self->portRef, other->portRef);
+}
+
+APIF void OutputOutlet_sendNote(OutputOutlet *self, uint8_t pitch, uint8_t velocity)
+{
+    OutletFormater_sendNote(self->formater, pitch, velocity);
+}
+
+APIF void OutputOutlet_sendFloat(OutputOutlet *self, double value)
+{
+    OutletFormater_sendFloat(self->formater, value);
 }
 
 @interface 
@@ -199,6 +224,49 @@ APIF int OutputOutlet_cmp(OutputOutlet *self, OutputOutlet *other) {
 }
 @end
 
+
+void TimedAr_enqueue(TimedAr *self, Ticks time, Sequence *s) {
+    Sequence_incVersion(s);
+    Timed_declare(cell, time, Sequence_version(s), s);
+    TimedAr_pqPush(self, cell);
+}
+
+Sequence *TimedAr_dequeue(TimedAr *self, Ticks current) {
+    Timed *peeked = TimedAr_pqPeek(self);
+
+    while (peeked != NULL) {
+        if (Timed_time(peeked) > current) {
+            break;
+        } 
+
+        Timed_declare0(timed);
+        TimedAr_pqPop(self, &timed);
+        Sequence *seq = Timed_sequence(&timed);
+        if (seq != NULL && Timed_version(&timed) == Sequence_version(seq)) {
+            return Timed_sequence(&timed);
+        }       
+        peeked = TimedAr_pqPeek(self);
+    }
+
+    return NULL;
+}
+
+void TimedAr_invalidateSequence(TimedAr *self, SequencePtAr *removes) 
+{
+    SequencePtAr_sortPtr(removes);
+    TimedAr_foreach(it, self) {
+        Sequence *seq = Timed_sequence(it.var);
+        if (seq == NULL) {
+            continue;
+        }
+        if (SequencePtAr_binSearchPtr(removes, seq) != NULL) {
+            Timed_setSequence(it.var, NULL);
+        }
+    }
+}
+
+
+
 @type 
 {
   "typeName": "NoteEvent",
@@ -210,19 +278,6 @@ APIF int OutputOutlet_cmp(OutputOutlet *self, OutputOutlet *other) {
    ], 
   "containers": [
        {"type": "array", "typeName": "NoteEventAr", "elemName": "NoteEvent"}
-   ]
-}
-@end
-
-@type
-{
-  "typeName": "FloatEvent",
-  "fields": [
-       {"name": "stime", "type": "Ticks"},
-       {"name": "value", "type": "double"}
-   ],
-  "containers": [
-       {"type": "array", "typeName": "FloatEventAr", "elemName": "FloatEvent"}
    ]
 }
 @end
@@ -267,175 +322,19 @@ APIF int OutputOutlet_cmp(OutputOutlet *self, OutputOutlet *other) {
             "name":"events",
             "type":"NoteEventAr"
         }
-    ]
-}
-@end
-
-@type 
-{
-    "typeName": "FloatSequence",
-    "fields":[  
-        {
-            "name": "version", 
-            "type": "long"
-        },
-        {  
-            "name":"startTime",
-            "type":"Ticks"
-        },
-        {  
-            "name":"sequenceLength",
-            "type":"Ticks"
-        },
-        {  
-            "name":"cursor",
-            "type":"int"
-        },
-        {  
-            "name":"cycle",
-            "type":"bool"
-        },
-        {  
-            "name":"outlet",
-            "type":"Outlet *"
-        },
-        {  
-            "name":"recordBuffer",
-            "type":"FloatSequence *"
-        },
-        {  
-            "name":"events",
-            "type":"FloatEventAr"
-        },
-        {
-            "name": "restoreValue",
-            "type": "double"
-        }
-    ]
-}
-@end
-
-@interface
-{
-  "typeName": "Sequence",
-  "fields": [
-    {
-        "name": "version", 
-        "type": "long"
-    }
-  ],
-  "methods": [
-        {
-            "name": "start",
-            "retVal": "void",
-            "args": ["Ticks", "Ticks", "TimedAr *"]
-        },
-        {
-            "name": "drive",
-            "retVal": "void",
-            "args": ["Ticks", "TimedAr *"]
-        },
-        {
-            "name": "stop",
-            "retVal": "void",
-            "args": ["Ticks", "TimedAr *"]
-        },
-        {
-            "name": "padNoteOff",
-            "retVal": "void",
-            "args": []
-        }
-        {
-            "name": "cmp",
-            "compareIType": true,
-            "retVal": "int",
-            "args": ["Sequence *"]
-        },
-        {
-            "name": "cmpDestination",
-            "compareIType": true,
-            "retVal": "int",
-            "args": ["Sequence *"]
-        },
     ],
-    "containers": [
-        {
-            "type": "array", 
-            "typeName": "SequenceAr", 
-            "elemName": "Sequence *"
-            "binarySearch": [
-                {"compare": "Sequence_cmpPp"}, 
-                {"compare": "Sequence_cmpDestinationPp", "tag": "Destination"}
-            ]
-        }
-    ]
+    "implements": ["Sequence"],
 }
 @end
 
-APIF int Sequence_cmpPp(Sequence **left, Sequence **right) {
-    return Sequence_cmp(*left, *right);
-}
-
-APIF int Sequence_cmpDestinationPp(Sequence **left, Sequence **right) {
-    return Sequence_cmpDestination(*left, *right);
-}
-
-
-@type
+APIF int NoteSequence_cmp(NoteSequence *self, NoteSequence *other) 
 {
-    "typeName": "RecordBuffer",
-    "fields": [
-        {
-            "name": "recordStart", 
-            "type": "Ticks"
-        },
-        {
-            "name": "sequences", 
-            "type": "SequenceAr"
-        }
-    ]
-}
-@end
-
-
-void TimedAr_enqueue(TimedAr *self, Ticks time, Sequence *s) {
-	Sequence_incVersion(s);
-	Timed_declare(cell, time, Sequence_version(s), s);
-	TimedAr_pqPush(self, cell);
+    return Outlet_cmp(self->outlet, other->outlet);
 }
 
-Sequence *TimedAr_dequeue(TimedAr *self, Ticks current) {
-	Timed *peeked = TimedAr_pqPeek(self);
-
-	while (peeked != NULL) {
-		if (Timed_time(peeked) > current) {
-			break;
-		} 
-
-		Timed_declare0(timed);
-		TimedAr_pqPop(self, &timed);
-        Sequence *seq = Timed_sequence(&timed);
-		if (seq != NULL && Timed_version(&timed) == Sequence_version(seq)) {
-			return Timed_sequence(&timed);
-		}		
-		peeked = TimedAr_pqPeek(self);
-	}
-
-	return NULL;
-}
-
-void TimedAr_invalidateSequence(TimedAr *self, SequencePtAr *removes) 
+APIF int NoteSequence_cmpDestination(NoteSequence *self, NoteSequence *other) 
 {
-    SequencePtAr_sortPtr(removes);
-    TimedAr_foreach(it, self) {
-        Sequence *seq = Timed_sequence(it.var);
-        if (seq == NULL) {
-            continue;
-        }
-        if (SequencePtAr_binSearchPtr(removes, seq) != NULL) {
-            Timed_setSequence(it.var, NULL);
-        }
-    }
+    return Outlet_cmpDestination(self->outlet, other->outlet);
 }
 
 //
@@ -451,58 +350,58 @@ void TimedAr_invalidateSequence(TimedAr *self, SequencePtAr *removes)
 //      n       = n % len + (n/len)*len
 
 APIF void NoteSequence_start(NoteSequence *self, Ticks clockStart, Ticks current, TimedAr *queue, RecordBuffer *recordBuffer) {
-	int nevents = NoteEventAr_len(&self->events);
-	if (nevents <= 0) {
-		return;
-	}
+    int nevents = NoteEventAr_len(&self->events);
+    if (nevents <= 0) {
+        return;
+    }
 
-	self->startTime    = self->cycle ? clockStart : current;
-	self->cursor       = 0;
+    self->startTime    = self->cycle ? clockStart : current;
+    self->cursor       = 0;
     self->inEndgroup   = false;
-	// self->seqBase      = self->sequenceLength * ((current - self->startTime) / self->sequenceLength) + self->startTime;
-	Ticks nextEvent    = 0;
-	if (self->cycle) {
+    // self->seqBase      = self->sequenceLength * ((current - self->startTime) / self->sequenceLength) + self->startTime;
+    Ticks nextEvent    = 0;
+    if (self->cycle) {
         while (current-self->startTime > self->sequenceLength) {
             // XXX: potential infinite loop here
             self->startTime += self->sequenceLength;
         }
 
-		NoteEventAr_foreach(it, &self->events) {
-			if (it.var->stime + self->startTime > current) {
-				nextEvent = it.var->stime + self->startTime;
-				break;
-			}
-			self->cursor++;
-		}
-		if (self->cursor >= nevents) {
+        NoteEventAr_foreach(it, &self->events) {
+            if (it.var->stime + self->startTime > current) {
+                nextEvent = it.var->stime + self->startTime;
+                break;
+            }
+            self->cursor++;
+        }
+        if (self->cursor >= nevents) {
             self->startTime += self->sequenceLength;
-			nextEvent        = self->startTime;
-			self->cursor     = 0;
-		}
-	} else {
-		NoteEventAr_foreach(it, &self->events) {
-			nextEvent = it.var->stime + self->startTime;
-			break;
-		}
-	}
+            nextEvent        = self->startTime;
+            self->cursor     = 0;
+        }
+    } else {
+        NoteEventAr_foreach(it, &self->events) {
+            nextEvent = it.var->stime + self->startTime;
+            break;
+        }
+    }
 
-	// These note-offs are from a previous sequence start
-	TimedOffAr_foreach(it, &self->offs) {
-		if (it.var->time < nextEvent) {
-			nextEvent = it.var->time;
-		}
-		break;
-	}
+    // These note-offs are from a previous sequence start
+    TimedOffAr_foreach(it, &self->offs) {
+        if (it.var->time < nextEvent) {
+            nextEvent = it.var->time;
+        }
+        break;
+    }
 
-	self->recordingSeq = NULL;
-	if (recordBuffer != NULL) {
-		NoteSequence *other = NoteSequence_new();
-		other->startTime    = self->startTime;
-		self->recordingSeq  = other;	
-		RecordBuffer_push(recordBuffer, NoteSequence_castToSequence(other));
-	}
+    self->recordingSeq = NULL;
+    if (recordBuffer != NULL) {
+        NoteSequence *other = NoteSequence_new();
+        other->startTime    = self->startTime;
+        self->recordingSeq  = other;    
+        RecordBuffer_push(recordBuffer, NoteSequence_castToSequence(other));
+    }
 
-	TimedAr_enqueue(queue, nextEvent, NoteSequence_castToSequence(self));
+    TimedAr_enqueue(queue, nextEvent, NoteSequence_castToSequence(self));
 }
 
 APIF void NoteSequence_stop(NoteSequence *self, Ticks current, TimedAr *queue) {
@@ -602,7 +501,7 @@ APIF void NoteSequence_drive(NoteSequence *self, Ticks current, TimedAr *queue) 
     }
 }
 
-static inline void NoteManager_adjustRecSeqForEndgroup(NoteSequence *self, int pitch, Ticks current) {
+static inline void NoteSequence_adjustRecSeqForEndgroup(NoteSequence *self, int pitch, Ticks current) {
     // 
     NoteEventAr_rforeach(it, &self->recordingSeq->events) {
         if (it.var->pitch == pitch) {
@@ -615,12 +514,80 @@ static inline void NoteManager_adjustRecSeqForEndgroup(NoteSequence *self, int p
 APIF void NoteSequence_padNoteOff(NoteSequence *self, int padIndex, Ticks current) {
     if (self->inEndgroup) {
         TimedOffAr_foreach(it, &self->offs) {
-            NoteManager_adjustRecSeqForEndgroup(self, it.var->pitch, current);
+            NoteSequence_adjustRecSeqForEndgroup(self, it.var->pitch, current);
             Outlet_sendNote(self->outlet, it.var->pitch, 0);
         }
         TimedOffAr_truncate(&self->offs);
     }
 }
+@type
+{
+  "typeName": "FloatEvent",
+  "fields": [
+       {"name": "stime", "type": "Ticks"},
+       {"name": "value", "type": "double"}
+   ],
+  "containers": [
+       {"type": "array", "typeName": "FloatEventAr", "elemName": "FloatEvent"}
+   ]
+}
+@end
+
+@type 
+{
+    "typeName": "FloatSequence",
+    "fields":[  
+        {
+            "name": "version", 
+            "type": "long"
+        },
+        {  
+            "name":"startTime",
+            "type":"Ticks"
+        },
+        {  
+            "name":"sequenceLength",
+            "type":"Ticks"
+        },
+        {  
+            "name":"cursor",
+            "type":"int"
+        },
+        {  
+            "name":"cycle",
+            "type":"bool"
+        },
+        {  
+            "name":"outlet",
+            "type":"Outlet *"
+        },
+        {  
+            "name":"recordBuffer",
+            "type":"FloatSequence *"
+        },
+        {  
+            "name":"events",
+            "type":"FloatEventAr"
+        },
+        {
+            "name": "restoreValue",
+            "type": "double"
+        }
+    ], 
+    "implements": ["Sequence"],
+}
+@end
+
+APIF int FloatSequence_cmp(FloatSequence *self, FloatSequence *other) 
+{
+    return Outlet_cmp(self->outlet, other->outlet);
+}
+
+APIF int FloatSequence_cmpDestination(FloatSequence *self, FloatSequence *other) 
+{
+    return Outlet_cmpDestination(self->outlet, other->outlet);
+}
+
 
 double FloatSequence_endgMarker  = -1e40.0;
 double FloatSequence_cycleMarker = -1e41.0;
@@ -713,18 +680,104 @@ APIF void FloatSequence_drive(FloatSequence *self, Ticks current, TimedAr *queue
         TimedAr_enqueue(queue, nextEvent, FloatSequence_castToSequence(self));
     }
 }
+
 APIF void FloatSequence_padNoteOff(FloatSequence *self, int padIndex, Ticks current) {
     if (self->inEndgroup) {
         Outlet_sendFloat(self->outlet, self->restoreValue);
     }
 }
 
-//
-//
-//
-APIF void Sequence_incVersion(Sequence *seq) {
-	seq->version++;
+
+@interface
+{
+  "typeName": "Sequence",
+  "fields": [
+    {
+        "name": "version", 
+        "type": "long"
+    }
+  ],
+  "methods": [
+        {
+            "name": "start",
+            "retVal": "void",
+            "args": ["Ticks", "Ticks", "TimedAr *"]
+        },
+        {
+            "name": "drive",
+            "retVal": "void",
+            "args": ["Ticks", "TimedAr *"]
+        },
+        {
+            "name": "stop",
+            "retVal": "void",
+            "args": ["Ticks", "TimedAr *"]
+        },
+        {
+            "name": "padNoteOff",
+            "retVal": "void",
+            "args": []
+        }
+        {
+            "name": "cmp",
+            "compareIType": true,
+            "retVal": "int",
+            "args": ["Sequence *"]
+        },
+        {
+            "name": "cmpDestination",
+            "compareIType": true,
+            "retVal": "int",
+            "args": ["Sequence *"]
+        },
+    ],
+    "containers": [
+        {
+            "type": "array", 
+            "typeName": "SequenceAr", 
+            "elemName": "Sequence *"
+            "binarySearch": [
+                {"compare": "Sequence_cmpPp"}, 
+                {"compare": "Sequence_cmpDestinationPp", "tag": "Destination"}
+            ]
+        }
+    ]
 }
+@end
+
+APIF int Sequence_cmpPp(Sequence **left, Sequence **right) {
+    return Sequence_cmp(*left, *right);
+}
+
+APIF int Sequence_cmpDestinationPp(Sequence **left, Sequence **right) {
+    return Sequence_cmpDestination(*left, *right);
+}
+
+APIF void Sequence_incVersion(Sequence *seq) {
+    seq->version++;
+}
+
+@type
+{
+    "typeName": "RecordBuffer",
+    "fields": [
+        {
+            "name": "recordStart", 
+            "type": "Ticks"
+        },
+        {
+            "name": "sequences", 
+            "type": "SequenceAr"
+        }
+    ]
+}
+@end
+
+
+
+//
+//
+//
 
 APIF void Frontend_recievedPadHit(Hub *hub, long pitchIn, long velocityIn){
 	Error_declare(err);
