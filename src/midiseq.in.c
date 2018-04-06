@@ -95,19 +95,38 @@ void Symbol_freeAll()
          {"name": "hub",              "type": "void *"},
          {"name": "anythingDispatch", "type": "Port_anythingDispatchFunc"},
          {"name": "intDispatch",      "type": "Port_intDispatchFunc"}
-   ]
+   ],
+   "lifecycle": "manual"
 }
 @end
 
 
-Port PORT_NULL_IMPL =
+Port Port_nullImpl =
 {
     {
         0
     }
 };
 
-#define Port_null (&PORT_NULL_IMPL)
+#define Port_null (&Port_nullImpl)
+
+APIF Port *Port_new() 
+{
+    return Port_null;
+}
+APIF void Port_init(Port *p)
+{
+    *p = Port_nullImpl;
+}
+
+APIF void Port_free(Port *p)
+{
+}
+
+APIF void Port_clear(Port *p)
+{
+}
+
 
 @container    
 {       
@@ -203,7 +222,6 @@ const int Midiseq_endgrptype = 5;
 
 @type
    {  
-      // FOO
       "typeName":"Midiseq",
       "fields":[  
          {  
@@ -295,6 +313,7 @@ const int Midiseq_endgrptype = 5;
       ],
       "containers": [
          {"type": "array", "typeName": "PadAr", "elemName": "Pad"},
+         //, "clearer": "Pad_clear"},
          {"type": "array", "typeName": "PadPtrAr", "elemName": "Pad *"}
       ]
    }
@@ -466,6 +485,8 @@ const int Midiseq_endgrptype = 5;
             "type": "array",
             "typeName": "TrackAr", 
             "elemName": "Track"
+            //,
+            //"clearer": "Track_clear"
          }
       ]
    }
@@ -492,14 +513,14 @@ const int Midiseq_endgrptype = 5;
       "fields":[  
          {  
             "name":"port",
-            "type":"Port *"
+            "type":"Port *",
+            "lifecycle": "unmanaged"
          },
          {  
             "name":"outlet",
             "type":"int"
          }
-      ],
-      "noNewUnitialized":1
+      ]
    }
 @end
 
@@ -562,6 +583,108 @@ static inline void DropDown_setPortRef(DropDown *dd, PortRef *pr) {
    dd->portRef = *pr;
 }
 
+//
+// D R O P   D O W N
+//
+
+APIF void DropDown_build(DropDown *dd, const char **table, PortRef *pr) {
+    SymbolPtrAr_init(&dd->table, 0);
+    const char **ptr = table;
+    while (*ptr) {
+        Symbol *s = Symbol_gen(*ptr);
+        SymbolPtrAr_push(&dd->table, s);
+        ptr++;
+    }
+    DropDown_setPortRef(dd, pr);
+    return;
+}
+
+APIF void DropDown_buildCGLocalGlobal(DropDown *dd, PortRef *pr) {
+    const char *t[] = {
+        "local",
+        "global",
+        NULL
+    };
+    DropDown_build(dd, t, pr);
+}
+
+APIF void DropDown_buildCGInstrument(DropDown *dd, PortRef *pr) {
+    const char *t[] = {
+        "none",
+        "lead",
+        "rhythm",
+        "piano",
+        "bass",
+        "drums",
+        NULL,
+    };
+    DropDown_build(dd, t, pr);
+}
+
+APIF void DropDown_buildCGIndex(DropDown *dd, PortRef *pr) {
+    const char *t[] = {
+        "none",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        NULL
+    };
+    DropDown_build(dd, t, pr);
+}
+
+// APIF void DropDown_clear(DropDown *dd) {
+//     SymbolPtrAr_clear(&dd->table);
+// }
+
+// APIF void DropDown_free(DropDown *dd) {
+//     DropDown_clear(dd);
+//     Mem_free(dd);
+// }
+
+APIF void DropDown_updateSelected(DropDown *dd, Error *err) {
+    Symbol *s = SymbolPtrAr_get(&dd->table, dd->selected, err);
+    Error_returnVoidOnError(err);
+    Atom a[2] = {
+        Atom_fromSymbol(Symbol_gen("set")),
+        Atom_fromSymbol(s)
+    };
+    PortRef_send(DropDown_portRef(dd), 2, a, err);
+}
+
+APIF void DropDown_setSelected(DropDown *dd, int selected, Error *err) {
+    if (selected < 0 || selected >= SymbolPtrAr_len(&dd->table)) {
+        Error_format(err, "Index out of range (%d, %d)", selected, SymbolPtrAr_len(&dd->table));
+        return;
+    }
+    dd->selected = selected;
+}
+
+APIF void DropDown_initializeMenu(DropDown *dd, Error *err) {
+    Atom clear = Atom_fromSymbol(Symbol_gen("clear"));
+    Atom append = Atom_fromSymbol(Symbol_gen("append"));
+
+    PortRef_send(&dd->portRef, 1, &clear, err);
+    Error_returnVoidOnError(err);
+
+    SymbolPtrAr_foreach(it, &dd->table) {
+        Atom a[2] = {append, Atom_fromSymbol(*it.var)};
+        PortRef_send(&dd->portRef, 2, a, err);
+        Error_returnVoidOnError(err);        
+    }
+}
 @type
    {  
       "typeName": "Hub",
@@ -712,27 +835,27 @@ APIF int port_parseEvSymbol(Symbol *id)
     return r;
 }
 
-APIF void Port_send(Port *port, int outletIndex, short argc, Atom *argv, Error *err)
+APIF void Port_send(Port *self, int outletIndex, short argc, Atom *argv, Error *err)
 {   
-    if (port == Port_null) {
+    if (self == Port_null) {
         return;
     }
 #   ifndef TEST_BUILD
     Symbol *selector = Atom_toSymbol(argv + 0);
-    void *out = PtrAr_get(&port->outlet, outletIndex, err);
+    void *out = PtrAr_get(&self->outlet, outletIndex, err);
     Error_returnVoidOnError(err);
     outlet_anything(out, selector, argc-1, argv+1);  
 #   endif 
 }
 
-APIF void Port_sendInteger(Port *p, int outlet, long value) 
+APIF void Port_sendInteger(Port *self, int outlet, long value) 
 {
-    if (port == Port_null) {
+    if (self == Port_null) {
         return;
     }
 #   ifndef TEST_BUILD
     Error_declare(err);
-    void *out = PtrAr_get(&p->outlet, outlet, err);
+    void *out = PtrAr_get(&self->outlet, outlet, err);
     if (Error_maypost(err)) {
         return;
     }
@@ -779,26 +902,24 @@ APIF int Midiseq_convertIntFileLine(const char *src, Error *err, const char *fun
 #define Midiseq_maxLineLength 1024
 
 // Create new empty midi sequence
-// #define Midiseq_newUninitialized() ((Midiseq*)sysmem_newptrclear(sizeof(Midiseq)))
-APIF Midiseq *Midiseq_new()
+
+APIF void Midiseq_userInit(Midiseq *self)
 {
-    Midiseq *midi = Midiseq_newUninitialized();
-    midi->sequenceLength = 480*4;
-    MEventAr_init(&midi->events, 0);
+    self->sequenceLength = 480*4;
 
     MEvent cell = {0};
     cell.t = 0;
     cell.type = Midiseq_endgrptype;
-    MEventAr_push(&midi->events, cell);
+    MEventAr_push(&self->events, cell);
     
-    cell.t = midi->sequenceLength;
+    cell.t = self->sequenceLength;
     cell.type = Midiseq_cycletype;
-    MEventAr_push(&midi->events, cell);
+    MEventAr_push(&self->events, cell);
 
-    MEventAr_fit(&midi->events);
-
-    return midi;
+    MEventAr_fit(&self->events);
 }
+
+
 
 APIF void Midiseq_toBinFile(Midiseq *mseq, BinFile *bf, Error *err) {
     BinFile_writeTag(bf, "midiseq", err);
@@ -836,7 +957,7 @@ APIF void Midiseq_toBinFile(Midiseq *mseq, BinFile *bf, Error *err) {
 
 
 APIF Midiseq *Midiseq_fromBinFile(BinFile *bf, Error *err) {
-    Midiseq *mseq = Midiseq_newUninitialized();
+    Midiseq *mseq = Midiseq_new();
     Midiseq_fromBinFileUnititialized(mseq, bf, err);
     if (Error_iserror(err)) {
         Mem_free(mseq);
@@ -892,9 +1013,11 @@ APIF void Midiseq_fromBinFileUnititialized(Midiseq *mseq, BinFile *bf, Error *er
 
 APIF Midiseq *Midiseq_newNote(int pitch)
 {
-    Midiseq *mseq = Midiseq_newUninitialized();
+    Midiseq *mseq = Midiseq_new();
+    MEventAr_truncate(&mseq->events);
+
     mseq->sequenceLength = 480*4;
-    MEventAr_init(&mseq->events, 0);
+    
     MEvent zero = {
         0
     }
@@ -923,36 +1046,6 @@ APIF Midiseq *Midiseq_newNote(int pitch)
 
     return mseq;
 }
-
-
-APIF void Midiseq_init(Midiseq *mseq)
-{
-    if (mseq != NULL) {
-        Midiseq zero = {0};
-        *mseq = zero;
-        MEventAr_init(&mseq->events, 0);
-    }
-}
-
-
-APIF void Midiseq_clear(Midiseq *mseq)
-{
-    if (mseq != NULL) {
-        MEventAr_clear(&mseq->events);
-        Midiseq zero = {0};
-        *mseq = zero;
-    }
-}
-
-
-APIF void Midiseq_free(Midiseq *midi)
-{
-    if (midi != NULL) {
-        Midiseq_clear(midi);
-        Mem_free(midi);
-    }
-}
-
 
 APIF int Midiseq_len(Midiseq *mseq)
 {
@@ -1224,6 +1317,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
     bool allOK = false;
     Midiseq *mseq = (Midiseq*)Mem_calloc(sizeof(Midiseq));
     Midiseq_init(mseq);
+    MEventAr_truncate(&mseq->events);
 
     // Call midicsv. To do this we create a new destination file, then route our output to it
     String *buffer = NULL;
@@ -1410,10 +1504,6 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
 //
 // P A T C H E R    F I N D
 //
-
-APIF void PortFind_init(PortFind *pf) {
-    PortFindCellAr_init(&pf->objects, 0);
-}
 #ifndef TEST_BUILD
 APIF long PortFind_iterator(PortFind *pf, MaxObject *targetBox)
 {
@@ -1473,16 +1563,6 @@ APIF int PortFind_discover(PortFind *pf, MaxObject *sourceMaxObject, void *hub, 
 }
 #endif
 
-
-
-
-
-APIF void PortFind_clear(PortFind *pf)
-{
-    PortFindCellAr_clear(&pf->objects);
-}
-
-
 APIF Port *PortFind_findByVarname(PortFind *pf, Symbol *symbol)
 {
     PortFindCellAr_foreach(it, &pf->objects){
@@ -1535,41 +1615,8 @@ APIF Port *PortFind_findByIndex(PortFind *pf, int index, Error *err)
 //
 // P A D
 //
-APIF Pad *Pad_new(){
-    Pad *pad = Pad_newUninitialized();
-    Pad_init(pad);
-    return pad;
-}
 
-APIF void Pad_init(Pad *pad)
-{
-    if (pad != NULL) {
-        Pad p = {0};
-        *pad = p;
-        pad->sequence = Midiseq_new();
-        // SequenceAr_init(&pad->sequenceList, 0);
-    }
-}
-
-APIF void Pad_free(Pad *pad) {
-    if (pad != NULL) {
-        Pad_clear(pad);
-        Mem_free(pad);
-    }
-}
-
-APIF void Pad_clear(Pad *pad)
-{
-    if (pad != NULL) {
-        Midiseq_free(pad->sequence);
-        // SequenceAr_clear(&pad->sequenceList);
-        memset(pad, 0, sizeof(Pad));
-    }
-}
-
-
-
-APIF  void Pad_setSequence(Pad *pad, Midiseq *midi)
+APIF void Pad_setSequence(Pad *pad, Midiseq *midi)
 {
     if (Pad_sequence(pad) != NULL) {
         Midiseq_free(Pad_sequence(pad));
@@ -1598,7 +1645,7 @@ APIF void Pad_toBinFile(Pad *pad, BinFile *bf, Error *err) {
 }
 
 APIF Pad *Pad_fromBinFile(BinFile *bf, Error *err) {
-    Pad *pad = Pad_newUninitialized();
+    Pad *pad = Pad_new();
     Pad_fromBinFileUninitialized(pad, bf, err);
     if (Error_iserror(err)) {
         Mem_free(pad);
@@ -1654,43 +1701,19 @@ APIF void Pad_computeChokeGroup(Pad *pad) {
 //
 // P A D   L I S T
 //
-APIF PadList *PadList_new(int npads)
+APIF PadList *PadList_newN(int npads)
 {
-    PadList *pl = PadList_newUninitialized();
-    PadList_init(pl, npads);
-    return pl;
-}
-
-APIF void PadList_init(PadList *pl, int npads) {
-    PadAr_init(&pl->pads, npads);
-    PadAr_foreach(it, &pl->pads) {
+    PadList *self = PadList_new();
+    PadAr_changeLength(&self->pads, npads);
+    PadAr_foreach(it, &self->pads) {
         Pad_init(it.var);
     }
-    PadPtrAr_init(&pl->running, 0);
+    return self;
 }
 
-APIF void PadList_clear(PadList *pl) {
-    if (pl != NULL) {
-        PadAr_foreach(it, &pl->pads) {
-            Pad_clear(it.var);
-        }
-        PadAr_clear(&pl->pads);
-        PadPtrAr_clear(&pl->running);
-    }   
-}
-
-APIF void PadList_free(PadList *pl)
+APIF void PadList_play(PadList *self, int padIndex, Ticks startTime, Ticks currentTime, bool useMasterClock, Error *err)
 {
-    if (pl != NULL) {
-        PadList_clear(pl);
-        Mem_free(pl);
-    }
-}
-
-
-APIF void PadList_play(PadList *pl, int padIndex, Ticks startTime, Ticks currentTime, bool useMasterClock, Error *err)
-{
-    Pad *pad = PadAr_getp(&pl->pads, padIndex, err);
+    Pad *pad = PadAr_getp(&self->pads, padIndex, err);
     Error_returnVoidOnError(err);
 
     // Since we're starting to play, we just recieved a Note-on for this pad. Reset the pad
@@ -1698,24 +1721,24 @@ APIF void PadList_play(PadList *pl, int padIndex, Ticks startTime, Ticks current
     Pad_setNoteReleasePending(pad, true);
 
     // Now let's find a place to stick this pad into the running array
-    PadPtrAr_foreach(it, &pl->running) {
+    PadPtrAr_foreach(it, &self->running) {
         Pad *p = *it.var;
         if (Pad_chokeGroup(pad) != 0 && Pad_chokeGroup(pad) == Pad_chokeGroup(p)) {
-            PadPtrAr_remove(&pl->running, it.index, err);
+            PadPtrAr_remove(&self->running, it.index, err);
             Error_returnVoidOnError(err);
             break;
         }
     }
 
-    PadPtrAr_push(&pl->running, pad);
+    PadPtrAr_push(&self->running, pad);
 
    Midiseq_start(Pad_sequence(pad), startTime, currentTime, false, err);
 }
 
 
-APIF void PadList_markReleasePending(PadList *pl, int padIndex, bool pending, Error *err)
+APIF void PadList_markReleasePending(PadList *self, int padIndex, bool pending, Error *err)
 {
-    Pad *pad = PadAr_getp(&pl->pads, padIndex, err);
+    Pad *pad = PadAr_getp(&self->pads, padIndex, err);
     Error_returnVoidOnError(err);
     Pad_setNoteReleasePending(pad, pending);
     if (!pending) {
@@ -1755,7 +1778,7 @@ APIF void PadList_toBinFile(PadList *pl, BinFile *bf, Error *err) {
 }
 
 APIF PadList *PadList_fromBinFile(BinFile *bf, Error *err) {
-    PadList *pl = PadList_new(0);
+    PadList *pl = PadList_newN(0);
     PadList_fromBinFileInitialized(pl, bf, err);
     if (Error_iserror(err)) {
         PadList_free(pl);
@@ -1786,22 +1809,20 @@ APIF void PadList_fromBinFileInitialized(PadList *pl, BinFile *bf, Error *err) {
 // T R A C K
 //
 
-APIF TrackList *TrackList_new(PortFind *pf)
+APIF TrackList *TrackList_newBuild(PortFind *pf)
 {
-    TrackList *tl = TrackList_newUninitialized();
-    TrackList_init(tl, pf);
+    TrackList *tl = TrackList_new();
+    TrackList_build(tl, pf);
     return tl;
 }
 
-APIF void TrackList_init(TrackList *tl, PortFind *pf) {
-
-    TrackAr_init(&tl->list, 0);
+APIF void TrackList_build(TrackList *tl, PortFind *pf) {
 
     {
         // Insert the null track at position 1 of the tracklist
         Track t = {0};
         t.name  = Symbol_gen("null");
-        t.noteManager = NoteManager_new(Port_null);
+        t.noteManager = NoteManager_newFromPort(Port_null);
         TrackAr_push(&tl->list, t);
     }
 
@@ -1814,31 +1835,12 @@ APIF void TrackList_init(TrackList *tl, PortFind *pf) {
         }
         Track t = {0};
         Track_setName(&t, Port_track(p));
-        Track_setNoteManager(&t, NoteManager_new(p));
+        Track_setNoteManager(&t, NoteManager_newFromPort(p));
         TrackAr_push(&tl->list, t);
     }
     Error_clear(err);
     return;
 }
-
-
-APIF void TrackList_clear(TrackList *tl)
-{
-    TrackAr_foreach(it, &tl->list) {
-        NoteManager_free(it.var->noteManager);
-    }
-    TrackList zero;
-    memset(&zero, 0, sizeof(TrackList));
-    *tl = zero;
-    return;
-}
-
-APIF void TrackList_free(TrackList *tl) {
-    TrackList_clear(tl);
-    Mem_free(tl);
-}
-
-
 
 APIF Track *TrackList_findTrackByName(TrackList *tl, Symbol *name)
 {
@@ -1876,125 +1878,14 @@ APIF TrackList *TrackList_fromBinFile(BinFile *bf, Error *err)
         return NULL;
     }
 
-    return TrackList_new(pf);
+    return TrackList_newBuild(pf);
 }
 
 APIF void TrackList_toBinFile(TrackList *tl, BinFile *bf, Error *err) {
     // NO-op since nothing in the tracklist is written to file.
 }
 
-//
-// D R O P   D O W N
-//
-APIF DropDown *DropDown_new(const char **table, PortRef *pr) {
-    DropDown *dd = Mem_calloc(sizeof(DropDown));
-    DropDown_init(dd, table, pr);
-    return dd;
-}
 
-APIF void DropDown_init(DropDown *dd, const char **table, PortRef *pr) {
-    SymbolPtrAr_init(&dd->table, 0);
-    const char **ptr = table;
-    while (*ptr) {
-        Symbol *s = Symbol_gen(*ptr);
-        SymbolPtrAr_push(&dd->table, s);
-        ptr++;
-    }
-    DropDown_setPortRef(dd, pr);
-    return;
-}
-
-APIF void DropDown_initCGLocalGlobal(DropDown *dd, PortRef *pr) {
-    const char *t[] = {
-        "local",
-        "global",
-        NULL
-    };
-    DropDown_init(dd, t, pr);
-}
-
-APIF void DropDown_initCGInstrument(DropDown *dd, PortRef *pr) {
-    const char *t[] = {
-        "none",
-        "lead",
-        "rhythm",
-        "piano",
-        "bass",
-        "drums",
-        NULL,
-    };
-    DropDown_init(dd, t, pr);
-}
-
-APIF void DropDown_initCGIndex(DropDown *dd, PortRef *pr) {
-    const char *t[] = {
-        "none",
-        "1",
-        "2",
-        "3",
-        "4",
-        "5",
-        "6",
-        "7",
-        "8",
-        "9",
-        "10",
-        "11",
-        "12",
-        "13",
-        "14",
-        "15",
-        "16",
-        NULL
-    };
-    DropDown_init(dd, t, pr);
-}
-
-APIF void DropDown_clear(DropDown *dd) {
-    SymbolPtrAr_clear(&dd->table);
-}
-
-APIF void DropDown_free(DropDown *dd) {
-    DropDown_clear(dd);
-    Mem_free(dd);
-}
-
-APIF void DropDown_updateSelected(DropDown *dd, Error *err) {
-    Symbol *s = SymbolPtrAr_get(&dd->table, dd->selected, err);
-    Error_returnVoidOnError(err);
-    Atom a[2] = {
-        Atom_fromSymbol(Symbol_gen("set")),
-        Atom_fromSymbol(s)
-    };
-    PortRef_send(DropDown_portRef(dd), 2, a, err);
-}
-
-APIF void DropDown_setSelected(DropDown *dd, int selected, Error *err) {
-    if (selected < 0 || selected >= SymbolPtrAr_len(&dd->table)) {
-        Error_format(err, "Index out of range (%d, %d)", selected, SymbolPtrAr_len(&dd->table));
-        return;
-    }
-    dd->selected = selected;
-}
-
-APIF void DropDown_initializeMenu(DropDown *dd, Error *err) {
-    // Atom clear  = {0};
-    // Atom append = {0};
-    // atom_setsym(&clear, Symbol_gen("clear"));
-    // atom_setsym(&append, Symbol_gen("append"));
-    Atom clear = Atom_fromSymbol(Symbol_gen("clear"));
-    Atom append = Atom_fromSymbol(Symbol_gen("append"));
-
-
-    PortRef_send(&dd->portRef, 1, &clear, err);
-    Error_returnVoidOnError(err);
-
-    SymbolPtrAr_foreach(it, &dd->table) {
-        Atom a[2] = {append, Atom_fromSymbol(*it.var)};
-        PortRef_send(&dd->portRef, 2, a, err);
-        Error_returnVoidOnError(err);        
-    }
-}
 
 //
 // I N D E X E D   AND   T I M E D   O F F
@@ -2026,27 +1917,24 @@ APIF int TimedOff_cmpTime(TimedOff *left, TimedOff *right) {
 
 const int NoteManager_atomcount = 4;
 
-APIF NoteManager *NoteManager_new(Port *port)
+
+APIF NoteManager *NoteManager_newFromPort(Port *port)
 {
-    NoteManager *nm = (NoteManager*)Mem_calloc(sizeof(NoteManager));
-    nm->atoms       = (Atom*)Mem_calloc(sizeof(Atom) * NoteManager_atomcount);
-    nm->output      = port;
-    TimedOffAr_init(&nm->pending, 0);
-    IndexedOffAr_init(&nm->endgroups, 0);
-    return nm;
+    NoteManager *self = NoteManager_new();
+    self->output      = port;
+    return self;
 }
 
-
-APIF void NoteManager_free(NoteManager *nm)
+APIF void NoteManager_userInit(NoteManager *self)
 {
-    TimedOffAr_clear(&nm->pending);
-    IndexedOffAr_clear(&nm->endgroups);
-    Mem_free(nm->atoms);
-    NoteManager zero; memset(&zero, 0, sizeof(NoteManager));
-    *nm = zero;
-    Mem_free(nm);
+    self->atoms = Mem_calloc(sizeof(Atom) * NoteManager_atomcount);    
 }
 
+APIF void NoteManager_userClear(NoteManager *self) 
+{
+    Mem_free(self->atoms);
+    self->atoms = NULL;
+}
 
 // insert a note off, and remove any single pitch that is already there. Return true if a note-off was removed
 APIF bool NoteManager_insertNoteOff(NoteManager *manager, Ticks timestamp, int pitch, int padIndexForEndgroup)
@@ -2190,35 +2078,32 @@ APIF void NoteManager_padNoteOff(NoteManager *manager, int padIndex)
 // H U B
 //
 
-APIF Hub *Hub_new(PortFind *pf, Error *err) {
-    Hub *hub = Hub_newUninitialized();
-    Hub_init(hub, pf, err);
-    Error_gotoLabelOnError(err, END);
-
-    return hub;
-
-    END:
-    Mem_free(hub);
-    return NULL;
+APIF Hub *Hub_newBuild(PortFind *pf, Error *err) {
+    Hub *self = Hub_new();
+    Hub_build(self, pf, err);
+    if (Error_iserror(err)) {
+        Hub_free(self);
+        return NULL;
+    }
+    return self;
 }
 
-APIF void Hub_init(Hub *hub, PortFind *pf, Error *err) {
+APIF void Hub_build(Hub *hub, PortFind *pf, Error *err) {
     Hub_setCurrBankPort(hub, PortFind_findById(pf, Symbol_gen("currBank")));
     Hub_setCurrFramePort(hub, PortFind_findById(pf, Symbol_gen("currFrame")));
     Hub_setSelBankPort(hub, PortFind_findById(pf, Symbol_gen("selBank")));
     Hub_setSelFramePort(hub, PortFind_findById(pf, Symbol_gen("selFrame")));
     Hub_setSelPadPort(hub, PortFind_findById(pf, Symbol_gen("selPad")));
 
-
     Port *cg = PortFind_findById(pf, Symbol_gen("chokeGroup"));
     PortRef_declare(portRef, cg, 0);
-    DropDown_initCGLocalGlobal(Hub_cgLocalGlobalMenu(hub), portRef);
+    DropDown_buildCGLocalGlobal(Hub_cgLocalGlobalMenu(hub), portRef);
 
     PortRef_set(portRef, cg, 1);
-    DropDown_initCGInstrument(Hub_cgInstrumentMenu(hub), portRef);
+    DropDown_buildCGInstrument(Hub_cgInstrumentMenu(hub), portRef);
 
     PortRef_set(portRef, cg, 2);
-    DropDown_initCGIndex(Hub_cgIndexMenu(hub), portRef);
+    DropDown_buildCGIndex(Hub_cgIndexMenu(hub), portRef);
 
     DropDown_initializeMenu(Hub_cgLocalGlobalMenu(hub), err);
     Error_returnVoidOnError(err);
@@ -2248,11 +2133,6 @@ APIF void Hub_init(Hub *hub, PortFind *pf, Error *err) {
     DispatchPtAr_init(&hub->dispatcher, 0);
     DispatchPtAr_populate(&hub->dispatcher, err);
     Error_returnVoidOnError(err);
-}
-
-APIF void Hub_free(Hub *hub) {
-    PadList_free(Hub_padList(hub));
-    TrackList_free(Hub_trackList(hub));
 }
 
 APIF void Hub_updateGuiCurrentCoordinates(Hub *hub) 
@@ -2285,9 +2165,7 @@ APIF void Hub_changeSelectedPad(Hub *hub, int selectedPadIndex, Error *err) {
     // Selected coordinates
     Port_sendInteger(Hub_selBankPort(hub),  0, (long)Hub_selectedBank(hub));
     Port_sendInteger(Hub_selFramePort(hub), 0, (long)Hub_selectedFrame(hub));  
-    Port_sendInteger(Hub_selPadPort(hub),   0, (long)Hub_relativeSelectedPad(hub));   
-
-
+    Port_sendInteger(Hub_selPadPort(hub),   0, (long)Hub_relativeSelectedPad(hub));
 }
 
 APIF void Hub_anythingDispatch(Hub *hub, Port *port, Symbol *selector, long argc, Atom *argv)
@@ -2376,13 +2254,14 @@ APIF void Hub_toBinFile(Hub *hub, BinFile *bf, Error *err) {
 }
 
 APIF Hub *Hub_fromBinFile(BinFile *bf, Error *err) {
-    Hub *hub = Hub_newUninitialized();
-    Hub_fromBinFileUninitialized(hub, bf, err);
-    if (Error_iserror(err)) {
-        Hub_free(hub);
-        return NULL;
-    }
-    return hub;
+    // Hub *hub = Hub_newUninitialized();
+    // Hub_fromBinFileUninitialized(hub, bf, err);
+    // if (Error_iserror(err)) {
+    //     Hub_free(hub);
+    //     return NULL;
+    // }
+    // return hub;
+    return NULL;
 }
 
 APIF void Hub_fromBinFileUninitialized(Hub *hub, BinFile *bf, Error *err) {
@@ -2404,12 +2283,12 @@ APIF void Hub_fromBinFileUninitialized(Hub *hub, BinFile *bf, Error *err) {
 // B I N    F I L E
 //
 
-APIF BinFile *BinFile_new() {
-    BinFile *bf = Mem_calloc(sizeof(BinFile));
-    bf->filename = String_empty();
-    bf->buffer   = String_empty();
-    return bf;
-}
+// APIF BinFile *BinFile_new() {
+//     BinFile *bf = Mem_calloc(sizeof(BinFile));
+//     bf->filename = String_empty();
+//     bf->buffer   = String_empty();
+//     return bf;
+// }
 
 APIF BinFile *BinFile_newWriter(const char *file, Error *err) {
     BinFile *bf =  BinFile_new();
@@ -2448,15 +2327,23 @@ APIF BinFile *BinFile_newReader(const char *file, Error *err) {
     return bf;
 }
 
-APIF void BinFile_free(BinFile *bf) {
+// APIF void BinFile_free(BinFile *bf) {
+//     if (BinFile_stream(bf) != NULL) {
+//         fclose(BinFile_stream(bf));
+//         BinFile_setStream(bf, NULL);
+//     }
+//     String_free(bf->filename);
+//     String_free(bf->buffer);
+//     Mem_free(bf);
+// }
+
+APIF void BinFile_userClear(BinFile *bf) {
     if (BinFile_stream(bf) != NULL) {
         fclose(BinFile_stream(bf));
         BinFile_setStream(bf, NULL);
     }
-    String_free(bf->filename);
-    String_free(bf->buffer);
-    Mem_free(bf);
 }
+
 
 APIF int binFile_hexDigitToInt(char hex) {
     switch (hex) {

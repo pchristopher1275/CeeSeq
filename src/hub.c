@@ -95,12 +95,12 @@ void *CseqHub_new(Symbol *s, long argc, Atom *argv)
     PortFind_discover(pf, (t_object*)x, CseqHub_hub(x) ,err);
     Error_maypost(err);
 
-    Hub_init(hub, pf, err);    
+    Hub_build(hub, pf, err);    
     
     // Symbol *pianoName = Symbol_gen("piano");
     Symbol *organName = Symbol_gen("organ");
     const int npads = Hub_padsPerBank;
-    Hub_setPadList(CseqHub_hub(x), PadList_new(npads));
+    Hub_setPadList(CseqHub_hub(x), PadList_newN(npads));
     PadAr *pads = PadList_pads(CseqHub_padList(x));
     PadAr_foreach(it, pads) {
         Pad *pad = it.var;
@@ -124,7 +124,7 @@ void *CseqHub_new(Symbol *s, long argc, Atom *argv)
     // START TRANSPORT
     itm_resume(time_getitm(x->schedular));
 
-    Hub_setTrackList(CseqHub_hub(x), TrackList_new(pf));
+    Hub_setTrackList(CseqHub_hub(x), TrackList_newBuild(pf));
     PadList_assignTrack(CseqHub_padList(x), CseqHub_trackList(x));
 
     Hub_changeSelectedPad(hub, 0, err);
@@ -222,7 +222,7 @@ void CseqHub_playnotes(CseqHub *x)
             if (MEvent_type(cell) == Midiseq_endgrptype) {
                 Pad_setInEndgroup(pad, true);
             }
-
+            
             NoteManager_midievent(noteManager, cell, (Pad_noteReleasePending(pad) && Pad_inEndgroup(pad)) ? Pad_padIndex(pad) : -1);
         }
         if (Error_maypost(err)) {
@@ -236,8 +236,7 @@ void CseqHub_playnotes(CseqHub *x)
             else if (delta < smallestDelta) {
                 smallestDelta = delta;
             }
-        }
-        else if (status == Midiseq_nextEventComplete) {
+        } else if (status == Midiseq_nextEventComplete) {
             PadPtrArFIt_remove(&it);            
         }
     }

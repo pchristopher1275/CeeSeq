@@ -1,13 +1,13 @@
-// *** DO NOT MODIFY THIS FILE generated 04/02/2018 10:55:39 ***
-// *** DO NOT MODIFY THIS FILE generated 04/02/2018 10:55:39 ***
-// *** DO NOT MODIFY THIS FILE generated 04/02/2018 10:55:39 ***
-// *** DO NOT MODIFY THIS FILE generated 04/02/2018 10:55:39 ***
-// *** DO NOT MODIFY THIS FILE generated 04/02/2018 10:55:39 ***
-// *** DO NOT MODIFY THIS FILE generated 04/02/2018 10:55:39 ***
-// *** DO NOT MODIFY THIS FILE generated 04/02/2018 10:55:39 ***
-// *** DO NOT MODIFY THIS FILE generated 04/02/2018 10:55:39 ***
-// *** DO NOT MODIFY THIS FILE generated 04/02/2018 10:55:39 ***
-// *** DO NOT MODIFY THIS FILE generated 04/02/2018 10:55:39 ***
+// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:37:35 ***
+// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:37:35 ***
+// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:37:35 ***
+// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:37:35 ***
+// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:37:35 ***
+// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:37:35 ***
+// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:37:35 ***
+// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:37:35 ***
+// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:37:35 ***
+// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:37:35 ***
 struct Foo_t;
 typedef struct Foo_t Foo;
 struct IntArr_t;
@@ -669,6 +669,10 @@ typedef struct IntArrRIt_t {
 } IntArrRIt;
 
 const char *Interface_toString(int itype);
+void Foo_clear(Foo *self);
+void Foo_free(Foo *self);
+void Foo_init(Foo *self);
+Foo *Foo_new();
 typedef struct Undefined_t {
     int itype;
     char buffer[1024];
@@ -676,7 +680,6 @@ typedef struct Undefined_t {
 #define Undefined_itype 10
 Undefined Undefined_instance = {Undefined_itype, {0}};
 #define Undefined_ptr(typeName) ((typeName*)&Undefined_instance)
-#define Foo_newUninitialized() ((Foo*)Mem_malloc(sizeof(Foo)))        
 static inline int Foo_i(Foo *self){return self->i;}
 static inline void Foo_setI(Foo *self, int value){self->i = value;}
 static inline double Foo_d(Foo *self){return self->d;}
@@ -1068,6 +1071,29 @@ static inline void FooArr_sortBothMulti(FooArr *arr) {
     Array_sort((Array*)arr, (Array_compare)compare);
 }                
 
+void Foo_init(Foo *self)
+{
+    self->i = 0;
+    self->d = 0;
+    return;
+}
+void Foo_clear(Foo *self)
+{
+    return;
+}
+void Foo_free(Foo *self)
+{
+   if (self != NULL) {
+        Foo_clear(self);
+        Mem_free(self);
+   }
+}
+Foo *Foo_new()
+{
+    Foo *self = Mem_malloc(sizeof(Foo));
+    Foo_init(self);
+    return self;
+}
 const char *Interface_toString(int itype)
 {
     switch(itype) {

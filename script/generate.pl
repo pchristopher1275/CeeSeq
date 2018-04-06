@@ -41,14 +41,6 @@ sub backtick {
 
 my @templates = (
 	{
-		key =>    'Type:newUninitialized',
-		symbol => '${TYPENAME}_newUninitialized',
-		tmpl   => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}_newUninitialized() ((${TYPENAME}*)Mem_calloc(sizeof(${TYPENAME})))		
-ENDxxxxxxxxxx
-	},
-
-	{
 		key =>    'Type:argDeclare',
 		symbol => '${TYPENAME}_declare',
 		tmpl   => <<'ENDxxxxxxxxxx', 
@@ -120,7 +112,7 @@ ENDxxxxxxxxxx
 
 	{
 		key =>    'Array:new',
-		symbol => '${TYPENAME}_new',
+		symbol => '',
 		tmpl   => <<'ENDxxxxxxxxxx', 
 			@static inline ${TYPENAME} *${TYPENAME}_new(int nelems) {
 			@	return (${TYPENAME}*)Array_new(nelems, sizeof(${ELEMNAME_NS}), (Array_clearElement)${CLEARER});
@@ -130,7 +122,7 @@ ENDxxxxxxxxxx
 
 	{
 		key =>    'Array:init',
-		symbol => '${TYPENAME}_init',
+		symbol => '',
 		tmpl   => <<'ENDxxxxxxxxxx', 
 			@static inline void ${TYPENAME}_init(${TYPENAME} *arr, int nelems) {
 			@	Array_init((Array*)arr, nelems, sizeof(${ELEMNAME_NS}), (Array_clearElement)${CLEARER});
@@ -141,7 +133,7 @@ ENDxxxxxxxxxx
 
 	{
 		key =>    'Array:clear',
-		symbol => '${TYPENAME}_clear',
+		symbol => '',
 		tmpl   => <<'ENDxxxxxxxxxx', 
 			@static inline void ${TYPENAME}_clear(${TYPENAME} *arr) {
 			@	Array_clear((Array*)arr);
@@ -153,7 +145,7 @@ ENDxxxxxxxxxx
 
 	{
 		key =>    'Array:free',
-		symbol => '${TYPENAME}_free',
+		symbol => '',
 		tmpl   => <<'ENDxxxxxxxxxx', 
 			@static inline void ${TYPENAME}_free(${TYPENAME} *arr) {
 			@	Array_free((Array*)arr);
@@ -816,6 +808,197 @@ ENDxxxxxxxxxx
 ENDxxxxxxxxxx
 	},
 
+	{
+		key =>    'Lifecycle:new',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@${TYPENAME} *${TYPENAME}_new()
+			@{
+			@	${TYPENAME} *self = Mem_malloc(sizeof(${TYPENAME}));
+			@	${TYPENAME}_init(self);
+			@	return self;
+			@}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:free',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@void ${TYPENAME}_free(${TYPENAME} *self)
+			@{
+			@   if (self != NULL) {
+			@		${TYPENAME}_clear(self);
+			@		Mem_free(self);
+			@   }
+			@}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:initStart',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@void ${TYPENAME}_init(${TYPENAME} *self)
+			@{
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:initFieldValue',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@	self->${FIELDNAME} = 0;
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:initFieldPointer',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@	self->${FIELDNAME} = NULL;
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:initFieldString',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@	self->${FIELDNAME} = String_empty();
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:initFieldKnownPointer',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@	self->${FIELDNAME} = ${FIELDTYPE}_new();
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:initFieldKnownValue',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@	${FIELDTYPE}_init(&self->${FIELDNAME});			
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:initFieldKnownArrayPointer',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@	self->${FIELDNAME} = ${FIELDTYPE}_new(0);
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:initFieldKnownArrayValue',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@	${FIELDTYPE}_init(&self->${FIELDNAME}, 0);
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:initEnd',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@	return;
+			@}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:clearStart',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@void ${TYPENAME}_clear(${TYPENAME} *self)
+			@{
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:initUser',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@	${TYPENAME}_userInit(self);
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:clearUser',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@	${TYPENAME}_userClear(self);
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:clearFieldString',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx',
+			@	String_free(self->${FIELDNAME}); 		
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:clearFieldKnownPointer',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx',
+			@	${FIELDTYPE}_free(self->${FIELDNAME});
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:clearFieldKnownValue',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@	${FIELDTYPE}_clear(&self->${FIELDNAME});
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:clearEnd',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@	return;
+			@}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:newProto',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@${TYPENAME} *${TYPENAME}_new();
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:initProto',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@void ${TYPENAME}_init(${TYPENAME} *self);
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:clearProto',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@void ${TYPENAME}_clear(${TYPENAME} *self);
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:freeProto',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@void ${TYPENAME}_free(${TYPENAME} *self);
+ENDxxxxxxxxxx
+	},
+
 );
 my %templateMap = map {$_->{key} => $_} @templates;
 
@@ -1004,11 +1187,84 @@ sub ClassArtifact_emitArgDeclare {
 	ClassOrInterface_emitArgDeclare(@_);
 }
 
+sub ClassArtifact_emitLifecylePrototype {
+	my ($self, $out) = @_;
+	if (defined($self->{lifecycle}) && $self->{lifecycle} eq "manual") {
+		return;
+	}
+	Expand_emit($out, ["Lifecycle:newProto", "Lifecycle:initProto", "Lifecycle:clearProto", "Lifecycle:freeProto"], {TYPENAME=>$self->{typeName}});
+}
+
+sub ClassArtifact_emitLifecyle {
+	my ($self, $out, $api, $artifactMap) = @_;
+	if ($self->{lifecycle} eq "manual") {
+		return;
+	}
+	for my $t (qw/init clear/) {
+		Expand_emit($out, ["Lifecycle:${t}Start"], {TYPENAME=>$self->{typeName}});
+		if ($t eq 'clear' && Api_definedCall($api, $self->{typeName}, "userClear")) {
+			Expand_emit($out, ["Lifecycle:clearUser"], {TYPENAME=>$self->{typeName}});
+		} 
+		for my $field (@{$self->{fields}}) {
+			my $name        = $field->{name};
+			my $type        = $field->{type};
+			(my $typeName   = $type) =~ s/[\s\*]+//g;
+			my $isKnown     = $artifactMap->{$typeName} ? 1 : 0;
+			my $isArray     = $isKnown ? $artifactMap->{$typeName}{itype} eq 'Container' : 0;
+			my $isInterface = $isKnown ? $artifactMap->{$typeName}{itype} eq 'Interface' : 0;
+			my $isPointer   = ($type =~ /\*/);
+			my $isString    = $typeName eq 'String';
+			my $isUnmanaged = defined($self->{lifecycle}) && $self->{lifecycle} eq 'unmanaged' ? 1 : 0;
+			my $dict        = {FIELDTYPE=>$typeName, FIELDNAME=>$name, TYPENAME=>$self->{typeName}};
+			
+			if ($isString) {
+				Expand_emit($out, ["Lifecycle:${t}FieldString"], $dict);
+			} elsif ($isKnown) {
+				if ($isUnmanaged || $isInterface) {
+					if ($isPointer) {
+						if ($t eq 'init') {
+							Expand_emit($out, ["Lifecycle:${t}FieldPointer"], $dict);
+						}
+					} else {
+						if ($t eq 'init') {
+							Expand_emit($out, ["Lifecycle:${t}FieldValue"], $dict);
+						}
+					}
+				} elsif ($isPointer) {
+					if ($isArray && $t eq 'init') {
+						Expand_emit($out, ["Lifecycle:${t}FieldKnownArrayPointer"], $dict);
+					} else {
+						Expand_emit($out, ["Lifecycle:${t}FieldKnownPointer"], $dict);
+					}
+				} else {
+					if ($isArray && $t eq 'init') {
+						Expand_emit($out, ["Lifecycle:${t}FieldKnownArrayValue"], $dict);
+					} else {
+						Expand_emit($out, ["Lifecycle:${t}FieldKnownValue"], $dict);
+					}
+				}	
+			} elsif ($isPointer) {
+				if ($t eq 'init') {
+					Expand_emit($out, ["Lifecycle:${t}FieldPointer"], $dict);
+				}
+			} else {
+				if ($t eq 'init') {
+					Expand_emit($out, ["Lifecycle:${t}FieldValue"], $dict);
+				}
+			}
+		}
+		if ($t eq 'init' && Api_definedCall($api, $self->{typeName}, "userInit")) {
+			Expand_emit($out, ["Lifecycle:initUser"], {TYPENAME=>$self->{typeName}});
+		} 
+		Expand_emit($out, ["Lifecycle:${t}End"], {TYPENAME=>$self->{typeName}});
+	}
+	Expand_emit($out, ["Lifecycle:new", "Lifecycle:free"], {TYPENAME=>$self->{typeName}});
+}
+
+
 sub ClassArtifact_emitInlines {
 	my ($self, $out) = @_;
-	Expand_emit($out, ['Type:newUninitialized'], {TYPENAME => $self->{typeName}}) unless $self->{noNewUnitialized};
 	ClassOrInterface_emitAccessors($self, $out);
-	
 	if (defined($self->{argDeclare})) {
 		ClassArtifact_emitArgDeclare($self, $out);
 	}
@@ -1501,7 +1757,8 @@ sub ArtifactList_scanFromTemplateFiles {
 		}
 	}
 
-	$self->{artifacts} = \@artifacts;
+	$self->{artifacts}   = \@artifacts;
+	$self->{artifactMap} = \%artMap;
 	return;
 }
 
@@ -1630,6 +1887,20 @@ sub ArtifactList_emitInterfaceMethods {
 	Expand_emit($out, ['Interface:endFunctionToString'], {});		
 }
 
+sub ArtifactList_emitLifecylePrototype {
+	my ($self, $out, $api, $artifactMap) = @_;
+	for my $artifact (@{$self->{artifacts}}) {
+		Artifact_emitLifecyclePrototype($artifact, $out, $api, $self->{artifactMap});
+	}	
+}
+
+sub ArtifactList_emitLifecyle {
+	my ($self, $out, $api, $artifactMap) = @_;
+	for my $artifact (@{$self->{artifacts}}) {
+		Artifact_emitLifecycle($artifact, $out, $api, $self->{artifactMap});
+	}	
+}
+
 sub Util_spaceAdjustType {
 	my ($type) = @_;
 	return $type =~ /\*$/ ? $type : "$type ";
@@ -1663,6 +1934,20 @@ sub Artifact_emitInterfaceMethods {
 	my ($artifact, $out, $api) = @_;
 	if (InterfaceArtifact_isa($artifact)) {
 		InterfaceArtifact_emitInterfaceMethods($artifact, $out, $api);
+	}
+}
+
+sub Artifact_emitLifecyclePrototype {
+	my ($artifact, $out, $api, $artifactMap) = @_;
+	if (ClassArtifact_isa($artifact)) {
+		ClassArtifact_emitLifecylePrototype($artifact, $out);
+	}
+}
+
+sub Artifact_emitLifecycle {
+	my ($artifact, $out, $api, $artifactMap) = @_;
+	if (ClassArtifact_isa($artifact)) {
+		ClassArtifact_emitLifecyle($artifact, $out, $api, $artifactMap);
 	}
 }
 
@@ -1880,8 +2165,10 @@ sub Main_main {
 	ArtifactList_emitPredefined($artifactList, $out);
 	ArtifactList_emitStructs($artifactList, $out);
 	Api_emitPrototypes($api, $out);
+	ArtifactList_emitLifecylePrototype($artifactList, $out);
 	ArtifactList_emitInterfaceDefines($artifactList, $out);
 	ArtifactList_emitInlines($artifactList, $out);
+	ArtifactList_emitLifecyle($artifactList, $out, $api);
 	for my $tFile (@templateFiles) {
 		my $templateFile = TemplateFile_new($tFile);
 		TemplateFile_copyHeader($templateFile, $out);	

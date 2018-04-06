@@ -1,13 +1,13 @@
-// *** DO NOT MODIFY THIS FILE generated 04/04/2018 15:47:53 ***
-// *** DO NOT MODIFY THIS FILE generated 04/04/2018 15:47:53 ***
-// *** DO NOT MODIFY THIS FILE generated 04/04/2018 15:47:53 ***
-// *** DO NOT MODIFY THIS FILE generated 04/04/2018 15:47:53 ***
-// *** DO NOT MODIFY THIS FILE generated 04/04/2018 15:47:53 ***
-// *** DO NOT MODIFY THIS FILE generated 04/04/2018 15:47:53 ***
-// *** DO NOT MODIFY THIS FILE generated 04/04/2018 15:47:53 ***
-// *** DO NOT MODIFY THIS FILE generated 04/04/2018 15:47:53 ***
-// *** DO NOT MODIFY THIS FILE generated 04/04/2018 15:47:53 ***
-// *** DO NOT MODIFY THIS FILE generated 04/04/2018 15:47:53 ***
+// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:54:17 ***
+// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:54:17 ***
+// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:54:17 ***
+// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:54:17 ***
+// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:54:17 ***
+// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:54:17 ***
+// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:54:17 ***
+// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:54:17 ***
+// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:54:17 ***
+// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:54:17 ***
 struct Arguments_t;
 typedef struct Arguments_t Arguments;
 struct Marshal_t;
@@ -900,19 +900,6 @@ typedef struct DispatchPtArRIt_t {
    Dispatch **var;
 } DispatchPtArRIt;
 
-struct Arguments_t
-{
-    Symbol *s1;
-    long i1;
-    long i2;
-    long ivalue;
-    long inlet;
-};
-struct PortRef_t
-{
-    Port *port;
-    int outlet;
-};
 typedef struct SymbolPtrAr_t {
    int len;
    int cap;
@@ -939,11 +926,24 @@ typedef struct SymbolPtrArRIt_t {
    Symbol **var;
 } SymbolPtrArRIt;
 
+struct PortRef_t
+{
+    Port *port;
+    int outlet;
+};
 struct DropDown_t
 {
     SymbolPtrAr table;
     int selected;
     PortRef portRef;
+};
+struct Arguments_t
+{
+    Symbol *s1;
+    long i1;
+    long i2;
+    long ivalue;
+    long inlet;
 };
 struct Hub_t
 {
@@ -1223,18 +1223,27 @@ void Dispatch_initDispatchPtArDefault(int itype, DispatchPtAr *disPtAr, Error *e
 void DispatchPtAr_populate(DispatchPtAr *self, Error *err);
 void String_split(String *src, const char *delim, StringPtAr *stringPtAr);
 int Symbol_cmpUnderlying(Symbol **left, Symbol **right);
+Port *Port_new();
+void Port_init(Port *p);
+void Port_free(Port *p);
+void Port_clear(Port *p);
+int PortRef_cmp(PortRef *left, PortRef *right);
+void DropDown_build(DropDown *dd, const char **table, PortRef *pr);
+void DropDown_buildCGLocalGlobal(DropDown *dd, PortRef *pr);
+void DropDown_buildCGInstrument(DropDown *dd, PortRef *pr);
+void DropDown_buildCGIndex(DropDown *dd, PortRef *pr);
+void DropDown_updateSelected(DropDown *dd, Error *err);
+void DropDown_setSelected(DropDown *dd, int selected, Error *err);
+void DropDown_initializeMenu(DropDown *dd, Error *err);
 int port_parseEvSymbol(Symbol *id);
-void Port_send(Port *port, int outletIndex, short argc, Atom *argv, Error *err);
-void Port_sendInteger(Port *p, int outlet, long value);
+void Port_send(Port *self, int outletIndex, short argc, Atom *argv, Error *err);
+void Port_sendInteger(Port *self, int outlet, long value);
 int Midiseq_convertIntFileLine(const char *src, Error *err, const char *function, const char *file, int line);
-Midiseq *Midiseq_new();
+void Midiseq_userInit(Midiseq *self);
 void Midiseq_toBinFile(Midiseq *mseq, BinFile *bf, Error *err);
 Midiseq *Midiseq_fromBinFile(BinFile *bf, Error *err);
 void Midiseq_fromBinFileUnititialized(Midiseq *mseq, BinFile *bf, Error *err);
 Midiseq *Midiseq_newNote(int pitch);
-void Midiseq_init(Midiseq *mseq);
-void Midiseq_clear(Midiseq *mseq);
-void Midiseq_free(Midiseq *midi);
 int Midiseq_len(Midiseq *mseq);
 void Midiseq_push(Midiseq *mseq, MEvent cell);
 MEvent *Midiseq_get(Midiseq *mseq, int index, Error *err);
@@ -1249,60 +1258,40 @@ void Midiseq_stop(Midiseq *mseq);
 int Midiseq_nextevent(Midiseq *mseq, Ticks until, MEvent *cell, Error *err);
 int Midiseq_fastfwrd(Midiseq *mseq, long t, Error *err);
 Midiseq *Midiseq_fromfile(const char *fullpath, Error *err);
-void PortFind_init(PortFind *pf);
 long PortFind_iterator(PortFind *pf, MaxObject *targetBox);
 int PortFind_discover(PortFind *pf, MaxObject *sourceMaxObject, void *hub, Error *err);
 long PortFind_iterator(PortFind *pf, MaxObject *targetBox);
 int PortFind_discover(PortFind *pf, MaxObject *sourceMaxObject, void *hub, Error *err);
-void PortFind_clear(PortFind *pf);
 Port *PortFind_findByVarname(PortFind *pf, Symbol *symbol);
 Port *PortFind_findByTrack(PortFind *pf, Symbol *symbol);
 Port *PortFind_findById(PortFind *pf, Symbol *symbol);
 int PortFind_portCount(PortFind *pf);
 Port *PortFind_findByIndex(PortFind *pf, int index, Error *err);
-Pad *Pad_new();
-void Pad_init(Pad *pad);
-void Pad_free(Pad *pad);
-void Pad_clear(Pad *pad);
 void Pad_setSequence(Pad *pad, Midiseq *midi);
 void Pad_toBinFile(Pad *pad, BinFile *bf, Error *err);
 Pad *Pad_fromBinFile(BinFile *bf, Error *err);
 void Pad_fromBinFileUninitialized(Pad *pad, BinFile *bf, Error *err);
 void Pad_computeChokeGroup(Pad *pad);
-PadList *PadList_new(int npads);
-void PadList_init(PadList *pl, int npads);
-void PadList_clear(PadList *pl);
-void PadList_free(PadList *pl);
-void PadList_play(PadList *pl, int padIndex, Ticks startTime, Ticks currentTime, bool useMasterClock, Error *err);
-void PadList_markReleasePending(PadList *pl, int padIndex, bool pending, Error *err);
+PadList *PadList_newN(int npads);
+void PadList_play(PadList *self, int padIndex, Ticks startTime, Ticks currentTime, bool useMasterClock, Error *err);
+void PadList_markReleasePending(PadList *self, int padIndex, bool pending, Error *err);
 Pad *PadList_pad(PadList *pl, int index, Error *err);
 void PadList_assignTrack(PadList *pl, TrackList *tl);
 void PadList_toBinFile(PadList *pl, BinFile *bf, Error *err);
 PadList *PadList_fromBinFile(BinFile *bf, Error *err);
 void PadList_fromBinFileInitialized(PadList *pl, BinFile *bf, Error *err);
-TrackList *TrackList_new(PortFind *pf);
-void TrackList_init(TrackList *tl, PortFind *pf);
-void TrackList_clear(TrackList *tl);
-void TrackList_free(TrackList *tl);
+TrackList *TrackList_newBuild(PortFind *pf);
+void TrackList_build(TrackList *tl, PortFind *pf);
 Track *TrackList_findTrackByName(TrackList *tl, Symbol *name);
 int TrackList_count(TrackList *tl);
 Track *TrackList_findTrackByIndex(TrackList *tl, int index, Error *err);
 TrackList *TrackList_fromBinFile(BinFile *bf, Error *err);
 void TrackList_toBinFile(TrackList *tl, BinFile *bf, Error *err);
-DropDown *DropDown_new(const char **table, PortRef *pr);
-void DropDown_init(DropDown *dd, const char **table, PortRef *pr);
-void DropDown_initCGLocalGlobal(DropDown *dd, PortRef *pr);
-void DropDown_initCGInstrument(DropDown *dd, PortRef *pr);
-void DropDown_initCGIndex(DropDown *dd, PortRef *pr);
-void DropDown_clear(DropDown *dd);
-void DropDown_free(DropDown *dd);
-void DropDown_updateSelected(DropDown *dd, Error *err);
-void DropDown_setSelected(DropDown *dd, int selected, Error *err);
-void DropDown_initializeMenu(DropDown *dd, Error *err);
 int IndexedOff_cmpPadIndex(IndexedOff *left, IndexedOff *right);
 int TimedOff_cmpTime(TimedOff *left, TimedOff *right);
-NoteManager *NoteManager_new(Port *port);
-void NoteManager_free(NoteManager *nm);
+NoteManager *NoteManager_newFromPort(Port *port);
+void NoteManager_userInit(NoteManager *self);
+void NoteManager_userClear(NoteManager *self);
 bool NoteManager_insertNoteOff(NoteManager *manager, Ticks timestamp, int pitch, int padIndexForEndgroup);
 void NoteManager_sendNoteOn(NoteManager *manager, int pitch, int velocity);
 void NoteManager_flushOffs(NoteManager *manager);
@@ -1311,9 +1300,8 @@ void NoteManager_dblogPending(NoteManager *manager, Ticks current);
 Ticks NoteManager_scheduleOffs(NoteManager *manager, Ticks current);
 void NoteManager_midievent(NoteManager *manager, MEvent cell, int padIndexForEndgroup);
 void NoteManager_padNoteOff(NoteManager *manager, int padIndex);
-Hub *Hub_new(PortFind *pf, Error *err);
-void Hub_init(Hub *hub, PortFind *pf, Error *err);
-void Hub_free(Hub *hub);
+Hub *Hub_newBuild(PortFind *pf, Error *err);
+void Hub_build(Hub *hub, PortFind *pf, Error *err);
 void Hub_updateGuiCurrentCoordinates(Hub *hub);
 void Hub_changeSelectedPad(Hub *hub, int selectedPadIndex, Error *err);
 void Hub_anythingDispatch(Hub *hub, Port *port, Symbol *selector, long argc, Atom *argv);
@@ -1321,10 +1309,9 @@ void Hub_intDispatch(Hub *hub, Port *port, long value, long inlet);
 void Hub_toBinFile(Hub *hub, BinFile *bf, Error *err);
 Hub *Hub_fromBinFile(BinFile *bf, Error *err);
 void Hub_fromBinFileUninitialized(Hub *hub, BinFile *bf, Error *err);
-BinFile *BinFile_new();
 BinFile *BinFile_newWriter(const char *file, Error *err);
 BinFile *BinFile_newReader(const char *file, Error *err);
-void BinFile_free(BinFile *bf);
+void BinFile_userClear(BinFile *bf);
 int binFile_hexDigitToInt(char hex);
 char binFile_intToHexDigit(int digit);
 off_t BinFile_writeNullLength(BinFile *bf, bool spaceForFlags, Error *err);
@@ -1346,6 +1333,102 @@ void BinFile_writeBool(BinFile *bf, bool value, Error *err);
 bool BinFile_readBool(BinFile *bf, Error *err);
 void BinFile_writeTag(BinFile *bf, const char *tag, Error *err);
 void BinFile_verifyTag(BinFile *bf, const char *tag, Error *err);
+void Arguments_clear(Arguments *self);
+void Arguments_free(Arguments *self);
+void Arguments_init(Arguments *self);
+Arguments *Arguments_new();
+void MarshalSi_clear(MarshalSi *self);
+void MarshalSi_free(MarshalSi *self);
+void MarshalSi_init(MarshalSi *self);
+MarshalSi *MarshalSi_new();
+void MarshalSii_clear(MarshalSii *self);
+void MarshalSii_free(MarshalSii *self);
+void MarshalSii_init(MarshalSii *self);
+MarshalSii *MarshalSii_new();
+void MarshalSs_clear(MarshalSs *self);
+void MarshalSs_free(MarshalSs *self);
+void MarshalSs_init(MarshalSs *self);
+MarshalSs *MarshalSs_new();
+void IncrementFrameDispatch_clear(IncrementFrameDispatch *self);
+void IncrementFrameDispatch_free(IncrementFrameDispatch *self);
+void IncrementFrameDispatch_init(IncrementFrameDispatch *self);
+IncrementFrameDispatch *IncrementFrameDispatch_new();
+void DecrementFrameDispatch_clear(DecrementFrameDispatch *self);
+void DecrementFrameDispatch_free(DecrementFrameDispatch *self);
+void DecrementFrameDispatch_init(DecrementFrameDispatch *self);
+DecrementFrameDispatch *DecrementFrameDispatch_new();
+void SelectNextPushedPadDispatch_clear(SelectNextPushedPadDispatch *self);
+void SelectNextPushedPadDispatch_free(SelectNextPushedPadDispatch *self);
+void SelectNextPushedPadDispatch_init(SelectNextPushedPadDispatch *self);
+SelectNextPushedPadDispatch *SelectNextPushedPadDispatch_new();
+void MidiFileDropDispatch_clear(MidiFileDropDispatch *self);
+void MidiFileDropDispatch_free(MidiFileDropDispatch *self);
+void MidiFileDropDispatch_init(MidiFileDropDispatch *self);
+MidiFileDropDispatch *MidiFileDropDispatch_new();
+void ManageChokeGroupsDispatch_clear(ManageChokeGroupsDispatch *self);
+void ManageChokeGroupsDispatch_free(ManageChokeGroupsDispatch *self);
+void ManageChokeGroupsDispatch_init(ManageChokeGroupsDispatch *self);
+ManageChokeGroupsDispatch *ManageChokeGroupsDispatch_new();
+void BinFilePayload_clear(BinFilePayload *self);
+void BinFilePayload_free(BinFilePayload *self);
+void BinFilePayload_init(BinFilePayload *self);
+BinFilePayload *BinFilePayload_new();
+void BinFile_clear(BinFile *self);
+void BinFile_free(BinFile *self);
+void BinFile_init(BinFile *self);
+BinFile *BinFile_new();
+void Midiseq_clear(Midiseq *self);
+void Midiseq_free(Midiseq *self);
+void Midiseq_init(Midiseq *self);
+Midiseq *Midiseq_new();
+void Pad_clear(Pad *self);
+void Pad_free(Pad *self);
+void Pad_init(Pad *self);
+Pad *Pad_new();
+void IndexedOff_clear(IndexedOff *self);
+void IndexedOff_free(IndexedOff *self);
+void IndexedOff_init(IndexedOff *self);
+IndexedOff *IndexedOff_new();
+void TimedOff_clear(TimedOff *self);
+void TimedOff_free(TimedOff *self);
+void TimedOff_init(TimedOff *self);
+TimedOff *TimedOff_new();
+void NoteManager_clear(NoteManager *self);
+void NoteManager_free(NoteManager *self);
+void NoteManager_init(NoteManager *self);
+NoteManager *NoteManager_new();
+void PortFindCell_clear(PortFindCell *self);
+void PortFindCell_free(PortFindCell *self);
+void PortFindCell_init(PortFindCell *self);
+PortFindCell *PortFindCell_new();
+void PortFind_clear(PortFind *self);
+void PortFind_free(PortFind *self);
+void PortFind_init(PortFind *self);
+PortFind *PortFind_new();
+void PadList_clear(PadList *self);
+void PadList_free(PadList *self);
+void PadList_init(PadList *self);
+PadList *PadList_new();
+void Track_clear(Track *self);
+void Track_free(Track *self);
+void Track_init(Track *self);
+Track *Track_new();
+void TrackList_clear(TrackList *self);
+void TrackList_free(TrackList *self);
+void TrackList_init(TrackList *self);
+TrackList *TrackList_new();
+void PortRef_clear(PortRef *self);
+void PortRef_free(PortRef *self);
+void PortRef_init(PortRef *self);
+PortRef *PortRef_new();
+void DropDown_clear(DropDown *self);
+void DropDown_free(DropDown *self);
+void DropDown_init(DropDown *self);
+DropDown *DropDown_new();
+void Hub_clear(Hub *self);
+void Hub_free(Hub *self);
+void Hub_init(Hub *self);
+Hub *Hub_new();
 typedef struct Undefined_t {
     int itype;
     char buffer[1024];
@@ -1415,7 +1498,7 @@ static inline Marshal *MarshalSs_castToMarshal(MarshalSs *self) {
 }
 static inline int Dispatch_nthIType(int n, int *itype) {
     static int itypes[] = {
-        IncrementFrameDispatch_itype, DecrementFrameDispatch_itype, SelectNextPushedPadDispatch_itype, ManageChokeGroupsDispatch_itype, MidiFileDropDispatch_itype
+        IncrementFrameDispatch_itype, MidiFileDropDispatch_itype, ManageChokeGroupsDispatch_itype, DecrementFrameDispatch_itype, SelectNextPushedPadDispatch_itype
     };
     static int len = sizeof(itypes)/sizeof(int);
     if (n < 0 || n >= len) {
@@ -1472,7 +1555,21 @@ static inline ManageChokeGroupsDispatch *ManageChokeGroupsDispatch_castFromDispa
 static inline Dispatch *ManageChokeGroupsDispatch_castToDispatch(ManageChokeGroupsDispatch *self) {
     return (Dispatch*)self;
 }
+static inline void StringPtAr_clear(StringPtAr *arr) {
+    Array_clear((Array*)arr);
+    StringPtAr zero = {0};
+    *arr = zero;
+}
+
 #define StringPtAr_foreach(var, arr)  for (StringPtArFIt_declare(var, arr); StringPtArFIt_next(&var); )            
+
+static inline void StringPtAr_free(StringPtAr *arr) {
+    Array_free((Array*)arr);
+}
+
+static inline void StringPtAr_init(StringPtAr *arr, int nelems) {
+    Array_init((Array*)arr, nelems, sizeof(String *), (Array_clearElement)String_freep);
+}
 
 static inline int StringPtAr_len(StringPtAr *arr) {
     return Array_len((Array*)arr);
@@ -1498,7 +1595,21 @@ static inline bool StringPtArFIt_next(StringPtArFIt *iterator) {
     return ArrayFIt_next((ArrayFIt*)iterator);
 }
 
+static inline void SymbolPtAr_clear(SymbolPtAr *arr) {
+    Array_clear((Array*)arr);
+    SymbolPtAr zero = {0};
+    *arr = zero;
+}
+
 #define SymbolPtAr_foreach(var, arr)  for (SymbolPtArFIt_declare(var, arr); SymbolPtArFIt_next(&var); )            
+
+static inline void SymbolPtAr_free(SymbolPtAr *arr) {
+    Array_free((Array*)arr);
+}
+
+static inline void SymbolPtAr_init(SymbolPtAr *arr, int nelems) {
+    Array_init((Array*)arr, nelems, sizeof(Symbol *), (Array_clearElement)NULL);
+}
 
 static inline SymbolPtAr *SymbolPtAr_new(int nelems) {
     return (SymbolPtAr*)Array_new(nelems, sizeof(Symbol *), (Array_clearElement)NULL);
@@ -1552,6 +1663,10 @@ static inline void MEventAr_fit(MEventAr *arr) {
 
 #define MEventAr_foreach(var, arr)  for (MEventArFIt_declare(var, arr); MEventArFIt_next(&var); )            
 
+static inline void MEventAr_free(MEventAr *arr) {
+    Array_free((Array*)arr);
+}
+
 static inline MEvent MEventAr_get(MEventAr *arr, int index, Error *err) {
     MEvent v = {0};
     Array_getCheck(arr, index, v, err);
@@ -1582,6 +1697,10 @@ static inline int MEventAr_len(MEventAr *arr) {
     return Array_len((Array*)arr);
 }
 
+static inline MEventAr *MEventAr_new(int nelems) {
+    return (MEventAr*)Array_new(nelems, sizeof(MEvent), (Array_clearElement)NULL);
+}
+
 static inline void MEventAr_push(MEventAr *arr, MEvent elem) {
     MEvent *p = (MEvent *)Array_pushN((Array*)arr, 1);
     *p = elem;
@@ -1589,6 +1708,10 @@ static inline void MEventAr_push(MEventAr *arr, MEvent elem) {
 }            
 
 #define MEventAr_rforeach(var, arr)  for (MEventArRIt_declare(var, arr); MEventArRIt_next(&var); )            
+
+static inline void MEventAr_truncate(MEventAr *arr) {
+    Array_truncate((Array*)arr);
+}
 
 #define MEventArFIt_declare(var, arr)  MEventArFIt var = {arr, 0, (arr)->len, -1, NULL}
 
@@ -1614,6 +1737,10 @@ static inline void PtrAr_clear(PtrAr *arr) {
 
 #define PtrAr_foreach(var, arr)  for (PtrArFIt_declare(var, arr); PtrArFIt_next(&var); )            
 
+static inline void PtrAr_free(PtrAr *arr) {
+    Array_free((Array*)arr);
+}
+
 static inline void *PtrAr_get(PtrAr *arr, int index, Error *err) {
     void * v = {0};
     Array_getCheck(arr, index, v, err);
@@ -1623,6 +1750,10 @@ static inline void *PtrAr_get(PtrAr *arr, int index, Error *err) {
 
 static inline void PtrAr_init(PtrAr *arr, int nelems) {
     Array_init((Array*)arr, nelems, sizeof(void *), (Array_clearElement)NULL);
+}
+
+static inline PtrAr *PtrAr_new(int nelems) {
+    return (PtrAr*)Array_new(nelems, sizeof(void *), (Array_clearElement)NULL);
 }
 
 static inline void PtrAr_push(PtrAr *arr, void *elem) {
@@ -1650,6 +1781,10 @@ static inline void SymbolPtrAr_clear(SymbolPtrAr *arr) {
 
 #define SymbolPtrAr_foreach(var, arr)  for (SymbolPtrArFIt_declare(var, arr); SymbolPtrArFIt_next(&var); )            
 
+static inline void SymbolPtrAr_free(SymbolPtrAr *arr) {
+    Array_free((Array*)arr);
+}
+
 static inline Symbol *SymbolPtrAr_get(SymbolPtrAr *arr, int index, Error *err) {
     Symbol * v = {0};
     Array_getCheck(arr, index, v, err);
@@ -1665,6 +1800,10 @@ static inline int SymbolPtrAr_len(SymbolPtrAr *arr) {
     return Array_len((Array*)arr);
 }
 
+static inline SymbolPtrAr *SymbolPtrAr_new(int nelems) {
+    return (SymbolPtrAr*)Array_new(nelems, sizeof(Symbol *), (Array_clearElement)NULL);
+}
+
 static inline void SymbolPtrAr_push(SymbolPtrAr *arr, Symbol *elem) {
     Symbol * *p = (Symbol **)Array_pushN((Array*)arr, 1);
     *p = elem;
@@ -1677,17 +1816,33 @@ static inline bool SymbolPtrArFIt_next(SymbolPtrArFIt *iterator) {
     return ArrayFIt_next((ArrayFIt*)iterator);
 }
 
+static inline void IntAr_clear(IntAr *arr) {
+    Array_clear((Array*)arr);
+    IntAr zero = {0};
+    *arr = zero;
+}
+
+static inline void IntAr_free(IntAr *arr) {
+    Array_free((Array*)arr);
+}
+
+static inline void IntAr_init(IntAr *arr, int nelems) {
+    Array_init((Array*)arr, nelems, sizeof(int), (Array_clearElement)NULL);
+}
+
+static inline IntAr *IntAr_new(int nelems) {
+    return (IntAr*)Array_new(nelems, sizeof(int), (Array_clearElement)NULL);
+}
+
 static inline int BinFile_version(BinFile *self){return self->version;}
 static inline String *BinFile_filename(BinFile *self){return self->filename;}
 static inline String *BinFile_buffer(BinFile *self){return self->buffer;}
 static inline FILE *BinFile_stream(BinFile *self){return self->stream;}
 static inline void BinFile_setStream(BinFile *self, FILE *value){self->stream = value;}
-#define Midiseq_newUninitialized() ((Midiseq*)Mem_calloc(sizeof(Midiseq)))        
 static inline bool Midiseq_useMasterClock(Midiseq *self){return self->useMasterClock;}
 static inline void Midiseq_setUseMasterClock(Midiseq *self, bool value){self->useMasterClock = value;}
 static inline Ticks Midiseq_sequenceLength(Midiseq *self){return self->sequenceLength;}
 static inline void Midiseq_setSequenceLength(Midiseq *self, Ticks value){self->sequenceLength = value;}
-#define Pad_newUninitialized() ((Pad*)Mem_calloc(sizeof(Pad)))        
 static inline Symbol *Pad_trackName(Pad *self){return self->trackName;}
 static inline void Pad_setTrackName(Pad *self, Symbol *value){self->trackName = value;}
 static inline int Pad_padIndex(Pad *self){return self->padIndex;}
@@ -1715,16 +1870,13 @@ static inline Port_anythingDispatchFunc PortFind_anythingDispatch(PortFind *self
 static inline void PortFind_setAnythingDispatch(PortFind *self, Port_anythingDispatchFunc value){self->anythingDispatch = value;}
 static inline Port_intDispatchFunc PortFind_intDispatch(PortFind *self){return self->intDispatch;}
 static inline void PortFind_setIntDispatch(PortFind *self, Port_intDispatchFunc value){self->intDispatch = value;}
-#define PadList_newUninitialized() ((PadList*)Mem_calloc(sizeof(PadList)))        
 static inline PadAr *PadList_pads(PadList *self){return &self->pads;}
 static inline PadPtrAr *PadList_running(PadList *self){return &self->running;}
 static inline void Track_setName(Track *self, Symbol *value){self->name = value;}
 static inline NoteManager *Track_noteManager(Track *self){return self->noteManager;}
 static inline void Track_setNoteManager(Track *self, NoteManager *value){self->noteManager = value;}
-#define TrackList_newUninitialized() ((TrackList*)Mem_calloc(sizeof(TrackList)))        
 static inline Port *PortRef_port(PortRef *self){return self->port;}
 static inline int PortRef_outlet(PortRef *self){return self->outlet;}
-#define Hub_newUninitialized() ((Hub*)Mem_calloc(sizeof(Hub)))        
 static inline PadList *Hub_padList(Hub *self){return self->padList;}
 static inline void Hub_setPadList(Hub *self, PadList *value){self->padList = value;}
 static inline TrackList *Hub_trackList(Hub *self){return self->trackList;}
@@ -1749,8 +1901,22 @@ static inline bool Hub_grabNextTappedPad(Hub *self){return self->grabNextTappedP
 static inline void Hub_setGrabNextTappedPad(Hub *self, bool value){self->grabNextTappedPad = value;}
 static inline int Hub_selectedPad(Hub *self){return self->selectedPad;}
 static inline void Hub_setSelectedPad(Hub *self, int value){self->selectedPad = value;}
+static inline void DispatchPtAr_clear(DispatchPtAr *arr) {
+    Array_clear((Array*)arr);
+    DispatchPtAr zero = {0};
+    *arr = zero;
+}
+
+static inline void DispatchPtAr_free(DispatchPtAr *arr) {
+    Array_free((Array*)arr);
+}
+
 static inline void DispatchPtAr_init(DispatchPtAr *arr, int nelems) {
     Array_init((Array*)arr, nelems, sizeof(Dispatch *), (Array_clearElement)NULL);
+}
+
+static inline DispatchPtAr *DispatchPtAr_new(int nelems) {
+    return (DispatchPtAr*)Array_new(nelems, sizeof(Dispatch *), (Array_clearElement)NULL);
 }
 
 static inline void DispatchPtAr_push(DispatchPtAr *arr, Dispatch *elem) {
@@ -1773,6 +1939,10 @@ static inline void DispatchPtAr_sort(DispatchPtAr *arr) {
     Array_sort((Array*)arr, (Array_compare)compare);
 }                
 
+static inline void PadAr_changeLength(PadAr *arr, int newLength) {
+    Array_changeLength((Array*)arr, newLength);
+}                        
+
 static inline void PadAr_clear(PadAr *arr) {
     Array_clear((Array*)arr);
     PadAr zero = {0};
@@ -1785,6 +1955,10 @@ static inline void PadAr_fit(PadAr *arr) {
 
 #define PadAr_foreach(var, arr)  for (PadArFIt_declare(var, arr); PadArFIt_next(&var); )            
 
+static inline void PadAr_free(PadAr *arr) {
+    Array_free((Array*)arr);
+}
+
 static inline Pad *PadAr_getp(PadAr *arr, int index, Error *err) {
     Array_getCheck(arr, index, NULL, err);
     return (Pad *)Array_get((Array*)arr, index);
@@ -1796,6 +1970,10 @@ static inline void PadAr_init(PadAr *arr, int nelems) {
 
 static inline int PadAr_len(PadAr *arr) {
     return Array_len((Array*)arr);
+}
+
+static inline PadAr *PadAr_new(int nelems) {
+    return (PadAr*)Array_new(nelems, sizeof(Pad), (Array_clearElement)NULL);
 }
 
 static inline void PadAr_push(PadAr *arr, Pad elem) {
@@ -1818,8 +1996,16 @@ static inline void PadPtrAr_clear(PadPtrAr *arr) {
 
 #define PadPtrAr_foreach(var, arr)  for (PadPtrArFIt_declare(var, arr); PadPtrArFIt_next(&var); )            
 
+static inline void PadPtrAr_free(PadPtrAr *arr) {
+    Array_free((Array*)arr);
+}
+
 static inline void PadPtrAr_init(PadPtrAr *arr, int nelems) {
     Array_init((Array*)arr, nelems, sizeof(Pad *), (Array_clearElement)NULL);
+}
+
+static inline PadPtrAr *PadPtrAr_new(int nelems) {
+    return (PadPtrAr*)Array_new(nelems, sizeof(Pad *), (Array_clearElement)NULL);
 }
 
 static inline void PadPtrAr_push(PadPtrAr *arr, Pad *elem) {
@@ -1851,11 +2037,19 @@ static inline void IndexedOffAr_clear(IndexedOffAr *arr) {
 
 #define IndexedOffAr_foreach(var, arr)  for (IndexedOffArFIt_declare(var, arr); IndexedOffArFIt_next(&var); )            
 
+static inline void IndexedOffAr_free(IndexedOffAr *arr) {
+    Array_free((Array*)arr);
+}
+
 static inline void IndexedOffAr_init(IndexedOffAr *arr, int nelems) {
     Array_init((Array*)arr, nelems, sizeof(IndexedOff), (Array_clearElement)NULL);
 }
 
 #define IndexedOffAr_loop(var) while (IndexedOffArFIt_next(&var)) 
+
+static inline IndexedOffAr *IndexedOffAr_new(int nelems) {
+    return (IndexedOffAr*)Array_new(nelems, sizeof(IndexedOff), (Array_clearElement)NULL);
+}
 
 static inline void IndexedOffAr_remove(IndexedOffAr *arr, int index, Error *err) {
     Array_removeNCheck(arr, index, 1, err);
@@ -1907,8 +2101,16 @@ static inline void TimedOffAr_clear(TimedOffAr *arr) {
 
 #define TimedOffAr_foreach(var, arr)  for (TimedOffArFIt_declare(var, arr); TimedOffArFIt_next(&var); )            
 
+static inline void TimedOffAr_free(TimedOffAr *arr) {
+    Array_free((Array*)arr);
+}
+
 static inline void TimedOffAr_init(TimedOffAr *arr, int nelems) {
     Array_init((Array*)arr, nelems, sizeof(TimedOff), (Array_clearElement)NULL);
+}
+
+static inline TimedOffAr *TimedOffAr_new(int nelems) {
+    return (TimedOffAr*)Array_new(nelems, sizeof(TimedOff), (Array_clearElement)NULL);
 }
 
 static inline void TimedOffAr_remove(TimedOffAr *arr, int index, Error *err) {
@@ -1944,6 +2146,10 @@ static inline void PortFindCellAr_clear(PortFindCellAr *arr) {
 
 #define PortFindCellAr_foreach(var, arr)  for (PortFindCellArFIt_declare(var, arr); PortFindCellArFIt_next(&var); )            
 
+static inline void PortFindCellAr_free(PortFindCellAr *arr) {
+    Array_free((Array*)arr);
+}
+
 static inline PortFindCell PortFindCellAr_get(PortFindCellAr *arr, int index, Error *err) {
     PortFindCell v = {0};
     Array_getCheck(arr, index, v, err);
@@ -1959,6 +2165,10 @@ static inline int PortFindCellAr_len(PortFindCellAr *arr) {
     return Array_len((Array*)arr);
 }
 
+static inline PortFindCellAr *PortFindCellAr_new(int nelems) {
+    return (PortFindCellAr*)Array_new(nelems, sizeof(PortFindCell), (Array_clearElement)NULL);
+}
+
 static inline void PortFindCellAr_push(PortFindCellAr *arr, PortFindCell elem) {
     PortFindCell *p = (PortFindCell *)Array_pushN((Array*)arr, 1);
     *p = elem;
@@ -1971,7 +2181,17 @@ static inline bool PortFindCellArFIt_next(PortFindCellArFIt *iterator) {
     return ArrayFIt_next((ArrayFIt*)iterator);
 }
 
+static inline void TrackAr_clear(TrackAr *arr) {
+    Array_clear((Array*)arr);
+    TrackAr zero = {0};
+    *arr = zero;
+}
+
 #define TrackAr_foreach(var, arr)  for (TrackArFIt_declare(var, arr); TrackArFIt_next(&var); )            
+
+static inline void TrackAr_free(TrackAr *arr) {
+    Array_free((Array*)arr);
+}
 
 static inline Track *TrackAr_getp(TrackAr *arr, int index, Error *err) {
     Array_getCheck(arr, index, NULL, err);
@@ -1986,6 +2206,10 @@ static inline int TrackAr_len(TrackAr *arr) {
     return Array_len((Array*)arr);
 }
 
+static inline TrackAr *TrackAr_new(int nelems) {
+    return (TrackAr*)Array_new(nelems, sizeof(Track), (Array_clearElement)NULL);
+}
+
 static inline void TrackAr_push(TrackAr *arr, Track elem) {
     Track *p = (Track *)Array_pushN((Array*)arr, 1);
     *p = elem;
@@ -1998,6 +2222,623 @@ static inline bool TrackArFIt_next(TrackArFIt *iterator) {
     return ArrayFIt_next((ArrayFIt*)iterator);
 }
 
+void Arguments_init(Arguments *self)
+{
+    self->s1 = NULL;
+    self->i1 = 0;
+    self->i2 = 0;
+    self->ivalue = 0;
+    self->inlet = 0;
+    return;
+}
+void Arguments_clear(Arguments *self)
+{
+    return;
+}
+void Arguments_free(Arguments *self)
+{
+   if (self != NULL) {
+        Arguments_clear(self);
+        Mem_free(self);
+   }
+}
+Arguments *Arguments_new()
+{
+    Arguments *self = Mem_malloc(sizeof(Arguments));
+    Arguments_init(self);
+    return self;
+}
+void MarshalSi_init(MarshalSi *self)
+{
+    self->itype = 0;
+    return;
+}
+void MarshalSi_clear(MarshalSi *self)
+{
+    return;
+}
+void MarshalSi_free(MarshalSi *self)
+{
+   if (self != NULL) {
+        MarshalSi_clear(self);
+        Mem_free(self);
+   }
+}
+MarshalSi *MarshalSi_new()
+{
+    MarshalSi *self = Mem_malloc(sizeof(MarshalSi));
+    MarshalSi_init(self);
+    return self;
+}
+void MarshalSii_init(MarshalSii *self)
+{
+    self->itype = 0;
+    return;
+}
+void MarshalSii_clear(MarshalSii *self)
+{
+    return;
+}
+void MarshalSii_free(MarshalSii *self)
+{
+   if (self != NULL) {
+        MarshalSii_clear(self);
+        Mem_free(self);
+   }
+}
+MarshalSii *MarshalSii_new()
+{
+    MarshalSii *self = Mem_malloc(sizeof(MarshalSii));
+    MarshalSii_init(self);
+    return self;
+}
+void MarshalSs_init(MarshalSs *self)
+{
+    self->itype = 0;
+    return;
+}
+void MarshalSs_clear(MarshalSs *self)
+{
+    return;
+}
+void MarshalSs_free(MarshalSs *self)
+{
+   if (self != NULL) {
+        MarshalSs_clear(self);
+        Mem_free(self);
+   }
+}
+MarshalSs *MarshalSs_new()
+{
+    MarshalSs *self = Mem_malloc(sizeof(MarshalSs));
+    MarshalSs_init(self);
+    return self;
+}
+void IncrementFrameDispatch_init(IncrementFrameDispatch *self)
+{
+    self->itype = 0;
+    return;
+}
+void IncrementFrameDispatch_clear(IncrementFrameDispatch *self)
+{
+    return;
+}
+void IncrementFrameDispatch_free(IncrementFrameDispatch *self)
+{
+   if (self != NULL) {
+        IncrementFrameDispatch_clear(self);
+        Mem_free(self);
+   }
+}
+IncrementFrameDispatch *IncrementFrameDispatch_new()
+{
+    IncrementFrameDispatch *self = Mem_malloc(sizeof(IncrementFrameDispatch));
+    IncrementFrameDispatch_init(self);
+    return self;
+}
+void DecrementFrameDispatch_init(DecrementFrameDispatch *self)
+{
+    self->itype = 0;
+    return;
+}
+void DecrementFrameDispatch_clear(DecrementFrameDispatch *self)
+{
+    return;
+}
+void DecrementFrameDispatch_free(DecrementFrameDispatch *self)
+{
+   if (self != NULL) {
+        DecrementFrameDispatch_clear(self);
+        Mem_free(self);
+   }
+}
+DecrementFrameDispatch *DecrementFrameDispatch_new()
+{
+    DecrementFrameDispatch *self = Mem_malloc(sizeof(DecrementFrameDispatch));
+    DecrementFrameDispatch_init(self);
+    return self;
+}
+void SelectNextPushedPadDispatch_init(SelectNextPushedPadDispatch *self)
+{
+    self->itype = 0;
+    return;
+}
+void SelectNextPushedPadDispatch_clear(SelectNextPushedPadDispatch *self)
+{
+    return;
+}
+void SelectNextPushedPadDispatch_free(SelectNextPushedPadDispatch *self)
+{
+   if (self != NULL) {
+        SelectNextPushedPadDispatch_clear(self);
+        Mem_free(self);
+   }
+}
+SelectNextPushedPadDispatch *SelectNextPushedPadDispatch_new()
+{
+    SelectNextPushedPadDispatch *self = Mem_malloc(sizeof(SelectNextPushedPadDispatch));
+    SelectNextPushedPadDispatch_init(self);
+    return self;
+}
+void MidiFileDropDispatch_init(MidiFileDropDispatch *self)
+{
+    self->itype = 0;
+    return;
+}
+void MidiFileDropDispatch_clear(MidiFileDropDispatch *self)
+{
+    return;
+}
+void MidiFileDropDispatch_free(MidiFileDropDispatch *self)
+{
+   if (self != NULL) {
+        MidiFileDropDispatch_clear(self);
+        Mem_free(self);
+   }
+}
+MidiFileDropDispatch *MidiFileDropDispatch_new()
+{
+    MidiFileDropDispatch *self = Mem_malloc(sizeof(MidiFileDropDispatch));
+    MidiFileDropDispatch_init(self);
+    return self;
+}
+void ManageChokeGroupsDispatch_init(ManageChokeGroupsDispatch *self)
+{
+    self->itype = 0;
+    return;
+}
+void ManageChokeGroupsDispatch_clear(ManageChokeGroupsDispatch *self)
+{
+    return;
+}
+void ManageChokeGroupsDispatch_free(ManageChokeGroupsDispatch *self)
+{
+   if (self != NULL) {
+        ManageChokeGroupsDispatch_clear(self);
+        Mem_free(self);
+   }
+}
+ManageChokeGroupsDispatch *ManageChokeGroupsDispatch_new()
+{
+    ManageChokeGroupsDispatch *self = Mem_malloc(sizeof(ManageChokeGroupsDispatch));
+    ManageChokeGroupsDispatch_init(self);
+    return self;
+}
+void BinFilePayload_init(BinFilePayload *self)
+{
+    self->portFind = PortFind_new();
+    return;
+}
+void BinFilePayload_clear(BinFilePayload *self)
+{
+    PortFind_free(self->portFind);
+    return;
+}
+void BinFilePayload_free(BinFilePayload *self)
+{
+   if (self != NULL) {
+        BinFilePayload_clear(self);
+        Mem_free(self);
+   }
+}
+BinFilePayload *BinFilePayload_new()
+{
+    BinFilePayload *self = Mem_malloc(sizeof(BinFilePayload));
+    BinFilePayload_init(self);
+    return self;
+}
+void BinFile_init(BinFile *self)
+{
+    self->version = 0;
+    self->filename = String_empty();
+    self->buffer = String_empty();
+    self->stream = NULL;
+    self->payload = BinFilePayload_new();
+    return;
+}
+void BinFile_clear(BinFile *self)
+{
+    BinFile_userClear(self);
+    String_free(self->filename);         
+    String_free(self->buffer);         
+    BinFilePayload_free(self->payload);
+    return;
+}
+void BinFile_free(BinFile *self)
+{
+   if (self != NULL) {
+        BinFile_clear(self);
+        Mem_free(self);
+   }
+}
+BinFile *BinFile_new()
+{
+    BinFile *self = Mem_malloc(sizeof(BinFile));
+    BinFile_init(self);
+    return self;
+}
+void Midiseq_init(Midiseq *self)
+{
+    self->useMasterClock = 0;
+    self->sequenceLength = 0;
+    MEventAr_init(&self->events, 0);
+    self->startTime = 0;
+    self->ptr = 0;
+    Midiseq_userInit(self);
+    return;
+}
+void Midiseq_clear(Midiseq *self)
+{
+    MEventAr_clear(&self->events);
+    return;
+}
+void Midiseq_free(Midiseq *self)
+{
+   if (self != NULL) {
+        Midiseq_clear(self);
+        Mem_free(self);
+   }
+}
+Midiseq *Midiseq_new()
+{
+    Midiseq *self = Mem_malloc(sizeof(Midiseq));
+    Midiseq_init(self);
+    return self;
+}
+void Pad_init(Pad *self)
+{
+    self->trackName = NULL;
+    self->padIndex = 0;
+    self->sequence = Midiseq_new();
+    self->chokeGroupGlobal = 0;
+    self->chokeGroupInstrument = 0;
+    self->chokeGroupIndex = 0;
+    self->chokeGroup = 0;
+    self->noteReleasePending = 0;
+    self->inEndgroup = 0;
+    self->track = Track_new();
+    self->useMasterClock = 0;
+    return;
+}
+void Pad_clear(Pad *self)
+{
+    Midiseq_free(self->sequence);
+    Track_free(self->track);
+    return;
+}
+void Pad_free(Pad *self)
+{
+   if (self != NULL) {
+        Pad_clear(self);
+        Mem_free(self);
+   }
+}
+Pad *Pad_new()
+{
+    Pad *self = Mem_malloc(sizeof(Pad));
+    Pad_init(self);
+    return self;
+}
+void IndexedOff_init(IndexedOff *self)
+{
+    self->padIndex = 0;
+    self->pitch = 0;
+    return;
+}
+void IndexedOff_clear(IndexedOff *self)
+{
+    return;
+}
+void IndexedOff_free(IndexedOff *self)
+{
+   if (self != NULL) {
+        IndexedOff_clear(self);
+        Mem_free(self);
+   }
+}
+IndexedOff *IndexedOff_new()
+{
+    IndexedOff *self = Mem_malloc(sizeof(IndexedOff));
+    IndexedOff_init(self);
+    return self;
+}
+void TimedOff_init(TimedOff *self)
+{
+    self->time = 0;
+    self->pitch = 0;
+    return;
+}
+void TimedOff_clear(TimedOff *self)
+{
+    return;
+}
+void TimedOff_free(TimedOff *self)
+{
+   if (self != NULL) {
+        TimedOff_clear(self);
+        Mem_free(self);
+   }
+}
+TimedOff *TimedOff_new()
+{
+    TimedOff *self = Mem_malloc(sizeof(TimedOff));
+    TimedOff_init(self);
+    return self;
+}
+void NoteManager_init(NoteManager *self)
+{
+    TimedOffAr_init(&self->pending, 0);
+    IndexedOffAr_init(&self->endgroups, 0);
+    self->output = Port_new();
+    self->atoms = NULL;
+    NoteManager_userInit(self);
+    return;
+}
+void NoteManager_clear(NoteManager *self)
+{
+    NoteManager_userClear(self);
+    TimedOffAr_clear(&self->pending);
+    IndexedOffAr_clear(&self->endgroups);
+    Port_free(self->output);
+    return;
+}
+void NoteManager_free(NoteManager *self)
+{
+   if (self != NULL) {
+        NoteManager_clear(self);
+        Mem_free(self);
+   }
+}
+NoteManager *NoteManager_new()
+{
+    NoteManager *self = Mem_malloc(sizeof(NoteManager));
+    NoteManager_init(self);
+    return self;
+}
+void PortFindCell_init(PortFindCell *self)
+{
+    self->reciever = Port_new();
+    self->varname = NULL;
+    return;
+}
+void PortFindCell_clear(PortFindCell *self)
+{
+    Port_free(self->reciever);
+    return;
+}
+void PortFindCell_free(PortFindCell *self)
+{
+   if (self != NULL) {
+        PortFindCell_clear(self);
+        Mem_free(self);
+   }
+}
+PortFindCell *PortFindCell_new()
+{
+    PortFindCell *self = Mem_malloc(sizeof(PortFindCell));
+    PortFindCell_init(self);
+    return self;
+}
+void PortFind_init(PortFind *self)
+{
+    PortFindCellAr_init(&self->objects, 0);
+    self->hub = NULL;
+    self->anythingDispatch = 0;
+    self->intDispatch = 0;
+    return;
+}
+void PortFind_clear(PortFind *self)
+{
+    PortFindCellAr_clear(&self->objects);
+    return;
+}
+void PortFind_free(PortFind *self)
+{
+   if (self != NULL) {
+        PortFind_clear(self);
+        Mem_free(self);
+   }
+}
+PortFind *PortFind_new()
+{
+    PortFind *self = Mem_malloc(sizeof(PortFind));
+    PortFind_init(self);
+    return self;
+}
+void PadList_init(PadList *self)
+{
+    PadAr_init(&self->pads, 0);
+    PadPtrAr_init(&self->running, 0);
+    return;
+}
+void PadList_clear(PadList *self)
+{
+    PadAr_clear(&self->pads);
+    PadPtrAr_clear(&self->running);
+    return;
+}
+void PadList_free(PadList *self)
+{
+   if (self != NULL) {
+        PadList_clear(self);
+        Mem_free(self);
+   }
+}
+PadList *PadList_new()
+{
+    PadList *self = Mem_malloc(sizeof(PadList));
+    PadList_init(self);
+    return self;
+}
+void Track_init(Track *self)
+{
+    self->name = NULL;
+    self->noteManager = NoteManager_new();
+    return;
+}
+void Track_clear(Track *self)
+{
+    NoteManager_free(self->noteManager);
+    return;
+}
+void Track_free(Track *self)
+{
+   if (self != NULL) {
+        Track_clear(self);
+        Mem_free(self);
+   }
+}
+Track *Track_new()
+{
+    Track *self = Mem_malloc(sizeof(Track));
+    Track_init(self);
+    return self;
+}
+void TrackList_init(TrackList *self)
+{
+    TrackAr_init(&self->list, 0);
+    return;
+}
+void TrackList_clear(TrackList *self)
+{
+    TrackAr_clear(&self->list);
+    return;
+}
+void TrackList_free(TrackList *self)
+{
+   if (self != NULL) {
+        TrackList_clear(self);
+        Mem_free(self);
+   }
+}
+TrackList *TrackList_new()
+{
+    TrackList *self = Mem_malloc(sizeof(TrackList));
+    TrackList_init(self);
+    return self;
+}
+void PortRef_init(PortRef *self)
+{
+    self->port = Port_new();
+    self->outlet = 0;
+    return;
+}
+void PortRef_clear(PortRef *self)
+{
+    Port_free(self->port);
+    return;
+}
+void PortRef_free(PortRef *self)
+{
+   if (self != NULL) {
+        PortRef_clear(self);
+        Mem_free(self);
+   }
+}
+PortRef *PortRef_new()
+{
+    PortRef *self = Mem_malloc(sizeof(PortRef));
+    PortRef_init(self);
+    return self;
+}
+void DropDown_init(DropDown *self)
+{
+    SymbolPtrAr_init(&self->table, 0);
+    self->selected = 0;
+    PortRef_init(&self->portRef);            
+    return;
+}
+void DropDown_clear(DropDown *self)
+{
+    SymbolPtrAr_clear(&self->table);
+    PortRef_clear(&self->portRef);
+    return;
+}
+void DropDown_free(DropDown *self)
+{
+   if (self != NULL) {
+        DropDown_clear(self);
+        Mem_free(self);
+   }
+}
+DropDown *DropDown_new()
+{
+    DropDown *self = Mem_malloc(sizeof(DropDown));
+    DropDown_init(self);
+    return self;
+}
+void Hub_init(Hub *self)
+{
+    self->padList = PadList_new();
+    self->trackList = TrackList_new();
+    self->currBankPort = Port_new();
+    self->currFramePort = Port_new();
+    self->selBankPort = Port_new();
+    self->selFramePort = Port_new();
+    self->selPadPort = Port_new();
+    self->chokeGroupPort = Port_new();
+    DropDown_init(&self->cgLocalGlobalMenu);            
+    DropDown_init(&self->cgInstrumentMenu);            
+    DropDown_init(&self->cgIndexMenu);            
+    self->bank = 0;
+    self->frame = 0;
+    self->grabNextTappedPad = 0;
+    self->selectedPad = 0;
+    Arguments_init(&self->arguments);            
+    DispatchPtAr_init(&self->dispatcher, 0);
+    self->masterClock = 0;
+    return;
+}
+void Hub_clear(Hub *self)
+{
+    PadList_free(self->padList);
+    TrackList_free(self->trackList);
+    Port_free(self->currBankPort);
+    Port_free(self->currFramePort);
+    Port_free(self->selBankPort);
+    Port_free(self->selFramePort);
+    Port_free(self->selPadPort);
+    Port_free(self->chokeGroupPort);
+    DropDown_clear(&self->cgLocalGlobalMenu);
+    DropDown_clear(&self->cgInstrumentMenu);
+    DropDown_clear(&self->cgIndexMenu);
+    Arguments_clear(&self->arguments);
+    DispatchPtAr_clear(&self->dispatcher);
+    return;
+}
+void Hub_free(Hub *self)
+{
+   if (self != NULL) {
+        Hub_clear(self);
+        Mem_free(self);
+   }
+}
+Hub *Hub_new()
+{
+    Hub *self = Mem_malloc(sizeof(Hub));
+    Hub_init(self);
+    return self;
+}
 #define Hub_padsPerFrame           24
 #define Hub_framesPerBank           8
 #define Hub_padsPerBank            (Hub_padsPerFrame*Hub_framesPerBank)
@@ -2501,31 +3342,49 @@ void Symbol_freeAll()
 
 
 
-#line 101 "src/midiseq.in.c"
+#line 102 "src/midiseq.in.c"
 
 
-Port PORT_NULL_IMPL =
+Port Port_nullImpl =
 {
     {
         0
     }
 };
 
-#define Port_null (&PORT_NULL_IMPL)
+#define Port_null (&Port_nullImpl)
 
-#line 119 "src/midiseq.in.c"
+APIF Port *Port_new() 
+{
+    return Port_null;
+}
+APIF void Port_init(Port *p)
+{
+    *p = Port_nullImpl;
+}
 
-#line 127 "src/midiseq.in.c"
+APIF void Port_free(Port *p)
+{
+}
 
-#line 135 "src/midiseq.in.c"
+APIF void Port_clear(Port *p)
+{
+}
 
-#line 143 "src/midiseq.in.c"
+
+#line 138 "src/midiseq.in.c"
+
+#line 146 "src/midiseq.in.c"
+
+#line 154 "src/midiseq.in.c"
+
+#line 162 "src/midiseq.in.c"
 
 
 
-#line 159 "src/midiseq.in.c"
+#line 178 "src/midiseq.in.c"
 
-#line 189 "src/midiseq.in.c"
+#line 208 "src/midiseq.in.c"
 #define BinFile_nullLengthFieldSizeStr "11"
 #define BinFile_maxLength              2147483647
 #define BinFileFlag_tag                1
@@ -2541,32 +3400,32 @@ const int Midiseq_cctype     = 3;
 const int Midiseq_cycletype  = 4;
 const int Midiseq_endgrptype = 5;
 
-#line 237 "src/midiseq.in.c"
+#line 255 "src/midiseq.in.c"
 
 
-#line 302 "src/midiseq.in.c"
+#line 321 "src/midiseq.in.c"
 
 
-#line 330 "src/midiseq.in.c"
+#line 349 "src/midiseq.in.c"
 
-#line 357 "src/midiseq.in.c"
+#line 376 "src/midiseq.in.c"
 
-#line 381 "src/midiseq.in.c"
+#line 400 "src/midiseq.in.c"
 
-#line 404 "src/midiseq.in.c"
+#line 423 "src/midiseq.in.c"
 
-#line 428 "src/midiseq.in.c"
+#line 447 "src/midiseq.in.c"
 #define PortFind_declare(name) PortFind _##name; PortFind *name = &_##name; memset(name, 0, sizeof(PortFind)); PortFind_init(name)        
 
 
-#line 450 "src/midiseq.in.c"
+#line 469 "src/midiseq.in.c"
 
-#line 473 "src/midiseq.in.c"
+#line 494 "src/midiseq.in.c"
 
 
-#line 488 "src/midiseq.in.c"
+#line 509 "src/midiseq.in.c"
 
-#line 505 "src/midiseq.in.c"
+#line 526 "src/midiseq.in.c"
 
 #define PortRef_declare(name, port, outlet)    PortRef _##name = {port, outlet}; PortRef *name = &_##name
 static inline void PortRef_set(PortRef *pr, Port *port, int outlet) {
@@ -2575,9 +3434,26 @@ static inline void PortRef_set(PortRef *pr, Port *port, int outlet) {
 }
 #define PortRef_send(pr, argc, argv, err)      Port_send(PortRef_port(pr), PortRef_outlet(pr), argc, argv, err)
 #define PortRef_sendInteger(pr, value, err)    Port_sendInteger(PortRef_port(pr), PortRef_outlet(pr), value, err)
+PortRef PortRef_nullImpl = {Port_null, 0};
+#define PortRef_null  &PortRef_nullImpl
+
+APIF int PortRef_cmp(PortRef *left, PortRef *right) 
+{
+    if (left->port < right->port) {
+        return -1;
+    } else if (left->port > right->port) {
+        return 1;
+    } else if (left->outlet < right->outlet) {
+        return -1;
+    } else if (left->outlet > right->outlet) {
+        return 1;
+    }
+    return 0;
+}
 
 
-#line 539 "src/midiseq.in.c"
+
+#line 577 "src/midiseq.in.c"
 
 static inline PortRef *DropDown_portRef(DropDown *dd) {
     return &dd->portRef;
@@ -2587,9 +3463,111 @@ static inline void DropDown_setPortRef(DropDown *dd, PortRef *pr) {
    dd->portRef = *pr;
 }
 
-#line 660 "src/midiseq.in.c"
+//
+// D R O P   D O W N
+//
 
-#line 678 "src/midiseq.in.c"
+APIF void DropDown_build(DropDown *dd, const char **table, PortRef *pr) {
+    SymbolPtrAr_init(&dd->table, 0);
+    const char **ptr = table;
+    while (*ptr) {
+        Symbol *s = Symbol_gen(*ptr);
+        SymbolPtrAr_push(&dd->table, s);
+        ptr++;
+    }
+    DropDown_setPortRef(dd, pr);
+    return;
+}
+
+APIF void DropDown_buildCGLocalGlobal(DropDown *dd, PortRef *pr) {
+    const char *t[] = {
+        "local",
+        "global",
+        NULL
+    };
+    DropDown_build(dd, t, pr);
+}
+
+APIF void DropDown_buildCGInstrument(DropDown *dd, PortRef *pr) {
+    const char *t[] = {
+        "none",
+        "lead",
+        "rhythm",
+        "piano",
+        "bass",
+        "drums",
+        NULL,
+    };
+    DropDown_build(dd, t, pr);
+}
+
+APIF void DropDown_buildCGIndex(DropDown *dd, PortRef *pr) {
+    const char *t[] = {
+        "none",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        NULL
+    };
+    DropDown_build(dd, t, pr);
+}
+
+// APIF void DropDown_clear(DropDown *dd) {
+//     SymbolPtrAr_clear(&dd->table);
+// }
+
+// APIF void DropDown_free(DropDown *dd) {
+//     DropDown_clear(dd);
+//     Mem_free(dd);
+// }
+
+APIF void DropDown_updateSelected(DropDown *dd, Error *err) {
+    Symbol *s = SymbolPtrAr_get(&dd->table, dd->selected, err);
+    Error_returnVoidOnError(err);
+    Atom a[2] = {
+        Atom_fromSymbol(Symbol_gen("set")),
+        Atom_fromSymbol(s)
+    };
+    PortRef_send(DropDown_portRef(dd), 2, a, err);
+}
+
+APIF void DropDown_setSelected(DropDown *dd, int selected, Error *err) {
+    if (selected < 0 || selected >= SymbolPtrAr_len(&dd->table)) {
+        Error_format(err, "Index out of range (%d, %d)", selected, SymbolPtrAr_len(&dd->table));
+        return;
+    }
+    dd->selected = selected;
+}
+
+APIF void DropDown_initializeMenu(DropDown *dd, Error *err) {
+    Atom clear = Atom_fromSymbol(Symbol_gen("clear"));
+    Atom append = Atom_fromSymbol(Symbol_gen("append"));
+
+    PortRef_send(&dd->portRef, 1, &clear, err);
+    Error_returnVoidOnError(err);
+
+    SymbolPtrAr_foreach(it, &dd->table) {
+        Atom a[2] = {append, Atom_fromSymbol(*it.var)};
+        PortRef_send(&dd->portRef, 2, a, err);
+        Error_returnVoidOnError(err);        
+    }
+}
+#line 800 "src/midiseq.in.c"
+
+#line 818 "src/midiseq.in.c"
 
 
 // Will parse id's of the form ev\d+ and return the \d+ number. Returns -1 otherwise
@@ -2610,21 +3588,27 @@ APIF int port_parseEvSymbol(Symbol *id)
     return r;
 }
 
-APIF void Port_send(Port *port, int outletIndex, short argc, Atom *argv, Error *err)
+APIF void Port_send(Port *self, int outletIndex, short argc, Atom *argv, Error *err)
 {   
+    if (self == Port_null) {
+        return;
+    }
 #   ifndef TEST_BUILD
     Symbol *selector = Atom_toSymbol(argv + 0);
-    void *out = PtrAr_get(&port->outlet, outletIndex, err);
+    void *out = PtrAr_get(&self->outlet, outletIndex, err);
     Error_returnVoidOnError(err);
     outlet_anything(out, selector, argc-1, argv+1);  
 #   endif 
 }
 
-APIF void Port_sendInteger(Port *p, int outlet, long value) 
+APIF void Port_sendInteger(Port *self, int outlet, long value) 
 {
+    if (self == Port_null) {
+        return;
+    }
 #   ifndef TEST_BUILD
     Error_declare(err);
-    void *out = PtrAr_get(&p->outlet, outlet, err);
+    void *out = PtrAr_get(&self->outlet, outlet, err);
     if (Error_maypost(err)) {
         return;
     }
@@ -2671,26 +3655,24 @@ APIF int Midiseq_convertIntFileLine(const char *src, Error *err, const char *fun
 #define Midiseq_maxLineLength 1024
 
 // Create new empty midi sequence
-// #define Midiseq_newUninitialized() ((Midiseq*)sysmem_newptrclear(sizeof(Midiseq)))
-APIF Midiseq *Midiseq_new()
+
+APIF void Midiseq_userInit(Midiseq *self)
 {
-    Midiseq *midi = Midiseq_newUninitialized();
-    midi->sequenceLength = 480*4;
-    MEventAr_init(&midi->events, 0);
+    self->sequenceLength = 480*4;
 
     MEvent cell = {0};
     cell.t = 0;
     cell.type = Midiseq_endgrptype;
-    MEventAr_push(&midi->events, cell);
+    MEventAr_push(&self->events, cell);
     
-    cell.t = midi->sequenceLength;
+    cell.t = self->sequenceLength;
     cell.type = Midiseq_cycletype;
-    MEventAr_push(&midi->events, cell);
+    MEventAr_push(&self->events, cell);
 
-    MEventAr_fit(&midi->events);
-
-    return midi;
+    MEventAr_fit(&self->events);
 }
+
+
 
 APIF void Midiseq_toBinFile(Midiseq *mseq, BinFile *bf, Error *err) {
     BinFile_writeTag(bf, "midiseq", err);
@@ -2728,7 +3710,7 @@ APIF void Midiseq_toBinFile(Midiseq *mseq, BinFile *bf, Error *err) {
 
 
 APIF Midiseq *Midiseq_fromBinFile(BinFile *bf, Error *err) {
-    Midiseq *mseq = Midiseq_newUninitialized();
+    Midiseq *mseq = Midiseq_new();
     Midiseq_fromBinFileUnititialized(mseq, bf, err);
     if (Error_iserror(err)) {
         Mem_free(mseq);
@@ -2784,9 +3766,11 @@ APIF void Midiseq_fromBinFileUnititialized(Midiseq *mseq, BinFile *bf, Error *er
 
 APIF Midiseq *Midiseq_newNote(int pitch)
 {
-    Midiseq *mseq = Midiseq_newUninitialized();
+    Midiseq *mseq = Midiseq_new();
+    MEventAr_truncate(&mseq->events);
+
     mseq->sequenceLength = 480*4;
-    MEventAr_init(&mseq->events, 0);
+    
     MEvent zero = {
         0
     }
@@ -2815,36 +3799,6 @@ APIF Midiseq *Midiseq_newNote(int pitch)
 
     return mseq;
 }
-
-
-APIF void Midiseq_init(Midiseq *mseq)
-{
-    if (mseq != NULL) {
-        Midiseq zero = {0};
-        *mseq = zero;
-        MEventAr_init(&mseq->events, 0);
-    }
-}
-
-
-APIF void Midiseq_clear(Midiseq *mseq)
-{
-    if (mseq != NULL) {
-        MEventAr_clear(&mseq->events);
-        Midiseq zero = {0};
-        *mseq = zero;
-    }
-}
-
-
-APIF void Midiseq_free(Midiseq *midi)
-{
-    if (midi != NULL) {
-        Midiseq_clear(midi);
-        Mem_free(midi);
-    }
-}
-
 
 APIF int Midiseq_len(Midiseq *mseq)
 {
@@ -3116,6 +4070,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
     bool allOK = false;
     Midiseq *mseq = (Midiseq*)Mem_calloc(sizeof(Midiseq));
     Midiseq_init(mseq);
+    MEventAr_truncate(&mseq->events);
 
     // Call midicsv. To do this we create a new destination file, then route our output to it
     String *buffer = NULL;
@@ -3302,10 +4257,6 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
 //
 // P A T C H E R    F I N D
 //
-
-APIF void PortFind_init(PortFind *pf) {
-    PortFindCellAr_init(&pf->objects, 0);
-}
 #ifndef TEST_BUILD
 APIF long PortFind_iterator(PortFind *pf, MaxObject *targetBox)
 {
@@ -3365,16 +4316,6 @@ APIF int PortFind_discover(PortFind *pf, MaxObject *sourceMaxObject, void *hub, 
 }
 #endif
 
-
-
-
-
-APIF void PortFind_clear(PortFind *pf)
-{
-    PortFindCellAr_clear(&pf->objects);
-}
-
-
 APIF Port *PortFind_findByVarname(PortFind *pf, Symbol *symbol)
 {
     PortFindCellAr_foreach(it, &pf->objects){
@@ -3427,41 +4368,8 @@ APIF Port *PortFind_findByIndex(PortFind *pf, int index, Error *err)
 //
 // P A D
 //
-APIF Pad *Pad_new(){
-    Pad *pad = Pad_newUninitialized();
-    Pad_init(pad);
-    return pad;
-}
 
-APIF void Pad_init(Pad *pad)
-{
-    if (pad != NULL) {
-        Pad p = {0};
-        *pad = p;
-        pad->sequence = Midiseq_new();
-        // SequenceAr_init(&pad->sequenceList, 0);
-    }
-}
-
-APIF void Pad_free(Pad *pad) {
-    if (pad != NULL) {
-        Pad_clear(pad);
-        Mem_free(pad);
-    }
-}
-
-APIF void Pad_clear(Pad *pad)
-{
-    if (pad != NULL) {
-        Midiseq_free(pad->sequence);
-        // SequenceAr_clear(&pad->sequenceList);
-        memset(pad, 0, sizeof(Pad));
-    }
-}
-
-
-
-APIF  void Pad_setSequence(Pad *pad, Midiseq *midi)
+APIF void Pad_setSequence(Pad *pad, Midiseq *midi)
 {
     if (Pad_sequence(pad) != NULL) {
         Midiseq_free(Pad_sequence(pad));
@@ -3490,7 +4398,7 @@ APIF void Pad_toBinFile(Pad *pad, BinFile *bf, Error *err) {
 }
 
 APIF Pad *Pad_fromBinFile(BinFile *bf, Error *err) {
-    Pad *pad = Pad_newUninitialized();
+    Pad *pad = Pad_new();
     Pad_fromBinFileUninitialized(pad, bf, err);
     if (Error_iserror(err)) {
         Mem_free(pad);
@@ -3546,43 +4454,19 @@ APIF void Pad_computeChokeGroup(Pad *pad) {
 //
 // P A D   L I S T
 //
-APIF PadList *PadList_new(int npads)
+APIF PadList *PadList_newN(int npads)
 {
-    PadList *pl = PadList_newUninitialized();
-    PadList_init(pl, npads);
-    return pl;
-}
-
-APIF void PadList_init(PadList *pl, int npads) {
-    PadAr_init(&pl->pads, npads);
-    PadAr_foreach(it, &pl->pads) {
+    PadList *self = PadList_new();
+    PadAr_changeLength(&self->pads, npads);
+    PadAr_foreach(it, &self->pads) {
         Pad_init(it.var);
     }
-    PadPtrAr_init(&pl->running, 0);
+    return self;
 }
 
-APIF void PadList_clear(PadList *pl) {
-    if (pl != NULL) {
-        PadAr_foreach(it, &pl->pads) {
-            Pad_clear(it.var);
-        }
-        PadAr_clear(&pl->pads);
-        PadPtrAr_clear(&pl->running);
-    }   
-}
-
-APIF void PadList_free(PadList *pl)
+APIF void PadList_play(PadList *self, int padIndex, Ticks startTime, Ticks currentTime, bool useMasterClock, Error *err)
 {
-    if (pl != NULL) {
-        PadList_clear(pl);
-        Mem_free(pl);
-    }
-}
-
-
-APIF void PadList_play(PadList *pl, int padIndex, Ticks startTime, Ticks currentTime, bool useMasterClock, Error *err)
-{
-    Pad *pad = PadAr_getp(&pl->pads, padIndex, err);
+    Pad *pad = PadAr_getp(&self->pads, padIndex, err);
     Error_returnVoidOnError(err);
 
     // Since we're starting to play, we just recieved a Note-on for this pad. Reset the pad
@@ -3590,24 +4474,24 @@ APIF void PadList_play(PadList *pl, int padIndex, Ticks startTime, Ticks current
     Pad_setNoteReleasePending(pad, true);
 
     // Now let's find a place to stick this pad into the running array
-    PadPtrAr_foreach(it, &pl->running) {
+    PadPtrAr_foreach(it, &self->running) {
         Pad *p = *it.var;
         if (Pad_chokeGroup(pad) != 0 && Pad_chokeGroup(pad) == Pad_chokeGroup(p)) {
-            PadPtrAr_remove(&pl->running, it.index, err);
+            PadPtrAr_remove(&self->running, it.index, err);
             Error_returnVoidOnError(err);
             break;
         }
     }
 
-    PadPtrAr_push(&pl->running, pad);
+    PadPtrAr_push(&self->running, pad);
 
    Midiseq_start(Pad_sequence(pad), startTime, currentTime, false, err);
 }
 
 
-APIF void PadList_markReleasePending(PadList *pl, int padIndex, bool pending, Error *err)
+APIF void PadList_markReleasePending(PadList *self, int padIndex, bool pending, Error *err)
 {
-    Pad *pad = PadAr_getp(&pl->pads, padIndex, err);
+    Pad *pad = PadAr_getp(&self->pads, padIndex, err);
     Error_returnVoidOnError(err);
     Pad_setNoteReleasePending(pad, pending);
     if (!pending) {
@@ -3647,7 +4531,7 @@ APIF void PadList_toBinFile(PadList *pl, BinFile *bf, Error *err) {
 }
 
 APIF PadList *PadList_fromBinFile(BinFile *bf, Error *err) {
-    PadList *pl = PadList_new(0);
+    PadList *pl = PadList_newN(0);
     PadList_fromBinFileInitialized(pl, bf, err);
     if (Error_iserror(err)) {
         PadList_free(pl);
@@ -3678,22 +4562,20 @@ APIF void PadList_fromBinFileInitialized(PadList *pl, BinFile *bf, Error *err) {
 // T R A C K
 //
 
-APIF TrackList *TrackList_new(PortFind *pf)
+APIF TrackList *TrackList_newBuild(PortFind *pf)
 {
-    TrackList *tl = TrackList_newUninitialized();
-    TrackList_init(tl, pf);
+    TrackList *tl = TrackList_new();
+    TrackList_build(tl, pf);
     return tl;
 }
 
-APIF void TrackList_init(TrackList *tl, PortFind *pf) {
-
-    TrackAr_init(&tl->list, 0);
+APIF void TrackList_build(TrackList *tl, PortFind *pf) {
 
     {
         // Insert the null track at position 1 of the tracklist
         Track t = {0};
         t.name  = Symbol_gen("null");
-        t.noteManager = NoteManager_new(Port_null);
+        t.noteManager = NoteManager_newFromPort(Port_null);
         TrackAr_push(&tl->list, t);
     }
 
@@ -3706,31 +4588,12 @@ APIF void TrackList_init(TrackList *tl, PortFind *pf) {
         }
         Track t = {0};
         Track_setName(&t, Port_track(p));
-        Track_setNoteManager(&t, NoteManager_new(p));
+        Track_setNoteManager(&t, NoteManager_newFromPort(p));
         TrackAr_push(&tl->list, t);
     }
     Error_clear(err);
     return;
 }
-
-
-APIF void TrackList_clear(TrackList *tl)
-{
-    TrackAr_foreach(it, &tl->list) {
-        NoteManager_free(it.var->noteManager);
-    }
-    TrackList zero;
-    memset(&zero, 0, sizeof(TrackList));
-    *tl = zero;
-    return;
-}
-
-APIF void TrackList_free(TrackList *tl) {
-    TrackList_clear(tl);
-    Mem_free(tl);
-}
-
-
 
 APIF Track *TrackList_findTrackByName(TrackList *tl, Symbol *name)
 {
@@ -3768,125 +4631,14 @@ APIF TrackList *TrackList_fromBinFile(BinFile *bf, Error *err)
         return NULL;
     }
 
-    return TrackList_new(pf);
+    return TrackList_newBuild(pf);
 }
 
 APIF void TrackList_toBinFile(TrackList *tl, BinFile *bf, Error *err) {
     // NO-op since nothing in the tracklist is written to file.
 }
 
-//
-// D R O P   D O W N
-//
-APIF DropDown *DropDown_new(const char **table, PortRef *pr) {
-    DropDown *dd = Mem_calloc(sizeof(DropDown));
-    DropDown_init(dd, table, pr);
-    return dd;
-}
 
-APIF void DropDown_init(DropDown *dd, const char **table, PortRef *pr) {
-    SymbolPtrAr_init(&dd->table, 0);
-    const char **ptr = table;
-    while (*ptr) {
-        Symbol *s = Symbol_gen(*ptr);
-        SymbolPtrAr_push(&dd->table, s);
-        ptr++;
-    }
-    DropDown_setPortRef(dd, pr);
-    return;
-}
-
-APIF void DropDown_initCGLocalGlobal(DropDown *dd, PortRef *pr) {
-    const char *t[] = {
-        "local",
-        "global",
-        NULL
-    };
-    DropDown_init(dd, t, pr);
-}
-
-APIF void DropDown_initCGInstrument(DropDown *dd, PortRef *pr) {
-    const char *t[] = {
-        "none",
-        "lead",
-        "rhythm",
-        "piano",
-        "bass",
-        "drums",
-        NULL,
-    };
-    DropDown_init(dd, t, pr);
-}
-
-APIF void DropDown_initCGIndex(DropDown *dd, PortRef *pr) {
-    const char *t[] = {
-        "none",
-        "1",
-        "2",
-        "3",
-        "4",
-        "5",
-        "6",
-        "7",
-        "8",
-        "9",
-        "10",
-        "11",
-        "12",
-        "13",
-        "14",
-        "15",
-        "16",
-        NULL
-    };
-    DropDown_init(dd, t, pr);
-}
-
-APIF void DropDown_clear(DropDown *dd) {
-    SymbolPtrAr_clear(&dd->table);
-}
-
-APIF void DropDown_free(DropDown *dd) {
-    DropDown_clear(dd);
-    Mem_free(dd);
-}
-
-APIF void DropDown_updateSelected(DropDown *dd, Error *err) {
-    Symbol *s = SymbolPtrAr_get(&dd->table, dd->selected, err);
-    Error_returnVoidOnError(err);
-    Atom a[2] = {
-        Atom_fromSymbol(Symbol_gen("set")),
-        Atom_fromSymbol(s)
-    };
-    PortRef_send(DropDown_portRef(dd), 2, a, err);
-}
-
-APIF void DropDown_setSelected(DropDown *dd, int selected, Error *err) {
-    if (selected < 0 || selected >= SymbolPtrAr_len(&dd->table)) {
-        Error_format(err, "Index out of range (%d, %d)", selected, SymbolPtrAr_len(&dd->table));
-        return;
-    }
-    dd->selected = selected;
-}
-
-APIF void DropDown_initializeMenu(DropDown *dd, Error *err) {
-    // Atom clear  = {0};
-    // Atom append = {0};
-    // atom_setsym(&clear, Symbol_gen("clear"));
-    // atom_setsym(&append, Symbol_gen("append"));
-    Atom clear = Atom_fromSymbol(Symbol_gen("clear"));
-    Atom append = Atom_fromSymbol(Symbol_gen("append"));
-
-
-    PortRef_send(&dd->portRef, 1, &clear, err);
-    Error_returnVoidOnError(err);
-
-    SymbolPtrAr_foreach(it, &dd->table) {
-        Atom a[2] = {append, Atom_fromSymbol(*it.var)};
-        PortRef_send(&dd->portRef, 2, a, err);
-        Error_returnVoidOnError(err);        
-    }
-}
 
 //
 // I N D E X E D   AND   T I M E D   O F F
@@ -3918,27 +4670,24 @@ APIF int TimedOff_cmpTime(TimedOff *left, TimedOff *right) {
 
 const int NoteManager_atomcount = 4;
 
-APIF NoteManager *NoteManager_new(Port *port)
+
+APIF NoteManager *NoteManager_newFromPort(Port *port)
 {
-    NoteManager *nm = (NoteManager*)Mem_calloc(sizeof(NoteManager));
-    nm->atoms       = (Atom*)Mem_calloc(sizeof(Atom) * NoteManager_atomcount);
-    nm->output      = port;
-    TimedOffAr_init(&nm->pending, 0);
-    IndexedOffAr_init(&nm->endgroups, 0);
-    return nm;
+    NoteManager *self = NoteManager_new();
+    self->output      = port;
+    return self;
 }
 
-
-APIF void NoteManager_free(NoteManager *nm)
+APIF void NoteManager_userInit(NoteManager *self)
 {
-    TimedOffAr_clear(&nm->pending);
-    IndexedOffAr_clear(&nm->endgroups);
-    Mem_free(nm->atoms);
-    NoteManager zero; memset(&zero, 0, sizeof(NoteManager));
-    *nm = zero;
-    Mem_free(nm);
+    self->atoms = Mem_calloc(sizeof(Atom) * NoteManager_atomcount);    
 }
 
+APIF void NoteManager_userClear(NoteManager *self) 
+{
+    Mem_free(self->atoms);
+    self->atoms = NULL;
+}
 
 // insert a note off, and remove any single pitch that is already there. Return true if a note-off was removed
 APIF bool NoteManager_insertNoteOff(NoteManager *manager, Ticks timestamp, int pitch, int padIndexForEndgroup)
@@ -4082,35 +4831,32 @@ APIF void NoteManager_padNoteOff(NoteManager *manager, int padIndex)
 // H U B
 //
 
-APIF Hub *Hub_new(PortFind *pf, Error *err) {
-    Hub *hub = Hub_newUninitialized();
-    Hub_init(hub, pf, err);
-    Error_gotoLabelOnError(err, END);
-
-    return hub;
-
-    END:
-    Mem_free(hub);
-    return NULL;
+APIF Hub *Hub_newBuild(PortFind *pf, Error *err) {
+    Hub *self = Hub_new();
+    Hub_build(self, pf, err);
+    if (Error_iserror(err)) {
+        Hub_free(self);
+        return NULL;
+    }
+    return self;
 }
 
-APIF void Hub_init(Hub *hub, PortFind *pf, Error *err) {
+APIF void Hub_build(Hub *hub, PortFind *pf, Error *err) {
     Hub_setCurrBankPort(hub, PortFind_findById(pf, Symbol_gen("currBank")));
     Hub_setCurrFramePort(hub, PortFind_findById(pf, Symbol_gen("currFrame")));
     Hub_setSelBankPort(hub, PortFind_findById(pf, Symbol_gen("selBank")));
     Hub_setSelFramePort(hub, PortFind_findById(pf, Symbol_gen("selFrame")));
     Hub_setSelPadPort(hub, PortFind_findById(pf, Symbol_gen("selPad")));
 
-
     Port *cg = PortFind_findById(pf, Symbol_gen("chokeGroup"));
     PortRef_declare(portRef, cg, 0);
-    DropDown_initCGLocalGlobal(Hub_cgLocalGlobalMenu(hub), portRef);
+    DropDown_buildCGLocalGlobal(Hub_cgLocalGlobalMenu(hub), portRef);
 
     PortRef_set(portRef, cg, 1);
-    DropDown_initCGInstrument(Hub_cgInstrumentMenu(hub), portRef);
+    DropDown_buildCGInstrument(Hub_cgInstrumentMenu(hub), portRef);
 
     PortRef_set(portRef, cg, 2);
-    DropDown_initCGIndex(Hub_cgIndexMenu(hub), portRef);
+    DropDown_buildCGIndex(Hub_cgIndexMenu(hub), portRef);
 
     DropDown_initializeMenu(Hub_cgLocalGlobalMenu(hub), err);
     Error_returnVoidOnError(err);
@@ -4140,11 +4886,6 @@ APIF void Hub_init(Hub *hub, PortFind *pf, Error *err) {
     DispatchPtAr_init(&hub->dispatcher, 0);
     DispatchPtAr_populate(&hub->dispatcher, err);
     Error_returnVoidOnError(err);
-}
-
-APIF void Hub_free(Hub *hub) {
-    PadList_free(Hub_padList(hub));
-    TrackList_free(Hub_trackList(hub));
 }
 
 APIF void Hub_updateGuiCurrentCoordinates(Hub *hub) 
@@ -4177,9 +4918,7 @@ APIF void Hub_changeSelectedPad(Hub *hub, int selectedPadIndex, Error *err) {
     // Selected coordinates
     Port_sendInteger(Hub_selBankPort(hub),  0, (long)Hub_selectedBank(hub));
     Port_sendInteger(Hub_selFramePort(hub), 0, (long)Hub_selectedFrame(hub));  
-    Port_sendInteger(Hub_selPadPort(hub),   0, (long)Hub_relativeSelectedPad(hub));   
-
-
+    Port_sendInteger(Hub_selPadPort(hub),   0, (long)Hub_relativeSelectedPad(hub));
 }
 
 APIF void Hub_anythingDispatch(Hub *hub, Port *port, Symbol *selector, long argc, Atom *argv)
@@ -4268,13 +5007,14 @@ APIF void Hub_toBinFile(Hub *hub, BinFile *bf, Error *err) {
 }
 
 APIF Hub *Hub_fromBinFile(BinFile *bf, Error *err) {
-    Hub *hub = Hub_newUninitialized();
-    Hub_fromBinFileUninitialized(hub, bf, err);
-    if (Error_iserror(err)) {
-        Hub_free(hub);
-        return NULL;
-    }
-    return hub;
+    // Hub *hub = Hub_newUninitialized();
+    // Hub_fromBinFileUninitialized(hub, bf, err);
+    // if (Error_iserror(err)) {
+    //     Hub_free(hub);
+    //     return NULL;
+    // }
+    // return hub;
+    return NULL;
 }
 
 APIF void Hub_fromBinFileUninitialized(Hub *hub, BinFile *bf, Error *err) {
@@ -4296,12 +5036,12 @@ APIF void Hub_fromBinFileUninitialized(Hub *hub, BinFile *bf, Error *err) {
 // B I N    F I L E
 //
 
-APIF BinFile *BinFile_new() {
-    BinFile *bf = Mem_calloc(sizeof(BinFile));
-    bf->filename = String_empty();
-    bf->buffer   = String_empty();
-    return bf;
-}
+// APIF BinFile *BinFile_new() {
+//     BinFile *bf = Mem_calloc(sizeof(BinFile));
+//     bf->filename = String_empty();
+//     bf->buffer   = String_empty();
+//     return bf;
+// }
 
 APIF BinFile *BinFile_newWriter(const char *file, Error *err) {
     BinFile *bf =  BinFile_new();
@@ -4340,15 +5080,23 @@ APIF BinFile *BinFile_newReader(const char *file, Error *err) {
     return bf;
 }
 
-APIF void BinFile_free(BinFile *bf) {
+// APIF void BinFile_free(BinFile *bf) {
+//     if (BinFile_stream(bf) != NULL) {
+//         fclose(BinFile_stream(bf));
+//         BinFile_setStream(bf, NULL);
+//     }
+//     String_free(bf->filename);
+//     String_free(bf->buffer);
+//     Mem_free(bf);
+// }
+
+APIF void BinFile_userClear(BinFile *bf) {
     if (BinFile_stream(bf) != NULL) {
         fclose(BinFile_stream(bf));
         BinFile_setStream(bf, NULL);
     }
-    String_free(bf->filename);
-    String_free(bf->buffer);
-    Mem_free(bf);
 }
+
 
 APIF int binFile_hexDigitToInt(char hex) {
     switch (hex) {
