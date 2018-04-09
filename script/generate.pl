@@ -588,6 +588,49 @@ ENDxxxxxxxxxx
 	},	
 
 	{
+		key =>    'Array:pqSort',
+		symbol => '${TYPENAME}_pqSort${TAG}',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline void ${TYPENAME}_pqSort${TAG}(${TYPENAME} *arr) {
+			@	int (*compare)(${ELEMNAME}*, ${ELEMNAME}*) = ${COMPARE};
+			@   Array_pqSort((Array*)arr, (Array_compare)compare);
+			@}
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key =>    'Array:pqPush',
+		symbol => '${TYPENAME}_pqPush${TAG}',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline void ${TYPENAME}_pqPush${TAG}(${TYPENAME} *arr, ${ELEMNAME}elem) {
+			@	int (*compare)(${ELEMNAME}*, ${ELEMNAME}*) = ${COMPARE};
+			@   Array_pqPush((Array*)arr, (char*)&elem, (Array_compare)compare);
+			@}
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key =>    'Array:pqPop',
+		symbol => '${TYPENAME}_pqPop${TAG}',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline bool ${TYPENAME}_pqPop${TAG}(${TYPENAME} *arr, ${ELEMNAME}*elem) {
+			@	int (*compare)(${ELEMNAME}*, ${ELEMNAME}*) = ${COMPARE};
+			@   return Array_pqPop((Array*)arr, (char*)elem, (Array_compare)compare);
+			@}
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key =>    'Array:pqPeek',
+		symbol => '${TYPENAME}_pqPeek${TAG}',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@static inline ${ELEMNAME}*${TYPENAME}_pqPeek${TAG}(${TYPENAME} *arr) {
+			@   return (${ELEMNAME}*)Array_pqPeek((Array*)arr);
+			@}
+ENDxxxxxxxxxx
+	},	
+
+	{
 		key =>    'Predefined:struct',
 		symbol => '',
 		tmpl   => <<'ENDxxxxxxxxxx', 
@@ -1439,21 +1482,21 @@ sub ContainerArtifact_emitStruct {
 		ELEMNAME_NS => $ELEMNAME_NS
 	};
 
-	my $needsSlice = 0;
-	my $binarySearch = $self->{binarySearch};
-	if (defined($binarySearch)) {
-		for my $b (@$binarySearch) {
-			if ($b->{multi}) {
-				$needsSlice = 1;
-				last;
-			}
-		}
-	}
+	# my $needsSlice = 0;
+	# my $binarySearch = $self->{binarySearch};
+	# if (defined($binarySearch)) {
+	# 	for my $b (@$binarySearch) {
+	# 		if ($b->{multi}) {
+	# 			$needsSlice = 1;
+	# 			last;
+	# 		}
+	# 	}
+	# }
 	
 	my @keys = ("Array:struct", 'ArrayFIt:struct', 'ArrayRIt:struct');
-	if ($needsSlice) {
-		push @keys, "Array:slice";
-	}
+	# if ($needsSlice) {
+	# 	push @keys, "Array:slice";
+	# }
 	Expand_emitNl($out, \@keys, $dict);
 	return
 }
@@ -1488,16 +1531,16 @@ sub ContainerArtifact_emitInlines {
 	}
 	my $binarySearch = $self->{binarySearch};
 
-	my $needsSlice = 0;
-	if (defined($binarySearch)) {
-		my $needslice = 0;
-		for my $b (@$binarySearch) {
-			if ($b->{multi}) {
-				$needsSlice = 1;
-				last;
-			}
-		}
-	}
+	# my $needsSlice = 0;
+	# if (defined($binarySearch)) {
+	# 	my $needslice = 0;
+	# 	for my $b (@$binarySearch) {
+	# 		if ($b->{multi}) {
+	# 			$needsSlice = 1;
+	# 			last;
+	# 		}
+	# 	}
+	# }
 
 	my $dict = {
 		TYPENAME=>$TYPENAME, 
@@ -1512,17 +1555,19 @@ sub ContainerArtifact_emitInlines {
 	##
 	## Setup base keys
 	##
-	my @keys = ('Array:new', 'Array:init', 'Array:clear', 'Array:free',
-				'Array:truncate', 'Array:len',  'Array:get', 'Array:getp', 'Array:set', 'Array:setp',
-				'Array:pop', 'Array:push', 'Array:pushp', 'Array:insert', 'Array:insertp', 'Array:remove',
-				'Array:removeN', 'Array:fit', 'Array:last', 'Array:changeLength', 'Array:foreach', 'Array:rforeach',
-				'Array:loop', 'Array:rloop', "ArrayFIt:next", "ArrayRIt:next", "ArrayFIt:remove", "ArrayRIt:remove",
-				"ArrayFIt:declare0", "ArrayFIt:declare", "ArrayRIt:declare0", "ArrayRIt:declare", "ArrayFIt:atEnd", "ArrayRIt:atEnd");
+	my @keys = (
+		'Array:new', 'Array:init', 'Array:clear', 'Array:free',
+		'Array:truncate', 'Array:len',  'Array:get', 'Array:getp', 'Array:set', 'Array:setp',
+		'Array:pop', 'Array:push', 'Array:pushp', 'Array:insert', 'Array:insertp', 'Array:remove',
+		'Array:removeN', 'Array:fit', 'Array:last', 'Array:changeLength', 'Array:foreach', 'Array:rforeach',
+		'Array:loop', 'Array:rloop', "ArrayFIt:next", "ArrayRIt:next", "ArrayFIt:remove", "ArrayRIt:remove",
+		"ArrayFIt:declare0", "ArrayFIt:declare", "ArrayRIt:declare0", "ArrayRIt:declare", "ArrayFIt:atEnd", "ArrayRIt:atEnd"
+	);
 
 	push @keys, ('Array:each', 'Array:reach');
-	if ($needsSlice) {
-		push @keys, "Array:declareSlice", "Array:sliceEmpty", "Array:sliceForeach", "Array:rsliceForeach";
-	}	
+	# if ($needsSlice) {
+	# 	push @keys, "Array:declareSlice", "Array:sliceEmpty", "Array:sliceForeach", "Array:rsliceForeach";
+	# }	
 	
 	Expand_emitNl($out, \@keys, $dict);
 	if (defined($binarySearch)) {
@@ -1539,7 +1584,8 @@ sub ContainerArtifact_emitInlines {
 			$dict->{COMPARE} = $COMPARE;
 			$dict->{TAG}     = $TAG;
 
-			my @keys = ('Array:binInsert', 'Array:binRemove', 'Array:sort');
+			my @keys = ('Array:binInsert', 'Array:binRemove', 'Array:sort', 
+						"Array:pqSort", "Array:pqPush", "Array:pqPop", "Array:pqPeek");
 			if ($domulti) {
 				$dict->{MULTI} = "true";
 				push @keys, "Array:binSearchSliceReturn";

@@ -279,7 +279,7 @@ bool ArrayRIt_remove(ArrayRIt *iterator) {
    return true;
 }
 
-typedef int (*Array_compare)(const void *left, const void *right);
+typedef int (*Array_compare)(const char *left, const char *right);
 
 typedef struct ArraySlice_t {
    int len;
@@ -445,7 +445,7 @@ func up(h Interface, j int) {
 }
 */
 
-void Array_pqUp(Array *arr, int j, int (*comparer)(char *, char*)) 
+void Array_pqUp(Array *arr, int j, int (*comparer)(const char *, const char*)) 
 {
    Array_mayGrow(arr, 1); // use the first unused element of the array as the swap space
    for (;;) {
@@ -479,7 +479,7 @@ func down(h Interface, i0, n int) bool {
    return i > i0
 }
 */
-bool Array_pqDown(Array *arr, int i0, int n, int (*comparer)(char *, char*)) {
+bool Array_pqDown(Array *arr, int i0, int n, int (*comparer)(const char *, const char *)) {
    Array_mayGrow(arr, 1);
    int i = i0;
    for (;;) {
@@ -511,7 +511,7 @@ func Init(h Interface) {
 }
 */
 
-void Array_pqSort(Array *arr, int (*comparer)(char *, char*)) 
+void Array_pqSort(Array *arr, int (*comparer)(const char *, const char*)) 
 {
    int n = Array_len(arr);
    for (int i = n/2-1; i >= 0; i--) {
@@ -526,7 +526,7 @@ func Push(h Interface, x interface{}) {
 }
 */
 
-void Array_pqPush(Array *arr, char *elem, int (*comparer)(char *, char*))
+void Array_pqPush(Array *arr, char *elem, int (*comparer)(const char *, const char*))
 {
    char *dst = Array_pushN(arr, 1);
    memmove(dst, elem, arr->elemSize);
@@ -542,15 +542,23 @@ func Pop(h Interface) interface{} {
 }
 */
 
-void Array_pqPop(Array *arr, char *elem, int (*comparer)(char *, char*)) 
+bool Array_pqPop(Array *arr, char *elem, int (*comparer)(const char *, const char*)) 
 {
+    if (Array_len(arr) <= 0) {
+        return false;
+    }
 
-   int n = Array_len(arr)-1;
-   memmove(elem, arr->data, arr->elemSize);
-   PQ_SWAP(0, n);
-   Array_pqDown(arr, 0, n, comparer);
-   // XXX: how to handle the clearer in this??
-   Array_popN(arr, 1);
+    if (elem != NULL) {
+        memmove(elem, arr->data, arr->elemSize);
+    } else if (arr->clearer != NULL) {
+        arr->clearer(arr->data);
+    }
+
+    int n = Array_len(arr)-1;
+    PQ_SWAP(0, n);
+    Array_pqDown(arr, 0, n, comparer);
+    arr->len--;
+    return true;    
 }
 
 char *Array_pqPeek(Array *arr) {

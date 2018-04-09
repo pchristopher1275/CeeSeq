@@ -109,15 +109,6 @@ APIF String *String_empty()
     return body->ch;
 }
 
-APIF long String_toInteger(String *s, Error *err)
-{
-    long value = 0;
-    if (sscanf(s, "%ld", &value) != 1) {
-        Error_format0(err, "String_toInteger failed to convert integer");
-    }
-    return value;  
-}
-
 APIF void String_trim(String **sp)
 {
     String *s = *sp;
@@ -326,6 +317,15 @@ APIF int String_readline(String **buffer, FILE *inp, Error *err)
     body->ch[len] = '\0';
     *buffer = body->ch;
     return 1;
+}
+
+APIF long String_toInteger(String *s, Error *err)
+{
+    long value = 0;
+    if (sscanf(s, "%ld", &value) != 1) {
+        Error_format0(err, "String_toInteger failed to convert integer");
+    }
+    return value;  
 }
 
 //

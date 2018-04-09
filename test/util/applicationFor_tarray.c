@@ -1,13 +1,13 @@
-// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:37:35 ***
-// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:37:35 ***
-// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:37:35 ***
-// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:37:35 ***
-// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:37:35 ***
-// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:37:35 ***
-// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:37:35 ***
-// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:37:35 ***
-// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:37:35 ***
-// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:37:35 ***
+// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:36:10 ***
+// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:36:10 ***
+// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:36:10 ***
+// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:36:10 ***
+// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:36:10 ***
+// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:36:10 ***
+// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:36:10 ***
+// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:36:10 ***
+// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:36:10 ***
+// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:36:10 ***
 struct Foo_t;
 typedef struct Foo_t Foo;
 struct IntArr_t;
@@ -321,7 +321,7 @@ bool ArrayRIt_remove(ArrayRIt *iterator) {
    return true;
 }
 
-typedef int (*Array_compare)(const void *left, const void *right);
+typedef int (*Array_compare)(const char *left, const char *right);
 
 typedef struct ArraySlice_t {
    int len;
@@ -487,7 +487,7 @@ func up(h Interface, j int) {
 }
 */
 
-void Array_pqUp(Array *arr, int j, int (*comparer)(char *, char*)) 
+void Array_pqUp(Array *arr, int j, int (*comparer)(const char *, const char*)) 
 {
    Array_mayGrow(arr, 1); // use the first unused element of the array as the swap space
    for (;;) {
@@ -521,7 +521,7 @@ func down(h Interface, i0, n int) bool {
    return i > i0
 }
 */
-bool Array_pqDown(Array *arr, int i0, int n, int (*comparer)(char *, char*)) {
+bool Array_pqDown(Array *arr, int i0, int n, int (*comparer)(const char *, const char *)) {
    Array_mayGrow(arr, 1);
    int i = i0;
    for (;;) {
@@ -553,7 +553,7 @@ func Init(h Interface) {
 }
 */
 
-void Array_pqSort(Array *arr, int (*comparer)(char *, char*)) 
+void Array_pqSort(Array *arr, int (*comparer)(const char *, const char*)) 
 {
    int n = Array_len(arr);
    for (int i = n/2-1; i >= 0; i--) {
@@ -568,7 +568,7 @@ func Push(h Interface, x interface{}) {
 }
 */
 
-void Array_pqPush(Array *arr, char *elem, int (*comparer)(char *, char*))
+void Array_pqPush(Array *arr, char *elem, int (*comparer)(const char *, const char*))
 {
    char *dst = Array_pushN(arr, 1);
    memmove(dst, elem, arr->elemSize);
@@ -584,15 +584,23 @@ func Pop(h Interface) interface{} {
 }
 */
 
-void Array_pqPop(Array *arr, char *elem, int (*comparer)(char *, char*)) 
+bool Array_pqPop(Array *arr, char *elem, int (*comparer)(const char *, const char*)) 
 {
+    if (Array_len(arr) <= 0) {
+        return false;
+    }
 
-   int n = Array_len(arr)-1;
-   memmove(elem, arr->data, arr->elemSize);
-   PQ_SWAP(0, n);
-   Array_pqDown(arr, 0, n, comparer);
-   // XXX: how to handle the clearer in this??
-   Array_popN(arr, 1);
+    if (elem != NULL) {
+        memmove(elem, arr->data, arr->elemSize);
+    } else if (arr->clearer != NULL) {
+        arr->clearer(arr->data);
+    }
+
+    int n = Array_len(arr)-1;
+    PQ_SWAP(0, n);
+    Array_pqDown(arr, 0, n, comparer);
+    arr->len--;
+    return true;    
 }
 
 char *Array_pqPeek(Array *arr) {
@@ -616,13 +624,6 @@ typedef struct FooArr_t {
    void (*clearer)(Foo*);
    Foo *data;
 } FooArr;
-
-typedef struct FooArrSlice_t {
-    int len;
-    Foo *data;
-    int index;
-    Foo *var;
-} FooArrSlice;
 
 typedef struct FooArrFIt_t {
    FooArr *arr;
@@ -837,8 +838,6 @@ static inline void FooArr_clear(FooArr *arr) {
     *arr = zero;
 }
 
-#define FooArr_declareSlice(name) FooArrSlice name = {0}            
-
 #define FooArr_each(it, arr) for (Foo* it = arr->data; it < arr->data + arr->len; it++)
 
 static inline void FooArr_fit(FooArr *arr) {
@@ -926,9 +925,6 @@ static inline void FooArr_removeN(FooArr *arr, int index, int N, Error *err) {
 
 #define FooArr_rloop(var) while (FooArrRIt_next(&var))             
 
-#define FooArr_rsliceForeach(slice) for (slice.index=slice.len-1, slice.var = slice.data + slice.index*sizeof(Foo); \\
-                                               slice.index >= 0; slice.index--, slice.var--)
-
 static inline void FooArr_set(FooArr *arr, int index, Foo elem, Error *err) {
     Array_setCheck(arr, index, err);
     Array_set((Array*)arr, index, (char*)&elem);
@@ -938,10 +934,6 @@ static inline void FooArr_setp(FooArr *arr, int index, Foo *elem, Error *err) {
     Array_setCheck(arr, index, err);
     Array_set((Array*)arr, index, (char*)elem);
 }
-
-#define FooArr_sliceEmpty(slice) (slice.data == NULL)
-
-#define FooArr_sliceForeach(slice) for (slice.index=0, slice.var=slice.data; slice.index < slice.len; slice.index++, slice.var++)
 
 static inline void FooArr_truncate(FooArr *arr) {
     Array_truncate((Array*)arr);
@@ -994,6 +986,25 @@ static inline Foo *FooArr_binSearch(FooArr *arr, Foo elem) {
     return (Foo *)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, NULL);
 }
 
+static inline Foo *FooArr_pqPeek(FooArr *arr) {
+   return (Foo *)Array_pqPeek((Array*)arr);
+}
+
+static inline bool FooArr_pqPop(FooArr *arr, Foo *elem) {
+    int (*compare)(Foo *, Foo *) = Foo_cmp;
+   return Array_pqPop((Array*)arr, (char*)elem, (Array_compare)compare);
+}
+
+static inline void FooArr_pqPush(FooArr *arr, Foo elem) {
+    int (*compare)(Foo *, Foo *) = Foo_cmp;
+   Array_pqPush((Array*)arr, (char*)&elem, (Array_compare)compare);
+}
+
+static inline void FooArr_pqSort(FooArr *arr) {
+    int (*compare)(Foo *, Foo *) = Foo_cmp;
+   Array_pqSort((Array*)arr, (Array_compare)compare);
+}
+
 static inline void FooArr_sort(FooArr *arr) {
     int (*compare)(Foo *, Foo *) = Foo_cmp;
     Array_sort((Array*)arr, (Array_compare)compare);
@@ -1012,6 +1023,25 @@ static inline void FooArr_binRemoveBoth(FooArr *arr, Foo elem) {
 static inline Foo *FooArr_binSearchBoth(FooArr *arr, Foo elem) {
     int (*compare)(Foo *, Foo *) = Foo_cmpBoth;
     return (Foo *)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, NULL);
+}
+
+static inline Foo *FooArr_pqPeekBoth(FooArr *arr) {
+   return (Foo *)Array_pqPeek((Array*)arr);
+}
+
+static inline bool FooArr_pqPopBoth(FooArr *arr, Foo *elem) {
+    int (*compare)(Foo *, Foo *) = Foo_cmpBoth;
+   return Array_pqPop((Array*)arr, (char*)elem, (Array_compare)compare);
+}
+
+static inline void FooArr_pqPushBoth(FooArr *arr, Foo elem) {
+    int (*compare)(Foo *, Foo *) = Foo_cmpBoth;
+   Array_pqPush((Array*)arr, (char*)&elem, (Array_compare)compare);
+}
+
+static inline void FooArr_pqSortBoth(FooArr *arr) {
+    int (*compare)(Foo *, Foo *) = Foo_cmpBoth;
+   Array_pqSort((Array*)arr, (Array_compare)compare);
 }
 
 static inline void FooArr_sortBoth(FooArr *arr) {
@@ -1040,6 +1070,25 @@ static inline FooArrFIt FooArr_binSearchMulti(FooArr *arr, Foo elem) {
     return it;
 }
 
+static inline Foo *FooArr_pqPeekMulti(FooArr *arr) {
+   return (Foo *)Array_pqPeek((Array*)arr);
+}
+
+static inline bool FooArr_pqPopMulti(FooArr *arr, Foo *elem) {
+    int (*compare)(Foo *, Foo *) = Foo_cmp;
+   return Array_pqPop((Array*)arr, (char*)elem, (Array_compare)compare);
+}
+
+static inline void FooArr_pqPushMulti(FooArr *arr, Foo elem) {
+    int (*compare)(Foo *, Foo *) = Foo_cmp;
+   Array_pqPush((Array*)arr, (char*)&elem, (Array_compare)compare);
+}
+
+static inline void FooArr_pqSortMulti(FooArr *arr) {
+    int (*compare)(Foo *, Foo *) = Foo_cmp;
+   Array_pqSort((Array*)arr, (Array_compare)compare);
+}
+
 static inline void FooArr_sortMulti(FooArr *arr) {
     int (*compare)(Foo *, Foo *) = Foo_cmp;
     Array_sort((Array*)arr, (Array_compare)compare);
@@ -1064,6 +1113,25 @@ static inline FooArrFIt FooArr_binSearchBothMulti(FooArr *arr, Foo elem) {
    it.index  = arr->len;
    it.uBound = 0;
     return it;
+}
+
+static inline Foo *FooArr_pqPeekBothMulti(FooArr *arr) {
+   return (Foo *)Array_pqPeek((Array*)arr);
+}
+
+static inline bool FooArr_pqPopBothMulti(FooArr *arr, Foo *elem) {
+    int (*compare)(Foo *, Foo *) = Foo_cmpBoth;
+   return Array_pqPop((Array*)arr, (char*)elem, (Array_compare)compare);
+}
+
+static inline void FooArr_pqPushBothMulti(FooArr *arr, Foo elem) {
+    int (*compare)(Foo *, Foo *) = Foo_cmpBoth;
+   Array_pqPush((Array*)arr, (char*)&elem, (Array_compare)compare);
+}
+
+static inline void FooArr_pqSortBothMulti(FooArr *arr) {
+    int (*compare)(Foo *, Foo *) = Foo_cmpBoth;
+   Array_pqSort((Array*)arr, (Array_compare)compare);
 }
 
 static inline void FooArr_sortBothMulti(FooArr *arr) {
