@@ -888,6 +888,14 @@ ENDxxxxxxxxxx
 	},
 
 	{
+		key =>    'Lifecycle:initITypeField',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@	self->itype = ${TYPENAME}_itype;
+ENDxxxxxxxxxx
+	},
+
+	{
 		key =>    'Lifecycle:initFieldValue',
 		symbol => '',
 		tmpl   => <<'ENDxxxxxxxxxx', 
@@ -1251,6 +1259,7 @@ sub ClassArtifact_emitLifecyle {
 		for my $field (@{$self->{fields}}) {
 			my $name        = $field->{name};
 			my $type        = $field->{type};
+			my $isItype     = $name eq 'itype';
 			(my $typeName   = $type) =~ s/[\s\*]+//g;
 			my $isKnown     = $artifactMap->{$typeName} ? 1 : 0;
 			my $isArray     = $isKnown ? $artifactMap->{$typeName}{itype} eq 'Container' : 0;
@@ -1260,7 +1269,12 @@ sub ClassArtifact_emitLifecyle {
 			my $isUnmanaged = defined($self->{lifecycle}) && $self->{lifecycle} eq 'unmanaged' ? 1 : 0;
 			my $dict        = {FIELDTYPE=>$typeName, FIELDNAME=>$name, TYPENAME=>$self->{typeName}};
 			
-			if ($isString) {
+			if ($isItype) {
+				if ($t eq 'init') {
+					Expand_emit($out, ["Lifecycle:initITypeField"], $dict);
+				}
+			}
+			elsif ($isString) {
 				Expand_emit($out, ["Lifecycle:${t}FieldString"], $dict);
 			} elsif ($isKnown) {
 				if ($isUnmanaged || $isInterface) {

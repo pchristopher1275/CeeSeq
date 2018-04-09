@@ -1,13 +1,13 @@
-// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:36:10 ***
-// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:36:10 ***
-// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:36:10 ***
-// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:36:10 ***
-// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:36:10 ***
-// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:36:10 ***
-// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:36:10 ***
-// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:36:10 ***
-// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:36:10 ***
-// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:36:10 ***
+// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:52:40 ***
+// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:52:40 ***
+// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:52:40 ***
+// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:52:40 ***
+// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:52:40 ***
+// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:52:40 ***
+// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:52:40 ***
+// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:52:40 ***
+// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:52:40 ***
+// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:52:40 ***
 struct Arguments_t;
 typedef struct Arguments_t Arguments;
 struct Marshal_t;
@@ -903,6 +903,14 @@ struct PortFind_t
     Port_anythingDispatchFunc anythingDispatch;
     Port_intDispatchFunc intDispatch;
 };
+struct Arguments_t
+{
+    Symbol *s1;
+    long i1;
+    long i2;
+    long ivalue;
+    long inlet;
+};
 typedef struct SymbolPtrAr_t {
    int len;
    int cap;
@@ -939,14 +947,6 @@ struct DropDown_t
     SymbolPtrAr table;
     int selected;
     PortRef portRef;
-};
-struct Arguments_t
-{
-    Symbol *s1;
-    long i1;
-    long i2;
-    long ivalue;
-    long inlet;
 };
 struct Hub_t
 {
@@ -1477,17 +1477,14 @@ void Dispatch_free(Dispatch *self, Error *err);
 void Dispatch_initDispatchPtAr(int itype, DispatchPtAr *a1, Error *err);
 static inline Symbol *Arguments_s1(Arguments *self){return self->s1;}
 static inline void Arguments_setS1(Arguments *self, Symbol *value){self->s1 = value;}
-static inline long Arguments_i1(Arguments *self){return self->i1;}
 static inline void Arguments_setI1(Arguments *self, long value){self->i1 = value;}
-static inline long Arguments_i2(Arguments *self){return self->i2;}
 static inline void Arguments_setI2(Arguments *self, long value){self->i2 = value;}
 static inline long Arguments_ivalue(Arguments *self){return self->ivalue;}
 static inline void Arguments_setIvalue(Arguments *self, long value){self->ivalue = value;}
-static inline long Arguments_inlet(Arguments *self){return self->inlet;}
 static inline void Arguments_setInlet(Arguments *self, long value){self->inlet = value;}
 static inline int Marshal_nthIType(int n, int *itype) {
     static int itypes[] = {
-        MarshalSi_itype, MarshalSii_itype, MarshalSs_itype
+        MarshalSs_itype, MarshalSi_itype, MarshalSii_itype
     };
     static int len = sizeof(itypes)/sizeof(int);
     if (n < 0 || n >= len) {
@@ -1526,7 +1523,7 @@ static inline Marshal *MarshalSs_castToMarshal(MarshalSs *self) {
 }
 static inline int Dispatch_nthIType(int n, int *itype) {
     static int itypes[] = {
-        SelectNextPushedPadDispatch_itype, DecrementFrameDispatch_itype, ManageChokeGroupsDispatch_itype, IncrementFrameDispatch_itype, MidiFileDropDispatch_itype
+        MidiFileDropDispatch_itype, DecrementFrameDispatch_itype, SelectNextPushedPadDispatch_itype, ManageChokeGroupsDispatch_itype, IncrementFrameDispatch_itype
     };
     static int len = sizeof(itypes)/sizeof(int);
     if (n < 0 || n >= len) {
@@ -1536,14 +1533,7 @@ static inline int Dispatch_nthIType(int n, int *itype) {
     return 1;
 }
 #define Dispatch_foreachIType(itype) for (int __##itype = 0, itype = 0; Dispatch_nthIType(__##itype, &itype); __##itype++)
-static inline Symbol *Dispatch_selector(Dispatch *self){return self->selector;}
-static inline void Dispatch_setSelector(Dispatch *self, Symbol *value){self->selector = value;}
-static inline Symbol *Dispatch_portId(Dispatch *self){return self->portId;}
-static inline void Dispatch_setPortId(Dispatch *self, Symbol *value){self->portId = value;}
-static inline int Dispatch_inlet(Dispatch *self){return self->inlet;}
-static inline void Dispatch_setInlet(Dispatch *self, int value){self->inlet = value;}
 static inline Marshal *Dispatch_marshal(Dispatch *self){return self->marshal;}
-static inline void Dispatch_setMarshal(Dispatch *self, Marshal *value){self->marshal = value;}
 #define Dispatch_declare(name, itype, selector, portId, inlet, marshal) Dispatch name = {(itype), (selector), (portId), (inlet), (marshal)}
 static inline IncrementFrameDispatch *IncrementFrameDispatch_castFromDispatch(Dispatch *self) {
     if (self->itype == IncrementFrameDispatch_itype) {
@@ -1590,20 +1580,10 @@ static inline ManageChokeGroupsDispatch *ManageChokeGroupsDispatch_castFromDispa
 static inline Dispatch *ManageChokeGroupsDispatch_castToDispatch(ManageChokeGroupsDispatch *self) {
     return (Dispatch*)self;
 }
-static inline void StringPtAr_changeLength(StringPtAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
 static inline void StringPtAr_clear(StringPtAr *arr) {
     Array_clear((Array*)arr);
     StringPtAr zero = {0};
     *arr = zero;
-}
-
-#define StringPtAr_each(it, arr) for (String ** it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void StringPtAr_fit(StringPtAr *arr) {
-    Array_fit((Array*)arr);
 }
 
 #define StringPtAr_foreach(var, arr)  for (StringPtArFIt_declare(var, arr); StringPtArFIt_next(&var); )            
@@ -1612,51 +1592,16 @@ static inline void StringPtAr_free(StringPtAr *arr) {
     Array_free((Array*)arr);
 }
 
-static inline String *StringPtAr_get(StringPtAr *arr, int index, Error *err) {
-    String * v = {0};
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
-}
-
-static inline String **StringPtAr_getp(StringPtAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (String **)Array_get((Array*)arr, index);
-}
-
 static inline void StringPtAr_init(StringPtAr *arr, int nelems) {
     Array_init((Array*)arr, nelems, sizeof(String *), (Array_clearElement)String_freep);
 }
-
-static inline void StringPtAr_insert(StringPtAr *arr, int index, String *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    String * *p = (String **)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void StringPtAr_insertp(StringPtAr *arr, int index, String **elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    String * *p = (String **)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int StringPtAr_last(StringPtAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
 
 static inline int StringPtAr_len(StringPtAr *arr) {
     return Array_len((Array*)arr);
 }
 
-#define StringPtAr_loop(var) while (StringPtArFIt_next(&var)) 
-
 static inline StringPtAr *StringPtAr_new(int nelems) {
     return (StringPtAr*)Array_new(nelems, sizeof(String *), (Array_clearElement)String_freep);
-}
-
-static inline void StringPtAr_pop(StringPtAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
 }
 
 static inline void StringPtAr_push(StringPtAr *arr, String *elem) {
@@ -1665,88 +1610,20 @@ static inline void StringPtAr_push(StringPtAr *arr, String *elem) {
     return; 
 }            
 
-static inline void StringPtAr_pushp(StringPtAr *arr, String **elem) {
-    String * *p = (String **)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define StringPtAr_reach(it, arr) for (String ** it = arr->data+arr->len-1; it >= arr->data; it--)
-
-static inline void StringPtAr_remove(StringPtAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void StringPtAr_removeN(StringPtAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define StringPtAr_rforeach(var, arr)  for (StringPtArRIt_declare(var, arr); StringPtArRIt_next(&var); )            
-
-#define StringPtAr_rloop(var) while (StringPtArRIt_next(&var))             
-
-static inline void StringPtAr_set(StringPtAr *arr, int index, String *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void StringPtAr_setp(StringPtAr *arr, int index, String **elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
-
 static inline void StringPtAr_truncate(StringPtAr *arr) {
     Array_truncate((Array*)arr);
 }
 
-static inline bool StringPtArFIt_atEnd(StringPtArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
 #define StringPtArFIt_declare(var, arr)  StringPtArFIt var = {arr, 0, (arr)->len, -1, NULL}
-
-#define StringPtArFIt_declare0(var)  StringPtArFIt var = {0}
 
 static inline bool StringPtArFIt_next(StringPtArFIt *iterator) {
     return ArrayFIt_next((ArrayFIt*)iterator);
 }
 
-static inline bool StringPtArFIt_remove(StringPtArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool StringPtArRIt_atEnd(StringPtArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define StringPtArRIt_declare(var, arr)  StringPtArRIt var = {arr, 0, (arr)->len, (arr)->len, NULL}
-
-#define StringPtArRIt_declare0(var)  StringPtArRIt var = {0}
-
-static inline bool StringPtArRIt_next(StringPtArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool StringPtArRIt_remove(StringPtArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
-}
-
-static inline void SymbolPtAr_changeLength(SymbolPtAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
 static inline void SymbolPtAr_clear(SymbolPtAr *arr) {
     Array_clear((Array*)arr);
     SymbolPtAr zero = {0};
     *arr = zero;
-}
-
-#define SymbolPtAr_each(it, arr) for (Symbol ** it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void SymbolPtAr_fit(SymbolPtAr *arr) {
-    Array_fit((Array*)arr);
 }
 
 #define SymbolPtAr_foreach(var, arr)  for (SymbolPtArFIt_declare(var, arr); SymbolPtArFIt_next(&var); )            
@@ -1755,125 +1632,22 @@ static inline void SymbolPtAr_free(SymbolPtAr *arr) {
     Array_free((Array*)arr);
 }
 
-static inline Symbol *SymbolPtAr_get(SymbolPtAr *arr, int index, Error *err) {
-    Symbol * v = {0};
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
-}
-
-static inline Symbol **SymbolPtAr_getp(SymbolPtAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (Symbol **)Array_get((Array*)arr, index);
-}
-
 static inline void SymbolPtAr_init(SymbolPtAr *arr, int nelems) {
     Array_init((Array*)arr, nelems, sizeof(Symbol *), (Array_clearElement)NULL);
 }
 
-static inline void SymbolPtAr_insert(SymbolPtAr *arr, int index, Symbol *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Symbol * *p = (Symbol **)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void SymbolPtAr_insertp(SymbolPtAr *arr, int index, Symbol **elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Symbol * *p = (Symbol **)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int SymbolPtAr_last(SymbolPtAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
-
-static inline int SymbolPtAr_len(SymbolPtAr *arr) {
-    return Array_len((Array*)arr);
-}
-
-#define SymbolPtAr_loop(var) while (SymbolPtArFIt_next(&var)) 
-
 static inline SymbolPtAr *SymbolPtAr_new(int nelems) {
     return (SymbolPtAr*)Array_new(nelems, sizeof(Symbol *), (Array_clearElement)NULL);
-}
-
-static inline void SymbolPtAr_pop(SymbolPtAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
-}
-
-static inline void SymbolPtAr_push(SymbolPtAr *arr, Symbol *elem) {
-    Symbol * *p = (Symbol **)Array_pushN((Array*)arr, 1);
-    *p = elem;
-    return; 
-}            
-
-static inline void SymbolPtAr_pushp(SymbolPtAr *arr, Symbol **elem) {
-    Symbol * *p = (Symbol **)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define SymbolPtAr_reach(it, arr) for (Symbol ** it = arr->data+arr->len-1; it >= arr->data; it--)
-
-static inline void SymbolPtAr_remove(SymbolPtAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void SymbolPtAr_removeN(SymbolPtAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define SymbolPtAr_rforeach(var, arr)  for (SymbolPtArRIt_declare(var, arr); SymbolPtArRIt_next(&var); )            
-
-#define SymbolPtAr_rloop(var) while (SymbolPtArRIt_next(&var))             
-
-static inline void SymbolPtAr_set(SymbolPtAr *arr, int index, Symbol *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void SymbolPtAr_setp(SymbolPtAr *arr, int index, Symbol **elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
 }
 
 static inline void SymbolPtAr_truncate(SymbolPtAr *arr) {
     Array_truncate((Array*)arr);
 }
 
-static inline bool SymbolPtArFIt_atEnd(SymbolPtArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
 #define SymbolPtArFIt_declare(var, arr)  SymbolPtArFIt var = {arr, 0, (arr)->len, -1, NULL}
-
-#define SymbolPtArFIt_declare0(var)  SymbolPtArFIt var = {0}
 
 static inline bool SymbolPtArFIt_next(SymbolPtArFIt *iterator) {
     return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
-static inline bool SymbolPtArFIt_remove(SymbolPtArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool SymbolPtArRIt_atEnd(SymbolPtArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define SymbolPtArRIt_declare(var, arr)  SymbolPtArRIt var = {arr, 0, (arr)->len, (arr)->len, NULL}
-
-#define SymbolPtArRIt_declare0(var)  SymbolPtArRIt var = {0}
-
-static inline bool SymbolPtArRIt_next(SymbolPtArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool SymbolPtArRIt_remove(SymbolPtArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
 }
 
 static inline void SymbolPtAr_binInsertUnderlying(SymbolPtAr *arr, Symbol *elem) {
@@ -1881,43 +1655,10 @@ static inline void SymbolPtAr_binInsertUnderlying(SymbolPtAr *arr, Symbol *elem)
     Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)compare, false);
 }            
 
-static inline void SymbolPtAr_binRemoveUnderlying(SymbolPtAr *arr, Symbol *elem) {
-    int (*compare)(Symbol **, Symbol **) = Symbol_cmpUnderlying;
-    Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)compare, false);
-}        
-
 static inline Symbol **SymbolPtAr_binSearchUnderlying(SymbolPtAr *arr, Symbol *elem) {
     int (*compare)(Symbol **, Symbol **) = Symbol_cmpUnderlying;
     return (Symbol **)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, NULL);
 }
-
-static inline Symbol **SymbolPtAr_pqPeekUnderlying(SymbolPtAr *arr) {
-   return (Symbol **)Array_pqPeek((Array*)arr);
-}
-
-static inline bool SymbolPtAr_pqPopUnderlying(SymbolPtAr *arr, Symbol **elem) {
-    int (*compare)(Symbol **, Symbol **) = Symbol_cmpUnderlying;
-   return Array_pqPop((Array*)arr, (char*)elem, (Array_compare)compare);
-}
-
-static inline void SymbolPtAr_pqPushUnderlying(SymbolPtAr *arr, Symbol *elem) {
-    int (*compare)(Symbol **, Symbol **) = Symbol_cmpUnderlying;
-   Array_pqPush((Array*)arr, (char*)&elem, (Array_compare)compare);
-}
-
-static inline void SymbolPtAr_pqSortUnderlying(SymbolPtAr *arr) {
-    int (*compare)(Symbol **, Symbol **) = Symbol_cmpUnderlying;
-   Array_pqSort((Array*)arr, (Array_compare)compare);
-}
-
-static inline void SymbolPtAr_sortUnderlying(SymbolPtAr *arr) {
-    int (*compare)(Symbol **, Symbol **) = Symbol_cmpUnderlying;
-    Array_sort((Array*)arr, (Array_compare)compare);
-}                
-
-static inline void AtomAr_changeLength(AtomAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
 
 static inline void AtomAr_clear(AtomAr *arr) {
     Array_clear((Array*)arr);
@@ -1925,149 +1666,22 @@ static inline void AtomAr_clear(AtomAr *arr) {
     *arr = zero;
 }
 
-#define AtomAr_each(it, arr) for (Atom* it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void AtomAr_fit(AtomAr *arr) {
-    Array_fit((Array*)arr);
-}
-
-#define AtomAr_foreach(var, arr)  for (AtomArFIt_declare(var, arr); AtomArFIt_next(&var); )            
-
 static inline void AtomAr_free(AtomAr *arr) {
     Array_free((Array*)arr);
-}
-
-static inline Atom AtomAr_get(AtomAr *arr, int index, Error *err) {
-    Atom v = {0};
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
-}
-
-static inline Atom *AtomAr_getp(AtomAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (Atom *)Array_get((Array*)arr, index);
 }
 
 static inline void AtomAr_init(AtomAr *arr, int nelems) {
     Array_init((Array*)arr, nelems, sizeof(Atom), (Array_clearElement)NULL);
 }
 
-static inline void AtomAr_insert(AtomAr *arr, int index, Atom elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Atom *p = (Atom *)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void AtomAr_insertp(AtomAr *arr, int index, Atom *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Atom *p = (Atom *)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int AtomAr_last(AtomAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
-
-static inline int AtomAr_len(AtomAr *arr) {
-    return Array_len((Array*)arr);
-}
-
-#define AtomAr_loop(var) while (AtomArFIt_next(&var)) 
-
 static inline AtomAr *AtomAr_new(int nelems) {
     return (AtomAr*)Array_new(nelems, sizeof(Atom), (Array_clearElement)NULL);
 }
 
-static inline void AtomAr_pop(AtomAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
-}
-
-static inline void AtomAr_push(AtomAr *arr, Atom elem) {
-    Atom *p = (Atom *)Array_pushN((Array*)arr, 1);
-    *p = elem;
-    return; 
-}            
-
-static inline void AtomAr_pushp(AtomAr *arr, Atom *elem) {
-    Atom *p = (Atom *)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define AtomAr_reach(it, arr) for (Atom* it = arr->data+arr->len-1; it >= arr->data; it--)
-
-static inline void AtomAr_remove(AtomAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void AtomAr_removeN(AtomAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define AtomAr_rforeach(var, arr)  for (AtomArRIt_declare(var, arr); AtomArRIt_next(&var); )            
-
-#define AtomAr_rloop(var) while (AtomArRIt_next(&var))             
-
-static inline void AtomAr_set(AtomAr *arr, int index, Atom elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void AtomAr_setp(AtomAr *arr, int index, Atom *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
-
-static inline void AtomAr_truncate(AtomAr *arr) {
-    Array_truncate((Array*)arr);
-}
-
-static inline bool AtomArFIt_atEnd(AtomArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
-#define AtomArFIt_declare(var, arr)  AtomArFIt var = {arr, 0, (arr)->len, -1, NULL}
-
-#define AtomArFIt_declare0(var)  AtomArFIt var = {0}
-
-static inline bool AtomArFIt_next(AtomArFIt *iterator) {
-    return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
-static inline bool AtomArFIt_remove(AtomArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool AtomArRIt_atEnd(AtomArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define AtomArRIt_declare(var, arr)  AtomArRIt var = {arr, 0, (arr)->len, (arr)->len, NULL}
-
-#define AtomArRIt_declare0(var)  AtomArRIt var = {0}
-
-static inline bool AtomArRIt_next(AtomArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool AtomArRIt_remove(AtomArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
-}
-
-static inline MaxObject Port_obj(Port *self){return self->obj;}
-static inline void Port_setObj(Port *self, MaxObject value){self->obj = value;}
 static inline long Port_inletnum(Port *self){return self->inletnum;}
-static inline void Port_setInletnum(Port *self, long value){self->inletnum = value;}
 static inline PtrAr Port_proxy(Port *self){return self->proxy;}
-static inline void Port_setProxy(Port *self, PtrAr value){self->proxy = value;}
 static inline PtrAr Port_outlet(Port *self){return self->outlet;}
-static inline void Port_setOutlet(Port *self, PtrAr value){self->outlet = value;}
 static inline Symbol *Port_track(Port *self){return self->track;}
-static inline void Port_setTrack(Port *self, Symbol *value){self->track = value;}
 static inline Symbol *Port_id(Port *self){return self->id;}
 static inline void Port_setId(Port *self, Symbol *value){self->id = value;}
 static inline long Port_intInlets(Port *self){return self->intInlets;}
@@ -2080,17 +1694,11 @@ static inline Port_anythingDispatchFunc Port_anythingDispatch(Port *self){return
 static inline void Port_setAnythingDispatch(Port *self, Port_anythingDispatchFunc value){self->anythingDispatch = value;}
 static inline Port_intDispatchFunc Port_intDispatch(Port *self){return self->intDispatch;}
 static inline void Port_setIntDispatch(Port *self, Port_intDispatchFunc value){self->intDispatch = value;}
-static inline void MEventAr_changeLength(MEventAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
 static inline void MEventAr_clear(MEventAr *arr) {
     Array_clear((Array*)arr);
     MEventAr zero = {0};
     *arr = zero;
 }
-
-#define MEventAr_each(it, arr) for (MEvent* it = arr->data; it < arr->data + arr->len; it++)
 
 static inline void MEventAr_fit(MEventAr *arr) {
     Array_fit((Array*)arr);
@@ -2124,12 +1732,6 @@ static inline void MEventAr_insert(MEventAr *arr, int index, MEvent elem, Error 
     *p = elem;
 }
 
-static inline void MEventAr_insertp(MEventAr *arr, int index, MEvent *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    MEvent *p = (MEvent *)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
 static inline int MEventAr_last(MEventAr *arr) {
     return Array_len((Array*)arr)-1;
 }            
@@ -2138,15 +1740,8 @@ static inline int MEventAr_len(MEventAr *arr) {
     return Array_len((Array*)arr);
 }
 
-#define MEventAr_loop(var) while (MEventArFIt_next(&var)) 
-
 static inline MEventAr *MEventAr_new(int nelems) {
     return (MEventAr*)Array_new(nelems, sizeof(MEvent), (Array_clearElement)NULL);
-}
-
-static inline void MEventAr_pop(MEventAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
 }
 
 static inline void MEventAr_push(MEventAr *arr, MEvent elem) {
@@ -2155,72 +1750,22 @@ static inline void MEventAr_push(MEventAr *arr, MEvent elem) {
     return; 
 }            
 
-static inline void MEventAr_pushp(MEventAr *arr, MEvent *elem) {
-    MEvent *p = (MEvent *)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define MEventAr_reach(it, arr) for (MEvent* it = arr->data+arr->len-1; it >= arr->data; it--)
-
-static inline void MEventAr_remove(MEventAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void MEventAr_removeN(MEventAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
 #define MEventAr_rforeach(var, arr)  for (MEventArRIt_declare(var, arr); MEventArRIt_next(&var); )            
-
-#define MEventAr_rloop(var) while (MEventArRIt_next(&var))             
-
-static inline void MEventAr_set(MEventAr *arr, int index, MEvent elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void MEventAr_setp(MEventAr *arr, int index, MEvent *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
 
 static inline void MEventAr_truncate(MEventAr *arr) {
     Array_truncate((Array*)arr);
 }
 
-static inline bool MEventArFIt_atEnd(MEventArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
 #define MEventArFIt_declare(var, arr)  MEventArFIt var = {arr, 0, (arr)->len, -1, NULL}
-
-#define MEventArFIt_declare0(var)  MEventArFIt var = {0}
 
 static inline bool MEventArFIt_next(MEventArFIt *iterator) {
     return ArrayFIt_next((ArrayFIt*)iterator);
 }
 
-static inline bool MEventArFIt_remove(MEventArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool MEventArRIt_atEnd(MEventArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
 #define MEventArRIt_declare(var, arr)  MEventArRIt var = {arr, 0, (arr)->len, (arr)->len, NULL}
-
-#define MEventArRIt_declare0(var)  MEventArRIt var = {0}
 
 static inline bool MEventArRIt_next(MEventArRIt *iterator) {
     return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool MEventArRIt_remove(MEventArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
 }
 
 static inline void PtrAr_changeLength(PtrAr *arr, int newLength) {
@@ -2231,12 +1776,6 @@ static inline void PtrAr_clear(PtrAr *arr) {
     Array_clear((Array*)arr);
     PtrAr zero = {0};
     *arr = zero;
-}
-
-#define PtrAr_each(it, arr) for (void ** it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void PtrAr_fit(PtrAr *arr) {
-    Array_fit((Array*)arr);
 }
 
 #define PtrAr_foreach(var, arr)  for (PtrArFIt_declare(var, arr); PtrArFIt_next(&var); )            
@@ -2252,44 +1791,12 @@ static inline void *PtrAr_get(PtrAr *arr, int index, Error *err) {
     return v;
 }
 
-static inline void **PtrAr_getp(PtrAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (void **)Array_get((Array*)arr, index);
-}
-
 static inline void PtrAr_init(PtrAr *arr, int nelems) {
     Array_init((Array*)arr, nelems, sizeof(void *), (Array_clearElement)NULL);
 }
 
-static inline void PtrAr_insert(PtrAr *arr, int index, void *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    void * *p = (void **)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void PtrAr_insertp(PtrAr *arr, int index, void **elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    void * *p = (void **)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int PtrAr_last(PtrAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
-
-static inline int PtrAr_len(PtrAr *arr) {
-    return Array_len((Array*)arr);
-}
-
-#define PtrAr_loop(var) while (PtrArFIt_next(&var)) 
-
 static inline PtrAr *PtrAr_new(int nelems) {
     return (PtrAr*)Array_new(nelems, sizeof(void *), (Array_clearElement)NULL);
-}
-
-static inline void PtrAr_pop(PtrAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
 }
 
 static inline void PtrAr_push(PtrAr *arr, void *elem) {
@@ -2298,88 +1805,21 @@ static inline void PtrAr_push(PtrAr *arr, void *elem) {
     return; 
 }            
 
-static inline void PtrAr_pushp(PtrAr *arr, void **elem) {
-    void * *p = (void **)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define PtrAr_reach(it, arr) for (void ** it = arr->data+arr->len-1; it >= arr->data; it--)
-
-static inline void PtrAr_remove(PtrAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void PtrAr_removeN(PtrAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define PtrAr_rforeach(var, arr)  for (PtrArRIt_declare(var, arr); PtrArRIt_next(&var); )            
-
-#define PtrAr_rloop(var) while (PtrArRIt_next(&var))             
-
 static inline void PtrAr_set(PtrAr *arr, int index, void *elem, Error *err) {
     Array_setCheck(arr, index, err);
     Array_set((Array*)arr, index, (char*)&elem);
 }
 
-static inline void PtrAr_setp(PtrAr *arr, int index, void **elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
-
-static inline void PtrAr_truncate(PtrAr *arr) {
-    Array_truncate((Array*)arr);
-}
-
-static inline bool PtrArFIt_atEnd(PtrArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
 #define PtrArFIt_declare(var, arr)  PtrArFIt var = {arr, 0, (arr)->len, -1, NULL}
-
-#define PtrArFIt_declare0(var)  PtrArFIt var = {0}
 
 static inline bool PtrArFIt_next(PtrArFIt *iterator) {
     return ArrayFIt_next((ArrayFIt*)iterator);
 }
 
-static inline bool PtrArFIt_remove(PtrArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool PtrArRIt_atEnd(PtrArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define PtrArRIt_declare(var, arr)  PtrArRIt var = {arr, 0, (arr)->len, (arr)->len, NULL}
-
-#define PtrArRIt_declare0(var)  PtrArRIt var = {0}
-
-static inline bool PtrArRIt_next(PtrArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool PtrArRIt_remove(PtrArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
-}
-
-static inline void SymbolPtrAr_changeLength(SymbolPtrAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
 static inline void SymbolPtrAr_clear(SymbolPtrAr *arr) {
     Array_clear((Array*)arr);
     SymbolPtrAr zero = {0};
     *arr = zero;
-}
-
-#define SymbolPtrAr_each(it, arr) for (Symbol ** it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void SymbolPtrAr_fit(SymbolPtrAr *arr) {
-    Array_fit((Array*)arr);
 }
 
 #define SymbolPtrAr_foreach(var, arr)  for (SymbolPtrArFIt_declare(var, arr); SymbolPtrArFIt_next(&var); )            
@@ -2395,44 +1835,16 @@ static inline Symbol *SymbolPtrAr_get(SymbolPtrAr *arr, int index, Error *err) {
     return v;
 }
 
-static inline Symbol **SymbolPtrAr_getp(SymbolPtrAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (Symbol **)Array_get((Array*)arr, index);
-}
-
 static inline void SymbolPtrAr_init(SymbolPtrAr *arr, int nelems) {
     Array_init((Array*)arr, nelems, sizeof(Symbol *), (Array_clearElement)NULL);
 }
-
-static inline void SymbolPtrAr_insert(SymbolPtrAr *arr, int index, Symbol *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Symbol * *p = (Symbol **)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void SymbolPtrAr_insertp(SymbolPtrAr *arr, int index, Symbol **elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Symbol * *p = (Symbol **)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int SymbolPtrAr_last(SymbolPtrAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
 
 static inline int SymbolPtrAr_len(SymbolPtrAr *arr) {
     return Array_len((Array*)arr);
 }
 
-#define SymbolPtrAr_loop(var) while (SymbolPtrArFIt_next(&var)) 
-
 static inline SymbolPtrAr *SymbolPtrAr_new(int nelems) {
     return (SymbolPtrAr*)Array_new(nelems, sizeof(Symbol *), (Array_clearElement)NULL);
-}
-
-static inline void SymbolPtrAr_pop(SymbolPtrAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
 }
 
 static inline void SymbolPtrAr_push(SymbolPtrAr *arr, Symbol *elem) {
@@ -2441,77 +1853,11 @@ static inline void SymbolPtrAr_push(SymbolPtrAr *arr, Symbol *elem) {
     return; 
 }            
 
-static inline void SymbolPtrAr_pushp(SymbolPtrAr *arr, Symbol **elem) {
-    Symbol * *p = (Symbol **)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define SymbolPtrAr_reach(it, arr) for (Symbol ** it = arr->data+arr->len-1; it >= arr->data; it--)
-
-static inline void SymbolPtrAr_remove(SymbolPtrAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void SymbolPtrAr_removeN(SymbolPtrAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define SymbolPtrAr_rforeach(var, arr)  for (SymbolPtrArRIt_declare(var, arr); SymbolPtrArRIt_next(&var); )            
-
-#define SymbolPtrAr_rloop(var) while (SymbolPtrArRIt_next(&var))             
-
-static inline void SymbolPtrAr_set(SymbolPtrAr *arr, int index, Symbol *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void SymbolPtrAr_setp(SymbolPtrAr *arr, int index, Symbol **elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
-
-static inline void SymbolPtrAr_truncate(SymbolPtrAr *arr) {
-    Array_truncate((Array*)arr);
-}
-
-static inline bool SymbolPtrArFIt_atEnd(SymbolPtrArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
 #define SymbolPtrArFIt_declare(var, arr)  SymbolPtrArFIt var = {arr, 0, (arr)->len, -1, NULL}
-
-#define SymbolPtrArFIt_declare0(var)  SymbolPtrArFIt var = {0}
 
 static inline bool SymbolPtrArFIt_next(SymbolPtrArFIt *iterator) {
     return ArrayFIt_next((ArrayFIt*)iterator);
 }
-
-static inline bool SymbolPtrArFIt_remove(SymbolPtrArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool SymbolPtrArRIt_atEnd(SymbolPtrArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define SymbolPtrArRIt_declare(var, arr)  SymbolPtrArRIt var = {arr, 0, (arr)->len, (arr)->len, NULL}
-
-#define SymbolPtrArRIt_declare0(var)  SymbolPtrArRIt var = {0}
-
-static inline bool SymbolPtrArRIt_next(SymbolPtrArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool SymbolPtrArRIt_remove(SymbolPtrArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
-}
-
-static inline void IntAr_changeLength(IntAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
 
 static inline void IntAr_clear(IntAr *arr) {
     Array_clear((Array*)arr);
@@ -2519,157 +1865,27 @@ static inline void IntAr_clear(IntAr *arr) {
     *arr = zero;
 }
 
-#define IntAr_each(it, arr) for (int* it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void IntAr_fit(IntAr *arr) {
-    Array_fit((Array*)arr);
-}
-
-#define IntAr_foreach(var, arr)  for (IntArFIt_declare(var, arr); IntArFIt_next(&var); )            
-
 static inline void IntAr_free(IntAr *arr) {
     Array_free((Array*)arr);
-}
-
-static inline int IntAr_get(IntAr *arr, int index, Error *err) {
-    int v = 0;
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
-}
-
-static inline int *IntAr_getp(IntAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (int *)Array_get((Array*)arr, index);
 }
 
 static inline void IntAr_init(IntAr *arr, int nelems) {
     Array_init((Array*)arr, nelems, sizeof(int), (Array_clearElement)NULL);
 }
 
-static inline void IntAr_insert(IntAr *arr, int index, int elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    int *p = (int *)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void IntAr_insertp(IntAr *arr, int index, int *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    int *p = (int *)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int IntAr_last(IntAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
-
-static inline int IntAr_len(IntAr *arr) {
-    return Array_len((Array*)arr);
-}
-
-#define IntAr_loop(var) while (IntArFIt_next(&var)) 
-
 static inline IntAr *IntAr_new(int nelems) {
     return (IntAr*)Array_new(nelems, sizeof(int), (Array_clearElement)NULL);
 }
 
-static inline void IntAr_pop(IntAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
-}
-
-static inline void IntAr_push(IntAr *arr, int elem) {
-    int *p = (int *)Array_pushN((Array*)arr, 1);
-    *p = elem;
-    return; 
-}            
-
-static inline void IntAr_pushp(IntAr *arr, int *elem) {
-    int *p = (int *)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define IntAr_reach(it, arr) for (int* it = arr->data+arr->len-1; it >= arr->data; it--)
-
-static inline void IntAr_remove(IntAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void IntAr_removeN(IntAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define IntAr_rforeach(var, arr)  for (IntArRIt_declare(var, arr); IntArRIt_next(&var); )            
-
-#define IntAr_rloop(var) while (IntArRIt_next(&var))             
-
-static inline void IntAr_set(IntAr *arr, int index, int elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void IntAr_setp(IntAr *arr, int index, int *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
-
-static inline void IntAr_truncate(IntAr *arr) {
-    Array_truncate((Array*)arr);
-}
-
-static inline bool IntArFIt_atEnd(IntArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
-#define IntArFIt_declare(var, arr)  IntArFIt var = {arr, 0, (arr)->len, -1, NULL}
-
-#define IntArFIt_declare0(var)  IntArFIt var = {0}
-
-static inline bool IntArFIt_next(IntArFIt *iterator) {
-    return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
-static inline bool IntArFIt_remove(IntArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool IntArRIt_atEnd(IntArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define IntArRIt_declare(var, arr)  IntArRIt var = {arr, 0, (arr)->len, (arr)->len, NULL}
-
-#define IntArRIt_declare0(var)  IntArRIt var = {0}
-
-static inline bool IntArRIt_next(IntArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool IntArRIt_remove(IntArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
-}
-
 static inline int BinFile_version(BinFile *self){return self->version;}
-static inline void BinFile_setVersion(BinFile *self, int value){self->version = value;}
 static inline String *BinFile_filename(BinFile *self){return self->filename;}
-static inline void BinFile_setFilename(BinFile *self, String *value){self->filename = value;}
 static inline String *BinFile_buffer(BinFile *self){return self->buffer;}
-static inline void BinFile_setBuffer(BinFile *self, String *value){self->buffer = value;}
 static inline FILE *BinFile_stream(BinFile *self){return self->stream;}
 static inline void BinFile_setStream(BinFile *self, FILE *value){self->stream = value;}
 static inline bool Midiseq_useMasterClock(Midiseq *self){return self->useMasterClock;}
 static inline void Midiseq_setUseMasterClock(Midiseq *self, bool value){self->useMasterClock = value;}
 static inline Ticks Midiseq_sequenceLength(Midiseq *self){return self->sequenceLength;}
 static inline void Midiseq_setSequenceLength(Midiseq *self, Ticks value){self->sequenceLength = value;}
-static inline MEventAr Midiseq_events(Midiseq *self){return self->events;}
-static inline void Midiseq_setEvents(Midiseq *self, MEventAr value){self->events = value;}
-static inline Ticks Midiseq_startTime(Midiseq *self){return self->startTime;}
-static inline void Midiseq_setStartTime(Midiseq *self, Ticks value){self->startTime = value;}
-static inline int Midiseq_ptr(Midiseq *self){return self->ptr;}
-static inline void Midiseq_setPtr(Midiseq *self, int value){self->ptr = value;}
 static inline Symbol *Pad_trackName(Pad *self){return self->trackName;}
 static inline void Pad_setTrackName(Pad *self, Symbol *value){self->trackName = value;}
 static inline int Pad_padIndex(Pad *self){return self->padIndex;}
@@ -2689,39 +1905,15 @@ static inline bool Pad_inEndgroup(Pad *self){return self->inEndgroup;}
 static inline void Pad_setInEndgroup(Pad *self, bool value){self->inEndgroup = value;}
 static inline Track *Pad_track(Pad *self){return self->track;}
 static inline void Pad_setTrack(Pad *self, Track *value){self->track = value;}
-static inline bool Pad_useMasterClock(Pad *self){return self->useMasterClock;}
-static inline void Pad_setUseMasterClock(Pad *self, bool value){self->useMasterClock = value;}
-static inline int IndexedOff_padIndex(IndexedOff *self){return self->padIndex;}
-static inline void IndexedOff_setPadIndex(IndexedOff *self, int value){self->padIndex = value;}
-static inline int IndexedOff_pitch(IndexedOff *self){return self->pitch;}
-static inline void IndexedOff_setPitch(IndexedOff *self, int value){self->pitch = value;}
 #define IndexedOff_declare(name, padIndex, pitch) IndexedOff name = {(padIndex), (pitch)}
-static inline Ticks TimedOff_time(TimedOff *self){return self->time;}
-static inline void TimedOff_setTime(TimedOff *self, Ticks value){self->time = value;}
-static inline int TimedOff_pitch(TimedOff *self){return self->pitch;}
-static inline void TimedOff_setPitch(TimedOff *self, int value){self->pitch = value;}
 #define TimedOff_declare(name, time, pitch) TimedOff name = {(time), (pitch)}
-static inline TimedOffAr NoteManager_pending(NoteManager *self){return self->pending;}
-static inline void NoteManager_setPending(NoteManager *self, TimedOffAr value){self->pending = value;}
-static inline IndexedOffAr NoteManager_endgroups(NoteManager *self){return self->endgroups;}
-static inline void NoteManager_setEndgroups(NoteManager *self, IndexedOffAr value){self->endgroups = value;}
-static inline Port *NoteManager_output(NoteManager *self){return self->output;}
-static inline void NoteManager_setOutput(NoteManager *self, Port *value){self->output = value;}
-static inline Atom *NoteManager_atoms(NoteManager *self){return self->atoms;}
-static inline void NoteManager_setAtoms(NoteManager *self, Atom *value){self->atoms = value;}
 static inline PadAr *PadList_pads(PadList *self){return &self->pads;}
 static inline PadPtrAr *PadList_running(PadList *self){return &self->running;}
-static inline Symbol *Track_name(Track *self){return self->name;}
 static inline void Track_setName(Track *self, Symbol *value){self->name = value;}
 static inline NoteManager *Track_noteManager(Track *self){return self->noteManager;}
 static inline void Track_setNoteManager(Track *self, NoteManager *value){self->noteManager = value;}
-static inline TrackAr *TrackList_list(TrackList *self){return &self->list;}
 static inline Port *PortRef_port(PortRef *self){return self->port;}
-static inline void PortRef_setPort(PortRef *self, Port *value){self->port = value;}
 static inline int PortRef_outlet(PortRef *self){return self->outlet;}
-static inline void PortRef_setOutlet(PortRef *self, int value){self->outlet = value;}
-static inline SymbolPtrAr *DropDown_table(DropDown *self){return &self->table;}
-static inline int DropDown_selected(DropDown *self){return self->selected;}
 static inline PadList *Hub_padList(Hub *self){return self->padList;}
 static inline void Hub_setPadList(Hub *self, PadList *value){self->padList = value;}
 static inline TrackList *Hub_trackList(Hub *self){return self->trackList;}
@@ -2736,103 +1928,38 @@ static inline Port *Hub_selFramePort(Hub *self){return self->selFramePort;}
 static inline void Hub_setSelFramePort(Hub *self, Port *value){self->selFramePort = value;}
 static inline Port *Hub_selPadPort(Hub *self){return self->selPadPort;}
 static inline void Hub_setSelPadPort(Hub *self, Port *value){self->selPadPort = value;}
-static inline Port *Hub_chokeGroupPort(Hub *self){return self->chokeGroupPort;}
-static inline void Hub_setChokeGroupPort(Hub *self, Port *value){self->chokeGroupPort = value;}
 static inline DropDown *Hub_cgLocalGlobalMenu(Hub *self){return &self->cgLocalGlobalMenu;}
 static inline DropDown *Hub_cgInstrumentMenu(Hub *self){return &self->cgInstrumentMenu;}
 static inline DropDown *Hub_cgIndexMenu(Hub *self){return &self->cgIndexMenu;}
 static inline int Hub_bank(Hub *self){return self->bank;}
-static inline void Hub_setBank(Hub *self, int value){self->bank = value;}
 static inline int Hub_frame(Hub *self){return self->frame;}
 static inline void Hub_setFrame(Hub *self, int value){self->frame = value;}
 static inline bool Hub_grabNextTappedPad(Hub *self){return self->grabNextTappedPad;}
 static inline void Hub_setGrabNextTappedPad(Hub *self, bool value){self->grabNextTappedPad = value;}
 static inline int Hub_selectedPad(Hub *self){return self->selectedPad;}
 static inline void Hub_setSelectedPad(Hub *self, int value){self->selectedPad = value;}
-static inline Arguments Hub_arguments(Hub *self){return self->arguments;}
-static inline void Hub_setArguments(Hub *self, Arguments value){self->arguments = value;}
-static inline DispatchPtAr *Hub_dispatcher(Hub *self){return &self->dispatcher;}
-static inline Ticks Hub_masterClock(Hub *self){return self->masterClock;}
-static inline void Hub_setMasterClock(Hub *self, Ticks value){self->masterClock = value;}
-static inline Port *PortFindCell_reciever(PortFindCell *self){return self->reciever;}
-static inline void PortFindCell_setReciever(PortFindCell *self, Port *value){self->reciever = value;}
-static inline Symbol *PortFindCell_varname(PortFindCell *self){return self->varname;}
-static inline void PortFindCell_setVarname(PortFindCell *self, Symbol *value){self->varname = value;}
-static inline PortFindCellAr PortFind_objects(PortFind *self){return self->objects;}
-static inline void PortFind_setObjects(PortFind *self, PortFindCellAr value){self->objects = value;}
 static inline void *PortFind_hub(PortFind *self){return self->hub;}
 static inline void PortFind_setHub(PortFind *self, void *value){self->hub = value;}
 static inline Port_anythingDispatchFunc PortFind_anythingDispatch(PortFind *self){return self->anythingDispatch;}
 static inline void PortFind_setAnythingDispatch(PortFind *self, Port_anythingDispatchFunc value){self->anythingDispatch = value;}
 static inline Port_intDispatchFunc PortFind_intDispatch(PortFind *self){return self->intDispatch;}
 static inline void PortFind_setIntDispatch(PortFind *self, Port_intDispatchFunc value){self->intDispatch = value;}
-static inline void DispatchPtAr_changeLength(DispatchPtAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
 static inline void DispatchPtAr_clear(DispatchPtAr *arr) {
     Array_clear((Array*)arr);
     DispatchPtAr zero = {0};
     *arr = zero;
 }
 
-#define DispatchPtAr_each(it, arr) for (Dispatch ** it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void DispatchPtAr_fit(DispatchPtAr *arr) {
-    Array_fit((Array*)arr);
-}
-
-#define DispatchPtAr_foreach(var, arr)  for (DispatchPtArFIt_declare(var, arr); DispatchPtArFIt_next(&var); )            
-
 static inline void DispatchPtAr_free(DispatchPtAr *arr) {
     Array_free((Array*)arr);
-}
-
-static inline Dispatch *DispatchPtAr_get(DispatchPtAr *arr, int index, Error *err) {
-    Dispatch * v = {0};
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
-}
-
-static inline Dispatch **DispatchPtAr_getp(DispatchPtAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (Dispatch **)Array_get((Array*)arr, index);
 }
 
 static inline void DispatchPtAr_init(DispatchPtAr *arr, int nelems) {
     Array_init((Array*)arr, nelems, sizeof(Dispatch *), (Array_clearElement)NULL);
 }
 
-static inline void DispatchPtAr_insert(DispatchPtAr *arr, int index, Dispatch *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Dispatch * *p = (Dispatch **)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void DispatchPtAr_insertp(DispatchPtAr *arr, int index, Dispatch **elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Dispatch * *p = (Dispatch **)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int DispatchPtAr_last(DispatchPtAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
-
-static inline int DispatchPtAr_len(DispatchPtAr *arr) {
-    return Array_len((Array*)arr);
-}
-
-#define DispatchPtAr_loop(var) while (DispatchPtArFIt_next(&var)) 
-
 static inline DispatchPtAr *DispatchPtAr_new(int nelems) {
     return (DispatchPtAr*)Array_new(nelems, sizeof(Dispatch *), (Array_clearElement)NULL);
-}
-
-static inline void DispatchPtAr_pop(DispatchPtAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
 }
 
 static inline void DispatchPtAr_push(DispatchPtAr *arr, Dispatch *elem) {
@@ -2841,106 +1968,13 @@ static inline void DispatchPtAr_push(DispatchPtAr *arr, Dispatch *elem) {
     return; 
 }            
 
-static inline void DispatchPtAr_pushp(DispatchPtAr *arr, Dispatch **elem) {
-    Dispatch * *p = (Dispatch **)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define DispatchPtAr_reach(it, arr) for (Dispatch ** it = arr->data+arr->len-1; it >= arr->data; it--)
-
-static inline void DispatchPtAr_remove(DispatchPtAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void DispatchPtAr_removeN(DispatchPtAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define DispatchPtAr_rforeach(var, arr)  for (DispatchPtArRIt_declare(var, arr); DispatchPtArRIt_next(&var); )            
-
-#define DispatchPtAr_rloop(var) while (DispatchPtArRIt_next(&var))             
-
-static inline void DispatchPtAr_set(DispatchPtAr *arr, int index, Dispatch *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void DispatchPtAr_setp(DispatchPtAr *arr, int index, Dispatch **elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
-
 static inline void DispatchPtAr_truncate(DispatchPtAr *arr) {
     Array_truncate((Array*)arr);
 }
 
-static inline bool DispatchPtArFIt_atEnd(DispatchPtArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
-#define DispatchPtArFIt_declare(var, arr)  DispatchPtArFIt var = {arr, 0, (arr)->len, -1, NULL}
-
-#define DispatchPtArFIt_declare0(var)  DispatchPtArFIt var = {0}
-
-static inline bool DispatchPtArFIt_next(DispatchPtArFIt *iterator) {
-    return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
-static inline bool DispatchPtArFIt_remove(DispatchPtArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool DispatchPtArRIt_atEnd(DispatchPtArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define DispatchPtArRIt_declare(var, arr)  DispatchPtArRIt var = {arr, 0, (arr)->len, (arr)->len, NULL}
-
-#define DispatchPtArRIt_declare0(var)  DispatchPtArRIt var = {0}
-
-static inline bool DispatchPtArRIt_next(DispatchPtArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool DispatchPtArRIt_remove(DispatchPtArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
-}
-
-static inline void DispatchPtAr_binInsert(DispatchPtAr *arr, Dispatch *elem) {
-    int (*compare)(Dispatch **, Dispatch **) = Dispatch_cmp;
-    Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)compare, false);
-}            
-
-static inline void DispatchPtAr_binRemove(DispatchPtAr *arr, Dispatch *elem) {
-    int (*compare)(Dispatch **, Dispatch **) = Dispatch_cmp;
-    Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)compare, false);
-}        
-
 static inline Dispatch **DispatchPtAr_binSearch(DispatchPtAr *arr, Dispatch *elem) {
     int (*compare)(Dispatch **, Dispatch **) = Dispatch_cmp;
     return (Dispatch **)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, NULL);
-}
-
-static inline Dispatch **DispatchPtAr_pqPeek(DispatchPtAr *arr) {
-   return (Dispatch **)Array_pqPeek((Array*)arr);
-}
-
-static inline bool DispatchPtAr_pqPop(DispatchPtAr *arr, Dispatch **elem) {
-    int (*compare)(Dispatch **, Dispatch **) = Dispatch_cmp;
-   return Array_pqPop((Array*)arr, (char*)elem, (Array_compare)compare);
-}
-
-static inline void DispatchPtAr_pqPush(DispatchPtAr *arr, Dispatch *elem) {
-    int (*compare)(Dispatch **, Dispatch **) = Dispatch_cmp;
-   Array_pqPush((Array*)arr, (char*)&elem, (Array_compare)compare);
-}
-
-static inline void DispatchPtAr_pqSort(DispatchPtAr *arr) {
-    int (*compare)(Dispatch **, Dispatch **) = Dispatch_cmp;
-   Array_pqSort((Array*)arr, (Array_compare)compare);
 }
 
 static inline void DispatchPtAr_sort(DispatchPtAr *arr) {
@@ -2958,8 +1992,6 @@ static inline void PadAr_clear(PadAr *arr) {
     *arr = zero;
 }
 
-#define PadAr_each(it, arr) for (Pad* it = arr->data; it < arr->data + arr->len; it++)
-
 static inline void PadAr_fit(PadAr *arr) {
     Array_fit((Array*)arr);
 }
@@ -2968,13 +2000,6 @@ static inline void PadAr_fit(PadAr *arr) {
 
 static inline void PadAr_free(PadAr *arr) {
     Array_free((Array*)arr);
-}
-
-static inline Pad PadAr_get(PadAr *arr, int index, Error *err) {
-    Pad v = {0};
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
 }
 
 static inline Pad *PadAr_getp(PadAr *arr, int index, Error *err) {
@@ -2986,35 +2011,12 @@ static inline void PadAr_init(PadAr *arr, int nelems) {
     Array_init((Array*)arr, nelems, sizeof(Pad), (Array_clearElement)NULL);
 }
 
-static inline void PadAr_insert(PadAr *arr, int index, Pad elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Pad *p = (Pad *)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void PadAr_insertp(PadAr *arr, int index, Pad *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Pad *p = (Pad *)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int PadAr_last(PadAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
-
 static inline int PadAr_len(PadAr *arr) {
     return Array_len((Array*)arr);
 }
 
-#define PadAr_loop(var) while (PadArFIt_next(&var)) 
-
 static inline PadAr *PadAr_new(int nelems) {
     return (PadAr*)Array_new(nelems, sizeof(Pad), (Array_clearElement)NULL);
-}
-
-static inline void PadAr_pop(PadAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
 }
 
 static inline void PadAr_push(PadAr *arr, Pad elem) {
@@ -3023,88 +2025,16 @@ static inline void PadAr_push(PadAr *arr, Pad elem) {
     return; 
 }            
 
-static inline void PadAr_pushp(PadAr *arr, Pad *elem) {
-    Pad *p = (Pad *)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define PadAr_reach(it, arr) for (Pad* it = arr->data+arr->len-1; it >= arr->data; it--)
-
-static inline void PadAr_remove(PadAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void PadAr_removeN(PadAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define PadAr_rforeach(var, arr)  for (PadArRIt_declare(var, arr); PadArRIt_next(&var); )            
-
-#define PadAr_rloop(var) while (PadArRIt_next(&var))             
-
-static inline void PadAr_set(PadAr *arr, int index, Pad elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void PadAr_setp(PadAr *arr, int index, Pad *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
-
-static inline void PadAr_truncate(PadAr *arr) {
-    Array_truncate((Array*)arr);
-}
-
-static inline bool PadArFIt_atEnd(PadArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
 #define PadArFIt_declare(var, arr)  PadArFIt var = {arr, 0, (arr)->len, -1, NULL}
-
-#define PadArFIt_declare0(var)  PadArFIt var = {0}
 
 static inline bool PadArFIt_next(PadArFIt *iterator) {
     return ArrayFIt_next((ArrayFIt*)iterator);
 }
 
-static inline bool PadArFIt_remove(PadArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool PadArRIt_atEnd(PadArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define PadArRIt_declare(var, arr)  PadArRIt var = {arr, 0, (arr)->len, (arr)->len, NULL}
-
-#define PadArRIt_declare0(var)  PadArRIt var = {0}
-
-static inline bool PadArRIt_next(PadArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool PadArRIt_remove(PadArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
-}
-
-static inline void PadPtrAr_changeLength(PadPtrAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
 static inline void PadPtrAr_clear(PadPtrAr *arr) {
     Array_clear((Array*)arr);
     PadPtrAr zero = {0};
     *arr = zero;
-}
-
-#define PadPtrAr_each(it, arr) for (Pad ** it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void PadPtrAr_fit(PadPtrAr *arr) {
-    Array_fit((Array*)arr);
 }
 
 #define PadPtrAr_foreach(var, arr)  for (PadPtrArFIt_declare(var, arr); PadPtrArFIt_next(&var); )            
@@ -3113,51 +2043,12 @@ static inline void PadPtrAr_free(PadPtrAr *arr) {
     Array_free((Array*)arr);
 }
 
-static inline Pad *PadPtrAr_get(PadPtrAr *arr, int index, Error *err) {
-    Pad * v = {0};
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
-}
-
-static inline Pad **PadPtrAr_getp(PadPtrAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (Pad **)Array_get((Array*)arr, index);
-}
-
 static inline void PadPtrAr_init(PadPtrAr *arr, int nelems) {
     Array_init((Array*)arr, nelems, sizeof(Pad *), (Array_clearElement)NULL);
 }
 
-static inline void PadPtrAr_insert(PadPtrAr *arr, int index, Pad *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Pad * *p = (Pad **)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void PadPtrAr_insertp(PadPtrAr *arr, int index, Pad **elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Pad * *p = (Pad **)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int PadPtrAr_last(PadPtrAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
-
-static inline int PadPtrAr_len(PadPtrAr *arr) {
-    return Array_len((Array*)arr);
-}
-
-#define PadPtrAr_loop(var) while (PadPtrArFIt_next(&var)) 
-
 static inline PadPtrAr *PadPtrAr_new(int nelems) {
     return (PadPtrAr*)Array_new(nelems, sizeof(Pad *), (Array_clearElement)NULL);
-}
-
-static inline void PadPtrAr_pop(PadPtrAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
 }
 
 static inline void PadPtrAr_push(PadPtrAr *arr, Pad *elem) {
@@ -3166,49 +2057,12 @@ static inline void PadPtrAr_push(PadPtrAr *arr, Pad *elem) {
     return; 
 }            
 
-static inline void PadPtrAr_pushp(PadPtrAr *arr, Pad **elem) {
-    Pad * *p = (Pad **)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define PadPtrAr_reach(it, arr) for (Pad ** it = arr->data+arr->len-1; it >= arr->data; it--)
-
 static inline void PadPtrAr_remove(PadPtrAr *arr, int index, Error *err) {
     Array_removeNCheck(arr, index, 1, err);
     Array_removeN((Array*)arr, index, 1);
 }    
 
-static inline void PadPtrAr_removeN(PadPtrAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define PadPtrAr_rforeach(var, arr)  for (PadPtrArRIt_declare(var, arr); PadPtrArRIt_next(&var); )            
-
-#define PadPtrAr_rloop(var) while (PadPtrArRIt_next(&var))             
-
-static inline void PadPtrAr_set(PadPtrAr *arr, int index, Pad *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void PadPtrAr_setp(PadPtrAr *arr, int index, Pad **elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
-
-static inline void PadPtrAr_truncate(PadPtrAr *arr) {
-    Array_truncate((Array*)arr);
-}
-
-static inline bool PadPtrArFIt_atEnd(PadPtrArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
 #define PadPtrArFIt_declare(var, arr)  PadPtrArFIt var = {arr, 0, (arr)->len, -1, NULL}
-
-#define PadPtrArFIt_declare0(var)  PadPtrArFIt var = {0}
 
 static inline bool PadPtrArFIt_next(PadPtrArFIt *iterator) {
     return ArrayFIt_next((ArrayFIt*)iterator);
@@ -3218,36 +2072,10 @@ static inline bool PadPtrArFIt_remove(PadPtrArFIt *iterator) {
     return ArrayFIt_remove((ArrayFIt*)iterator);
 }
 
-static inline bool PadPtrArRIt_atEnd(PadPtrArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define PadPtrArRIt_declare(var, arr)  PadPtrArRIt var = {arr, 0, (arr)->len, (arr)->len, NULL}
-
-#define PadPtrArRIt_declare0(var)  PadPtrArRIt var = {0}
-
-static inline bool PadPtrArRIt_next(PadPtrArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool PadPtrArRIt_remove(PadPtrArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
-}
-
-static inline void IndexedOffAr_changeLength(IndexedOffAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
 static inline void IndexedOffAr_clear(IndexedOffAr *arr) {
     Array_clear((Array*)arr);
     IndexedOffAr zero = {0};
     *arr = zero;
-}
-
-#define IndexedOffAr_each(it, arr) for (IndexedOff* it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void IndexedOffAr_fit(IndexedOffAr *arr) {
-    Array_fit((Array*)arr);
 }
 
 #define IndexedOffAr_foreach(var, arr)  for (IndexedOffArFIt_declare(var, arr); IndexedOffArFIt_next(&var); )            
@@ -3256,40 +2084,8 @@ static inline void IndexedOffAr_free(IndexedOffAr *arr) {
     Array_free((Array*)arr);
 }
 
-static inline IndexedOff IndexedOffAr_get(IndexedOffAr *arr, int index, Error *err) {
-    IndexedOff v = {0};
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
-}
-
-static inline IndexedOff *IndexedOffAr_getp(IndexedOffAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (IndexedOff *)Array_get((Array*)arr, index);
-}
-
 static inline void IndexedOffAr_init(IndexedOffAr *arr, int nelems) {
     Array_init((Array*)arr, nelems, sizeof(IndexedOff), (Array_clearElement)NULL);
-}
-
-static inline void IndexedOffAr_insert(IndexedOffAr *arr, int index, IndexedOff elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    IndexedOff *p = (IndexedOff *)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void IndexedOffAr_insertp(IndexedOffAr *arr, int index, IndexedOff *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    IndexedOff *p = (IndexedOff *)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int IndexedOffAr_last(IndexedOffAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
-
-static inline int IndexedOffAr_len(IndexedOffAr *arr) {
-    return Array_len((Array*)arr);
 }
 
 #define IndexedOffAr_loop(var) while (IndexedOffArFIt_next(&var)) 
@@ -3298,48 +2094,10 @@ static inline IndexedOffAr *IndexedOffAr_new(int nelems) {
     return (IndexedOffAr*)Array_new(nelems, sizeof(IndexedOff), (Array_clearElement)NULL);
 }
 
-static inline void IndexedOffAr_pop(IndexedOffAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
-}
-
-static inline void IndexedOffAr_push(IndexedOffAr *arr, IndexedOff elem) {
-    IndexedOff *p = (IndexedOff *)Array_pushN((Array*)arr, 1);
-    *p = elem;
-    return; 
-}            
-
-static inline void IndexedOffAr_pushp(IndexedOffAr *arr, IndexedOff *elem) {
-    IndexedOff *p = (IndexedOff *)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define IndexedOffAr_reach(it, arr) for (IndexedOff* it = arr->data+arr->len-1; it >= arr->data; it--)
-
 static inline void IndexedOffAr_remove(IndexedOffAr *arr, int index, Error *err) {
     Array_removeNCheck(arr, index, 1, err);
     Array_removeN((Array*)arr, index, 1);
 }    
-
-static inline void IndexedOffAr_removeN(IndexedOffAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define IndexedOffAr_rforeach(var, arr)  for (IndexedOffArRIt_declare(var, arr); IndexedOffArRIt_next(&var); )            
-
-#define IndexedOffAr_rloop(var) while (IndexedOffArRIt_next(&var))             
-
-static inline void IndexedOffAr_set(IndexedOffAr *arr, int index, IndexedOff elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void IndexedOffAr_setp(IndexedOffAr *arr, int index, IndexedOff *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
 
 static inline void IndexedOffAr_truncate(IndexedOffAr *arr) {
     Array_truncate((Array*)arr);
@@ -3355,26 +2113,6 @@ static inline bool IndexedOffArFIt_atEnd(IndexedOffArFIt *iterator) {
 
 static inline bool IndexedOffArFIt_next(IndexedOffArFIt *iterator) {
     return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
-static inline bool IndexedOffArFIt_remove(IndexedOffArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool IndexedOffArRIt_atEnd(IndexedOffArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define IndexedOffArRIt_declare(var, arr)  IndexedOffArRIt var = {arr, 0, (arr)->len, (arr)->len, NULL}
-
-#define IndexedOffArRIt_declare0(var)  IndexedOffArRIt var = {0}
-
-static inline bool IndexedOffArRIt_next(IndexedOffArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool IndexedOffArRIt_remove(IndexedOffArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
 }
 
 static inline void IndexedOffAr_binInsertPadIndex(IndexedOffAr *arr, IndexedOff elem) {
@@ -3398,44 +2136,10 @@ static inline IndexedOffArFIt IndexedOffAr_binSearchPadIndex(IndexedOffAr *arr, 
     return it;
 }
 
-static inline IndexedOff *IndexedOffAr_pqPeekPadIndex(IndexedOffAr *arr) {
-   return (IndexedOff *)Array_pqPeek((Array*)arr);
-}
-
-static inline bool IndexedOffAr_pqPopPadIndex(IndexedOffAr *arr, IndexedOff *elem) {
-    int (*compare)(IndexedOff *, IndexedOff *) = IndexedOff_cmpPadIndex;
-   return Array_pqPop((Array*)arr, (char*)elem, (Array_compare)compare);
-}
-
-static inline void IndexedOffAr_pqPushPadIndex(IndexedOffAr *arr, IndexedOff elem) {
-    int (*compare)(IndexedOff *, IndexedOff *) = IndexedOff_cmpPadIndex;
-   Array_pqPush((Array*)arr, (char*)&elem, (Array_compare)compare);
-}
-
-static inline void IndexedOffAr_pqSortPadIndex(IndexedOffAr *arr) {
-    int (*compare)(IndexedOff *, IndexedOff *) = IndexedOff_cmpPadIndex;
-   Array_pqSort((Array*)arr, (Array_compare)compare);
-}
-
-static inline void IndexedOffAr_sortPadIndex(IndexedOffAr *arr) {
-    int (*compare)(IndexedOff *, IndexedOff *) = IndexedOff_cmpPadIndex;
-    Array_sort((Array*)arr, (Array_compare)compare);
-}                
-
-static inline void TimedOffAr_changeLength(TimedOffAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
 static inline void TimedOffAr_clear(TimedOffAr *arr) {
     Array_clear((Array*)arr);
     TimedOffAr zero = {0};
     *arr = zero;
-}
-
-#define TimedOffAr_each(it, arr) for (TimedOff* it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void TimedOffAr_fit(TimedOffAr *arr) {
-    Array_fit((Array*)arr);
 }
 
 #define TimedOffAr_foreach(var, arr)  for (TimedOffArFIt_declare(var, arr); TimedOffArFIt_next(&var); )            
@@ -3444,66 +2148,13 @@ static inline void TimedOffAr_free(TimedOffAr *arr) {
     Array_free((Array*)arr);
 }
 
-static inline TimedOff TimedOffAr_get(TimedOffAr *arr, int index, Error *err) {
-    TimedOff v = {0};
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
-}
-
-static inline TimedOff *TimedOffAr_getp(TimedOffAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (TimedOff *)Array_get((Array*)arr, index);
-}
-
 static inline void TimedOffAr_init(TimedOffAr *arr, int nelems) {
     Array_init((Array*)arr, nelems, sizeof(TimedOff), (Array_clearElement)NULL);
 }
 
-static inline void TimedOffAr_insert(TimedOffAr *arr, int index, TimedOff elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    TimedOff *p = (TimedOff *)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void TimedOffAr_insertp(TimedOffAr *arr, int index, TimedOff *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    TimedOff *p = (TimedOff *)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int TimedOffAr_last(TimedOffAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
-
-static inline int TimedOffAr_len(TimedOffAr *arr) {
-    return Array_len((Array*)arr);
-}
-
-#define TimedOffAr_loop(var) while (TimedOffArFIt_next(&var)) 
-
 static inline TimedOffAr *TimedOffAr_new(int nelems) {
     return (TimedOffAr*)Array_new(nelems, sizeof(TimedOff), (Array_clearElement)NULL);
 }
-
-static inline void TimedOffAr_pop(TimedOffAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
-}
-
-static inline void TimedOffAr_push(TimedOffAr *arr, TimedOff elem) {
-    TimedOff *p = (TimedOff *)Array_pushN((Array*)arr, 1);
-    *p = elem;
-    return; 
-}            
-
-static inline void TimedOffAr_pushp(TimedOffAr *arr, TimedOff *elem) {
-    TimedOff *p = (TimedOff *)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define TimedOffAr_reach(it, arr) for (TimedOff* it = arr->data+arr->len-1; it >= arr->data; it--)
 
 static inline void TimedOffAr_remove(TimedOffAr *arr, int index, Error *err) {
     Array_removeNCheck(arr, index, 1, err);
@@ -3515,54 +2166,14 @@ static inline void TimedOffAr_removeN(TimedOffAr *arr, int index, int N, Error *
     Array_removeN((Array*)arr, index, N);
 }
 
-#define TimedOffAr_rforeach(var, arr)  for (TimedOffArRIt_declare(var, arr); TimedOffArRIt_next(&var); )            
-
-#define TimedOffAr_rloop(var) while (TimedOffArRIt_next(&var))             
-
-static inline void TimedOffAr_set(TimedOffAr *arr, int index, TimedOff elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void TimedOffAr_setp(TimedOffAr *arr, int index, TimedOff *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
-
 static inline void TimedOffAr_truncate(TimedOffAr *arr) {
     Array_truncate((Array*)arr);
 }
 
-static inline bool TimedOffArFIt_atEnd(TimedOffArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
 #define TimedOffArFIt_declare(var, arr)  TimedOffArFIt var = {arr, 0, (arr)->len, -1, NULL}
-
-#define TimedOffArFIt_declare0(var)  TimedOffArFIt var = {0}
 
 static inline bool TimedOffArFIt_next(TimedOffArFIt *iterator) {
     return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
-static inline bool TimedOffArFIt_remove(TimedOffArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool TimedOffArRIt_atEnd(TimedOffArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define TimedOffArRIt_declare(var, arr)  TimedOffArRIt var = {arr, 0, (arr)->len, (arr)->len, NULL}
-
-#define TimedOffArRIt_declare0(var)  TimedOffArRIt var = {0}
-
-static inline bool TimedOffArRIt_next(TimedOffArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool TimedOffArRIt_remove(TimedOffArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
 }
 
 static inline void TimedOffAr_binInsertTime(TimedOffAr *arr, TimedOff elem) {
@@ -3570,73 +2181,16 @@ static inline void TimedOffAr_binInsertTime(TimedOffAr *arr, TimedOff elem) {
     Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)compare, true);
 }            
 
-static inline void TimedOffAr_binRemoveTime(TimedOffAr *arr, TimedOff elem) {
-    int (*compare)(TimedOff *, TimedOff *) = TimedOff_cmpTime;
-    Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)compare, true);
-}        
-
-static inline TimedOffArFIt TimedOffAr_binSearchTime(TimedOffAr *arr, TimedOff elem) {
-    int (*compare)(TimedOff *, TimedOff *) = TimedOff_cmpTime;
-    TimedOffArFIt it = {0};
-   if (Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, (ArrayFIt*)&it) != NULL) {
-       return it;
-    }
-   it.index  = arr->len;
-   it.uBound = 0;
-    return it;
-}
-
-static inline TimedOff *TimedOffAr_pqPeekTime(TimedOffAr *arr) {
-   return (TimedOff *)Array_pqPeek((Array*)arr);
-}
-
-static inline bool TimedOffAr_pqPopTime(TimedOffAr *arr, TimedOff *elem) {
-    int (*compare)(TimedOff *, TimedOff *) = TimedOff_cmpTime;
-   return Array_pqPop((Array*)arr, (char*)elem, (Array_compare)compare);
-}
-
-static inline void TimedOffAr_pqPushTime(TimedOffAr *arr, TimedOff elem) {
-    int (*compare)(TimedOff *, TimedOff *) = TimedOff_cmpTime;
-   Array_pqPush((Array*)arr, (char*)&elem, (Array_compare)compare);
-}
-
-static inline void TimedOffAr_pqSortTime(TimedOffAr *arr) {
-    int (*compare)(TimedOff *, TimedOff *) = TimedOff_cmpTime;
-   Array_pqSort((Array*)arr, (Array_compare)compare);
-}
-
-static inline void TimedOffAr_sortTime(TimedOffAr *arr) {
-    int (*compare)(TimedOff *, TimedOff *) = TimedOff_cmpTime;
-    Array_sort((Array*)arr, (Array_compare)compare);
-}                
-
-static inline void TrackAr_changeLength(TrackAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
 static inline void TrackAr_clear(TrackAr *arr) {
     Array_clear((Array*)arr);
     TrackAr zero = {0};
     *arr = zero;
 }
 
-#define TrackAr_each(it, arr) for (Track* it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void TrackAr_fit(TrackAr *arr) {
-    Array_fit((Array*)arr);
-}
-
 #define TrackAr_foreach(var, arr)  for (TrackArFIt_declare(var, arr); TrackArFIt_next(&var); )            
 
 static inline void TrackAr_free(TrackAr *arr) {
     Array_free((Array*)arr);
-}
-
-static inline Track TrackAr_get(TrackAr *arr, int index, Error *err) {
-    Track v = {0};
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
 }
 
 static inline Track *TrackAr_getp(TrackAr *arr, int index, Error *err) {
@@ -3648,35 +2202,12 @@ static inline void TrackAr_init(TrackAr *arr, int nelems) {
     Array_init((Array*)arr, nelems, sizeof(Track), (Array_clearElement)NULL);
 }
 
-static inline void TrackAr_insert(TrackAr *arr, int index, Track elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Track *p = (Track *)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void TrackAr_insertp(TrackAr *arr, int index, Track *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Track *p = (Track *)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int TrackAr_last(TrackAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
-
 static inline int TrackAr_len(TrackAr *arr) {
     return Array_len((Array*)arr);
 }
 
-#define TrackAr_loop(var) while (TrackArFIt_next(&var)) 
-
 static inline TrackAr *TrackAr_new(int nelems) {
     return (TrackAr*)Array_new(nelems, sizeof(Track), (Array_clearElement)NULL);
-}
-
-static inline void TrackAr_pop(TrackAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
 }
 
 static inline void TrackAr_push(TrackAr *arr, Track elem) {
@@ -3685,88 +2216,16 @@ static inline void TrackAr_push(TrackAr *arr, Track elem) {
     return; 
 }            
 
-static inline void TrackAr_pushp(TrackAr *arr, Track *elem) {
-    Track *p = (Track *)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define TrackAr_reach(it, arr) for (Track* it = arr->data+arr->len-1; it >= arr->data; it--)
-
-static inline void TrackAr_remove(TrackAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void TrackAr_removeN(TrackAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define TrackAr_rforeach(var, arr)  for (TrackArRIt_declare(var, arr); TrackArRIt_next(&var); )            
-
-#define TrackAr_rloop(var) while (TrackArRIt_next(&var))             
-
-static inline void TrackAr_set(TrackAr *arr, int index, Track elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void TrackAr_setp(TrackAr *arr, int index, Track *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
-
-static inline void TrackAr_truncate(TrackAr *arr) {
-    Array_truncate((Array*)arr);
-}
-
-static inline bool TrackArFIt_atEnd(TrackArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
 #define TrackArFIt_declare(var, arr)  TrackArFIt var = {arr, 0, (arr)->len, -1, NULL}
-
-#define TrackArFIt_declare0(var)  TrackArFIt var = {0}
 
 static inline bool TrackArFIt_next(TrackArFIt *iterator) {
     return ArrayFIt_next((ArrayFIt*)iterator);
 }
 
-static inline bool TrackArFIt_remove(TrackArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool TrackArRIt_atEnd(TrackArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define TrackArRIt_declare(var, arr)  TrackArRIt var = {arr, 0, (arr)->len, (arr)->len, NULL}
-
-#define TrackArRIt_declare0(var)  TrackArRIt var = {0}
-
-static inline bool TrackArRIt_next(TrackArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool TrackArRIt_remove(TrackArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
-}
-
-static inline void PortFindCellAr_changeLength(PortFindCellAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
 static inline void PortFindCellAr_clear(PortFindCellAr *arr) {
     Array_clear((Array*)arr);
     PortFindCellAr zero = {0};
     *arr = zero;
-}
-
-#define PortFindCellAr_each(it, arr) for (PortFindCell* it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void PortFindCellAr_fit(PortFindCellAr *arr) {
-    Array_fit((Array*)arr);
 }
 
 #define PortFindCellAr_foreach(var, arr)  for (PortFindCellArFIt_declare(var, arr); PortFindCellArFIt_next(&var); )            
@@ -3782,44 +2241,16 @@ static inline PortFindCell PortFindCellAr_get(PortFindCellAr *arr, int index, Er
     return v;
 }
 
-static inline PortFindCell *PortFindCellAr_getp(PortFindCellAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (PortFindCell *)Array_get((Array*)arr, index);
-}
-
 static inline void PortFindCellAr_init(PortFindCellAr *arr, int nelems) {
     Array_init((Array*)arr, nelems, sizeof(PortFindCell), (Array_clearElement)NULL);
 }
-
-static inline void PortFindCellAr_insert(PortFindCellAr *arr, int index, PortFindCell elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    PortFindCell *p = (PortFindCell *)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void PortFindCellAr_insertp(PortFindCellAr *arr, int index, PortFindCell *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    PortFindCell *p = (PortFindCell *)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int PortFindCellAr_last(PortFindCellAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
 
 static inline int PortFindCellAr_len(PortFindCellAr *arr) {
     return Array_len((Array*)arr);
 }
 
-#define PortFindCellAr_loop(var) while (PortFindCellArFIt_next(&var)) 
-
 static inline PortFindCellAr *PortFindCellAr_new(int nelems) {
     return (PortFindCellAr*)Array_new(nelems, sizeof(PortFindCell), (Array_clearElement)NULL);
-}
-
-static inline void PortFindCellAr_pop(PortFindCellAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
 }
 
 static inline void PortFindCellAr_push(PortFindCellAr *arr, PortFindCell elem) {
@@ -3828,72 +2259,10 @@ static inline void PortFindCellAr_push(PortFindCellAr *arr, PortFindCell elem) {
     return; 
 }            
 
-static inline void PortFindCellAr_pushp(PortFindCellAr *arr, PortFindCell *elem) {
-    PortFindCell *p = (PortFindCell *)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define PortFindCellAr_reach(it, arr) for (PortFindCell* it = arr->data+arr->len-1; it >= arr->data; it--)
-
-static inline void PortFindCellAr_remove(PortFindCellAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void PortFindCellAr_removeN(PortFindCellAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define PortFindCellAr_rforeach(var, arr)  for (PortFindCellArRIt_declare(var, arr); PortFindCellArRIt_next(&var); )            
-
-#define PortFindCellAr_rloop(var) while (PortFindCellArRIt_next(&var))             
-
-static inline void PortFindCellAr_set(PortFindCellAr *arr, int index, PortFindCell elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void PortFindCellAr_setp(PortFindCellAr *arr, int index, PortFindCell *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
-
-static inline void PortFindCellAr_truncate(PortFindCellAr *arr) {
-    Array_truncate((Array*)arr);
-}
-
-static inline bool PortFindCellArFIt_atEnd(PortFindCellArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
 #define PortFindCellArFIt_declare(var, arr)  PortFindCellArFIt var = {arr, 0, (arr)->len, -1, NULL}
-
-#define PortFindCellArFIt_declare0(var)  PortFindCellArFIt var = {0}
 
 static inline bool PortFindCellArFIt_next(PortFindCellArFIt *iterator) {
     return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
-static inline bool PortFindCellArFIt_remove(PortFindCellArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool PortFindCellArRIt_atEnd(PortFindCellArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define PortFindCellArRIt_declare(var, arr)  PortFindCellArRIt var = {arr, 0, (arr)->len, (arr)->len, NULL}
-
-#define PortFindCellArRIt_declare0(var)  PortFindCellArRIt var = {0}
-
-static inline bool PortFindCellArRIt_next(PortFindCellArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool PortFindCellArRIt_remove(PortFindCellArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
 }
 
 void Arguments_init(Arguments *self)
@@ -3924,7 +2293,7 @@ Arguments *Arguments_new()
 }
 void MarshalSi_init(MarshalSi *self)
 {
-    self->itype = 0;
+    self->itype = MarshalSi_itype;
     return;
 }
 void MarshalSi_clear(MarshalSi *self)
@@ -3946,7 +2315,7 @@ MarshalSi *MarshalSi_new()
 }
 void MarshalSii_init(MarshalSii *self)
 {
-    self->itype = 0;
+    self->itype = MarshalSii_itype;
     return;
 }
 void MarshalSii_clear(MarshalSii *self)
@@ -3968,7 +2337,7 @@ MarshalSii *MarshalSii_new()
 }
 void MarshalSs_init(MarshalSs *self)
 {
-    self->itype = 0;
+    self->itype = MarshalSs_itype;
     return;
 }
 void MarshalSs_clear(MarshalSs *self)
@@ -3990,7 +2359,7 @@ MarshalSs *MarshalSs_new()
 }
 void IncrementFrameDispatch_init(IncrementFrameDispatch *self)
 {
-    self->itype = 0;
+    self->itype = IncrementFrameDispatch_itype;
     return;
 }
 void IncrementFrameDispatch_clear(IncrementFrameDispatch *self)
@@ -4012,7 +2381,7 @@ IncrementFrameDispatch *IncrementFrameDispatch_new()
 }
 void DecrementFrameDispatch_init(DecrementFrameDispatch *self)
 {
-    self->itype = 0;
+    self->itype = DecrementFrameDispatch_itype;
     return;
 }
 void DecrementFrameDispatch_clear(DecrementFrameDispatch *self)
@@ -4034,7 +2403,7 @@ DecrementFrameDispatch *DecrementFrameDispatch_new()
 }
 void SelectNextPushedPadDispatch_init(SelectNextPushedPadDispatch *self)
 {
-    self->itype = 0;
+    self->itype = SelectNextPushedPadDispatch_itype;
     return;
 }
 void SelectNextPushedPadDispatch_clear(SelectNextPushedPadDispatch *self)
@@ -4056,7 +2425,7 @@ SelectNextPushedPadDispatch *SelectNextPushedPadDispatch_new()
 }
 void MidiFileDropDispatch_init(MidiFileDropDispatch *self)
 {
-    self->itype = 0;
+    self->itype = MidiFileDropDispatch_itype;
     return;
 }
 void MidiFileDropDispatch_clear(MidiFileDropDispatch *self)
@@ -4078,7 +2447,7 @@ MidiFileDropDispatch *MidiFileDropDispatch_new()
 }
 void ManageChokeGroupsDispatch_init(ManageChokeGroupsDispatch *self)
 {
-    self->itype = 0;
+    self->itype = ManageChokeGroupsDispatch_itype;
     return;
 }
 void ManageChokeGroupsDispatch_clear(ManageChokeGroupsDispatch *self)
