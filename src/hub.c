@@ -2,6 +2,7 @@
 #include <string.h>
 #include <inttypes.h>
 #include <ctype.h>
+#include <limits.h>
 
 #include "ext.h"
 #include "ext_common.h"

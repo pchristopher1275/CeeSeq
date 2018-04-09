@@ -1,13 +1,13 @@
-// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:54:17 ***
-// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:54:17 ***
-// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:54:17 ***
-// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:54:17 ***
-// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:54:17 ***
-// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:54:17 ***
-// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:54:17 ***
-// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:54:17 ***
-// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:54:17 ***
-// *** DO NOT MODIFY THIS FILE generated 04/05/2018 17:54:17 ***
+// *** DO NOT MODIFY THIS FILE generated 04/05/2018 18:39:35 ***
+// *** DO NOT MODIFY THIS FILE generated 04/05/2018 18:39:35 ***
+// *** DO NOT MODIFY THIS FILE generated 04/05/2018 18:39:35 ***
+// *** DO NOT MODIFY THIS FILE generated 04/05/2018 18:39:35 ***
+// *** DO NOT MODIFY THIS FILE generated 04/05/2018 18:39:35 ***
+// *** DO NOT MODIFY THIS FILE generated 04/05/2018 18:39:35 ***
+// *** DO NOT MODIFY THIS FILE generated 04/05/2018 18:39:35 ***
+// *** DO NOT MODIFY THIS FILE generated 04/05/2018 18:39:35 ***
+// *** DO NOT MODIFY THIS FILE generated 04/05/2018 18:39:35 ***
+// *** DO NOT MODIFY THIS FILE generated 04/05/2018 18:39:35 ***
 struct Arguments_t;
 typedef struct Arguments_t Arguments;
 struct Marshal_t;
@@ -66,6 +66,30 @@ struct DropDown_t;
 typedef struct DropDown_t DropDown;
 struct Hub_t;
 typedef struct Hub_t Hub;
+struct NoteOutlet_t;
+typedef struct NoteOutlet_t NoteOutlet;
+struct CCOutlet_t;
+typedef struct CCOutlet_t CCOutlet;
+struct BendOutlet_t;
+typedef struct BendOutlet_t BendOutlet;
+struct VstOutlet_t;
+typedef struct VstOutlet_t VstOutlet;
+struct Outlet_t;
+typedef struct Outlet_t Outlet;
+struct Timed_t;
+typedef struct Timed_t Timed;
+struct NoteEvent_t;
+typedef struct NoteEvent_t NoteEvent;
+struct NoteSequence_t;
+typedef struct NoteSequence_t NoteSequence;
+struct FloatEvent_t;
+typedef struct FloatEvent_t FloatEvent;
+struct FloatSequence_t;
+typedef struct FloatSequence_t FloatSequence;
+struct Sequence_t;
+typedef struct Sequence_t Sequence;
+struct RecordBuffer_t;
+typedef struct RecordBuffer_t RecordBuffer;
 struct DispatchPtAr_t;
 typedef struct DispatchPtAr_t DispatchPtAr;
 struct PadAr_t;
@@ -80,6 +104,14 @@ struct PortFindCellAr_t;
 typedef struct PortFindCellAr_t PortFindCellAr;
 struct TrackAr_t;
 typedef struct TrackAr_t TrackAr;
+struct TimedAr_t;
+typedef struct TimedAr_t TimedAr;
+struct NoteEventAr_t;
+typedef struct NoteEventAr_t NoteEventAr;
+struct FloatEventAr_t;
+typedef struct FloatEventAr_t FloatEventAr;
+struct SequenceAr_t;
+typedef struct SequenceAr_t SequenceAr;
 typedef struct Array_t {
    int len;
    int cap;
@@ -670,6 +702,128 @@ char *Array_pqPeek(Array *arr) {
 
 #undef PQ_LESS
 #undef PQ_SWAP
+typedef struct SequenceAr_t {
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(Sequence **);
+   Sequence **data;
+} SequenceAr;
+
+typedef struct SequenceArFIt_t {
+   SequenceAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   Sequence **var;
+} SequenceArFIt;
+
+typedef struct SequenceArRIt_t {
+   SequenceAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   Sequence **var;
+} SequenceArRIt;
+
+struct FloatEvent_t
+{
+    Ticks stime;
+    double value;
+};
+typedef struct FloatEventAr_t {
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(FloatEvent*);
+   FloatEvent *data;
+} FloatEventAr;
+
+typedef struct FloatEventArFIt_t {
+   FloatEventAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   FloatEvent *var;
+} FloatEventArFIt;
+
+typedef struct FloatEventArRIt_t {
+   FloatEventAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   FloatEvent *var;
+} FloatEventArRIt;
+
+struct NoteEvent_t
+{
+    uint8_t pitch;
+    uint8_t velocity;
+    Ticks stime;
+    Ticks duration;
+};
+typedef struct NoteEventAr_t {
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(NoteEvent*);
+   NoteEvent *data;
+} NoteEventAr;
+
+typedef struct NoteEventArFIt_t {
+   NoteEventAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   NoteEvent *var;
+} NoteEventArFIt;
+
+typedef struct NoteEventArRIt_t {
+   NoteEventAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   NoteEvent *var;
+} NoteEventArRIt;
+
+struct Timed_t
+{
+    Ticks time;
+    int version;
+    Sequence *sequence;
+};
+typedef struct TimedAr_t {
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(Timed*);
+   Timed *data;
+} TimedAr;
+
+typedef struct TimedArFIt_t {
+   TimedAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   Timed *var;
+} TimedArFIt;
+
+typedef struct TimedArRIt_t {
+   TimedAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   Timed *var;
+} TimedArRIt;
+
 struct Track_t
 {
     Symbol *name;
@@ -900,6 +1054,72 @@ typedef struct DispatchPtArRIt_t {
    Dispatch **var;
 } DispatchPtArRIt;
 
+struct RecordBuffer_t
+{
+    Ticks recordStart;
+    SequenceAr sequences;
+};
+struct Sequence_t
+{
+    int itype;
+    long version;
+};
+struct FloatSequence_t
+{
+    int itype;
+    long version;
+    Ticks startTime;
+    Ticks sequenceLength;
+    int cursor;
+    bool cycle;
+    Outlet *outlet;
+    FloatSequence *recordBuffer;
+    FloatEventAr events;
+    double restoreValue;
+};
+struct NoteSequence_t
+{
+    int itype;
+    long version;
+    Ticks startTime;
+    Ticks sequenceLength;
+    int cursor;
+    bool cycle;
+    Outlet *outlet;
+    NoteSequence *recordBuffer;
+    TimedOffAr offs;
+    NoteEventAr events;
+};
+struct Outlet_t
+{
+    int itype;
+};
+struct PortRef_t
+{
+    Port *port;
+    int outlet;
+};
+struct VstOutlet_t
+{
+    Atom *atoms;
+    PortRef portRef;
+};
+struct BendOutlet_t
+{
+    Atom *atoms;
+    PortRef portRef;
+};
+struct CCOutlet_t
+{
+    int cc;
+    Atom *atoms;
+    PortRef portRef;
+};
+struct NoteOutlet_t
+{
+    Atom *atoms;
+    PortRef portRef;
+};
 typedef struct SymbolPtrAr_t {
    int len;
    int cap;
@@ -926,11 +1146,6 @@ typedef struct SymbolPtrArRIt_t {
    Symbol **var;
 } SymbolPtrArRIt;
 
-struct PortRef_t
-{
-    Port *port;
-    int outlet;
-};
 struct DropDown_t
 {
     SymbolPtrAr table;
@@ -1333,6 +1548,32 @@ void BinFile_writeBool(BinFile *bf, bool value, Error *err);
 bool BinFile_readBool(BinFile *bf, Error *err);
 void BinFile_writeTag(BinFile *bf, const char *tag, Error *err);
 void BinFile_verifyTag(BinFile *bf, const char *tag, Error *err);
+void NoteOutlet_sendNote(OutputOutlet *self, uint8_t pitch, uint8_t velocity);
+int NoteOutlet_cmp(NoteOutlet *self, NoteOutlet *other);
+void CCOutlet_sendFloat(CCOutlet *self, double value);
+int CCOutlet_cmp(CCOutlet *self, CCOutlet *other);
+void BendOutlet_sendFloat(BendOutlet *self, double value);
+int BendOutlet_cmp(BendOutlet *self, BendOutlet *other);
+void VstOutlet_sendFloat(BendOutlet *self, double value);
+int VstOutlet_cmp(BendOutlet *self, BendOutlet *other);
+int NoteSequence_cmp(NoteSequence *self, NoteSequence *other);
+int NoteSequence_cmpDestination(NoteSequence *self, NoteSequence *other);
+void NoteSequence_start(NoteSequence *self, Ticks clockStart, Ticks current, TimedAr *queue, RecordBuffer *recordBuffer);
+void NoteSequence_stop(NoteSequence *self, Ticks current, TimedAr *queue);
+void NoteSequence_drive(NoteSequence *self, Ticks current, TimedAr *queue);
+void NoteSequence_padNoteOff(NoteSequence *self, int padIndex, Ticks current);
+int FloatSequence_cmp(FloatSequence *self, FloatSequence *other);
+int FloatSequence_cmpDestination(FloatSequence *self, FloatSequence *other);
+void FloatSequence_start(BendSequence *self, Ticks clockStart, Ticks current, TimedAr *queue, RecordBuffer *recordBuffer);
+void FloatSequence_stop(FloatSequence *self, Ticks current, TimedAr *queue);
+void FloatSequence_drive(FloatSequence *self, Ticks current, TimedAr *queue);
+void FloatSequence_padNoteOff(FloatSequence *self, int padIndex, Ticks current);
+int Sequence_cmpPp(Sequence **left, Sequence **right);
+int Sequence_cmpDestinationPp(Sequence **left, Sequence **right);
+void Sequence_incVersion(Sequence *seq);
+void Frontend_recievedPadHit(Hub *hub, long pitchIn, long velocityIn);
+void Frontend_drive(Hub *hub);
+void Frontend_stop(Hub *hub);
 void Arguments_clear(Arguments *self);
 void Arguments_free(Arguments *self);
 void Arguments_init(Arguments *self);
@@ -1429,6 +1670,46 @@ void Hub_clear(Hub *self);
 void Hub_free(Hub *self);
 void Hub_init(Hub *self);
 Hub *Hub_new();
+void NoteOutlet_clear(NoteOutlet *self);
+void NoteOutlet_free(NoteOutlet *self);
+void NoteOutlet_init(NoteOutlet *self);
+NoteOutlet *NoteOutlet_new();
+void CCOutlet_clear(CCOutlet *self);
+void CCOutlet_free(CCOutlet *self);
+void CCOutlet_init(CCOutlet *self);
+CCOutlet *CCOutlet_new();
+void BendOutlet_clear(BendOutlet *self);
+void BendOutlet_free(BendOutlet *self);
+void BendOutlet_init(BendOutlet *self);
+BendOutlet *BendOutlet_new();
+void VstOutlet_clear(VstOutlet *self);
+void VstOutlet_free(VstOutlet *self);
+void VstOutlet_init(VstOutlet *self);
+VstOutlet *VstOutlet_new();
+void Timed_clear(Timed *self);
+void Timed_free(Timed *self);
+void Timed_init(Timed *self);
+Timed *Timed_new();
+void NoteEvent_clear(NoteEvent *self);
+void NoteEvent_free(NoteEvent *self);
+void NoteEvent_init(NoteEvent *self);
+NoteEvent *NoteEvent_new();
+void NoteSequence_clear(NoteSequence *self);
+void NoteSequence_free(NoteSequence *self);
+void NoteSequence_init(NoteSequence *self);
+NoteSequence *NoteSequence_new();
+void FloatEvent_clear(FloatEvent *self);
+void FloatEvent_free(FloatEvent *self);
+void FloatEvent_init(FloatEvent *self);
+FloatEvent *FloatEvent_new();
+void FloatSequence_clear(FloatSequence *self);
+void FloatSequence_free(FloatSequence *self);
+void FloatSequence_init(FloatSequence *self);
+FloatSequence *FloatSequence_new();
+void RecordBuffer_clear(RecordBuffer *self);
+void RecordBuffer_free(RecordBuffer *self);
+void RecordBuffer_init(RecordBuffer *self);
+RecordBuffer *RecordBuffer_new();
 typedef struct Undefined_t {
     int itype;
     char buffer[1024];
@@ -1444,12 +1725,22 @@ Undefined Undefined_instance = {Undefined_itype, {0}};
 #define SelectNextPushedPadDispatch_itype 16
 #define MidiFileDropDispatch_itype 17
 #define ManageChokeGroupsDispatch_itype 18
+#define NoteSequence_itype 19
+#define FloatSequence_itype 20
 void Marshal_process(Marshal *self, Arguments *a1, long a2, Atom *a3, Error *err);
 void Marshal_zeroArgs(Marshal *self, Arguments *a1, Error *err);
 void Dispatch_exec(Dispatch *self, Hub *a1, Arguments *a2, Error *err);
 Dispatch *Dispatch_create(int itype, Error *err);
 void Dispatch_free(Dispatch *self, Error *err);
 void Dispatch_initDispatchPtAr(int itype, DispatchPtAr *a1, Error *err);
+void Outlet_sendNote(Outlet *self, uint8_t a1, uint8_t a2, Error *err);
+void Outlet_sendFloat(Outlet *self, double a1, Error *err);
+int Outlet_cmp(Outlet *self, Outlet *a1, Error *err);
+void Sequence_start(Sequence *self, Ticks a1, Ticks a2, TimedAr *a3, Error *err);
+void Sequence_drive(Sequence *self, Ticks a1, TimedAr *a2, Error *err);
+void Sequence_stop(Sequence *self, Ticks a1, TimedAr *a2, Error *err);
+void Sequence_padNoteOff(Sequence *self, Error *err);
+int Sequence_cmp(Sequence *self, Sequence *a1, Error *err);
 static inline Symbol *Arguments_s1(Arguments *self){return self->s1;}
 static inline void Arguments_setS1(Arguments *self, Symbol *value){self->s1 = value;}
 static inline void Arguments_setI1(Arguments *self, long value){self->i1 = value;}
@@ -1459,7 +1750,7 @@ static inline void Arguments_setIvalue(Arguments *self, long value){self->ivalue
 static inline void Arguments_setInlet(Arguments *self, long value){self->inlet = value;}
 static inline int Marshal_nthIType(int n, int *itype) {
     static int itypes[] = {
-        MarshalSs_itype, MarshalSii_itype, MarshalSi_itype
+        MarshalSi_itype, MarshalSs_itype, MarshalSii_itype
     };
     static int len = sizeof(itypes)/sizeof(int);
     if (n < 0 || n >= len) {
@@ -1498,7 +1789,7 @@ static inline Marshal *MarshalSs_castToMarshal(MarshalSs *self) {
 }
 static inline int Dispatch_nthIType(int n, int *itype) {
     static int itypes[] = {
-        IncrementFrameDispatch_itype, MidiFileDropDispatch_itype, ManageChokeGroupsDispatch_itype, DecrementFrameDispatch_itype, SelectNextPushedPadDispatch_itype
+        SelectNextPushedPadDispatch_itype, ManageChokeGroupsDispatch_itype, DecrementFrameDispatch_itype, MidiFileDropDispatch_itype, IncrementFrameDispatch_itype
     };
     static int len = sizeof(itypes)/sizeof(int);
     if (n < 0 || n >= len) {
@@ -1862,6 +2153,7 @@ static inline bool Pad_inEndgroup(Pad *self){return self->inEndgroup;}
 static inline void Pad_setInEndgroup(Pad *self, bool value){self->inEndgroup = value;}
 static inline Track *Pad_track(Pad *self){return self->track;}
 static inline void Pad_setTrack(Pad *self, Track *value){self->track = value;}
+static inline bool Pad_useMasterClock(Pad *self){return self->useMasterClock;}
 #define IndexedOff_declare(name, padIndex, pitch) IndexedOff name = {(padIndex), (pitch)}
 #define TimedOff_declare(name, time, pitch) TimedOff name = {(time), (pitch)}
 static inline void *PortFind_hub(PortFind *self){return self->hub;}
@@ -1901,6 +2193,54 @@ static inline bool Hub_grabNextTappedPad(Hub *self){return self->grabNextTappedP
 static inline void Hub_setGrabNextTappedPad(Hub *self, bool value){self->grabNextTappedPad = value;}
 static inline int Hub_selectedPad(Hub *self){return self->selectedPad;}
 static inline void Hub_setSelectedPad(Hub *self, int value){self->selectedPad = value;}
+static inline Ticks Hub_masterClock(Hub *self){return self->masterClock;}
+static inline int Outlet_nthIType(int n, int *itype) {
+    static int itypes[] = {
+        
+    };
+    static int len = sizeof(itypes)/sizeof(int);
+    if (n < 0 || n >= len) {
+        return 0;
+    }
+    *itype = itypes[n];
+    return 1;
+}
+#define Outlet_foreachIType(itype) for (int __##itype = 0, itype = 0; Outlet_nthIType(__##itype, &itype); __##itype++)
+static inline Ticks Timed_time(Timed *self){return self->time;}
+static inline int Timed_version(Timed *self){return self->version;}
+static inline Sequence *Timed_sequence(Timed *self){return self->sequence;}
+static inline void Timed_setSequence(Timed *self, Sequence *value){self->sequence = value;}
+static inline NoteSequence *NoteSequence_castFromSequence(Sequence *self) {
+    if (self->itype == NoteSequence_itype) {
+        return (NoteSequence*)self;
+    }
+    return NULL;
+}
+static inline Sequence *NoteSequence_castToSequence(NoteSequence *self) {
+    return (Sequence*)self;
+}
+static inline FloatSequence *FloatSequence_castFromSequence(Sequence *self) {
+    if (self->itype == FloatSequence_itype) {
+        return (FloatSequence*)self;
+    }
+    return NULL;
+}
+static inline Sequence *FloatSequence_castToSequence(FloatSequence *self) {
+    return (Sequence*)self;
+}
+static inline int Sequence_nthIType(int n, int *itype) {
+    static int itypes[] = {
+        FloatSequence_itype, NoteSequence_itype
+    };
+    static int len = sizeof(itypes)/sizeof(int);
+    if (n < 0 || n >= len) {
+        return 0;
+    }
+    *itype = itypes[n];
+    return 1;
+}
+#define Sequence_foreachIType(itype) for (int __##itype = 0, itype = 0; Sequence_nthIType(__##itype, &itype); __##itype++)
+static inline long Sequence_version(Sequence *self){return self->version;}
 static inline void DispatchPtAr_clear(DispatchPtAr *arr) {
     Array_clear((Array*)arr);
     DispatchPtAr zero = {0};
@@ -2133,6 +2473,10 @@ static inline bool TimedOffArFIt_next(TimedOffArFIt *iterator) {
     return ArrayFIt_next((ArrayFIt*)iterator);
 }
 
+static inline bool TimedOffArFIt_remove(TimedOffArFIt *iterator) {
+    return ArrayFIt_remove((ArrayFIt*)iterator);
+}
+
 static inline void TimedOffAr_binInsertTime(TimedOffAr *arr, TimedOff elem) {
     int (*compare)(TimedOff *, TimedOff *) = TimedOff_cmpTime;
     Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)compare, true);
@@ -2219,6 +2563,138 @@ static inline void TrackAr_push(TrackAr *arr, Track elem) {
 #define TrackArFIt_declare(var, arr)  TrackArFIt var = {arr, 0, (arr)->len, -1, NULL}
 
 static inline bool TrackArFIt_next(TrackArFIt *iterator) {
+    return ArrayFIt_next((ArrayFIt*)iterator);
+}
+
+static inline void TimedAr_clear(TimedAr *arr) {
+    Array_clear((Array*)arr);
+    TimedAr zero = {0};
+    *arr = zero;
+}
+
+#define TimedAr_foreach(var, arr)  for (TimedArFIt_declare(var, arr); TimedArFIt_next(&var); )            
+
+static inline void TimedAr_free(TimedAr *arr) {
+    Array_free((Array*)arr);
+}
+
+static inline void TimedAr_init(TimedAr *arr, int nelems) {
+    Array_init((Array*)arr, nelems, sizeof(Timed), (Array_clearElement)NULL);
+}
+
+static inline TimedAr *TimedAr_new(int nelems) {
+    return (TimedAr*)Array_new(nelems, sizeof(Timed), (Array_clearElement)NULL);
+}
+
+#define TimedArFIt_declare(var, arr)  TimedArFIt var = {arr, 0, (arr)->len, -1, NULL}
+
+static inline bool TimedArFIt_next(TimedArFIt *iterator) {
+    return ArrayFIt_next((ArrayFIt*)iterator);
+}
+
+static inline void NoteEventAr_clear(NoteEventAr *arr) {
+    Array_clear((Array*)arr);
+    NoteEventAr zero = {0};
+    *arr = zero;
+}
+
+#define NoteEventAr_foreach(var, arr)  for (NoteEventArFIt_declare(var, arr); NoteEventArFIt_next(&var); )            
+
+static inline void NoteEventAr_free(NoteEventAr *arr) {
+    Array_free((Array*)arr);
+}
+
+static inline void NoteEventAr_init(NoteEventAr *arr, int nelems) {
+    Array_init((Array*)arr, nelems, sizeof(NoteEvent), (Array_clearElement)NULL);
+}
+
+static inline int NoteEventAr_len(NoteEventAr *arr) {
+    return Array_len((Array*)arr);
+}
+
+static inline NoteEventAr *NoteEventAr_new(int nelems) {
+    return (NoteEventAr*)Array_new(nelems, sizeof(NoteEvent), (Array_clearElement)NULL);
+}
+
+static inline void NoteEventAr_push(NoteEventAr *arr, NoteEvent elem) {
+    NoteEvent *p = (NoteEvent *)Array_pushN((Array*)arr, 1);
+    *p = elem;
+    return; 
+}            
+
+#define NoteEventAr_rforeach(var, arr)  for (NoteEventArRIt_declare(var, arr); NoteEventArRIt_next(&var); )            
+
+#define NoteEventArFIt_declare(var, arr)  NoteEventArFIt var = {arr, 0, (arr)->len, -1, NULL}
+
+static inline bool NoteEventArFIt_next(NoteEventArFIt *iterator) {
+    return ArrayFIt_next((ArrayFIt*)iterator);
+}
+
+#define NoteEventArRIt_declare(var, arr)  NoteEventArRIt var = {arr, 0, (arr)->len, (arr)->len, NULL}
+
+static inline bool NoteEventArRIt_next(NoteEventArRIt *iterator) {
+    return ArrayRIt_next((ArrayRIt*)iterator);
+}
+
+static inline void FloatEventAr_clear(FloatEventAr *arr) {
+    Array_clear((Array*)arr);
+    FloatEventAr zero = {0};
+    *arr = zero;
+}
+
+#define FloatEventAr_foreach(var, arr)  for (FloatEventArFIt_declare(var, arr); FloatEventArFIt_next(&var); )            
+
+static inline void FloatEventAr_free(FloatEventAr *arr) {
+    Array_free((Array*)arr);
+}
+
+static inline void FloatEventAr_init(FloatEventAr *arr, int nelems) {
+    Array_init((Array*)arr, nelems, sizeof(FloatEvent), (Array_clearElement)NULL);
+}
+
+static inline int FloatEventAr_len(FloatEventAr *arr) {
+    return Array_len((Array*)arr);
+}
+
+static inline FloatEventAr *FloatEventAr_new(int nelems) {
+    return (FloatEventAr*)Array_new(nelems, sizeof(FloatEvent), (Array_clearElement)NULL);
+}
+
+static inline void FloatEventAr_push(FloatEventAr *arr, FloatEvent elem) {
+    FloatEvent *p = (FloatEvent *)Array_pushN((Array*)arr, 1);
+    *p = elem;
+    return; 
+}            
+
+#define FloatEventArFIt_declare(var, arr)  FloatEventArFIt var = {arr, 0, (arr)->len, -1, NULL}
+
+static inline bool FloatEventArFIt_next(FloatEventArFIt *iterator) {
+    return ArrayFIt_next((ArrayFIt*)iterator);
+}
+
+static inline void SequenceAr_clear(SequenceAr *arr) {
+    Array_clear((Array*)arr);
+    SequenceAr zero = {0};
+    *arr = zero;
+}
+
+#define SequenceAr_foreach(var, arr)  for (SequenceArFIt_declare(var, arr); SequenceArFIt_next(&var); )            
+
+static inline void SequenceAr_free(SequenceAr *arr) {
+    Array_free((Array*)arr);
+}
+
+static inline void SequenceAr_init(SequenceAr *arr, int nelems) {
+    Array_init((Array*)arr, nelems, sizeof(Sequence *), (Array_clearElement)NULL);
+}
+
+static inline SequenceAr *SequenceAr_new(int nelems) {
+    return (SequenceAr*)Array_new(nelems, sizeof(Sequence *), (Array_clearElement)NULL);
+}
+
+#define SequenceArFIt_declare(var, arr)  SequenceArFIt var = {arr, 0, (arr)->len, -1, NULL}
+
+static inline bool SequenceArFIt_next(SequenceArFIt *iterator) {
     return ArrayFIt_next((ArrayFIt*)iterator);
 }
 
@@ -2839,6 +3315,266 @@ Hub *Hub_new()
     Hub_init(self);
     return self;
 }
+void NoteOutlet_init(NoteOutlet *self)
+{
+    self->atoms = NULL;
+    PortRef_init(&self->portRef);            
+    return;
+}
+void NoteOutlet_clear(NoteOutlet *self)
+{
+    PortRef_clear(&self->portRef);
+    return;
+}
+void NoteOutlet_free(NoteOutlet *self)
+{
+   if (self != NULL) {
+        NoteOutlet_clear(self);
+        Mem_free(self);
+   }
+}
+NoteOutlet *NoteOutlet_new()
+{
+    NoteOutlet *self = Mem_malloc(sizeof(NoteOutlet));
+    NoteOutlet_init(self);
+    return self;
+}
+void CCOutlet_init(CCOutlet *self)
+{
+    self->cc = 0;
+    self->atoms = NULL;
+    PortRef_init(&self->portRef);            
+    return;
+}
+void CCOutlet_clear(CCOutlet *self)
+{
+    PortRef_clear(&self->portRef);
+    return;
+}
+void CCOutlet_free(CCOutlet *self)
+{
+   if (self != NULL) {
+        CCOutlet_clear(self);
+        Mem_free(self);
+   }
+}
+CCOutlet *CCOutlet_new()
+{
+    CCOutlet *self = Mem_malloc(sizeof(CCOutlet));
+    CCOutlet_init(self);
+    return self;
+}
+void BendOutlet_init(BendOutlet *self)
+{
+    self->atoms = NULL;
+    PortRef_init(&self->portRef);            
+    return;
+}
+void BendOutlet_clear(BendOutlet *self)
+{
+    PortRef_clear(&self->portRef);
+    return;
+}
+void BendOutlet_free(BendOutlet *self)
+{
+   if (self != NULL) {
+        BendOutlet_clear(self);
+        Mem_free(self);
+   }
+}
+BendOutlet *BendOutlet_new()
+{
+    BendOutlet *self = Mem_malloc(sizeof(BendOutlet));
+    BendOutlet_init(self);
+    return self;
+}
+void VstOutlet_init(VstOutlet *self)
+{
+    self->atoms = NULL;
+    PortRef_init(&self->portRef);            
+    return;
+}
+void VstOutlet_clear(VstOutlet *self)
+{
+    PortRef_clear(&self->portRef);
+    return;
+}
+void VstOutlet_free(VstOutlet *self)
+{
+   if (self != NULL) {
+        VstOutlet_clear(self);
+        Mem_free(self);
+   }
+}
+VstOutlet *VstOutlet_new()
+{
+    VstOutlet *self = Mem_malloc(sizeof(VstOutlet));
+    VstOutlet_init(self);
+    return self;
+}
+void Timed_init(Timed *self)
+{
+    self->time = 0;
+    self->version = 0;
+    self->sequence = NULL;
+    return;
+}
+void Timed_clear(Timed *self)
+{
+    return;
+}
+void Timed_free(Timed *self)
+{
+   if (self != NULL) {
+        Timed_clear(self);
+        Mem_free(self);
+   }
+}
+Timed *Timed_new()
+{
+    Timed *self = Mem_malloc(sizeof(Timed));
+    Timed_init(self);
+    return self;
+}
+void NoteEvent_init(NoteEvent *self)
+{
+    self->pitch = 0;
+    self->velocity = 0;
+    self->stime = 0;
+    self->duration = 0;
+    return;
+}
+void NoteEvent_clear(NoteEvent *self)
+{
+    return;
+}
+void NoteEvent_free(NoteEvent *self)
+{
+   if (self != NULL) {
+        NoteEvent_clear(self);
+        Mem_free(self);
+   }
+}
+NoteEvent *NoteEvent_new()
+{
+    NoteEvent *self = Mem_malloc(sizeof(NoteEvent));
+    NoteEvent_init(self);
+    return self;
+}
+void NoteSequence_init(NoteSequence *self)
+{
+    self->itype = 0;
+    self->version = 0;
+    self->startTime = 0;
+    self->sequenceLength = 0;
+    self->cursor = 0;
+    self->cycle = 0;
+    self->outlet = NULL;
+    self->recordBuffer = NoteSequence_new();
+    TimedOffAr_init(&self->offs, 0);
+    NoteEventAr_init(&self->events, 0);
+    return;
+}
+void NoteSequence_clear(NoteSequence *self)
+{
+    NoteSequence_free(self->recordBuffer);
+    TimedOffAr_clear(&self->offs);
+    NoteEventAr_clear(&self->events);
+    return;
+}
+void NoteSequence_free(NoteSequence *self)
+{
+   if (self != NULL) {
+        NoteSequence_clear(self);
+        Mem_free(self);
+   }
+}
+NoteSequence *NoteSequence_new()
+{
+    NoteSequence *self = Mem_malloc(sizeof(NoteSequence));
+    NoteSequence_init(self);
+    return self;
+}
+void FloatEvent_init(FloatEvent *self)
+{
+    self->stime = 0;
+    self->value = 0;
+    return;
+}
+void FloatEvent_clear(FloatEvent *self)
+{
+    return;
+}
+void FloatEvent_free(FloatEvent *self)
+{
+   if (self != NULL) {
+        FloatEvent_clear(self);
+        Mem_free(self);
+   }
+}
+FloatEvent *FloatEvent_new()
+{
+    FloatEvent *self = Mem_malloc(sizeof(FloatEvent));
+    FloatEvent_init(self);
+    return self;
+}
+void FloatSequence_init(FloatSequence *self)
+{
+    self->itype = 0;
+    self->version = 0;
+    self->startTime = 0;
+    self->sequenceLength = 0;
+    self->cursor = 0;
+    self->cycle = 0;
+    self->outlet = NULL;
+    self->recordBuffer = FloatSequence_new();
+    FloatEventAr_init(&self->events, 0);
+    self->restoreValue = 0;
+    return;
+}
+void FloatSequence_clear(FloatSequence *self)
+{
+    FloatSequence_free(self->recordBuffer);
+    FloatEventAr_clear(&self->events);
+    return;
+}
+void FloatSequence_free(FloatSequence *self)
+{
+   if (self != NULL) {
+        FloatSequence_clear(self);
+        Mem_free(self);
+   }
+}
+FloatSequence *FloatSequence_new()
+{
+    FloatSequence *self = Mem_malloc(sizeof(FloatSequence));
+    FloatSequence_init(self);
+    return self;
+}
+void RecordBuffer_init(RecordBuffer *self)
+{
+    self->recordStart = 0;
+    SequenceAr_init(&self->sequences, 0);
+    return;
+}
+void RecordBuffer_clear(RecordBuffer *self)
+{
+    SequenceAr_clear(&self->sequences);
+    return;
+}
+void RecordBuffer_free(RecordBuffer *self)
+{
+   if (self != NULL) {
+        RecordBuffer_clear(self);
+        Mem_free(self);
+   }
+}
+RecordBuffer *RecordBuffer_new()
+{
+    RecordBuffer *self = Mem_malloc(sizeof(RecordBuffer));
+    RecordBuffer_init(self);
+    return self;
+}
 #define Hub_padsPerFrame           24
 #define Hub_framesPerBank           8
 #define Hub_padsPerBank            (Hub_padsPerFrame*Hub_framesPerBank)
@@ -2981,6 +3717,106 @@ void Dispatch_initDispatchPtAr(int itype, DispatchPtAr *a1, Error *err)
     return;
 }
 
+void Outlet_sendNote(Outlet *self, uint8_t a1, uint8_t a2, Error *err)
+{
+    switch(self->itype) {
+       default:
+            Error_format(err, "Failed to resolve interface call in <EXPAND_FAIL>_sendNote: found type %s", Interface_toString(self->itype));
+    }
+    return;
+}
+
+void Outlet_sendFloat(Outlet *self, double a1, Error *err)
+{
+    switch(self->itype) {
+       default:
+            Error_format(err, "Failed to resolve interface call in <EXPAND_FAIL>_sendFloat: found type %s", Interface_toString(self->itype));
+    }
+    return;
+}
+
+int Outlet_cmp(Outlet *self, Outlet *a1, Error *err)
+{
+    switch(self->itype) {
+        default:
+            Error_format(err, "Failed to resolve interface call in <EXPAND_FAIL>_cmp: found type %s", Interface_toString(self->itype));
+    }
+    return 0;
+}
+
+void Sequence_start(Sequence *self, Ticks a1, Ticks a2, TimedAr *a3, Error *err)
+{
+    switch(self->itype) {
+        case FloatSequence_itype:
+            FloatSequence_start((FloatSequence*)self, a1, a2, a3);
+            return;
+        case NoteSequence_itype:
+            NoteSequence_start((NoteSequence*)self, a1, a2, a3);
+            return;
+       default:
+            Error_format(err, "Failed to resolve interface call in NoteSequence_start: found type %s", Interface_toString(self->itype));
+    }
+    return;
+}
+
+void Sequence_drive(Sequence *self, Ticks a1, TimedAr *a2, Error *err)
+{
+    switch(self->itype) {
+        case FloatSequence_itype:
+            FloatSequence_drive((FloatSequence*)self, a1, a2);
+            return;
+        case NoteSequence_itype:
+            NoteSequence_drive((NoteSequence*)self, a1, a2);
+            return;
+       default:
+            Error_format(err, "Failed to resolve interface call in NoteSequence_drive: found type %s", Interface_toString(self->itype));
+    }
+    return;
+}
+
+void Sequence_stop(Sequence *self, Ticks a1, TimedAr *a2, Error *err)
+{
+    switch(self->itype) {
+        case FloatSequence_itype:
+            FloatSequence_stop((FloatSequence*)self, a1, a2);
+            return;
+        case NoteSequence_itype:
+            NoteSequence_stop((NoteSequence*)self, a1, a2);
+            return;
+       default:
+            Error_format(err, "Failed to resolve interface call in NoteSequence_stop: found type %s", Interface_toString(self->itype));
+    }
+    return;
+}
+
+void Sequence_padNoteOff(Sequence *self, Error *err)
+{
+    switch(self->itype) {
+        case FloatSequence_itype:
+            FloatSequence_padNoteOff((FloatSequence*)self);
+            return;
+        case NoteSequence_itype:
+            NoteSequence_padNoteOff((NoteSequence*)self);
+            return;
+       default:
+            Error_format(err, "Failed to resolve interface call in NoteSequence_padNoteOff: found type %s", Interface_toString(self->itype));
+    }
+    return;
+}
+
+int Sequence_cmp(Sequence *self, Sequence *a1, Error *err)
+{
+    switch(self->itype) {
+        case FloatSequence_itype:
+            return FloatSequence_cmp((FloatSequence*)self, a1);
+        case NoteSequence_itype:
+            return NoteSequence_cmp((NoteSequence*)self, a1);
+        default:
+            Error_format(err, "Failed to resolve interface call in NoteSequence_cmp: found type %s", Interface_toString(self->itype));
+    }
+    return 0;
+}
+
 const char *Interface_toString(int itype)
 {
     switch(itype) {
@@ -3002,6 +3838,10 @@ const char *Interface_toString(int itype)
             return "MidiFileDropDispatch";
         case ManageChokeGroupsDispatch_itype:
             return "ManageChokeGroupsDispatch";
+        case NoteSequence_itype:
+            return "NoteSequence";
+        case FloatSequence_itype:
+            return "FloatSequence";
     }
     return "Unknown";
 }
@@ -5417,3 +6257,522 @@ APIF void BinFile_verifyTag(BinFile *bf, const char *tag, Error *err) {
 
 
 
+#line 16 "src/sequence.in.c"
+
+// This is the decimal representation of binary 10010000
+#define NOTEON_COMMAND 144
+
+APIF void NoteOutlet_sendNote(OutputOutlet *self, uint8_t pitch, uint8_t velocity)
+{
+    Atom *av = self->atoms;
+    av[0] = Atom_fromSymbol(Symbol_gen("midievent"));
+    av[1] = Atom_fromInteger(NOTEON_COMMAND);
+    av[2] = Atom_fromInteger(pitch);
+    av[3] = Atom_fromInteger(velocity);
+    Error_declare(err);
+    PortRef_send(ref, 0, 4, av, err);
+    Error_maypost(err);
+}
+
+APIF int NoteOutlet_cmp(NoteOutlet *self, NoteOutlet *other) {
+    return PortRef_cmp(&self->portRef, &other->portRef);
+}
+
+#line 55 "src/sequence.in.c"
+
+// This is a decimal version of the binary number 10110000
+#define CC_COMMAND 176
+APIF void CCOutlet_sendFloat(CCOutlet *self, double value) 
+{
+    int v = (int)value;
+    Atom *av = self->atoms;
+    av[0] = Atom_fromSymbol(Symbol_gen("midievent"));
+    av[1] = Atom_fromInteger(CC_COMMAND);
+    av[2] = Atom_fromInteger(self->cc);
+    av[3] = Atom_fromInteger(v);
+    Error_declare(err);
+    PortRef_send(ref, 0, 4, av, err);
+    Error_maypost(err);   
+}
+
+APIF int CCOutlet_cmp(CCOutlet *self, CCOutlet *other) {
+    int q = PortRef_cmp(&self->portRef, &other->portRef);
+    if (q != 0) {
+        return q;
+    }
+
+    if (self->cc < other->cc) {
+        return -1;
+    } else if (self->cc > other->cc) {
+        return 1;
+    }
+    return 0;
+}
+
+#line 100 "src/sequence.in.c"
+
+#define BEND_COMMAND 224
+APIF void BendOutlet_sendFloat(BendOutlet *self, double value)
+{
+    int v = (int)value;
+    int lsb = v & 0x7F;
+    int msb = (v >> 7) & 0x7F;
+    Atom *av = self->atoms;
+    av[0] = Atom_fromSymbol(Symbol_gen("midievent"));
+    av[1] = Atom_fromInteger(BEND_COMMAND);
+    av[2] = Atom_fromInteger(msb);
+    av[3] = Atom_fromInteger(lsb);
+    Error_declare(err);
+    PortRef_send(ref, 0, 4, av, err);
+    Error_maypost(err);   
+}
+
+APIF int BendOutlet_cmp(BendOutlet *self, BendOutlet *other) {
+    return PortRef_cmp(&self->portRef, &other->portRef);
+}
+
+#line 136 "src/sequence.in.c"
+
+#define BEND_COMMAND 224
+APIF void VstOutlet_sendFloat(BendOutlet *self, double value)
+{
+}
+
+APIF int VstOutlet_cmp(BendOutlet *self, BendOutlet *other) {
+    return PortRef_cmp(&self->portRef, &other->portRef);
+}
+
+
+#line 174 "src/sequence.in.c"
+
+
+#line 189 "src/sequence.in.c"
+
+
+void TimedAr_enqueue(TimedAr *self, Ticks time, Sequence *s) {
+    Sequence_incVersion(s);
+    Timed_declare(cell, time, Sequence_version(s), s);
+    TimedAr_pqPush(self, cell);
+}
+
+Sequence *TimedAr_dequeue(TimedAr *self, Ticks current) {
+    Timed *peeked = TimedAr_pqPeek(self);
+
+    while (peeked != NULL) {
+        if (Timed_time(peeked) > current) {
+            break;
+        } 
+
+        Timed_declare0(timed);
+        TimedAr_pqPop(self, &timed);
+        Sequence *seq = Timed_sequence(&timed);
+        if (seq != NULL && Timed_version(&timed) == Sequence_version(seq)) {
+            return Timed_sequence(&timed);
+        }       
+        peeked = TimedAr_pqPeek(self);
+    }
+
+    return NULL;
+}
+
+void TimedAr_invalidateSequence(TimedAr *self, SequencePtAr *removes) 
+{
+    SequencePtAr_sortPtr(removes);
+    TimedAr_foreach(it, self) {
+        Sequence *seq = Timed_sequence(it.var);
+        if (seq == NULL) {
+            continue;
+        }
+        if (SequencePtAr_binSearchPtr(removes, seq) != NULL) {
+            Timed_setSequence(it.var, NULL);
+        }
+    }
+}
+
+
+
+#line 247 "src/sequence.in.c"
+
+#line 292 "src/sequence.in.c"
+
+APIF int NoteSequence_cmp(NoteSequence *self, NoteSequence *other) 
+{
+    return Outlet_cmp(self->outlet, other->outlet);
+}
+
+APIF int NoteSequence_cmpDestination(NoteSequence *self, NoteSequence *other) 
+{
+    return Outlet_cmpDestination(self->outlet, other->outlet);
+}
+
+//
+// time and seqTime are related by
+//      seqTime = (time-sequenceStartTime) % sequenceLength
+//      seqBase = sequenceLength * ((time - sequenceStartTime)/ sequenceLength) + sequenceStartTime
+//      time    = seqTime + seqBase 
+// Then write 
+//      seqTime + seqBase = (time-sequenceStartTime) % sequenceLength + sequenceLength * ((time - sequenceStartTime)/ sequenceLength) + sequenceStartTime
+//                        = (time-sequenceStartTime) + sequenceStartTime
+//                        = time
+// Where the last relation is due to the integer relation
+//      n       = n % len + (n/len)*len
+
+APIF void NoteSequence_start(NoteSequence *self, Ticks clockStart, Ticks current, TimedAr *queue, RecordBuffer *recordBuffer) {
+    int nevents = NoteEventAr_len(&self->events);
+    if (nevents <= 0) {
+        return;
+    }
+
+    self->startTime    = self->cycle ? clockStart : current;
+    self->cursor       = 0;
+    self->inEndgroup   = false;
+    // self->seqBase      = self->sequenceLength * ((current - self->startTime) / self->sequenceLength) + self->startTime;
+    Ticks nextEvent    = 0;
+    if (self->cycle) {
+        while (current-self->startTime > self->sequenceLength) {
+            // XXX: potential infinite loop here
+            self->startTime += self->sequenceLength;
+        }
+
+        NoteEventAr_foreach(it, &self->events) {
+            if (it.var->stime + self->startTime > current) {
+                nextEvent = it.var->stime + self->startTime;
+                break;
+            }
+            self->cursor++;
+        }
+        if (self->cursor >= nevents) {
+            self->startTime += self->sequenceLength;
+            nextEvent        = self->startTime;
+            self->cursor     = 0;
+        }
+    } else {
+        NoteEventAr_foreach(it, &self->events) {
+            nextEvent = it.var->stime + self->startTime;
+            break;
+        }
+    }
+
+    // These note-offs are from a previous sequence start
+    TimedOffAr_foreach(it, &self->offs) {
+        if (it.var->time < nextEvent) {
+            nextEvent = it.var->time;
+        }
+        break;
+    }
+
+    self->recordingSeq = NULL;
+    if (recordBuffer != NULL) {
+        NoteSequence *other = NoteSequence_new();
+        other->startTime    = self->startTime;
+        self->recordingSeq  = other;    
+        RecordBuffer_push(recordBuffer, NoteSequence_castToSequence(other));
+    }
+
+    TimedAr_enqueue(queue, nextEvent, NoteSequence_castToSequence(self));
+}
+
+APIF void NoteSequence_stop(NoteSequence *self, Ticks current, TimedAr *queue) {
+    self->cursor       = NoteEventAr_len(&self->events);
+    //XXX: do I need to fix up recordingSeq before I dro it
+    self->recordingSeq = NULL;
+    TimedOffAr_foreach(it, &self->offs) {
+        Ticks nextEvent = it.var->time;
+        TimedAr_enqueue(queue, nextEvent, NoteSequence_castToSequence(self));
+        break;
+    }
+}
+
+Ticks NoteSequence_cycleDuration   = -1;
+Ticks NoteSequence_endgDuration    = -2;
+Ticks NoteSequence_noteOffDuration = -3;
+
+static inline void NoteSequence_playNoteOffs(NoteSequence *self, Ticks current) 
+{
+    self->nextOffEvent = -1;
+    int nremoves = 0;
+    TimedOffAr_foreach(it, &self->offs) {
+        if (it.var->time > current) {
+            self->nextOffEvent = it.var->time;
+            break;
+        }
+        Outlet_sendNote(self->outlet, it.var->pitch, 0);
+        nremoves++;
+    }
+    if (nremoves > 0) {
+        TimedOffAr_removeN(&self->offs, 0, nremoves, err);
+        Error_maypost(err);
+    }
+}
+
+static inline void NoteSequence_reconcileNoteOffsWithNewNotes(NoteSequence *self, NoteEvent *ne) {
+    TimedOffAr_foreach(it, &self->offs) {
+        if (it.var->pitch == ne->pitch) {
+            TimedOffArFIt_remove(&it);
+            Outlet_sendNote(self->outlet, ne->pitch, 0);
+            break;
+        }
+    }
+}
+
+
+static inline void NoteSequence_playNoteOns(NoteSequence *self, Ticks current) 
+{
+    self->nextOnEvent = -1;
+    for (;;) {
+        NoteEventAr_foreachOffset(it, &self->events, self->cursor) {
+            NoteEvent *ne = it.var;
+            if (ne->stime + self->starTime > current) {
+                self->nextOnEvent = ne->stime + self->startTime;
+                return;
+            }
+            if (ne->duration >= 0) {
+                NoteSequence_reconcileNoteOffsWithNewNotes(self, ne);
+                Outlet_sendNote(self->outlet, ne->pitch, ne->velocity);
+            } else if (ne->duration == NoteSequence_endgDuration) {
+                self->inEndgroup = true;
+            } 
+            if (self->recordingSeq != NULL && ne->duration != NoteSequence_endgDuration) {
+                NoteEvent e = *ne;
+                e.time      = self->recordingSeq->startTime + ne->stime;
+                NoteEventAr_push(&self->recordingSeq->events, e);
+            }
+            self->cursor++;
+        }
+        if (self->cycle) {
+            self->startTime += self->sequenceLength;
+            self->cursor     = 0;
+        } else {
+            return;
+        }
+    }
+}
+
+static inline Ticks NoteSequence_nextEvent(NoteSequence *self) {
+    if (self->nextOnEvent < 0 && self->nextOffEvent < 0) {
+        return -1;
+    } else if (self->nextOffEvent < 0) {
+        return self->nextOnEvent;
+    } else if (self->nextOnEvent < 0) {
+        return self->nextOffEvent;
+    } else {
+        return self->nextOffEvent < self->nextOnEvent ? self->nextOffEvent : self->nextOnEvent;
+    }
+}
+
+APIF void NoteSequence_drive(NoteSequence *self, Ticks current, TimedAr *queue) {
+    NoteSequence_playNoteOffs(self, current);
+    NoteSequence_playNoteOns(self, current);
+    Ticks nextEvent = NoteSequence_nextEvent(self);
+    if (nextEvent >= 0) {
+        TimedAr_enqueue(queue, nextEvent, NoteSequence_castToSequence(self));
+    }
+}
+
+static inline void NoteSequence_adjustRecSeqForEndgroup(NoteSequence *self, int pitch, Ticks current) {
+    // 
+    NoteEventAr_rforeach(it, &self->recordingSeq->events) {
+        if (it.var->pitch == pitch) {
+            it.var->duration = current - it.var->time;
+            return;
+        }
+    }
+}
+
+APIF void NoteSequence_padNoteOff(NoteSequence *self, int padIndex, Ticks current) {
+    if (self->inEndgroup) {
+        TimedOffAr_foreach(it, &self->offs) {
+            NoteSequence_adjustRecSeqForEndgroup(self, it.var->pitch, current);
+            Outlet_sendNote(self->outlet, it.var->pitch, 0);
+        }
+        TimedOffAr_truncate(&self->offs);
+    }
+}
+#line 498 "src/sequence.in.c"
+
+#line 543 "src/sequence.in.c"
+
+APIF int FloatSequence_cmp(FloatSequence *self, FloatSequence *other) 
+{
+    return Outlet_cmp(self->outlet, other->outlet);
+}
+
+APIF int FloatSequence_cmpDestination(FloatSequence *self, FloatSequence *other) 
+{
+    return Outlet_cmpDestination(self->outlet, other->outlet);
+}
+
+
+double FloatSequence_endgMarker  = -1e40.0;
+double FloatSequence_cycleMarker = -1e41.0;
+APIF void FloatSequence_start(BendSequence *self, Ticks clockStart, Ticks current, TimedAr *queue, RecordBuffer *recordBuffer) {
+    int nevents = FloatEventAr_len(&self->events);
+    if (nevents <= 0) {
+        return;
+    }
+
+    self->startTime    = self->cycle ? clockStart : current;
+    self->cursor       = 0;
+    self->inEndgroup   = false;
+    Ticks nextEvent    = 0;
+    if (self->cycle) {
+        while (current-self->startTime > self->sequenceLength) {
+            // XXX: potential infinite loop here
+            self->startTime += self->sequenceLength;
+        }
+
+        FloatEventAr_foreach(it, &self->events) {
+            if (it.var->stime + self->startTime > current) {
+                nextEvent = it.var->stime + self->startTime;
+                break;
+            }
+            self->cursor++;
+        }
+        if (self->cursor >= nevents) {
+            self->startTime += self->sequenceLength;
+            nextEvent        = self->startTime;
+            self->cursor     = 0;
+        }
+    } else {
+        FloatEventAr_foreach(it, &self->events) {
+            nextEvent = it.var->stime + self->startTime;
+            break;
+        }
+    }
+
+    self->recordingSeq = NULL;
+    if (recordBuffer != NULL) {
+        BendSequence *other = FloatSequence_new();
+        other->startTime    = self->startTime;
+        self->recordingSeq  = other;    
+        RecordBuffer_push(recordBuffer, FloatSequence_castToSequence(other));
+    }
+
+    TimedAr_enqueue(queue, nextEvent, FloatSequence_castToSequence(self));
+}
+
+APIF void FloatSequence_stop(FloatSequence *self, Ticks current, TimedAr *queue) {
+    self->cursor       = FloatEventAr_len(&self->events);
+    //XXX: do I need to fix up recordingSeq before I dro it
+    self->recordingSeq = NULL;
+    Outlet_sendFloat(self->outlet, self->restoreValue);
+}
+
+APIF void FloatSequence_drive(FloatSequence *self, Ticks current, TimedAr *queue) {
+    Ticks nextOnEvent = -1;
+    for (;;) {
+        FloatEventAr_foreachOffset(it, &self->events, self->cursor) {
+            FloatEvent *fe = it.var;
+            if (fe->stime + self->starTime > current) {
+                nextOnEvent = ne->stime + self->startTime;
+                goto DONE;
+            }
+            if (fe->value == FloatSequence_endgMarker) {
+                self->inEndgroup = true;
+            } else if (fe->value == FloatSequence_cycleMarker) {
+                // Do nothing
+            } else {
+                Outlet_sendFloat(fe->outlet, fe->value);
+            }
+
+            if (self->recordingSeq != NULL && fe->value != FloatSequence_endgMarker) {
+                FloatEvent e = *fe;
+                e.time       = self->recordingSeq->startTime + fe->stime;
+                FloatEventAr_push(&self->recordingSeq->events, e);
+            }
+            self->cursor++;
+        }
+        if (self->cycle) {
+            self->startTime += self->sequenceLength;
+            self->cursor     = 0;
+        } else {
+            goto DONE;
+        }
+    }
+   DONE:
+    if (nextEvent >= 0) {
+        TimedAr_enqueue(queue, nextEvent, FloatSequence_castToSequence(self));
+    }
+}
+
+APIF void FloatSequence_padNoteOff(FloatSequence *self, int padIndex, Ticks current) {
+    if (self->inEndgroup) {
+        Outlet_sendFloat(self->outlet, self->restoreValue);
+    }
+}
+
+
+#line 711 "src/sequence.in.c"
+
+APIF int Sequence_cmpPp(Sequence **left, Sequence **right) {
+    return Sequence_cmp(*left, *right);
+}
+
+APIF int Sequence_cmpDestinationPp(Sequence **left, Sequence **right) {
+    return Sequence_cmpDestination(*left, *right);
+}
+
+APIF void Sequence_incVersion(Sequence *seq) {
+    seq->version++;
+}
+
+#line 739 "src/sequence.in.c"
+
+
+
+//
+//
+//
+
+APIF void Frontend_recievedPadHit(Hub *hub, long pitchIn, long velocityIn){
+	Error_declare(err);
+  int padIndex = Hub_padIndexFromInNote(x, pitchIn);
+  if (padIndex >= PadAr_len(PadList_pads(Hub_padList(hub)))) {
+    post("Bad padIndex %d", padIndex);
+    return;
+    }
+
+    if (velocityIn == 0) {
+        Pad *pad = PadList_pad(Hub_padList(x), padIndex, err);
+        if (Error_maypost(err)) {
+          return;
+      }
+      Pad_setNoteReleasePending(pad, false);
+      SequenceAr_foreach(it, Pad_sequenceList(pad)) {
+       Sequence_padNoteOff(it.var);
+    }
+    return;
+    }
+
+    if (Hub_grabNextTappedPad(hub)) {
+      Hub_setGrabNextTappedPad(hub, false); 
+      Hub_changeSelectedPad(hub, padIndex, err);
+      Error_maypost(err);
+    }
+
+
+    Ticks now = Ticks_now();
+    Ticks clockStart = Pad_useMasterClock(pad) ? Hub_masterClock(hub) : now;
+    SequenceAr_foreach(it, Pad_sequenceList(pad)) {
+       SequenceAr_binInsertSeqPt(Hub_runningSequences(hub), it.var);
+       Sequence_start(it.var, clockStart, now, Hub_queue(hub), Hub_recordBuffer(hub));
+    }
+
+    Error_clear(err);
+}
+
+APIF void Frontend_drive(Hub *hub) {
+	Ticks now = Ticks_now();
+	TimedAr *queue = Hub_queue(hub);
+	Sequence *seq = TimedAr_dequeue(queue);
+	while (seq != NULL) {
+		Sequence_drive(seq, now, queue);
+		seq = TimedAr_dequeue(queue);
+	}
+}
+
+APIF void Frontend_stop(Hub *hub) {
+	SequenceAr_foreach(it, Hub_runningSequences(hub)) {
+		Sequence_stop(it.var);
+	}
+}

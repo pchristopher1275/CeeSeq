@@ -109,6 +109,15 @@ APIF String *String_empty()
     return body->ch;
 }
 
+APIF long String_toInteger(String *s, Error *err)
+{
+    long value = 0;
+    if (sscanf(s, "%ld", &value) != 1) {
+        Error_format0(err, "String_toInteger failed to convert integer");
+    }
+    return value;  
+}
+
 APIF void String_trim(String **sp)
 {
     String *s = *sp;
@@ -286,7 +295,7 @@ APIF int Error_maypost(Error *err)
 #define Error_returnZeroOnError(err)           if (Error_iserror(err)) return 0
 #define Error_returnNullOnError(err)           if (Error_iserror(err)) return NULL
 #define Error_gotoLabelOnError(err, label)     if (Error_iserror(err)) goto label
-
+#define Error_returnValueOnError(err, value)   if (Error_iserror(err)) return value
 
 //
 // More    S T R I N G
@@ -357,12 +366,22 @@ Symbol *Symbol_gen(const char *word);
 static inline const char *Symbol_cstr(Symbol *s) {
     return s->name;
 }
-
 #else
 #define Symbol t_symbol
 #define Symbol_gen gensym
 #define Symbol_cstr(s) ((s)->s_name)
 #endif
+
+static inline int Symbol_cmp(Symbol *left, Symbol *right)
+{
+    if (left < right) {
+        return -1;
+    } else if (left > right) {
+        return 1;
+    }
+    return 0;
+}
+
 
 
 //
@@ -470,6 +489,7 @@ static inline double Atom_toFloat(Atom *a) {
 // T I M E
 //
 typedef long long Ticks;
+#define Ticks_maxTime LLONG_MAX 
 #ifndef TEST_BUILD
 APIF Ticks cseqHub_now()
 {

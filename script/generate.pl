@@ -480,51 +480,51 @@ ENDxxxxxxxxxx
 ENDxxxxxxxxxx
 	},	
 
-	{
-		key =>    'Array:slice',
-		symbol => '',
-		tmpl   => <<'ENDxxxxxxxxxx', 
-			@typedef struct ${TYPENAME}Slice_t {
-			@	int len;
-			@	${ELEMNAME}*data;
-			@	int index;
-			@	${ELEMNAME}*var;
-			@} ${TYPENAME}Slice;
-ENDxxxxxxxxxx
-	},
+# 	{
+# 		key =>    'Array:slice',
+# 		symbol => '',
+# 		tmpl   => <<'ENDxxxxxxxxxx', 
+# 			@typedef struct ${TYPENAME}Slice_t {
+# 			@	int len;
+# 			@	${ELEMNAME}*data;
+# 			@	int index;
+# 			@	${ELEMNAME}*var;
+# 			@} ${TYPENAME}Slice;
+# ENDxxxxxxxxxx
+# 	},
 
-	{
-		key =>    'Array:declareSlice',
-		symbol => '${TYPENAME}_declareSlice',
-		tmpl   => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}_declareSlice(name) ${TYPENAME}Slice name = {0}			
-ENDxxxxxxxxxx
-	},
+# 	{
+# 		key =>    'Array:declareSlice',
+# 		symbol => '${TYPENAME}_declareSlice',
+# 		tmpl   => <<'ENDxxxxxxxxxx', 
+# 			@#define ${TYPENAME}_declareSlice(name) ${TYPENAME}Slice name = {0}			
+# ENDxxxxxxxxxx
+# 	},
 
-	{
-		key =>    'Array:sliceEmpty',
-		symbol => '${TYPENAME}_sliceEmpty',
-		tmpl   => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}_sliceEmpty(slice) (slice.data == NULL)
-ENDxxxxxxxxxx
-	},	
+# 	{
+# 		key =>    'Array:sliceEmpty',
+# 		symbol => '${TYPENAME}_sliceEmpty',
+# 		tmpl   => <<'ENDxxxxxxxxxx', 
+# 			@#define ${TYPENAME}_sliceEmpty(slice) (slice.data == NULL)
+# ENDxxxxxxxxxx
+# 	},	
 
-	{
-		key =>    'Array:sliceForeach',
-		symbol => '${TYPENAME}_sliceForeach',
-		tmpl   => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}_sliceForeach(slice) for (slice.index=0, slice.var=slice.data; slice.index < slice.len; slice.index++, slice.var++)
-ENDxxxxxxxxxx
-	},	
+# 	{
+# 		key =>    'Array:sliceForeach',
+# 		symbol => '${TYPENAME}_sliceForeach',
+# 		tmpl   => <<'ENDxxxxxxxxxx', 
+# 			@#define ${TYPENAME}_sliceForeach(slice) for (slice.index=0, slice.var=slice.data; slice.index < slice.len; slice.index++, slice.var++)
+# ENDxxxxxxxxxx
+# 	},	
 
-	{
-		key =>    'Array:rsliceForeach',
-		symbol => '${TYPENAME}_rsliceForeach',
-		tmpl   => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}_rsliceForeach(slice) for (slice.index=slice.len-1, slice.var = slice.data + slice.index*sizeof(${ELEMNAME_NS}); \\
-			@								               slice.index >= 0; slice.index--, slice.var--)
-ENDxxxxxxxxxx
-	},	
+# 	{
+# 		key =>    'Array:rsliceForeach',
+# 		symbol => '${TYPENAME}_rsliceForeach',
+# 		tmpl   => <<'ENDxxxxxxxxxx', 
+# 			@#define ${TYPENAME}_rsliceForeach(slice) for (slice.index=slice.len-1, slice.var = slice.data + slice.index*sizeof(${ELEMNAME_NS}); \\
+# 			@								               slice.index >= 0; slice.index--, slice.var--)
+# ENDxxxxxxxxxx
+# 	},	
 
 	{
 		key =>    'Array:binInsert',

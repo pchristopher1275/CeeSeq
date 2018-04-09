@@ -78,7 +78,13 @@ void Symbol_freeAll()
 
 #endif
 
-
+@container    
+   {       
+       "type": "array",
+       "typeName": "AtomAr", 
+       "elemName": "Atom"
+   }
+@end
 
 @type
 {
@@ -127,6 +133,52 @@ APIF void Port_clear(Port *p)
 {
 }
 
+
+// Will parse id's of the form ev\d+ and return the \d+ number. Returns -1 otherwise
+APIF int port_parseEvSymbol(Symbol *id)
+{
+    int r = -1;
+    int consumed = 0;
+    if (id == NULL) {
+        return -1;
+    }
+
+    if (sscanf(Symbol_cstr(id), "ev%d%n", &r, &consumed) != 1) {
+        return -1;
+    }
+    if (strlen(Symbol_cstr(id)) != consumed) {
+        return -1;
+    }
+    return r;
+}
+
+APIF void Port_send(Port *self, int outletIndex, short argc, Atom *argv, Error *err)
+{   
+    if (self == Port_null) {
+        return;
+    }
+#   ifndef TEST_BUILD
+    Symbol *selector = Atom_toSymbol(argv + 0);
+    void *out = PtrAr_get(&self->outlet, outletIndex, err);
+    Error_returnVoidOnError(err);
+    outlet_anything(out, selector, argc-1, argv+1);  
+#   endif 
+}
+
+APIF void Port_sendInteger(Port *self, int outlet, long value) 
+{
+    if (self == Port_null) {
+        return;
+    }
+#   ifndef TEST_BUILD
+    Error_declare(err);
+    void *out = PtrAr_get(&self->outlet, outlet, err);
+    if (Error_maypost(err)) {
+        return;
+    }
+    outlet_int(out, value);   
+#   endif
+}
 
 @container    
 {       
@@ -398,54 +450,6 @@ const int Midiseq_endgrptype = 5;
    }
 @end
 
-@type
-   {  
-      "typeName":"PortFindCell",
-      "fields":[  
-         {  
-            "name":"reciever",
-            "type":"Port *"
-         },
-         {  
-            "name":"varname",
-            "type":"Symbol *"
-         }
-      ],
-      "containers": [
-         {
-            "type": "array",
-            "typeName": "PortFindCellAr", 
-            "elemName": "PortFindCell"
-         }
-      ]
-   }
-@end
-
-@type
-   {  
-      "typeName": "PortFind",
-      "fields":[  
-         {  
-            "name":"objects",
-            "type":"PortFindCellAr"
-         },
-         {  
-            "name":"hub",
-            "type":"void *"
-         },
-         {  
-            "name":"anythingDispatch",
-            "type":"Port_anythingDispatchFunc"
-         },
-         {  
-            "name":"intDispatch",
-            "type":"Port_intDispatchFunc"
-         }
-      ]
-   }
-@end
-#define PortFind_declare(name) PortFind _##name; PortFind *name = &_##name; memset(name, 0, sizeof(PortFind)); PortFind_init(name)        
-
 
 @type
    {  
@@ -533,6 +537,11 @@ static inline void PortRef_set(PortRef *pr, Port *port, int outlet) {
 #define PortRef_sendInteger(pr, value, err)    Port_sendInteger(PortRef_port(pr), PortRef_outlet(pr), value, err)
 PortRef PortRef_nullImpl = {Port_null, 0};
 #define PortRef_null  &PortRef_nullImpl
+APIF static inline Symbol *PortRef_track(PortRef *self)
+{ 
+    return Port_track(self->port);
+}
+
 
 APIF int PortRef_cmp(PortRef *left, PortRef *right) 
 {
@@ -815,54 +824,6 @@ APIF void DropDown_initializeMenu(DropDown *dd, Error *err) {
 #define Hub_padIndexFromInNote(hub, inputNote) (Hub_bank(hub)*Hub_padsPerBank + Hub_frame(hub)*Hub_padsPerFrame + (inputNote - Hub_firstMidiNote))
 // #include "shared.c"
 @end
-
-
-// Will parse id's of the form ev\d+ and return the \d+ number. Returns -1 otherwise
-APIF int port_parseEvSymbol(Symbol *id)
-{
-    int r = -1;
-    int consumed = 0;
-    if (id == NULL) {
-        return -1;
-    }
-
-    if (sscanf(Symbol_cstr(id), "ev%d%n", &r, &consumed) != 1) {
-        return -1;
-    }
-    if (strlen(Symbol_cstr(id)) != consumed) {
-        return -1;
-    }
-    return r;
-}
-
-APIF void Port_send(Port *self, int outletIndex, short argc, Atom *argv, Error *err)
-{   
-    if (self == Port_null) {
-        return;
-    }
-#   ifndef TEST_BUILD
-    Symbol *selector = Atom_toSymbol(argv + 0);
-    void *out = PtrAr_get(&self->outlet, outletIndex, err);
-    Error_returnVoidOnError(err);
-    outlet_anything(out, selector, argc-1, argv+1);  
-#   endif 
-}
-
-APIF void Port_sendInteger(Port *self, int outlet, long value) 
-{
-    if (self == Port_null) {
-        return;
-    }
-#   ifndef TEST_BUILD
-    Error_declare(err);
-    void *out = PtrAr_get(&self->outlet, outlet, err);
-    if (Error_maypost(err)) {
-        return;
-    }
-    outlet_int(out, value);   
-#   endif
-}
-
 
 //
 // Memory allocation Notes. These are the functions that are used in sdsalloc.h
@@ -1504,6 +1465,56 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
 //
 // P A T C H E R    F I N D
 //
+@type
+   {  
+      "typeName":"PortFindCell",
+      "fields":[  
+         {  
+            "name":"reciever",
+            "type":"Port *"
+         },
+         {  
+            "name":"varname",
+            "type":"Symbol *"
+         }
+      ],
+      "containers": [
+         {
+            "type": "array",
+            "typeName": "PortFindCellAr", 
+            "elemName": "PortFindCell"
+         }
+      ]
+   }
+@end
+
+@type
+   {  
+      "typeName": "PortFind",
+      "fields":[  
+         {  
+            "name":"objects",
+            "type":"PortFindCellAr"
+         },
+         {  
+            "name":"hub",
+            "type":"void *"
+         },
+         {  
+            "name":"anythingDispatch",
+            "type":"Port_anythingDispatchFunc"
+         },
+         {  
+            "name":"intDispatch",
+            "type":"Port_intDispatchFunc"
+         }
+      ]
+   }
+@end
+
+#define PortFind_declare(name) PortFind _##name; PortFind *name = &_##name; memset(name, 0, sizeof(PortFind)); PortFind_init(name)        
+
+
 #ifndef TEST_BUILD
 APIF long PortFind_iterator(PortFind *pf, MaxObject *targetBox)
 {
@@ -1563,6 +1574,13 @@ APIF int PortFind_discover(PortFind *pf, MaxObject *sourceMaxObject, void *hub, 
 }
 #endif
 
+#ifdef TEST_BUILD
+APIF PortFind *PortFind_pushPortFindCell(PortFind *self, PortFindCell cell)
+{
+    PortFindCellAr_push(&self->objects, cell);
+}
+#endif
+
 APIF Port *PortFind_findByVarname(PortFind *pf, Symbol *symbol)
 {
     PortFindCellAr_foreach(it, &pf->objects){
@@ -1611,6 +1629,28 @@ APIF Port *PortFind_findByIndex(PortFind *pf, int index, Error *err)
     
     return cell.reciever;
 }
+
+APIF Outlet *PortFind_createOutlet(PortFind *self, OutletSpecifier *spec) 
+{
+    Port *port = Port_null;
+    if (self->portFind != NULL) {
+        port = PortFind_findByTrack(self, spec->track);
+    }
+
+    if (spec->parameter == Symbol_gen("*note")) {
+        NoteOutlet *outlet = NoteOutlet_newBuild(port);
+        return NoteOutlet_castToOutlet(outlet);
+    } else if (spec->parameter == Symbol_gen("*bend")) {
+        BendOutlet *outlet = BendOutlet_newBuild(port);
+        return BendOutlet_castToOutlet(outlet);
+    } else if (spec->parameter == Symbol_gen("*cc")) {
+        CcOutlet *outlet = CcOutlet_newBuild(port, spec->paramIndex);
+        return CcOutlet_castToOutlet(outlet);
+    }
+    
+    return NullOutlet_castToOutlet(NullOutlet_new());
+}
+
 
 //
 // P A D
