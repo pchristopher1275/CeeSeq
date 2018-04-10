@@ -6,7 +6,7 @@ use POSIX qw(strftime);
 use Data::Dumper;
 
 my $gVerbose             = 1;
-my $gApplicationName     = "application";
+my $gApplicationName     = undef;
 my $gAcceptAllCalls      = 0;
 my $gNow                 = strftime("%m/%d/%Y %H:%M:%S", localtime);
 my $gUndefinedItype      = 10;
@@ -398,7 +398,7 @@ ENDxxxxxxxxxx
 		key    =>    'ArrayFIt:declare',
 		symbol => '${TYPENAME}FIt_declare',
 		tmpl   => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}FIt_declare(var, arr)  ${TYPENAME}FIt var = {arr, 0, (arr)->len, -1, NULL}
+			@#define ${TYPENAME}FIt_declare(var, arr, offset)  ${TYPENAME}FIt var = {arr, 0, (arr)->len, offset-1, NULL}
 ENDxxxxxxxxxx
 	},	
 
@@ -414,7 +414,7 @@ ENDxxxxxxxxxx
 		key    =>    'ArrayRIt:declare',
 		symbol => '${TYPENAME}RIt_declare',
 		tmpl   => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}RIt_declare(var, arr)  ${TYPENAME}RIt var = {arr, 0, (arr)->len, (arr)->len, NULL}
+			@#define ${TYPENAME}RIt_declare(var, arr, offset)  ${TYPENAME}RIt var = {arr, 0, (arr)->len, (arr)->len-offset, NULL}
 ENDxxxxxxxxxx
 	},	
 
@@ -431,16 +431,26 @@ ENDxxxxxxxxxx
 		implies => ["ArrayFIt:declare", "ArrayFIt:next"],
 		symbol  => '${TYPENAME}_foreach',
 		tmpl    => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}_foreach(var, arr)  for (${TYPENAME}FIt_declare(var, arr); ${TYPENAME}FIt_next(&var); )			
+			@#define ${TYPENAME}_foreach(var, arr)                for (${TYPENAME}FIt_declare(var, arr, 0); ${TYPENAME}FIt_next(&var); )
+			@#define ${TYPENAME}_foreachOffset(var, arr, offset)  for (${TYPENAME}FIt_declare(var, arr, offset); ${TYPENAME}FIt_next(&var); )			
 ENDxxxxxxxxxx
 	},	
 
-	{
+	{ 
 		key =>    'Array:rforeach',
 		implies => ["ArrayRIt:declare", "ArrayRIt:next"],
 		symbol => '${TYPENAME}_rforeach',
 		tmpl   => <<'ENDxxxxxxxxxx', 
-			@#define ${TYPENAME}_rforeach(var, arr)  for (${TYPENAME}RIt_declare(var, arr); ${TYPENAME}RIt_next(&var); )			
+			@#define ${TYPENAME}_rforeach(var, arr)                for (${TYPENAME}RIt_declare(var, arr, 0); ${TYPENAME}RIt_next(&var); )
+			@#define ${TYPENAME}_rforeachOffset(var, arr, offset)  for (${TYPENAME}RIt_declare(var, arr, offset); ${TYPENAME}RIt_next(&var); )
+ENDxxxxxxxxxx
+	},
+	{ 
+		key =>    'Array:rforeachOffset',
+		implies => ["ArrayRIt:declare", "ArrayRIt:next"],
+		symbol => '${TYPENAME}_rforeach',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@#define ${TYPENAME}_rforeachOffset(var, arr)  for (${TYPENAME}RIt_declare(var, arr, offset); ${TYPENAME}RIt_next(&var); )			
 ENDxxxxxxxxxx
 	},	
 
@@ -1453,7 +1463,7 @@ sub InterfaceArtifact_emitInterfaceMethod {
 
 sub InterfaceArtifact_emitInlines {
 	my ($self, $out) = @_;
-	my @itypeList = map {"${_}_itype"} keys(%{$self->{implementedBy}});
+	my @itypeList = sort map {"${_}_itype"} keys(%{$self->{implementedBy}});
 	my $h = {IFCNAME => $self->{typeName}, ITYPELIST=>join(", ", @itypeList)};
 	Expand_emit($out, ['Interface:foreachIType'], $h);
 	ClassOrInterface_emitAccessors($self, $out);
@@ -1790,6 +1800,8 @@ sub ArtifactList_scanFromTemplateFiles {
 		}
 	}
 	push @artifacts, @additionalArtifacts;
+	@artifacts = sort {$a->{typeName} cmp $b->{typeName}} @artifacts;
+
 
 	## Add itype to fields as needed. Crossreference classes and interfaces
 	my %artMap = map {$_->{typeName} => $_} @artifacts;
@@ -2125,8 +2137,6 @@ sub Main_handleArgs {
 			$gApplicationName = $needArg->("-g");
 		} elsif ($a =~ /-a/) {
 			$gAcceptAllCalls = 1;
-		} elsif ($a =~ /-m/) {
-			$gMasterSourceDir = $needArg->("-m");
 		} elsif ($a =~ /^-/){
 			die "Unknown option $a"
 		} else {
@@ -2137,27 +2147,18 @@ sub Main_handleArgs {
 }
 
 sub Main_listTemplateFiles {
-	my ($srcDir, @includeList) = @_;
-	$srcDir =~ s[/$][];
-	my @lines = backtick "ls $srcDir/*.in.c";
+	my (@srcDirs) = @_;
 	my @templateFiles;
-	for my $line (@lines) {
-		$line =~ s/^\s*//;
-		$line =~ s/\s*$//;
-		if ($line =~ /\.in\.c$/) {
-			push @templateFiles, $line;
-		} 
-	}
+	for my $srcDir (@srcDirs) {
+		$srcDir =~ s[/$][];
+		my @lines = backtick "ls $srcDir/*.in.c";
 	
-	if (@includeList > 0) {
-		my @inc         = map {m{([^/]+)$}; $1} @includeList;
-		my %includeHash = map {$_ => 1} @inc;
-		my @a = @templateFiles;
-		@templateFiles = ();
-		for my $file (@a) {
-			$file =~ m{([^/]+)$};
-			my $rfile = $1;
-			push @templateFiles, $file if $includeHash{$rfile};
+		for my $line (@lines) {
+			$line =~ s/^\s*//;
+			$line =~ s/\s*$//;
+			if ($line =~ /\.in\.c$/) {
+				push @templateFiles, $line;
+			} 
 		}
 	}
 
@@ -2194,10 +2195,9 @@ sub Main_readIgnores {
 }
 
 sub Main_main {
-	my @args = Main_handleArgs();
-	die "Requires at least one argument" unless @args > 0;
-	my $srcDir = $args[0];
-	my @templateFiles = Main_listTemplateFiles(shift @args, @args);
+	my @srcDirs = Main_handleArgs();
+	die "Requires at least one argument" unless @srcDirs > 0;
+	my @templateFiles = Main_listTemplateFiles(@srcDirs);
 	my $ignoreSub       = Main_readIgnores();
 	@templateFiles = grep {!$ignoreSub->($_)} @templateFiles;
 	
@@ -2205,7 +2205,7 @@ sub Main_main {
 	my $api    = Api_new();
 
 	if (!defined($gMasterSourceDir)) {
-		$gMasterSourceDir = $srcDir;
+		$gMasterSourceDir = $srcDirs[0];
 	}
 	$gMasterSourceDir =~ s[/$][];
 	my @extraCallFiles = ("$gMasterSourceDir/shared.c", "$gMasterSourceDir/hub.c", "$gMasterSourceDir/port.c",);
@@ -2219,7 +2219,12 @@ sub Main_main {
 	my $artifactList = ArtifactList_new();
 	ArtifactList_scanFromTemplateFiles($artifactList, @templateFiles);
 	
-	my $outFile = "$srcDir/$gApplicationName.c";
+	my $outFile = $gApplicationName;
+	if (!defined($outFile)) {
+		$outFile = "$gMasterSourceDir/application.c";
+	}
+	
+	## Let's write the application
 	open my $out, ">", $outFile or die "Failed to open $outFile";
 	Main_emitWarning($out);
 	ArtifactList_emitPredefined($artifactList, $out);

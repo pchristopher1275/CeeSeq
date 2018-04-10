@@ -8,56 +8,10 @@
 #include <errno.h>
 #include <unistd.h> 
 #include <stdint.h>
+#include <limits.h>
 #include "../src/core.c"
 #include "../src/unit.c"
-
-
-struct Foo_t;
-void record_clearer(struct Foo_t *left);
-int Foo_cmp(struct Foo_t *left, struct Foo_t *right);
-int Foo_cmpBoth(struct Foo_t *left, struct Foo_t *right);
-
-#include "util/applicationFor_tarray.c"
-
-int Foo_cmp(Foo *left, Foo *right) {
-	if (left->i < right->i) {
-		return -1;
-	} else if (left->i > right->i) {
-		return 1;
-	}
-	return 0;
-}
-
-int Foo_cmpBoth(Foo *left, Foo *right) {
-	int q = Foo_cmp(left, right);
-	if (q) {
-		return q;
-	}
-
-	if (left->d < right->d) {
-		return -1;
-	} else if (left->d > right->d) {
-		return 1;
-	}
-
-	return 0;
-}
-
-const int maxNumRecorded = 10;
-int numRecorded          = 0;
-Foo recorded[maxNumRecorded] = {0};
-
-
-void record_zero() {
-	numRecorded = 0;
-	memset(recorded, 0, sizeof(Foo)*maxNumRecorded);
-}
-
-void record_clearer(Foo *left) {
-	if (numRecorded < maxNumRecorded) {
-		recorded[numRecorded++] = *left;
-	}
-}
+#include "application.c"
 
 
 
@@ -168,7 +122,7 @@ Unit_declare(testTruncateClearerAndFit) {
 
 	{
 		Error_declare(err);
-		record_zero();
+		Foo_zeroRecord();
 		FooArr *arr = FooArr_new(0);
 		for (int i = 0; i < 5; i++) {
 			Foo foo = {i, 2*i};
@@ -225,7 +179,7 @@ Unit_declare(testChangeLength)
 	}
 
 	{
-		record_zero();
+		Foo_zeroRecord();
 		FooArr *arr = FooArr_new(0);
 		FooArr_changeLength(arr, 5);
 		chk(FooArr_len(arr) == 5);
@@ -730,7 +684,7 @@ Unit_declare(testForeach) {
 
 		{
 			count = 0;
-			IntArrFIt_declare(it, arr);
+			IntArrFIt_declare(it, arr, 0);
 			IntArr_loop(it) {
 				chk(*it.var == 3*count+17);
 				count++;
@@ -744,7 +698,7 @@ Unit_declare(testForeach) {
 
 		{
 			count = 5-1;
-			IntArrRIt_declare(it, arr);
+			IntArrRIt_declare(it, arr, 0);
 			IntArr_rloop(it) {
 				chk(*it.var == 3*count+17);
 				count--;
@@ -795,7 +749,7 @@ Unit_declare(testForeach) {
 
 		{
 			count = 0;
-			FooArrFIt_declare(it, arr);
+			FooArrFIt_declare(it, arr, 0);
 			FooArr_loop(it) {
 				chk(it.var->i == 3*count+17);
 				count++;
@@ -809,7 +763,7 @@ Unit_declare(testForeach) {
 
 		{
 			count = 5-1;
-			FooArrRIt_declare(it, arr);
+			FooArrRIt_declare(it, arr, 0);
 			FooArr_rloop(it) {
 				chk(it.var->i == 3*count+17);
 				count--;

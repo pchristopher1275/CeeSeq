@@ -1,87 +1,93 @@
-// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:52:40 ***
-// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:52:40 ***
-// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:52:40 ***
-// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:52:40 ***
-// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:52:40 ***
-// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:52:40 ***
-// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:52:40 ***
-// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:52:40 ***
-// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:52:40 ***
-// *** DO NOT MODIFY THIS FILE generated 04/09/2018 15:52:40 ***
+// *** DO NOT MODIFY THIS FILE generated 04/10/2018 08:57:56 ***
+// *** DO NOT MODIFY THIS FILE generated 04/10/2018 08:57:56 ***
+// *** DO NOT MODIFY THIS FILE generated 04/10/2018 08:57:56 ***
+// *** DO NOT MODIFY THIS FILE generated 04/10/2018 08:57:56 ***
+// *** DO NOT MODIFY THIS FILE generated 04/10/2018 08:57:56 ***
+// *** DO NOT MODIFY THIS FILE generated 04/10/2018 08:57:56 ***
+// *** DO NOT MODIFY THIS FILE generated 04/10/2018 08:57:56 ***
+// *** DO NOT MODIFY THIS FILE generated 04/10/2018 08:57:56 ***
+// *** DO NOT MODIFY THIS FILE generated 04/10/2018 08:57:56 ***
+// *** DO NOT MODIFY THIS FILE generated 04/10/2018 08:57:56 ***
 struct Arguments_t;
 typedef struct Arguments_t Arguments;
+struct AtomAr_t;
+typedef struct AtomAr_t AtomAr;
+struct BinFile_t;
+typedef struct BinFile_t BinFile;
+struct BinFilePayload_t;
+typedef struct BinFilePayload_t BinFilePayload;
+typedef struct Dispatch_t DecrementFrameDispatch;
+struct Dispatch_t;
+typedef struct Dispatch_t Dispatch;
+struct DispatchPtAr_t;
+typedef struct DispatchPtAr_t DispatchPtAr;
+struct DropDown_t;
+typedef struct DropDown_t DropDown;
+struct Foo_t;
+typedef struct Foo_t Foo;
+struct FooArr_t;
+typedef struct FooArr_t FooArr;
+struct Hub_t;
+typedef struct Hub_t Hub;
+typedef struct Dispatch_t IncrementFrameDispatch;
+struct IndexedOff_t;
+typedef struct IndexedOff_t IndexedOff;
+struct IndexedOffAr_t;
+typedef struct IndexedOffAr_t IndexedOffAr;
+struct IntAr_t;
+typedef struct IntAr_t IntAr;
+struct IntArr_t;
+typedef struct IntArr_t IntArr;
+struct MEventAr_t;
+typedef struct MEventAr_t MEventAr;
+typedef struct Dispatch_t ManageChokeGroupsDispatch;
 struct Marshal_t;
 typedef struct Marshal_t Marshal;
 typedef struct Marshal_t MarshalSi;
 typedef struct Marshal_t MarshalSii;
 typedef struct Marshal_t MarshalSs;
-struct Dispatch_t;
-typedef struct Dispatch_t Dispatch;
-typedef struct Dispatch_t IncrementFrameDispatch;
-typedef struct Dispatch_t DecrementFrameDispatch;
-typedef struct Dispatch_t SelectNextPushedPadDispatch;
 typedef struct Dispatch_t MidiFileDropDispatch;
-typedef struct Dispatch_t ManageChokeGroupsDispatch;
+struct Midiseq_t;
+typedef struct Midiseq_t Midiseq;
+struct NoteManager_t;
+typedef struct NoteManager_t NoteManager;
+struct Pad_t;
+typedef struct Pad_t Pad;
+struct PadAr_t;
+typedef struct PadAr_t PadAr;
+struct PadList_t;
+typedef struct PadList_t PadList;
+struct PadPtrAr_t;
+typedef struct PadPtrAr_t PadPtrAr;
+struct Port_t;
+typedef struct Port_t Port;
+struct PortFind_t;
+typedef struct PortFind_t PortFind;
+struct PortFindCell_t;
+typedef struct PortFindCell_t PortFindCell;
+struct PortFindCellAr_t;
+typedef struct PortFindCellAr_t PortFindCellAr;
+struct PortRef_t;
+typedef struct PortRef_t PortRef;
+struct PtrAr_t;
+typedef struct PtrAr_t PtrAr;
+typedef struct Dispatch_t SelectNextPushedPadDispatch;
 struct StringPtAr_t;
 typedef struct StringPtAr_t StringPtAr;
 struct SymbolPtAr_t;
 typedef struct SymbolPtAr_t SymbolPtAr;
-struct AtomAr_t;
-typedef struct AtomAr_t AtomAr;
-struct Port_t;
-typedef struct Port_t Port;
-struct MEventAr_t;
-typedef struct MEventAr_t MEventAr;
-struct PtrAr_t;
-typedef struct PtrAr_t PtrAr;
 struct SymbolPtrAr_t;
 typedef struct SymbolPtrAr_t SymbolPtrAr;
-struct IntAr_t;
-typedef struct IntAr_t IntAr;
-struct BinFilePayload_t;
-typedef struct BinFilePayload_t BinFilePayload;
-struct BinFile_t;
-typedef struct BinFile_t BinFile;
-struct Midiseq_t;
-typedef struct Midiseq_t Midiseq;
-struct Pad_t;
-typedef struct Pad_t Pad;
-struct IndexedOff_t;
-typedef struct IndexedOff_t IndexedOff;
 struct TimedOff_t;
 typedef struct TimedOff_t TimedOff;
-struct NoteManager_t;
-typedef struct NoteManager_t NoteManager;
-struct PadList_t;
-typedef struct PadList_t PadList;
-struct Track_t;
-typedef struct Track_t Track;
-struct TrackList_t;
-typedef struct TrackList_t TrackList;
-struct PortRef_t;
-typedef struct PortRef_t PortRef;
-struct DropDown_t;
-typedef struct DropDown_t DropDown;
-struct Hub_t;
-typedef struct Hub_t Hub;
-struct PortFindCell_t;
-typedef struct PortFindCell_t PortFindCell;
-struct PortFind_t;
-typedef struct PortFind_t PortFind;
-struct DispatchPtAr_t;
-typedef struct DispatchPtAr_t DispatchPtAr;
-struct PadAr_t;
-typedef struct PadAr_t PadAr;
-struct PadPtrAr_t;
-typedef struct PadPtrAr_t PadPtrAr;
-struct IndexedOffAr_t;
-typedef struct IndexedOffAr_t IndexedOffAr;
 struct TimedOffAr_t;
 typedef struct TimedOffAr_t TimedOffAr;
+struct Track_t;
+typedef struct Track_t Track;
 struct TrackAr_t;
 typedef struct TrackAr_t TrackAr;
-struct PortFindCellAr_t;
-typedef struct PortFindCellAr_t PortFindCellAr;
+struct TrackList_t;
+typedef struct TrackList_t TrackList;
 typedef struct Array_t {
    int len;
    int cap;
@@ -680,37 +686,6 @@ char *Array_pqPeek(Array *arr) {
 
 #undef PQ_LESS
 #undef PQ_SWAP
-struct PortFindCell_t
-{
-    Port *reciever;
-    Symbol *varname;
-};
-typedef struct PortFindCellAr_t {
-   int len;
-   int cap;
-   int elemSize;
-   void (*clearer)(PortFindCell*);
-   PortFindCell *data;
-} PortFindCellAr;
-
-typedef struct PortFindCellArFIt_t {
-   PortFindCellAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   PortFindCell *var;
-} PortFindCellArFIt;
-
-typedef struct PortFindCellArRIt_t {
-   PortFindCellAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   PortFindCell *var;
-} PortFindCellArRIt;
-
 struct Track_t
 {
     Symbol *name;
@@ -742,6 +717,10 @@ typedef struct TrackArRIt_t {
    Track *var;
 } TrackArRIt;
 
+struct TrackList_t
+{
+    TrackAr list;
+};
 struct TimedOff_t
 {
     Ticks time;
@@ -773,37 +752,171 @@ typedef struct TimedOffArRIt_t {
    TimedOff *var;
 } TimedOffArRIt;
 
-struct IndexedOff_t
-{
-    int padIndex;
-    int pitch;
-};
-typedef struct IndexedOffAr_t {
+typedef struct SymbolPtrAr_t {
    int len;
    int cap;
    int elemSize;
-   void (*clearer)(IndexedOff*);
-   IndexedOff *data;
-} IndexedOffAr;
+   void (*clearer)(Symbol **);
+   Symbol **data;
+} SymbolPtrAr;
 
-typedef struct IndexedOffArFIt_t {
-   IndexedOffAr *arr;
+typedef struct SymbolPtrArFIt_t {
+   SymbolPtrAr *arr;
    int lBound;
    int uBound;
 
    int index;
-   IndexedOff *var;
-} IndexedOffArFIt;
+   Symbol **var;
+} SymbolPtrArFIt;
 
-typedef struct IndexedOffArRIt_t {
-   IndexedOffAr *arr;
+typedef struct SymbolPtrArRIt_t {
+   SymbolPtrAr *arr;
    int lBound;
    int uBound;
 
    int index;
-   IndexedOff *var;
-} IndexedOffArRIt;
+   Symbol **var;
+} SymbolPtrArRIt;
 
+typedef struct SymbolPtAr_t {
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(Symbol **);
+   Symbol **data;
+} SymbolPtAr;
+
+typedef struct SymbolPtArFIt_t {
+   SymbolPtAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   Symbol **var;
+} SymbolPtArFIt;
+
+typedef struct SymbolPtArRIt_t {
+   SymbolPtAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   Symbol **var;
+} SymbolPtArRIt;
+
+typedef struct StringPtAr_t {
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(String **);
+   String **data;
+} StringPtAr;
+
+typedef struct StringPtArFIt_t {
+   StringPtAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   String **var;
+} StringPtArFIt;
+
+typedef struct StringPtArRIt_t {
+   StringPtAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   String **var;
+} StringPtArRIt;
+
+struct SelectNextPushedPadDispatch_t
+{
+    int itype;
+};
+typedef struct PtrAr_t {
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(void **);
+   void **data;
+} PtrAr;
+
+typedef struct PtrArFIt_t {
+   PtrAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   void **var;
+} PtrArFIt;
+
+typedef struct PtrArRIt_t {
+   PtrAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   void **var;
+} PtrArRIt;
+
+struct PortRef_t
+{
+    Port *port;
+    int outlet;
+};
+struct PortFindCell_t
+{
+    Port *reciever;
+    Symbol *varname;
+};
+typedef struct PortFindCellAr_t {
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(PortFindCell*);
+   PortFindCell *data;
+} PortFindCellAr;
+
+typedef struct PortFindCellArFIt_t {
+   PortFindCellAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   PortFindCell *var;
+} PortFindCellArFIt;
+
+typedef struct PortFindCellArRIt_t {
+   PortFindCellAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   PortFindCell *var;
+} PortFindCellArRIt;
+
+struct PortFind_t
+{
+    PortFindCellAr objects;
+    void *hub;
+    Port_anythingDispatchFunc anythingDispatch;
+    Port_intDispatchFunc intDispatch;
+};
+struct Port_t
+{
+    MaxObject obj;
+    long inletnum;
+    PtrAr proxy;
+    PtrAr outlet;
+    Symbol *track;
+    Symbol *id;
+    long intInlets;
+    long intOutlets;
+    void *hub;
+    Port_anythingDispatchFunc anythingDispatch;
+    Port_intDispatchFunc intDispatch;
+};
 typedef struct PadPtrAr_t {
    int len;
    int cap;
@@ -870,114 +983,42 @@ typedef struct PadArRIt_t {
    Pad *var;
 } PadArRIt;
 
-typedef struct DispatchPtAr_t {
-   int len;
-   int cap;
-   int elemSize;
-   void (*clearer)(Dispatch **);
-   Dispatch **data;
-} DispatchPtAr;
-
-typedef struct DispatchPtArFIt_t {
-   DispatchPtAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   Dispatch **var;
-} DispatchPtArFIt;
-
-typedef struct DispatchPtArRIt_t {
-   DispatchPtAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   Dispatch **var;
-} DispatchPtArRIt;
-
-struct PortFind_t
-{
-    PortFindCellAr objects;
-    void *hub;
-    Port_anythingDispatchFunc anythingDispatch;
-    Port_intDispatchFunc intDispatch;
-};
-struct Arguments_t
-{
-    Symbol *s1;
-    long i1;
-    long i2;
-    long ivalue;
-    long inlet;
-};
-typedef struct SymbolPtrAr_t {
-   int len;
-   int cap;
-   int elemSize;
-   void (*clearer)(Symbol **);
-   Symbol **data;
-} SymbolPtrAr;
-
-typedef struct SymbolPtrArFIt_t {
-   SymbolPtrAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   Symbol **var;
-} SymbolPtrArFIt;
-
-typedef struct SymbolPtrArRIt_t {
-   SymbolPtrAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   Symbol **var;
-} SymbolPtrArRIt;
-
-struct PortRef_t
-{
-    Port *port;
-    int outlet;
-};
-struct DropDown_t
-{
-    SymbolPtrAr table;
-    int selected;
-    PortRef portRef;
-};
-struct Hub_t
-{
-    PadList *padList;
-    TrackList *trackList;
-    Port *currBankPort;
-    Port *currFramePort;
-    Port *selBankPort;
-    Port *selFramePort;
-    Port *selPadPort;
-    Port *chokeGroupPort;
-    DropDown cgLocalGlobalMenu;
-    DropDown cgInstrumentMenu;
-    DropDown cgIndexMenu;
-    int bank;
-    int frame;
-    bool grabNextTappedPad;
-    int selectedPad;
-    Arguments arguments;
-    DispatchPtAr dispatcher;
-    Ticks masterClock;
-};
-struct TrackList_t
-{
-    TrackAr list;
-};
 struct PadList_t
 {
     PadAr pads;
     PadPtrAr running;
 };
+struct IndexedOff_t
+{
+    int padIndex;
+    int pitch;
+};
+typedef struct IndexedOffAr_t {
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(IndexedOff*);
+   IndexedOff *data;
+} IndexedOffAr;
+
+typedef struct IndexedOffArFIt_t {
+   IndexedOffAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   IndexedOff *var;
+} IndexedOffArFIt;
+
+typedef struct IndexedOffArRIt_t {
+   IndexedOffAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   IndexedOff *var;
+} IndexedOffArRIt;
+
 struct NoteManager_t
 {
     TimedOffAr pending;
@@ -1019,18 +1060,56 @@ struct Midiseq_t
     Ticks startTime;
     int ptr;
 };
-struct BinFile_t
+struct MidiFileDropDispatch_t
 {
-    int version;
-    String *filename;
-    String *buffer;
-    FILE *stream;
-    BinFilePayload *payload;
+    int itype;
 };
-struct BinFilePayload_t
+struct MarshalSs_t
 {
-    PortFind *portFind;
+    int itype;
 };
+struct MarshalSii_t
+{
+    int itype;
+};
+struct MarshalSi_t
+{
+    int itype;
+};
+struct Marshal_t
+{
+    int itype;
+};
+struct ManageChokeGroupsDispatch_t
+{
+    int itype;
+};
+typedef struct IntArr_t {
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(int*);
+   int *data;
+} IntArr;
+
+typedef struct IntArrFIt_t {
+   IntArr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   int *var;
+} IntArrFIt;
+
+typedef struct IntArrRIt_t {
+   IntArr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   int *var;
+} IntArrRIt;
+
 typedef struct IntAr_t {
    int len;
    int cap;
@@ -1057,45 +1136,125 @@ typedef struct IntArRIt_t {
    int *var;
 } IntArRIt;
 
-typedef struct PtrAr_t {
+struct IncrementFrameDispatch_t
+{
+    int itype;
+};
+struct Arguments_t
+{
+    Symbol *s1;
+    long i1;
+    long i2;
+    long ivalue;
+    long inlet;
+};
+struct DropDown_t
+{
+    SymbolPtrAr table;
+    int selected;
+    PortRef portRef;
+};
+typedef struct DispatchPtAr_t {
    int len;
    int cap;
    int elemSize;
-   void (*clearer)(void **);
-   void **data;
-} PtrAr;
+   void (*clearer)(Dispatch **);
+   Dispatch **data;
+} DispatchPtAr;
 
-typedef struct PtrArFIt_t {
-   PtrAr *arr;
+typedef struct DispatchPtArFIt_t {
+   DispatchPtAr *arr;
    int lBound;
    int uBound;
 
    int index;
-   void **var;
-} PtrArFIt;
+   Dispatch **var;
+} DispatchPtArFIt;
 
-typedef struct PtrArRIt_t {
-   PtrAr *arr;
+typedef struct DispatchPtArRIt_t {
+   DispatchPtAr *arr;
    int lBound;
    int uBound;
 
    int index;
-   void **var;
-} PtrArRIt;
+   Dispatch **var;
+} DispatchPtArRIt;
 
-struct Port_t
+struct Hub_t
 {
-    MaxObject obj;
-    long inletnum;
-    PtrAr proxy;
-    PtrAr outlet;
-    Symbol *track;
-    Symbol *id;
-    long intInlets;
-    long intOutlets;
-    void *hub;
-    Port_anythingDispatchFunc anythingDispatch;
-    Port_intDispatchFunc intDispatch;
+    PadList *padList;
+    TrackList *trackList;
+    Port *currBankPort;
+    Port *currFramePort;
+    Port *selBankPort;
+    Port *selFramePort;
+    Port *selPadPort;
+    Port *chokeGroupPort;
+    DropDown cgLocalGlobalMenu;
+    DropDown cgInstrumentMenu;
+    DropDown cgIndexMenu;
+    int bank;
+    int frame;
+    bool grabNextTappedPad;
+    int selectedPad;
+    Arguments arguments;
+    DispatchPtAr dispatcher;
+    Ticks masterClock;
+};
+struct Foo_t
+{
+    int i;
+    double d;
+};
+typedef struct FooArr_t {
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(Foo*);
+   Foo *data;
+} FooArr;
+
+typedef struct FooArrFIt_t {
+   FooArr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   Foo *var;
+} FooArrFIt;
+
+typedef struct FooArrRIt_t {
+   FooArr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   Foo *var;
+} FooArrRIt;
+
+struct Dispatch_t
+{
+    int itype;
+    Symbol *selector;
+    Symbol *portId;
+    int inlet;
+    Marshal *marshal;
+};
+struct DecrementFrameDispatch_t
+{
+    int itype;
+};
+struct BinFilePayload_t
+{
+    PortFind *portFind;
+};
+struct BinFile_t
+{
+    int version;
+    String *filename;
+    String *buffer;
+    FILE *stream;
+    BinFilePayload *payload;
 };
 typedef struct AtomAr_t {
    int len;
@@ -1123,102 +1282,6 @@ typedef struct AtomArRIt_t {
    Atom *var;
 } AtomArRIt;
 
-typedef struct SymbolPtAr_t {
-   int len;
-   int cap;
-   int elemSize;
-   void (*clearer)(Symbol **);
-   Symbol **data;
-} SymbolPtAr;
-
-typedef struct SymbolPtArFIt_t {
-   SymbolPtAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   Symbol **var;
-} SymbolPtArFIt;
-
-typedef struct SymbolPtArRIt_t {
-   SymbolPtAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   Symbol **var;
-} SymbolPtArRIt;
-
-typedef struct StringPtAr_t {
-   int len;
-   int cap;
-   int elemSize;
-   void (*clearer)(String **);
-   String **data;
-} StringPtAr;
-
-typedef struct StringPtArFIt_t {
-   StringPtAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   String **var;
-} StringPtArFIt;
-
-typedef struct StringPtArRIt_t {
-   StringPtAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   String **var;
-} StringPtArRIt;
-
-struct ManageChokeGroupsDispatch_t
-{
-    int itype;
-};
-struct MidiFileDropDispatch_t
-{
-    int itype;
-};
-struct SelectNextPushedPadDispatch_t
-{
-    int itype;
-};
-struct DecrementFrameDispatch_t
-{
-    int itype;
-};
-struct IncrementFrameDispatch_t
-{
-    int itype;
-};
-struct Dispatch_t
-{
-    int itype;
-    Symbol *selector;
-    Symbol *portId;
-    int inlet;
-    Marshal *marshal;
-};
-struct MarshalSs_t
-{
-    int itype;
-};
-struct MarshalSii_t
-{
-    int itype;
-};
-struct MarshalSi_t
-{
-    int itype;
-};
-struct Marshal_t
-{
-    int itype;
-};
 const char *Interface_toString(int itype);
 void MarshalSi_process(MarshalSi *self, Arguments *args, long argc, Atom *argv, Error *err);
 void MarshalSi_zeroArgs(MarshalSi *self, Arguments *args);
@@ -1362,6 +1425,42 @@ void Arguments_clear(Arguments *self);
 void Arguments_free(Arguments *self);
 void Arguments_init(Arguments *self);
 Arguments *Arguments_new();
+void BinFile_clear(BinFile *self);
+void BinFile_free(BinFile *self);
+void BinFile_init(BinFile *self);
+BinFile *BinFile_new();
+void BinFilePayload_clear(BinFilePayload *self);
+void BinFilePayload_free(BinFilePayload *self);
+void BinFilePayload_init(BinFilePayload *self);
+BinFilePayload *BinFilePayload_new();
+void DecrementFrameDispatch_clear(DecrementFrameDispatch *self);
+void DecrementFrameDispatch_free(DecrementFrameDispatch *self);
+void DecrementFrameDispatch_init(DecrementFrameDispatch *self);
+DecrementFrameDispatch *DecrementFrameDispatch_new();
+void DropDown_clear(DropDown *self);
+void DropDown_free(DropDown *self);
+void DropDown_init(DropDown *self);
+DropDown *DropDown_new();
+void Foo_clear(Foo *self);
+void Foo_free(Foo *self);
+void Foo_init(Foo *self);
+Foo *Foo_new();
+void Hub_clear(Hub *self);
+void Hub_free(Hub *self);
+void Hub_init(Hub *self);
+Hub *Hub_new();
+void IncrementFrameDispatch_clear(IncrementFrameDispatch *self);
+void IncrementFrameDispatch_free(IncrementFrameDispatch *self);
+void IncrementFrameDispatch_init(IncrementFrameDispatch *self);
+IncrementFrameDispatch *IncrementFrameDispatch_new();
+void IndexedOff_clear(IndexedOff *self);
+void IndexedOff_free(IndexedOff *self);
+void IndexedOff_init(IndexedOff *self);
+IndexedOff *IndexedOff_new();
+void ManageChokeGroupsDispatch_clear(ManageChokeGroupsDispatch *self);
+void ManageChokeGroupsDispatch_free(ManageChokeGroupsDispatch *self);
+void ManageChokeGroupsDispatch_init(ManageChokeGroupsDispatch *self);
+ManageChokeGroupsDispatch *ManageChokeGroupsDispatch_new();
 void MarshalSi_clear(MarshalSi *self);
 void MarshalSi_free(MarshalSi *self);
 void MarshalSi_init(MarshalSi *self);
@@ -1374,58 +1473,46 @@ void MarshalSs_clear(MarshalSs *self);
 void MarshalSs_free(MarshalSs *self);
 void MarshalSs_init(MarshalSs *self);
 MarshalSs *MarshalSs_new();
-void IncrementFrameDispatch_clear(IncrementFrameDispatch *self);
-void IncrementFrameDispatch_free(IncrementFrameDispatch *self);
-void IncrementFrameDispatch_init(IncrementFrameDispatch *self);
-IncrementFrameDispatch *IncrementFrameDispatch_new();
-void DecrementFrameDispatch_clear(DecrementFrameDispatch *self);
-void DecrementFrameDispatch_free(DecrementFrameDispatch *self);
-void DecrementFrameDispatch_init(DecrementFrameDispatch *self);
-DecrementFrameDispatch *DecrementFrameDispatch_new();
-void SelectNextPushedPadDispatch_clear(SelectNextPushedPadDispatch *self);
-void SelectNextPushedPadDispatch_free(SelectNextPushedPadDispatch *self);
-void SelectNextPushedPadDispatch_init(SelectNextPushedPadDispatch *self);
-SelectNextPushedPadDispatch *SelectNextPushedPadDispatch_new();
 void MidiFileDropDispatch_clear(MidiFileDropDispatch *self);
 void MidiFileDropDispatch_free(MidiFileDropDispatch *self);
 void MidiFileDropDispatch_init(MidiFileDropDispatch *self);
 MidiFileDropDispatch *MidiFileDropDispatch_new();
-void ManageChokeGroupsDispatch_clear(ManageChokeGroupsDispatch *self);
-void ManageChokeGroupsDispatch_free(ManageChokeGroupsDispatch *self);
-void ManageChokeGroupsDispatch_init(ManageChokeGroupsDispatch *self);
-ManageChokeGroupsDispatch *ManageChokeGroupsDispatch_new();
-void BinFilePayload_clear(BinFilePayload *self);
-void BinFilePayload_free(BinFilePayload *self);
-void BinFilePayload_init(BinFilePayload *self);
-BinFilePayload *BinFilePayload_new();
-void BinFile_clear(BinFile *self);
-void BinFile_free(BinFile *self);
-void BinFile_init(BinFile *self);
-BinFile *BinFile_new();
 void Midiseq_clear(Midiseq *self);
 void Midiseq_free(Midiseq *self);
 void Midiseq_init(Midiseq *self);
 Midiseq *Midiseq_new();
-void Pad_clear(Pad *self);
-void Pad_free(Pad *self);
-void Pad_init(Pad *self);
-Pad *Pad_new();
-void IndexedOff_clear(IndexedOff *self);
-void IndexedOff_free(IndexedOff *self);
-void IndexedOff_init(IndexedOff *self);
-IndexedOff *IndexedOff_new();
-void TimedOff_clear(TimedOff *self);
-void TimedOff_free(TimedOff *self);
-void TimedOff_init(TimedOff *self);
-TimedOff *TimedOff_new();
 void NoteManager_clear(NoteManager *self);
 void NoteManager_free(NoteManager *self);
 void NoteManager_init(NoteManager *self);
 NoteManager *NoteManager_new();
+void Pad_clear(Pad *self);
+void Pad_free(Pad *self);
+void Pad_init(Pad *self);
+Pad *Pad_new();
 void PadList_clear(PadList *self);
 void PadList_free(PadList *self);
 void PadList_init(PadList *self);
 PadList *PadList_new();
+void PortFind_clear(PortFind *self);
+void PortFind_free(PortFind *self);
+void PortFind_init(PortFind *self);
+PortFind *PortFind_new();
+void PortFindCell_clear(PortFindCell *self);
+void PortFindCell_free(PortFindCell *self);
+void PortFindCell_init(PortFindCell *self);
+PortFindCell *PortFindCell_new();
+void PortRef_clear(PortRef *self);
+void PortRef_free(PortRef *self);
+void PortRef_init(PortRef *self);
+PortRef *PortRef_new();
+void SelectNextPushedPadDispatch_clear(SelectNextPushedPadDispatch *self);
+void SelectNextPushedPadDispatch_free(SelectNextPushedPadDispatch *self);
+void SelectNextPushedPadDispatch_init(SelectNextPushedPadDispatch *self);
+SelectNextPushedPadDispatch *SelectNextPushedPadDispatch_new();
+void TimedOff_clear(TimedOff *self);
+void TimedOff_free(TimedOff *self);
+void TimedOff_init(TimedOff *self);
+TimedOff *TimedOff_new();
 void Track_clear(Track *self);
 void Track_free(Track *self);
 void Track_init(Track *self);
@@ -1434,26 +1521,6 @@ void TrackList_clear(TrackList *self);
 void TrackList_free(TrackList *self);
 void TrackList_init(TrackList *self);
 TrackList *TrackList_new();
-void PortRef_clear(PortRef *self);
-void PortRef_free(PortRef *self);
-void PortRef_init(PortRef *self);
-PortRef *PortRef_new();
-void DropDown_clear(DropDown *self);
-void DropDown_free(DropDown *self);
-void DropDown_init(DropDown *self);
-DropDown *DropDown_new();
-void Hub_clear(Hub *self);
-void Hub_free(Hub *self);
-void Hub_init(Hub *self);
-Hub *Hub_new();
-void PortFindCell_clear(PortFindCell *self);
-void PortFindCell_free(PortFindCell *self);
-void PortFindCell_init(PortFindCell *self);
-PortFindCell *PortFindCell_new();
-void PortFind_clear(PortFind *self);
-void PortFind_free(PortFind *self);
-void PortFind_init(PortFind *self);
-PortFind *PortFind_new();
 typedef struct Undefined_t {
     int itype;
     char buffer[1024];
@@ -1461,20 +1528,20 @@ typedef struct Undefined_t {
 #define Undefined_itype 10
 Undefined Undefined_instance = {Undefined_itype, {0}};
 #define Undefined_ptr(typeName) ((typeName*)&Undefined_instance)
-#define MarshalSi_itype 11
-#define MarshalSii_itype 12
-#define MarshalSs_itype 13
-#define IncrementFrameDispatch_itype 14
-#define DecrementFrameDispatch_itype 15
-#define SelectNextPushedPadDispatch_itype 16
+#define DecrementFrameDispatch_itype 11
+#define IncrementFrameDispatch_itype 12
+#define ManageChokeGroupsDispatch_itype 13
+#define MarshalSi_itype 14
+#define MarshalSii_itype 15
+#define MarshalSs_itype 16
 #define MidiFileDropDispatch_itype 17
-#define ManageChokeGroupsDispatch_itype 18
-void Marshal_process(Marshal *self, Arguments *a1, long a2, Atom *a3, Error *err);
-void Marshal_zeroArgs(Marshal *self, Arguments *a1, Error *err);
+#define SelectNextPushedPadDispatch_itype 18
 void Dispatch_exec(Dispatch *self, Hub *a1, Arguments *a2, Error *err);
 Dispatch *Dispatch_create(int itype, Error *err);
 void Dispatch_free(Dispatch *self, Error *err);
 void Dispatch_initDispatchPtAr(int itype, DispatchPtAr *a1, Error *err);
+void Marshal_process(Marshal *self, Arguments *a1, long a2, Atom *a3, Error *err);
+void Marshal_zeroArgs(Marshal *self, Arguments *a1, Error *err);
 static inline Symbol *Arguments_s1(Arguments *self){return self->s1;}
 static inline void Arguments_setS1(Arguments *self, Symbol *value){self->s1 = value;}
 static inline void Arguments_setI1(Arguments *self, long value){self->i1 = value;}
@@ -1482,9 +1549,328 @@ static inline void Arguments_setI2(Arguments *self, long value){self->i2 = value
 static inline long Arguments_ivalue(Arguments *self){return self->ivalue;}
 static inline void Arguments_setIvalue(Arguments *self, long value){self->ivalue = value;}
 static inline void Arguments_setInlet(Arguments *self, long value){self->inlet = value;}
+static inline void AtomAr_clear(AtomAr *arr) {
+    Array_clear((Array*)arr);
+    AtomAr zero = {0};
+    *arr = zero;
+}
+
+static inline void AtomAr_free(AtomAr *arr) {
+    Array_free((Array*)arr);
+}
+
+static inline void AtomAr_init(AtomAr *arr, int nelems) {
+    Array_init((Array*)arr, nelems, sizeof(Atom), (Array_clearElement)NULL);
+}
+
+static inline AtomAr *AtomAr_new(int nelems) {
+    return (AtomAr*)Array_new(nelems, sizeof(Atom), (Array_clearElement)NULL);
+}
+
+static inline int BinFile_version(BinFile *self){return self->version;}
+static inline String *BinFile_filename(BinFile *self){return self->filename;}
+static inline String *BinFile_buffer(BinFile *self){return self->buffer;}
+static inline FILE *BinFile_stream(BinFile *self){return self->stream;}
+static inline void BinFile_setStream(BinFile *self, FILE *value){self->stream = value;}
+static inline DecrementFrameDispatch *DecrementFrameDispatch_castFromDispatch(Dispatch *self) {
+    if (self->itype == DecrementFrameDispatch_itype) {
+        return (DecrementFrameDispatch*)self;
+    }
+    return NULL;
+}
+static inline Dispatch *DecrementFrameDispatch_castToDispatch(DecrementFrameDispatch *self) {
+    return (Dispatch*)self;
+}
+static inline int Dispatch_nthIType(int n, int *itype) {
+    static int itypes[] = {
+        DecrementFrameDispatch_itype, IncrementFrameDispatch_itype, ManageChokeGroupsDispatch_itype, MidiFileDropDispatch_itype, SelectNextPushedPadDispatch_itype
+    };
+    static int len = sizeof(itypes)/sizeof(int);
+    if (n < 0 || n >= len) {
+        return 0;
+    }
+    *itype = itypes[n];
+    return 1;
+}
+#define Dispatch_foreachIType(itype) for (int __##itype = 0, itype = 0; Dispatch_nthIType(__##itype, &itype); __##itype++)
+static inline Marshal *Dispatch_marshal(Dispatch *self){return self->marshal;}
+#define Dispatch_declare(name, itype, selector, portId, inlet, marshal) Dispatch name = {(itype), (selector), (portId), (inlet), (marshal)}
+static inline void DispatchPtAr_clear(DispatchPtAr *arr) {
+    Array_clear((Array*)arr);
+    DispatchPtAr zero = {0};
+    *arr = zero;
+}
+
+static inline void DispatchPtAr_free(DispatchPtAr *arr) {
+    Array_free((Array*)arr);
+}
+
+static inline void DispatchPtAr_init(DispatchPtAr *arr, int nelems) {
+    Array_init((Array*)arr, nelems, sizeof(Dispatch *), (Array_clearElement)NULL);
+}
+
+static inline DispatchPtAr *DispatchPtAr_new(int nelems) {
+    return (DispatchPtAr*)Array_new(nelems, sizeof(Dispatch *), (Array_clearElement)NULL);
+}
+
+static inline void DispatchPtAr_push(DispatchPtAr *arr, Dispatch *elem) {
+    Dispatch * *p = (Dispatch **)Array_pushN((Array*)arr, 1);
+    *p = elem;
+    return; 
+}            
+
+static inline void DispatchPtAr_truncate(DispatchPtAr *arr) {
+    Array_truncate((Array*)arr);
+}
+
+static inline Dispatch **DispatchPtAr_binSearch(DispatchPtAr *arr, Dispatch *elem) {
+    int (*compare)(Dispatch **, Dispatch **) = Dispatch_cmp;
+    return (Dispatch **)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, NULL);
+}
+
+static inline void DispatchPtAr_sort(DispatchPtAr *arr) {
+    int (*compare)(Dispatch **, Dispatch **) = Dispatch_cmp;
+    Array_sort((Array*)arr, (Array_compare)compare);
+}                
+
+static inline void FooArr_clear(FooArr *arr) {
+    Array_clear((Array*)arr);
+    FooArr zero = {0};
+    *arr = zero;
+}
+
+static inline void FooArr_free(FooArr *arr) {
+    Array_free((Array*)arr);
+}
+
+static inline void FooArr_init(FooArr *arr, int nelems) {
+    Array_init((Array*)arr, nelems, sizeof(Foo), (Array_clearElement)record_clearer);
+}
+
+static inline FooArr *FooArr_new(int nelems) {
+    return (FooArr*)Array_new(nelems, sizeof(Foo), (Array_clearElement)record_clearer);
+}
+
+static inline PadList *Hub_padList(Hub *self){return self->padList;}
+static inline void Hub_setPadList(Hub *self, PadList *value){self->padList = value;}
+static inline TrackList *Hub_trackList(Hub *self){return self->trackList;}
+static inline void Hub_setTrackList(Hub *self, TrackList *value){self->trackList = value;}
+static inline Port *Hub_currBankPort(Hub *self){return self->currBankPort;}
+static inline void Hub_setCurrBankPort(Hub *self, Port *value){self->currBankPort = value;}
+static inline Port *Hub_currFramePort(Hub *self){return self->currFramePort;}
+static inline void Hub_setCurrFramePort(Hub *self, Port *value){self->currFramePort = value;}
+static inline Port *Hub_selBankPort(Hub *self){return self->selBankPort;}
+static inline void Hub_setSelBankPort(Hub *self, Port *value){self->selBankPort = value;}
+static inline Port *Hub_selFramePort(Hub *self){return self->selFramePort;}
+static inline void Hub_setSelFramePort(Hub *self, Port *value){self->selFramePort = value;}
+static inline Port *Hub_selPadPort(Hub *self){return self->selPadPort;}
+static inline void Hub_setSelPadPort(Hub *self, Port *value){self->selPadPort = value;}
+static inline DropDown *Hub_cgLocalGlobalMenu(Hub *self){return &self->cgLocalGlobalMenu;}
+static inline DropDown *Hub_cgInstrumentMenu(Hub *self){return &self->cgInstrumentMenu;}
+static inline DropDown *Hub_cgIndexMenu(Hub *self){return &self->cgIndexMenu;}
+static inline int Hub_bank(Hub *self){return self->bank;}
+static inline int Hub_frame(Hub *self){return self->frame;}
+static inline void Hub_setFrame(Hub *self, int value){self->frame = value;}
+static inline bool Hub_grabNextTappedPad(Hub *self){return self->grabNextTappedPad;}
+static inline void Hub_setGrabNextTappedPad(Hub *self, bool value){self->grabNextTappedPad = value;}
+static inline int Hub_selectedPad(Hub *self){return self->selectedPad;}
+static inline void Hub_setSelectedPad(Hub *self, int value){self->selectedPad = value;}
+static inline IncrementFrameDispatch *IncrementFrameDispatch_castFromDispatch(Dispatch *self) {
+    if (self->itype == IncrementFrameDispatch_itype) {
+        return (IncrementFrameDispatch*)self;
+    }
+    return NULL;
+}
+static inline Dispatch *IncrementFrameDispatch_castToDispatch(IncrementFrameDispatch *self) {
+    return (Dispatch*)self;
+}
+#define IndexedOff_declare(name, padIndex, pitch) IndexedOff name = {(padIndex), (pitch)}
+static inline void IndexedOffAr_clear(IndexedOffAr *arr) {
+    Array_clear((Array*)arr);
+    IndexedOffAr zero = {0};
+    *arr = zero;
+}
+
+#define IndexedOffAr_foreach(var, arr)  for (IndexedOffArFIt_declare(var, arr); IndexedOffArFIt_next(&var); )            
+
+static inline void IndexedOffAr_free(IndexedOffAr *arr) {
+    Array_free((Array*)arr);
+}
+
+static inline void IndexedOffAr_init(IndexedOffAr *arr, int nelems) {
+    Array_init((Array*)arr, nelems, sizeof(IndexedOff), (Array_clearElement)NULL);
+}
+
+#define IndexedOffAr_loop(var) while (IndexedOffArFIt_next(&var)) 
+
+static inline IndexedOffAr *IndexedOffAr_new(int nelems) {
+    return (IndexedOffAr*)Array_new(nelems, sizeof(IndexedOff), (Array_clearElement)NULL);
+}
+
+static inline void IndexedOffAr_remove(IndexedOffAr *arr, int index, Error *err) {
+    Array_removeNCheck(arr, index, 1, err);
+    Array_removeN((Array*)arr, index, 1);
+}    
+
+static inline void IndexedOffAr_truncate(IndexedOffAr *arr) {
+    Array_truncate((Array*)arr);
+}
+
+static inline bool IndexedOffArFIt_atEnd(IndexedOffArFIt *iterator) {
+    return iterator->index+1 >= iterator->uBound;
+}
+
+#define IndexedOffArFIt_declare(var, arr)  IndexedOffArFIt var = {arr, 0, (arr)->len, -1, NULL}
+
+#define IndexedOffArFIt_declare0(var)  IndexedOffArFIt var = {0}
+
+static inline bool IndexedOffArFIt_next(IndexedOffArFIt *iterator) {
+    return ArrayFIt_next((ArrayFIt*)iterator);
+}
+
+static inline void IndexedOffAr_binInsertPadIndex(IndexedOffAr *arr, IndexedOff elem) {
+    int (*compare)(IndexedOff *, IndexedOff *) = IndexedOff_cmpPadIndex;
+    Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)compare, true);
+}            
+
+static inline void IndexedOffAr_binRemovePadIndex(IndexedOffAr *arr, IndexedOff elem) {
+    int (*compare)(IndexedOff *, IndexedOff *) = IndexedOff_cmpPadIndex;
+    Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)compare, true);
+}        
+
+static inline IndexedOffArFIt IndexedOffAr_binSearchPadIndex(IndexedOffAr *arr, IndexedOff elem) {
+    int (*compare)(IndexedOff *, IndexedOff *) = IndexedOff_cmpPadIndex;
+    IndexedOffArFIt it = {0};
+   if (Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, (ArrayFIt*)&it) != NULL) {
+       return it;
+    }
+   it.index  = arr->len;
+   it.uBound = 0;
+    return it;
+}
+
+static inline void IntAr_clear(IntAr *arr) {
+    Array_clear((Array*)arr);
+    IntAr zero = {0};
+    *arr = zero;
+}
+
+static inline void IntAr_free(IntAr *arr) {
+    Array_free((Array*)arr);
+}
+
+static inline void IntAr_init(IntAr *arr, int nelems) {
+    Array_init((Array*)arr, nelems, sizeof(int), (Array_clearElement)NULL);
+}
+
+static inline IntAr *IntAr_new(int nelems) {
+    return (IntAr*)Array_new(nelems, sizeof(int), (Array_clearElement)NULL);
+}
+
+static inline void IntArr_clear(IntArr *arr) {
+    Array_clear((Array*)arr);
+    IntArr zero = {0};
+    *arr = zero;
+}
+
+static inline void IntArr_free(IntArr *arr) {
+    Array_free((Array*)arr);
+}
+
+static inline void IntArr_init(IntArr *arr, int nelems) {
+    Array_init((Array*)arr, nelems, sizeof(int), (Array_clearElement)NULL);
+}
+
+static inline IntArr *IntArr_new(int nelems) {
+    return (IntArr*)Array_new(nelems, sizeof(int), (Array_clearElement)NULL);
+}
+
+static inline void MEventAr_clear(MEventAr *arr) {
+    Array_clear((Array*)arr);
+    MEventAr zero = {0};
+    *arr = zero;
+}
+
+static inline void MEventAr_fit(MEventAr *arr) {
+    Array_fit((Array*)arr);
+}
+
+#define MEventAr_foreach(var, arr)  for (MEventArFIt_declare(var, arr); MEventArFIt_next(&var); )            
+
+static inline void MEventAr_free(MEventAr *arr) {
+    Array_free((Array*)arr);
+}
+
+static inline MEvent MEventAr_get(MEventAr *arr, int index, Error *err) {
+    MEvent v = {0};
+    Array_getCheck(arr, index, v, err);
+    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
+    return v;
+}
+
+static inline MEvent *MEventAr_getp(MEventAr *arr, int index, Error *err) {
+    Array_getCheck(arr, index, NULL, err);
+    return (MEvent *)Array_get((Array*)arr, index);
+}
+
+static inline void MEventAr_init(MEventAr *arr, int nelems) {
+    Array_init((Array*)arr, nelems, sizeof(MEvent), (Array_clearElement)NULL);
+}
+
+static inline void MEventAr_insert(MEventAr *arr, int index, MEvent elem, Error *err) {
+    Array_insertNCheck(arr, index, 1, err);
+    MEvent *p = (MEvent *)Array_insertN((Array*)arr, index, 1);
+    *p = elem;
+}
+
+static inline int MEventAr_last(MEventAr *arr) {
+    return Array_len((Array*)arr)-1;
+}            
+
+static inline int MEventAr_len(MEventAr *arr) {
+    return Array_len((Array*)arr);
+}
+
+static inline MEventAr *MEventAr_new(int nelems) {
+    return (MEventAr*)Array_new(nelems, sizeof(MEvent), (Array_clearElement)NULL);
+}
+
+static inline void MEventAr_push(MEventAr *arr, MEvent elem) {
+    MEvent *p = (MEvent *)Array_pushN((Array*)arr, 1);
+    *p = elem;
+    return; 
+}            
+
+#define MEventAr_rforeach(var, arr)  for (MEventArRIt_declare(var, arr); MEventArRIt_next(&var); )            
+
+static inline void MEventAr_truncate(MEventAr *arr) {
+    Array_truncate((Array*)arr);
+}
+
+#define MEventArFIt_declare(var, arr)  MEventArFIt var = {arr, 0, (arr)->len, -1, NULL}
+
+static inline bool MEventArFIt_next(MEventArFIt *iterator) {
+    return ArrayFIt_next((ArrayFIt*)iterator);
+}
+
+#define MEventArRIt_declare(var, arr)  MEventArRIt var = {arr, 0, (arr)->len, (arr)->len, NULL}
+
+static inline bool MEventArRIt_next(MEventArRIt *iterator) {
+    return ArrayRIt_next((ArrayRIt*)iterator);
+}
+
+static inline ManageChokeGroupsDispatch *ManageChokeGroupsDispatch_castFromDispatch(Dispatch *self) {
+    if (self->itype == ManageChokeGroupsDispatch_itype) {
+        return (ManageChokeGroupsDispatch*)self;
+    }
+    return NULL;
+}
+static inline Dispatch *ManageChokeGroupsDispatch_castToDispatch(ManageChokeGroupsDispatch *self) {
+    return (Dispatch*)self;
+}
 static inline int Marshal_nthIType(int n, int *itype) {
     static int itypes[] = {
-        MarshalSs_itype, MarshalSi_itype, MarshalSii_itype
+        MarshalSi_itype, MarshalSii_itype, MarshalSs_itype
     };
     static int len = sizeof(itypes)/sizeof(int);
     if (n < 0 || n >= len) {
@@ -1521,47 +1907,6 @@ static inline MarshalSs *MarshalSs_castFromMarshal(Marshal *self) {
 static inline Marshal *MarshalSs_castToMarshal(MarshalSs *self) {
     return (Marshal*)self;
 }
-static inline int Dispatch_nthIType(int n, int *itype) {
-    static int itypes[] = {
-        MidiFileDropDispatch_itype, DecrementFrameDispatch_itype, SelectNextPushedPadDispatch_itype, ManageChokeGroupsDispatch_itype, IncrementFrameDispatch_itype
-    };
-    static int len = sizeof(itypes)/sizeof(int);
-    if (n < 0 || n >= len) {
-        return 0;
-    }
-    *itype = itypes[n];
-    return 1;
-}
-#define Dispatch_foreachIType(itype) for (int __##itype = 0, itype = 0; Dispatch_nthIType(__##itype, &itype); __##itype++)
-static inline Marshal *Dispatch_marshal(Dispatch *self){return self->marshal;}
-#define Dispatch_declare(name, itype, selector, portId, inlet, marshal) Dispatch name = {(itype), (selector), (portId), (inlet), (marshal)}
-static inline IncrementFrameDispatch *IncrementFrameDispatch_castFromDispatch(Dispatch *self) {
-    if (self->itype == IncrementFrameDispatch_itype) {
-        return (IncrementFrameDispatch*)self;
-    }
-    return NULL;
-}
-static inline Dispatch *IncrementFrameDispatch_castToDispatch(IncrementFrameDispatch *self) {
-    return (Dispatch*)self;
-}
-static inline DecrementFrameDispatch *DecrementFrameDispatch_castFromDispatch(Dispatch *self) {
-    if (self->itype == DecrementFrameDispatch_itype) {
-        return (DecrementFrameDispatch*)self;
-    }
-    return NULL;
-}
-static inline Dispatch *DecrementFrameDispatch_castToDispatch(DecrementFrameDispatch *self) {
-    return (Dispatch*)self;
-}
-static inline SelectNextPushedPadDispatch *SelectNextPushedPadDispatch_castFromDispatch(Dispatch *self) {
-    if (self->itype == SelectNextPushedPadDispatch_itype) {
-        return (SelectNextPushedPadDispatch*)self;
-    }
-    return NULL;
-}
-static inline Dispatch *SelectNextPushedPadDispatch_castToDispatch(SelectNextPushedPadDispatch *self) {
-    return (Dispatch*)self;
-}
 static inline MidiFileDropDispatch *MidiFileDropDispatch_castFromDispatch(Dispatch *self) {
     if (self->itype == MidiFileDropDispatch_itype) {
         return (MidiFileDropDispatch*)self;
@@ -1571,13 +1916,243 @@ static inline MidiFileDropDispatch *MidiFileDropDispatch_castFromDispatch(Dispat
 static inline Dispatch *MidiFileDropDispatch_castToDispatch(MidiFileDropDispatch *self) {
     return (Dispatch*)self;
 }
-static inline ManageChokeGroupsDispatch *ManageChokeGroupsDispatch_castFromDispatch(Dispatch *self) {
-    if (self->itype == ManageChokeGroupsDispatch_itype) {
-        return (ManageChokeGroupsDispatch*)self;
+static inline bool Midiseq_useMasterClock(Midiseq *self){return self->useMasterClock;}
+static inline void Midiseq_setUseMasterClock(Midiseq *self, bool value){self->useMasterClock = value;}
+static inline Ticks Midiseq_sequenceLength(Midiseq *self){return self->sequenceLength;}
+static inline void Midiseq_setSequenceLength(Midiseq *self, Ticks value){self->sequenceLength = value;}
+static inline Symbol *Pad_trackName(Pad *self){return self->trackName;}
+static inline void Pad_setTrackName(Pad *self, Symbol *value){self->trackName = value;}
+static inline int Pad_padIndex(Pad *self){return self->padIndex;}
+static inline void Pad_setPadIndex(Pad *self, int value){self->padIndex = value;}
+static inline Midiseq *Pad_sequence(Pad *self){return self->sequence;}
+static inline bool Pad_chokeGroupGlobal(Pad *self){return self->chokeGroupGlobal;}
+static inline void Pad_setChokeGroupGlobal(Pad *self, bool value){self->chokeGroupGlobal = value;}
+static inline int Pad_chokeGroupInstrument(Pad *self){return self->chokeGroupInstrument;}
+static inline void Pad_setChokeGroupInstrument(Pad *self, int value){self->chokeGroupInstrument = value;}
+static inline int Pad_chokeGroupIndex(Pad *self){return self->chokeGroupIndex;}
+static inline void Pad_setChokeGroupIndex(Pad *self, int value){self->chokeGroupIndex = value;}
+static inline int64_t Pad_chokeGroup(Pad *self){return self->chokeGroup;}
+static inline void Pad_setChokeGroup(Pad *self, int64_t value){self->chokeGroup = value;}
+static inline bool Pad_noteReleasePending(Pad *self){return self->noteReleasePending;}
+static inline void Pad_setNoteReleasePending(Pad *self, bool value){self->noteReleasePending = value;}
+static inline bool Pad_inEndgroup(Pad *self){return self->inEndgroup;}
+static inline void Pad_setInEndgroup(Pad *self, bool value){self->inEndgroup = value;}
+static inline Track *Pad_track(Pad *self){return self->track;}
+static inline void Pad_setTrack(Pad *self, Track *value){self->track = value;}
+static inline void PadAr_changeLength(PadAr *arr, int newLength) {
+    Array_changeLength((Array*)arr, newLength);
+}                        
+
+static inline void PadAr_clear(PadAr *arr) {
+    Array_clear((Array*)arr);
+    PadAr zero = {0};
+    *arr = zero;
+}
+
+static inline void PadAr_fit(PadAr *arr) {
+    Array_fit((Array*)arr);
+}
+
+#define PadAr_foreach(var, arr)  for (PadArFIt_declare(var, arr); PadArFIt_next(&var); )            
+
+static inline void PadAr_free(PadAr *arr) {
+    Array_free((Array*)arr);
+}
+
+static inline Pad *PadAr_getp(PadAr *arr, int index, Error *err) {
+    Array_getCheck(arr, index, NULL, err);
+    return (Pad *)Array_get((Array*)arr, index);
+}
+
+static inline void PadAr_init(PadAr *arr, int nelems) {
+    Array_init((Array*)arr, nelems, sizeof(Pad), (Array_clearElement)NULL);
+}
+
+static inline int PadAr_len(PadAr *arr) {
+    return Array_len((Array*)arr);
+}
+
+static inline PadAr *PadAr_new(int nelems) {
+    return (PadAr*)Array_new(nelems, sizeof(Pad), (Array_clearElement)NULL);
+}
+
+static inline void PadAr_push(PadAr *arr, Pad elem) {
+    Pad *p = (Pad *)Array_pushN((Array*)arr, 1);
+    *p = elem;
+    return; 
+}            
+
+#define PadArFIt_declare(var, arr)  PadArFIt var = {arr, 0, (arr)->len, -1, NULL}
+
+static inline bool PadArFIt_next(PadArFIt *iterator) {
+    return ArrayFIt_next((ArrayFIt*)iterator);
+}
+
+static inline PadAr *PadList_pads(PadList *self){return &self->pads;}
+static inline PadPtrAr *PadList_running(PadList *self){return &self->running;}
+static inline void PadPtrAr_clear(PadPtrAr *arr) {
+    Array_clear((Array*)arr);
+    PadPtrAr zero = {0};
+    *arr = zero;
+}
+
+#define PadPtrAr_foreach(var, arr)  for (PadPtrArFIt_declare(var, arr); PadPtrArFIt_next(&var); )            
+
+static inline void PadPtrAr_free(PadPtrAr *arr) {
+    Array_free((Array*)arr);
+}
+
+static inline void PadPtrAr_init(PadPtrAr *arr, int nelems) {
+    Array_init((Array*)arr, nelems, sizeof(Pad *), (Array_clearElement)NULL);
+}
+
+static inline PadPtrAr *PadPtrAr_new(int nelems) {
+    return (PadPtrAr*)Array_new(nelems, sizeof(Pad *), (Array_clearElement)NULL);
+}
+
+static inline void PadPtrAr_push(PadPtrAr *arr, Pad *elem) {
+    Pad * *p = (Pad **)Array_pushN((Array*)arr, 1);
+    *p = elem;
+    return; 
+}            
+
+static inline void PadPtrAr_remove(PadPtrAr *arr, int index, Error *err) {
+    Array_removeNCheck(arr, index, 1, err);
+    Array_removeN((Array*)arr, index, 1);
+}    
+
+#define PadPtrArFIt_declare(var, arr)  PadPtrArFIt var = {arr, 0, (arr)->len, -1, NULL}
+
+static inline bool PadPtrArFIt_next(PadPtrArFIt *iterator) {
+    return ArrayFIt_next((ArrayFIt*)iterator);
+}
+
+static inline bool PadPtrArFIt_remove(PadPtrArFIt *iterator) {
+    return ArrayFIt_remove((ArrayFIt*)iterator);
+}
+
+static inline long Port_inletnum(Port *self){return self->inletnum;}
+static inline PtrAr Port_proxy(Port *self){return self->proxy;}
+static inline PtrAr Port_outlet(Port *self){return self->outlet;}
+static inline Symbol *Port_track(Port *self){return self->track;}
+static inline Symbol *Port_id(Port *self){return self->id;}
+static inline void Port_setId(Port *self, Symbol *value){self->id = value;}
+static inline long Port_intInlets(Port *self){return self->intInlets;}
+static inline void Port_setIntInlets(Port *self, long value){self->intInlets = value;}
+static inline long Port_intOutlets(Port *self){return self->intOutlets;}
+static inline void Port_setIntOutlets(Port *self, long value){self->intOutlets = value;}
+static inline void *Port_hub(Port *self){return self->hub;}
+static inline void Port_setHub(Port *self, void *value){self->hub = value;}
+static inline Port_anythingDispatchFunc Port_anythingDispatch(Port *self){return self->anythingDispatch;}
+static inline void Port_setAnythingDispatch(Port *self, Port_anythingDispatchFunc value){self->anythingDispatch = value;}
+static inline Port_intDispatchFunc Port_intDispatch(Port *self){return self->intDispatch;}
+static inline void Port_setIntDispatch(Port *self, Port_intDispatchFunc value){self->intDispatch = value;}
+static inline void *PortFind_hub(PortFind *self){return self->hub;}
+static inline void PortFind_setHub(PortFind *self, void *value){self->hub = value;}
+static inline Port_anythingDispatchFunc PortFind_anythingDispatch(PortFind *self){return self->anythingDispatch;}
+static inline void PortFind_setAnythingDispatch(PortFind *self, Port_anythingDispatchFunc value){self->anythingDispatch = value;}
+static inline Port_intDispatchFunc PortFind_intDispatch(PortFind *self){return self->intDispatch;}
+static inline void PortFind_setIntDispatch(PortFind *self, Port_intDispatchFunc value){self->intDispatch = value;}
+static inline void PortFindCellAr_clear(PortFindCellAr *arr) {
+    Array_clear((Array*)arr);
+    PortFindCellAr zero = {0};
+    *arr = zero;
+}
+
+#define PortFindCellAr_foreach(var, arr)  for (PortFindCellArFIt_declare(var, arr); PortFindCellArFIt_next(&var); )            
+
+static inline void PortFindCellAr_free(PortFindCellAr *arr) {
+    Array_free((Array*)arr);
+}
+
+static inline PortFindCell PortFindCellAr_get(PortFindCellAr *arr, int index, Error *err) {
+    PortFindCell v = {0};
+    Array_getCheck(arr, index, v, err);
+    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
+    return v;
+}
+
+static inline void PortFindCellAr_init(PortFindCellAr *arr, int nelems) {
+    Array_init((Array*)arr, nelems, sizeof(PortFindCell), (Array_clearElement)NULL);
+}
+
+static inline int PortFindCellAr_len(PortFindCellAr *arr) {
+    return Array_len((Array*)arr);
+}
+
+static inline PortFindCellAr *PortFindCellAr_new(int nelems) {
+    return (PortFindCellAr*)Array_new(nelems, sizeof(PortFindCell), (Array_clearElement)NULL);
+}
+
+static inline void PortFindCellAr_push(PortFindCellAr *arr, PortFindCell elem) {
+    PortFindCell *p = (PortFindCell *)Array_pushN((Array*)arr, 1);
+    *p = elem;
+    return; 
+}            
+
+#define PortFindCellArFIt_declare(var, arr)  PortFindCellArFIt var = {arr, 0, (arr)->len, -1, NULL}
+
+static inline bool PortFindCellArFIt_next(PortFindCellArFIt *iterator) {
+    return ArrayFIt_next((ArrayFIt*)iterator);
+}
+
+static inline Port *PortRef_port(PortRef *self){return self->port;}
+static inline int PortRef_outlet(PortRef *self){return self->outlet;}
+static inline void PtrAr_changeLength(PtrAr *arr, int newLength) {
+    Array_changeLength((Array*)arr, newLength);
+}                        
+
+static inline void PtrAr_clear(PtrAr *arr) {
+    Array_clear((Array*)arr);
+    PtrAr zero = {0};
+    *arr = zero;
+}
+
+#define PtrAr_foreach(var, arr)  for (PtrArFIt_declare(var, arr); PtrArFIt_next(&var); )            
+
+static inline void PtrAr_free(PtrAr *arr) {
+    Array_free((Array*)arr);
+}
+
+static inline void *PtrAr_get(PtrAr *arr, int index, Error *err) {
+    void * v = {0};
+    Array_getCheck(arr, index, v, err);
+    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
+    return v;
+}
+
+static inline void PtrAr_init(PtrAr *arr, int nelems) {
+    Array_init((Array*)arr, nelems, sizeof(void *), (Array_clearElement)NULL);
+}
+
+static inline PtrAr *PtrAr_new(int nelems) {
+    return (PtrAr*)Array_new(nelems, sizeof(void *), (Array_clearElement)NULL);
+}
+
+static inline void PtrAr_push(PtrAr *arr, void *elem) {
+    void * *p = (void **)Array_pushN((Array*)arr, 1);
+    *p = elem;
+    return; 
+}            
+
+static inline void PtrAr_set(PtrAr *arr, int index, void *elem, Error *err) {
+    Array_setCheck(arr, index, err);
+    Array_set((Array*)arr, index, (char*)&elem);
+}
+
+#define PtrArFIt_declare(var, arr)  PtrArFIt var = {arr, 0, (arr)->len, -1, NULL}
+
+static inline bool PtrArFIt_next(PtrArFIt *iterator) {
+    return ArrayFIt_next((ArrayFIt*)iterator);
+}
+
+static inline SelectNextPushedPadDispatch *SelectNextPushedPadDispatch_castFromDispatch(Dispatch *self) {
+    if (self->itype == SelectNextPushedPadDispatch_itype) {
+        return (SelectNextPushedPadDispatch*)self;
     }
     return NULL;
 }
-static inline Dispatch *ManageChokeGroupsDispatch_castToDispatch(ManageChokeGroupsDispatch *self) {
+static inline Dispatch *SelectNextPushedPadDispatch_castToDispatch(SelectNextPushedPadDispatch *self) {
     return (Dispatch*)self;
 }
 static inline void StringPtAr_clear(StringPtAr *arr) {
@@ -1660,162 +2235,6 @@ static inline Symbol **SymbolPtAr_binSearchUnderlying(SymbolPtAr *arr, Symbol *e
     return (Symbol **)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, NULL);
 }
 
-static inline void AtomAr_clear(AtomAr *arr) {
-    Array_clear((Array*)arr);
-    AtomAr zero = {0};
-    *arr = zero;
-}
-
-static inline void AtomAr_free(AtomAr *arr) {
-    Array_free((Array*)arr);
-}
-
-static inline void AtomAr_init(AtomAr *arr, int nelems) {
-    Array_init((Array*)arr, nelems, sizeof(Atom), (Array_clearElement)NULL);
-}
-
-static inline AtomAr *AtomAr_new(int nelems) {
-    return (AtomAr*)Array_new(nelems, sizeof(Atom), (Array_clearElement)NULL);
-}
-
-static inline long Port_inletnum(Port *self){return self->inletnum;}
-static inline PtrAr Port_proxy(Port *self){return self->proxy;}
-static inline PtrAr Port_outlet(Port *self){return self->outlet;}
-static inline Symbol *Port_track(Port *self){return self->track;}
-static inline Symbol *Port_id(Port *self){return self->id;}
-static inline void Port_setId(Port *self, Symbol *value){self->id = value;}
-static inline long Port_intInlets(Port *self){return self->intInlets;}
-static inline void Port_setIntInlets(Port *self, long value){self->intInlets = value;}
-static inline long Port_intOutlets(Port *self){return self->intOutlets;}
-static inline void Port_setIntOutlets(Port *self, long value){self->intOutlets = value;}
-static inline void *Port_hub(Port *self){return self->hub;}
-static inline void Port_setHub(Port *self, void *value){self->hub = value;}
-static inline Port_anythingDispatchFunc Port_anythingDispatch(Port *self){return self->anythingDispatch;}
-static inline void Port_setAnythingDispatch(Port *self, Port_anythingDispatchFunc value){self->anythingDispatch = value;}
-static inline Port_intDispatchFunc Port_intDispatch(Port *self){return self->intDispatch;}
-static inline void Port_setIntDispatch(Port *self, Port_intDispatchFunc value){self->intDispatch = value;}
-static inline void MEventAr_clear(MEventAr *arr) {
-    Array_clear((Array*)arr);
-    MEventAr zero = {0};
-    *arr = zero;
-}
-
-static inline void MEventAr_fit(MEventAr *arr) {
-    Array_fit((Array*)arr);
-}
-
-#define MEventAr_foreach(var, arr)  for (MEventArFIt_declare(var, arr); MEventArFIt_next(&var); )            
-
-static inline void MEventAr_free(MEventAr *arr) {
-    Array_free((Array*)arr);
-}
-
-static inline MEvent MEventAr_get(MEventAr *arr, int index, Error *err) {
-    MEvent v = {0};
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
-}
-
-static inline MEvent *MEventAr_getp(MEventAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (MEvent *)Array_get((Array*)arr, index);
-}
-
-static inline void MEventAr_init(MEventAr *arr, int nelems) {
-    Array_init((Array*)arr, nelems, sizeof(MEvent), (Array_clearElement)NULL);
-}
-
-static inline void MEventAr_insert(MEventAr *arr, int index, MEvent elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    MEvent *p = (MEvent *)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline int MEventAr_last(MEventAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
-
-static inline int MEventAr_len(MEventAr *arr) {
-    return Array_len((Array*)arr);
-}
-
-static inline MEventAr *MEventAr_new(int nelems) {
-    return (MEventAr*)Array_new(nelems, sizeof(MEvent), (Array_clearElement)NULL);
-}
-
-static inline void MEventAr_push(MEventAr *arr, MEvent elem) {
-    MEvent *p = (MEvent *)Array_pushN((Array*)arr, 1);
-    *p = elem;
-    return; 
-}            
-
-#define MEventAr_rforeach(var, arr)  for (MEventArRIt_declare(var, arr); MEventArRIt_next(&var); )            
-
-static inline void MEventAr_truncate(MEventAr *arr) {
-    Array_truncate((Array*)arr);
-}
-
-#define MEventArFIt_declare(var, arr)  MEventArFIt var = {arr, 0, (arr)->len, -1, NULL}
-
-static inline bool MEventArFIt_next(MEventArFIt *iterator) {
-    return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
-#define MEventArRIt_declare(var, arr)  MEventArRIt var = {arr, 0, (arr)->len, (arr)->len, NULL}
-
-static inline bool MEventArRIt_next(MEventArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline void PtrAr_changeLength(PtrAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
-static inline void PtrAr_clear(PtrAr *arr) {
-    Array_clear((Array*)arr);
-    PtrAr zero = {0};
-    *arr = zero;
-}
-
-#define PtrAr_foreach(var, arr)  for (PtrArFIt_declare(var, arr); PtrArFIt_next(&var); )            
-
-static inline void PtrAr_free(PtrAr *arr) {
-    Array_free((Array*)arr);
-}
-
-static inline void *PtrAr_get(PtrAr *arr, int index, Error *err) {
-    void * v = {0};
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
-}
-
-static inline void PtrAr_init(PtrAr *arr, int nelems) {
-    Array_init((Array*)arr, nelems, sizeof(void *), (Array_clearElement)NULL);
-}
-
-static inline PtrAr *PtrAr_new(int nelems) {
-    return (PtrAr*)Array_new(nelems, sizeof(void *), (Array_clearElement)NULL);
-}
-
-static inline void PtrAr_push(PtrAr *arr, void *elem) {
-    void * *p = (void **)Array_pushN((Array*)arr, 1);
-    *p = elem;
-    return; 
-}            
-
-static inline void PtrAr_set(PtrAr *arr, int index, void *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-#define PtrArFIt_declare(var, arr)  PtrArFIt var = {arr, 0, (arr)->len, -1, NULL}
-
-static inline bool PtrArFIt_next(PtrArFIt *iterator) {
-    return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
 static inline void SymbolPtrAr_clear(SymbolPtrAr *arr) {
     Array_clear((Array*)arr);
     SymbolPtrAr zero = {0};
@@ -1859,283 +2278,7 @@ static inline bool SymbolPtrArFIt_next(SymbolPtrArFIt *iterator) {
     return ArrayFIt_next((ArrayFIt*)iterator);
 }
 
-static inline void IntAr_clear(IntAr *arr) {
-    Array_clear((Array*)arr);
-    IntAr zero = {0};
-    *arr = zero;
-}
-
-static inline void IntAr_free(IntAr *arr) {
-    Array_free((Array*)arr);
-}
-
-static inline void IntAr_init(IntAr *arr, int nelems) {
-    Array_init((Array*)arr, nelems, sizeof(int), (Array_clearElement)NULL);
-}
-
-static inline IntAr *IntAr_new(int nelems) {
-    return (IntAr*)Array_new(nelems, sizeof(int), (Array_clearElement)NULL);
-}
-
-static inline int BinFile_version(BinFile *self){return self->version;}
-static inline String *BinFile_filename(BinFile *self){return self->filename;}
-static inline String *BinFile_buffer(BinFile *self){return self->buffer;}
-static inline FILE *BinFile_stream(BinFile *self){return self->stream;}
-static inline void BinFile_setStream(BinFile *self, FILE *value){self->stream = value;}
-static inline bool Midiseq_useMasterClock(Midiseq *self){return self->useMasterClock;}
-static inline void Midiseq_setUseMasterClock(Midiseq *self, bool value){self->useMasterClock = value;}
-static inline Ticks Midiseq_sequenceLength(Midiseq *self){return self->sequenceLength;}
-static inline void Midiseq_setSequenceLength(Midiseq *self, Ticks value){self->sequenceLength = value;}
-static inline Symbol *Pad_trackName(Pad *self){return self->trackName;}
-static inline void Pad_setTrackName(Pad *self, Symbol *value){self->trackName = value;}
-static inline int Pad_padIndex(Pad *self){return self->padIndex;}
-static inline void Pad_setPadIndex(Pad *self, int value){self->padIndex = value;}
-static inline Midiseq *Pad_sequence(Pad *self){return self->sequence;}
-static inline bool Pad_chokeGroupGlobal(Pad *self){return self->chokeGroupGlobal;}
-static inline void Pad_setChokeGroupGlobal(Pad *self, bool value){self->chokeGroupGlobal = value;}
-static inline int Pad_chokeGroupInstrument(Pad *self){return self->chokeGroupInstrument;}
-static inline void Pad_setChokeGroupInstrument(Pad *self, int value){self->chokeGroupInstrument = value;}
-static inline int Pad_chokeGroupIndex(Pad *self){return self->chokeGroupIndex;}
-static inline void Pad_setChokeGroupIndex(Pad *self, int value){self->chokeGroupIndex = value;}
-static inline int64_t Pad_chokeGroup(Pad *self){return self->chokeGroup;}
-static inline void Pad_setChokeGroup(Pad *self, int64_t value){self->chokeGroup = value;}
-static inline bool Pad_noteReleasePending(Pad *self){return self->noteReleasePending;}
-static inline void Pad_setNoteReleasePending(Pad *self, bool value){self->noteReleasePending = value;}
-static inline bool Pad_inEndgroup(Pad *self){return self->inEndgroup;}
-static inline void Pad_setInEndgroup(Pad *self, bool value){self->inEndgroup = value;}
-static inline Track *Pad_track(Pad *self){return self->track;}
-static inline void Pad_setTrack(Pad *self, Track *value){self->track = value;}
-#define IndexedOff_declare(name, padIndex, pitch) IndexedOff name = {(padIndex), (pitch)}
 #define TimedOff_declare(name, time, pitch) TimedOff name = {(time), (pitch)}
-static inline PadAr *PadList_pads(PadList *self){return &self->pads;}
-static inline PadPtrAr *PadList_running(PadList *self){return &self->running;}
-static inline void Track_setName(Track *self, Symbol *value){self->name = value;}
-static inline NoteManager *Track_noteManager(Track *self){return self->noteManager;}
-static inline void Track_setNoteManager(Track *self, NoteManager *value){self->noteManager = value;}
-static inline Port *PortRef_port(PortRef *self){return self->port;}
-static inline int PortRef_outlet(PortRef *self){return self->outlet;}
-static inline PadList *Hub_padList(Hub *self){return self->padList;}
-static inline void Hub_setPadList(Hub *self, PadList *value){self->padList = value;}
-static inline TrackList *Hub_trackList(Hub *self){return self->trackList;}
-static inline void Hub_setTrackList(Hub *self, TrackList *value){self->trackList = value;}
-static inline Port *Hub_currBankPort(Hub *self){return self->currBankPort;}
-static inline void Hub_setCurrBankPort(Hub *self, Port *value){self->currBankPort = value;}
-static inline Port *Hub_currFramePort(Hub *self){return self->currFramePort;}
-static inline void Hub_setCurrFramePort(Hub *self, Port *value){self->currFramePort = value;}
-static inline Port *Hub_selBankPort(Hub *self){return self->selBankPort;}
-static inline void Hub_setSelBankPort(Hub *self, Port *value){self->selBankPort = value;}
-static inline Port *Hub_selFramePort(Hub *self){return self->selFramePort;}
-static inline void Hub_setSelFramePort(Hub *self, Port *value){self->selFramePort = value;}
-static inline Port *Hub_selPadPort(Hub *self){return self->selPadPort;}
-static inline void Hub_setSelPadPort(Hub *self, Port *value){self->selPadPort = value;}
-static inline DropDown *Hub_cgLocalGlobalMenu(Hub *self){return &self->cgLocalGlobalMenu;}
-static inline DropDown *Hub_cgInstrumentMenu(Hub *self){return &self->cgInstrumentMenu;}
-static inline DropDown *Hub_cgIndexMenu(Hub *self){return &self->cgIndexMenu;}
-static inline int Hub_bank(Hub *self){return self->bank;}
-static inline int Hub_frame(Hub *self){return self->frame;}
-static inline void Hub_setFrame(Hub *self, int value){self->frame = value;}
-static inline bool Hub_grabNextTappedPad(Hub *self){return self->grabNextTappedPad;}
-static inline void Hub_setGrabNextTappedPad(Hub *self, bool value){self->grabNextTappedPad = value;}
-static inline int Hub_selectedPad(Hub *self){return self->selectedPad;}
-static inline void Hub_setSelectedPad(Hub *self, int value){self->selectedPad = value;}
-static inline void *PortFind_hub(PortFind *self){return self->hub;}
-static inline void PortFind_setHub(PortFind *self, void *value){self->hub = value;}
-static inline Port_anythingDispatchFunc PortFind_anythingDispatch(PortFind *self){return self->anythingDispatch;}
-static inline void PortFind_setAnythingDispatch(PortFind *self, Port_anythingDispatchFunc value){self->anythingDispatch = value;}
-static inline Port_intDispatchFunc PortFind_intDispatch(PortFind *self){return self->intDispatch;}
-static inline void PortFind_setIntDispatch(PortFind *self, Port_intDispatchFunc value){self->intDispatch = value;}
-static inline void DispatchPtAr_clear(DispatchPtAr *arr) {
-    Array_clear((Array*)arr);
-    DispatchPtAr zero = {0};
-    *arr = zero;
-}
-
-static inline void DispatchPtAr_free(DispatchPtAr *arr) {
-    Array_free((Array*)arr);
-}
-
-static inline void DispatchPtAr_init(DispatchPtAr *arr, int nelems) {
-    Array_init((Array*)arr, nelems, sizeof(Dispatch *), (Array_clearElement)NULL);
-}
-
-static inline DispatchPtAr *DispatchPtAr_new(int nelems) {
-    return (DispatchPtAr*)Array_new(nelems, sizeof(Dispatch *), (Array_clearElement)NULL);
-}
-
-static inline void DispatchPtAr_push(DispatchPtAr *arr, Dispatch *elem) {
-    Dispatch * *p = (Dispatch **)Array_pushN((Array*)arr, 1);
-    *p = elem;
-    return; 
-}            
-
-static inline void DispatchPtAr_truncate(DispatchPtAr *arr) {
-    Array_truncate((Array*)arr);
-}
-
-static inline Dispatch **DispatchPtAr_binSearch(DispatchPtAr *arr, Dispatch *elem) {
-    int (*compare)(Dispatch **, Dispatch **) = Dispatch_cmp;
-    return (Dispatch **)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, NULL);
-}
-
-static inline void DispatchPtAr_sort(DispatchPtAr *arr) {
-    int (*compare)(Dispatch **, Dispatch **) = Dispatch_cmp;
-    Array_sort((Array*)arr, (Array_compare)compare);
-}                
-
-static inline void PadAr_changeLength(PadAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
-static inline void PadAr_clear(PadAr *arr) {
-    Array_clear((Array*)arr);
-    PadAr zero = {0};
-    *arr = zero;
-}
-
-static inline void PadAr_fit(PadAr *arr) {
-    Array_fit((Array*)arr);
-}
-
-#define PadAr_foreach(var, arr)  for (PadArFIt_declare(var, arr); PadArFIt_next(&var); )            
-
-static inline void PadAr_free(PadAr *arr) {
-    Array_free((Array*)arr);
-}
-
-static inline Pad *PadAr_getp(PadAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (Pad *)Array_get((Array*)arr, index);
-}
-
-static inline void PadAr_init(PadAr *arr, int nelems) {
-    Array_init((Array*)arr, nelems, sizeof(Pad), (Array_clearElement)NULL);
-}
-
-static inline int PadAr_len(PadAr *arr) {
-    return Array_len((Array*)arr);
-}
-
-static inline PadAr *PadAr_new(int nelems) {
-    return (PadAr*)Array_new(nelems, sizeof(Pad), (Array_clearElement)NULL);
-}
-
-static inline void PadAr_push(PadAr *arr, Pad elem) {
-    Pad *p = (Pad *)Array_pushN((Array*)arr, 1);
-    *p = elem;
-    return; 
-}            
-
-#define PadArFIt_declare(var, arr)  PadArFIt var = {arr, 0, (arr)->len, -1, NULL}
-
-static inline bool PadArFIt_next(PadArFIt *iterator) {
-    return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
-static inline void PadPtrAr_clear(PadPtrAr *arr) {
-    Array_clear((Array*)arr);
-    PadPtrAr zero = {0};
-    *arr = zero;
-}
-
-#define PadPtrAr_foreach(var, arr)  for (PadPtrArFIt_declare(var, arr); PadPtrArFIt_next(&var); )            
-
-static inline void PadPtrAr_free(PadPtrAr *arr) {
-    Array_free((Array*)arr);
-}
-
-static inline void PadPtrAr_init(PadPtrAr *arr, int nelems) {
-    Array_init((Array*)arr, nelems, sizeof(Pad *), (Array_clearElement)NULL);
-}
-
-static inline PadPtrAr *PadPtrAr_new(int nelems) {
-    return (PadPtrAr*)Array_new(nelems, sizeof(Pad *), (Array_clearElement)NULL);
-}
-
-static inline void PadPtrAr_push(PadPtrAr *arr, Pad *elem) {
-    Pad * *p = (Pad **)Array_pushN((Array*)arr, 1);
-    *p = elem;
-    return; 
-}            
-
-static inline void PadPtrAr_remove(PadPtrAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-#define PadPtrArFIt_declare(var, arr)  PadPtrArFIt var = {arr, 0, (arr)->len, -1, NULL}
-
-static inline bool PadPtrArFIt_next(PadPtrArFIt *iterator) {
-    return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
-static inline bool PadPtrArFIt_remove(PadPtrArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline void IndexedOffAr_clear(IndexedOffAr *arr) {
-    Array_clear((Array*)arr);
-    IndexedOffAr zero = {0};
-    *arr = zero;
-}
-
-#define IndexedOffAr_foreach(var, arr)  for (IndexedOffArFIt_declare(var, arr); IndexedOffArFIt_next(&var); )            
-
-static inline void IndexedOffAr_free(IndexedOffAr *arr) {
-    Array_free((Array*)arr);
-}
-
-static inline void IndexedOffAr_init(IndexedOffAr *arr, int nelems) {
-    Array_init((Array*)arr, nelems, sizeof(IndexedOff), (Array_clearElement)NULL);
-}
-
-#define IndexedOffAr_loop(var) while (IndexedOffArFIt_next(&var)) 
-
-static inline IndexedOffAr *IndexedOffAr_new(int nelems) {
-    return (IndexedOffAr*)Array_new(nelems, sizeof(IndexedOff), (Array_clearElement)NULL);
-}
-
-static inline void IndexedOffAr_remove(IndexedOffAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void IndexedOffAr_truncate(IndexedOffAr *arr) {
-    Array_truncate((Array*)arr);
-}
-
-static inline bool IndexedOffArFIt_atEnd(IndexedOffArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
-#define IndexedOffArFIt_declare(var, arr)  IndexedOffArFIt var = {arr, 0, (arr)->len, -1, NULL}
-
-#define IndexedOffArFIt_declare0(var)  IndexedOffArFIt var = {0}
-
-static inline bool IndexedOffArFIt_next(IndexedOffArFIt *iterator) {
-    return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
-static inline void IndexedOffAr_binInsertPadIndex(IndexedOffAr *arr, IndexedOff elem) {
-    int (*compare)(IndexedOff *, IndexedOff *) = IndexedOff_cmpPadIndex;
-    Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)compare, true);
-}            
-
-static inline void IndexedOffAr_binRemovePadIndex(IndexedOffAr *arr, IndexedOff elem) {
-    int (*compare)(IndexedOff *, IndexedOff *) = IndexedOff_cmpPadIndex;
-    Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)compare, true);
-}        
-
-static inline IndexedOffArFIt IndexedOffAr_binSearchPadIndex(IndexedOffAr *arr, IndexedOff elem) {
-    int (*compare)(IndexedOff *, IndexedOff *) = IndexedOff_cmpPadIndex;
-    IndexedOffArFIt it = {0};
-   if (Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, (ArrayFIt*)&it) != NULL) {
-       return it;
-    }
-   it.index  = arr->len;
-   it.uBound = 0;
-    return it;
-}
-
 static inline void TimedOffAr_clear(TimedOffAr *arr) {
     Array_clear((Array*)arr);
     TimedOffAr zero = {0};
@@ -2181,6 +2324,9 @@ static inline void TimedOffAr_binInsertTime(TimedOffAr *arr, TimedOff elem) {
     Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)compare, true);
 }            
 
+static inline void Track_setName(Track *self, Symbol *value){self->name = value;}
+static inline NoteManager *Track_noteManager(Track *self){return self->noteManager;}
+static inline void Track_setNoteManager(Track *self, NoteManager *value){self->noteManager = value;}
 static inline void TrackAr_clear(TrackAr *arr) {
     Array_clear((Array*)arr);
     TrackAr zero = {0};
@@ -2222,49 +2368,6 @@ static inline bool TrackArFIt_next(TrackArFIt *iterator) {
     return ArrayFIt_next((ArrayFIt*)iterator);
 }
 
-static inline void PortFindCellAr_clear(PortFindCellAr *arr) {
-    Array_clear((Array*)arr);
-    PortFindCellAr zero = {0};
-    *arr = zero;
-}
-
-#define PortFindCellAr_foreach(var, arr)  for (PortFindCellArFIt_declare(var, arr); PortFindCellArFIt_next(&var); )            
-
-static inline void PortFindCellAr_free(PortFindCellAr *arr) {
-    Array_free((Array*)arr);
-}
-
-static inline PortFindCell PortFindCellAr_get(PortFindCellAr *arr, int index, Error *err) {
-    PortFindCell v = {0};
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
-}
-
-static inline void PortFindCellAr_init(PortFindCellAr *arr, int nelems) {
-    Array_init((Array*)arr, nelems, sizeof(PortFindCell), (Array_clearElement)NULL);
-}
-
-static inline int PortFindCellAr_len(PortFindCellAr *arr) {
-    return Array_len((Array*)arr);
-}
-
-static inline PortFindCellAr *PortFindCellAr_new(int nelems) {
-    return (PortFindCellAr*)Array_new(nelems, sizeof(PortFindCell), (Array_clearElement)NULL);
-}
-
-static inline void PortFindCellAr_push(PortFindCellAr *arr, PortFindCell elem) {
-    PortFindCell *p = (PortFindCell *)Array_pushN((Array*)arr, 1);
-    *p = elem;
-    return; 
-}            
-
-#define PortFindCellArFIt_declare(var, arr)  PortFindCellArFIt var = {arr, 0, (arr)->len, -1, NULL}
-
-static inline bool PortFindCellArFIt_next(PortFindCellArFIt *iterator) {
-    return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
 void Arguments_init(Arguments *self)
 {
     self->s1 = NULL;
@@ -2289,6 +2392,249 @@ Arguments *Arguments_new()
 {
     Arguments *self = Mem_malloc(sizeof(Arguments));
     Arguments_init(self);
+    return self;
+}
+void BinFile_init(BinFile *self)
+{
+    self->version = 0;
+    self->filename = String_empty();
+    self->buffer = String_empty();
+    self->stream = NULL;
+    self->payload = BinFilePayload_new();
+    return;
+}
+void BinFile_clear(BinFile *self)
+{
+    BinFile_userClear(self);
+    String_free(self->filename);         
+    String_free(self->buffer);         
+    BinFilePayload_free(self->payload);
+    return;
+}
+void BinFile_free(BinFile *self)
+{
+   if (self != NULL) {
+        BinFile_clear(self);
+        Mem_free(self);
+   }
+}
+BinFile *BinFile_new()
+{
+    BinFile *self = Mem_malloc(sizeof(BinFile));
+    BinFile_init(self);
+    return self;
+}
+void BinFilePayload_init(BinFilePayload *self)
+{
+    self->portFind = PortFind_new();
+    return;
+}
+void BinFilePayload_clear(BinFilePayload *self)
+{
+    PortFind_free(self->portFind);
+    return;
+}
+void BinFilePayload_free(BinFilePayload *self)
+{
+   if (self != NULL) {
+        BinFilePayload_clear(self);
+        Mem_free(self);
+   }
+}
+BinFilePayload *BinFilePayload_new()
+{
+    BinFilePayload *self = Mem_malloc(sizeof(BinFilePayload));
+    BinFilePayload_init(self);
+    return self;
+}
+void DecrementFrameDispatch_init(DecrementFrameDispatch *self)
+{
+    self->itype = DecrementFrameDispatch_itype;
+    return;
+}
+void DecrementFrameDispatch_clear(DecrementFrameDispatch *self)
+{
+    return;
+}
+void DecrementFrameDispatch_free(DecrementFrameDispatch *self)
+{
+   if (self != NULL) {
+        DecrementFrameDispatch_clear(self);
+        Mem_free(self);
+   }
+}
+DecrementFrameDispatch *DecrementFrameDispatch_new()
+{
+    DecrementFrameDispatch *self = Mem_malloc(sizeof(DecrementFrameDispatch));
+    DecrementFrameDispatch_init(self);
+    return self;
+}
+void DropDown_init(DropDown *self)
+{
+    SymbolPtrAr_init(&self->table, 0);
+    self->selected = 0;
+    PortRef_init(&self->portRef);            
+    return;
+}
+void DropDown_clear(DropDown *self)
+{
+    SymbolPtrAr_clear(&self->table);
+    PortRef_clear(&self->portRef);
+    return;
+}
+void DropDown_free(DropDown *self)
+{
+   if (self != NULL) {
+        DropDown_clear(self);
+        Mem_free(self);
+   }
+}
+DropDown *DropDown_new()
+{
+    DropDown *self = Mem_malloc(sizeof(DropDown));
+    DropDown_init(self);
+    return self;
+}
+void Foo_init(Foo *self)
+{
+    self->i = 0;
+    self->d = 0;
+    return;
+}
+void Foo_clear(Foo *self)
+{
+    return;
+}
+void Foo_free(Foo *self)
+{
+   if (self != NULL) {
+        Foo_clear(self);
+        Mem_free(self);
+   }
+}
+Foo *Foo_new()
+{
+    Foo *self = Mem_malloc(sizeof(Foo));
+    Foo_init(self);
+    return self;
+}
+void Hub_init(Hub *self)
+{
+    self->padList = PadList_new();
+    self->trackList = TrackList_new();
+    self->currBankPort = Port_new();
+    self->currFramePort = Port_new();
+    self->selBankPort = Port_new();
+    self->selFramePort = Port_new();
+    self->selPadPort = Port_new();
+    self->chokeGroupPort = Port_new();
+    DropDown_init(&self->cgLocalGlobalMenu);            
+    DropDown_init(&self->cgInstrumentMenu);            
+    DropDown_init(&self->cgIndexMenu);            
+    self->bank = 0;
+    self->frame = 0;
+    self->grabNextTappedPad = 0;
+    self->selectedPad = 0;
+    Arguments_init(&self->arguments);            
+    DispatchPtAr_init(&self->dispatcher, 0);
+    self->masterClock = 0;
+    return;
+}
+void Hub_clear(Hub *self)
+{
+    PadList_free(self->padList);
+    TrackList_free(self->trackList);
+    Port_free(self->currBankPort);
+    Port_free(self->currFramePort);
+    Port_free(self->selBankPort);
+    Port_free(self->selFramePort);
+    Port_free(self->selPadPort);
+    Port_free(self->chokeGroupPort);
+    DropDown_clear(&self->cgLocalGlobalMenu);
+    DropDown_clear(&self->cgInstrumentMenu);
+    DropDown_clear(&self->cgIndexMenu);
+    Arguments_clear(&self->arguments);
+    DispatchPtAr_clear(&self->dispatcher);
+    return;
+}
+void Hub_free(Hub *self)
+{
+   if (self != NULL) {
+        Hub_clear(self);
+        Mem_free(self);
+   }
+}
+Hub *Hub_new()
+{
+    Hub *self = Mem_malloc(sizeof(Hub));
+    Hub_init(self);
+    return self;
+}
+void IncrementFrameDispatch_init(IncrementFrameDispatch *self)
+{
+    self->itype = IncrementFrameDispatch_itype;
+    return;
+}
+void IncrementFrameDispatch_clear(IncrementFrameDispatch *self)
+{
+    return;
+}
+void IncrementFrameDispatch_free(IncrementFrameDispatch *self)
+{
+   if (self != NULL) {
+        IncrementFrameDispatch_clear(self);
+        Mem_free(self);
+   }
+}
+IncrementFrameDispatch *IncrementFrameDispatch_new()
+{
+    IncrementFrameDispatch *self = Mem_malloc(sizeof(IncrementFrameDispatch));
+    IncrementFrameDispatch_init(self);
+    return self;
+}
+void IndexedOff_init(IndexedOff *self)
+{
+    self->padIndex = 0;
+    self->pitch = 0;
+    return;
+}
+void IndexedOff_clear(IndexedOff *self)
+{
+    return;
+}
+void IndexedOff_free(IndexedOff *self)
+{
+   if (self != NULL) {
+        IndexedOff_clear(self);
+        Mem_free(self);
+   }
+}
+IndexedOff *IndexedOff_new()
+{
+    IndexedOff *self = Mem_malloc(sizeof(IndexedOff));
+    IndexedOff_init(self);
+    return self;
+}
+void ManageChokeGroupsDispatch_init(ManageChokeGroupsDispatch *self)
+{
+    self->itype = ManageChokeGroupsDispatch_itype;
+    return;
+}
+void ManageChokeGroupsDispatch_clear(ManageChokeGroupsDispatch *self)
+{
+    return;
+}
+void ManageChokeGroupsDispatch_free(ManageChokeGroupsDispatch *self)
+{
+   if (self != NULL) {
+        ManageChokeGroupsDispatch_clear(self);
+        Mem_free(self);
+   }
+}
+ManageChokeGroupsDispatch *ManageChokeGroupsDispatch_new()
+{
+    ManageChokeGroupsDispatch *self = Mem_malloc(sizeof(ManageChokeGroupsDispatch));
+    ManageChokeGroupsDispatch_init(self);
     return self;
 }
 void MarshalSi_init(MarshalSi *self)
@@ -2357,72 +2703,6 @@ MarshalSs *MarshalSs_new()
     MarshalSs_init(self);
     return self;
 }
-void IncrementFrameDispatch_init(IncrementFrameDispatch *self)
-{
-    self->itype = IncrementFrameDispatch_itype;
-    return;
-}
-void IncrementFrameDispatch_clear(IncrementFrameDispatch *self)
-{
-    return;
-}
-void IncrementFrameDispatch_free(IncrementFrameDispatch *self)
-{
-   if (self != NULL) {
-        IncrementFrameDispatch_clear(self);
-        Mem_free(self);
-   }
-}
-IncrementFrameDispatch *IncrementFrameDispatch_new()
-{
-    IncrementFrameDispatch *self = Mem_malloc(sizeof(IncrementFrameDispatch));
-    IncrementFrameDispatch_init(self);
-    return self;
-}
-void DecrementFrameDispatch_init(DecrementFrameDispatch *self)
-{
-    self->itype = DecrementFrameDispatch_itype;
-    return;
-}
-void DecrementFrameDispatch_clear(DecrementFrameDispatch *self)
-{
-    return;
-}
-void DecrementFrameDispatch_free(DecrementFrameDispatch *self)
-{
-   if (self != NULL) {
-        DecrementFrameDispatch_clear(self);
-        Mem_free(self);
-   }
-}
-DecrementFrameDispatch *DecrementFrameDispatch_new()
-{
-    DecrementFrameDispatch *self = Mem_malloc(sizeof(DecrementFrameDispatch));
-    DecrementFrameDispatch_init(self);
-    return self;
-}
-void SelectNextPushedPadDispatch_init(SelectNextPushedPadDispatch *self)
-{
-    self->itype = SelectNextPushedPadDispatch_itype;
-    return;
-}
-void SelectNextPushedPadDispatch_clear(SelectNextPushedPadDispatch *self)
-{
-    return;
-}
-void SelectNextPushedPadDispatch_free(SelectNextPushedPadDispatch *self)
-{
-   if (self != NULL) {
-        SelectNextPushedPadDispatch_clear(self);
-        Mem_free(self);
-   }
-}
-SelectNextPushedPadDispatch *SelectNextPushedPadDispatch_new()
-{
-    SelectNextPushedPadDispatch *self = Mem_malloc(sizeof(SelectNextPushedPadDispatch));
-    SelectNextPushedPadDispatch_init(self);
-    return self;
-}
 void MidiFileDropDispatch_init(MidiFileDropDispatch *self)
 {
     self->itype = MidiFileDropDispatch_itype;
@@ -2443,81 +2723,6 @@ MidiFileDropDispatch *MidiFileDropDispatch_new()
 {
     MidiFileDropDispatch *self = Mem_malloc(sizeof(MidiFileDropDispatch));
     MidiFileDropDispatch_init(self);
-    return self;
-}
-void ManageChokeGroupsDispatch_init(ManageChokeGroupsDispatch *self)
-{
-    self->itype = ManageChokeGroupsDispatch_itype;
-    return;
-}
-void ManageChokeGroupsDispatch_clear(ManageChokeGroupsDispatch *self)
-{
-    return;
-}
-void ManageChokeGroupsDispatch_free(ManageChokeGroupsDispatch *self)
-{
-   if (self != NULL) {
-        ManageChokeGroupsDispatch_clear(self);
-        Mem_free(self);
-   }
-}
-ManageChokeGroupsDispatch *ManageChokeGroupsDispatch_new()
-{
-    ManageChokeGroupsDispatch *self = Mem_malloc(sizeof(ManageChokeGroupsDispatch));
-    ManageChokeGroupsDispatch_init(self);
-    return self;
-}
-void BinFilePayload_init(BinFilePayload *self)
-{
-    self->portFind = PortFind_new();
-    return;
-}
-void BinFilePayload_clear(BinFilePayload *self)
-{
-    PortFind_free(self->portFind);
-    return;
-}
-void BinFilePayload_free(BinFilePayload *self)
-{
-   if (self != NULL) {
-        BinFilePayload_clear(self);
-        Mem_free(self);
-   }
-}
-BinFilePayload *BinFilePayload_new()
-{
-    BinFilePayload *self = Mem_malloc(sizeof(BinFilePayload));
-    BinFilePayload_init(self);
-    return self;
-}
-void BinFile_init(BinFile *self)
-{
-    self->version = 0;
-    self->filename = String_empty();
-    self->buffer = String_empty();
-    self->stream = NULL;
-    self->payload = BinFilePayload_new();
-    return;
-}
-void BinFile_clear(BinFile *self)
-{
-    BinFile_userClear(self);
-    String_free(self->filename);         
-    String_free(self->buffer);         
-    BinFilePayload_free(self->payload);
-    return;
-}
-void BinFile_free(BinFile *self)
-{
-   if (self != NULL) {
-        BinFile_clear(self);
-        Mem_free(self);
-   }
-}
-BinFile *BinFile_new()
-{
-    BinFile *self = Mem_malloc(sizeof(BinFile));
-    BinFile_init(self);
     return self;
 }
 void Midiseq_init(Midiseq *self)
@@ -2546,6 +2751,36 @@ Midiseq *Midiseq_new()
 {
     Midiseq *self = Mem_malloc(sizeof(Midiseq));
     Midiseq_init(self);
+    return self;
+}
+void NoteManager_init(NoteManager *self)
+{
+    TimedOffAr_init(&self->pending, 0);
+    IndexedOffAr_init(&self->endgroups, 0);
+    self->output = Port_new();
+    self->atoms = NULL;
+    NoteManager_userInit(self);
+    return;
+}
+void NoteManager_clear(NoteManager *self)
+{
+    NoteManager_userClear(self);
+    TimedOffAr_clear(&self->pending);
+    IndexedOffAr_clear(&self->endgroups);
+    Port_free(self->output);
+    return;
+}
+void NoteManager_free(NoteManager *self)
+{
+   if (self != NULL) {
+        NoteManager_clear(self);
+        Mem_free(self);
+   }
+}
+NoteManager *NoteManager_new()
+{
+    NoteManager *self = Mem_malloc(sizeof(NoteManager));
+    NoteManager_init(self);
     return self;
 }
 void Pad_init(Pad *self)
@@ -2582,82 +2817,6 @@ Pad *Pad_new()
     Pad_init(self);
     return self;
 }
-void IndexedOff_init(IndexedOff *self)
-{
-    self->padIndex = 0;
-    self->pitch = 0;
-    return;
-}
-void IndexedOff_clear(IndexedOff *self)
-{
-    return;
-}
-void IndexedOff_free(IndexedOff *self)
-{
-   if (self != NULL) {
-        IndexedOff_clear(self);
-        Mem_free(self);
-   }
-}
-IndexedOff *IndexedOff_new()
-{
-    IndexedOff *self = Mem_malloc(sizeof(IndexedOff));
-    IndexedOff_init(self);
-    return self;
-}
-void TimedOff_init(TimedOff *self)
-{
-    self->time = 0;
-    self->pitch = 0;
-    return;
-}
-void TimedOff_clear(TimedOff *self)
-{
-    return;
-}
-void TimedOff_free(TimedOff *self)
-{
-   if (self != NULL) {
-        TimedOff_clear(self);
-        Mem_free(self);
-   }
-}
-TimedOff *TimedOff_new()
-{
-    TimedOff *self = Mem_malloc(sizeof(TimedOff));
-    TimedOff_init(self);
-    return self;
-}
-void NoteManager_init(NoteManager *self)
-{
-    TimedOffAr_init(&self->pending, 0);
-    IndexedOffAr_init(&self->endgroups, 0);
-    self->output = Port_new();
-    self->atoms = NULL;
-    NoteManager_userInit(self);
-    return;
-}
-void NoteManager_clear(NoteManager *self)
-{
-    NoteManager_userClear(self);
-    TimedOffAr_clear(&self->pending);
-    IndexedOffAr_clear(&self->endgroups);
-    Port_free(self->output);
-    return;
-}
-void NoteManager_free(NoteManager *self)
-{
-   if (self != NULL) {
-        NoteManager_clear(self);
-        Mem_free(self);
-   }
-}
-NoteManager *NoteManager_new()
-{
-    NoteManager *self = Mem_malloc(sizeof(NoteManager));
-    NoteManager_init(self);
-    return self;
-}
 void PadList_init(PadList *self)
 {
     PadAr_init(&self->pads, 0);
@@ -2681,6 +2840,125 @@ PadList *PadList_new()
 {
     PadList *self = Mem_malloc(sizeof(PadList));
     PadList_init(self);
+    return self;
+}
+void PortFind_init(PortFind *self)
+{
+    PortFindCellAr_init(&self->objects, 0);
+    self->hub = NULL;
+    self->anythingDispatch = 0;
+    self->intDispatch = 0;
+    return;
+}
+void PortFind_clear(PortFind *self)
+{
+    PortFindCellAr_clear(&self->objects);
+    return;
+}
+void PortFind_free(PortFind *self)
+{
+   if (self != NULL) {
+        PortFind_clear(self);
+        Mem_free(self);
+   }
+}
+PortFind *PortFind_new()
+{
+    PortFind *self = Mem_malloc(sizeof(PortFind));
+    PortFind_init(self);
+    return self;
+}
+void PortFindCell_init(PortFindCell *self)
+{
+    self->reciever = Port_new();
+    self->varname = NULL;
+    return;
+}
+void PortFindCell_clear(PortFindCell *self)
+{
+    Port_free(self->reciever);
+    return;
+}
+void PortFindCell_free(PortFindCell *self)
+{
+   if (self != NULL) {
+        PortFindCell_clear(self);
+        Mem_free(self);
+   }
+}
+PortFindCell *PortFindCell_new()
+{
+    PortFindCell *self = Mem_malloc(sizeof(PortFindCell));
+    PortFindCell_init(self);
+    return self;
+}
+void PortRef_init(PortRef *self)
+{
+    self->port = Port_new();
+    self->outlet = 0;
+    return;
+}
+void PortRef_clear(PortRef *self)
+{
+    Port_free(self->port);
+    return;
+}
+void PortRef_free(PortRef *self)
+{
+   if (self != NULL) {
+        PortRef_clear(self);
+        Mem_free(self);
+   }
+}
+PortRef *PortRef_new()
+{
+    PortRef *self = Mem_malloc(sizeof(PortRef));
+    PortRef_init(self);
+    return self;
+}
+void SelectNextPushedPadDispatch_init(SelectNextPushedPadDispatch *self)
+{
+    self->itype = SelectNextPushedPadDispatch_itype;
+    return;
+}
+void SelectNextPushedPadDispatch_clear(SelectNextPushedPadDispatch *self)
+{
+    return;
+}
+void SelectNextPushedPadDispatch_free(SelectNextPushedPadDispatch *self)
+{
+   if (self != NULL) {
+        SelectNextPushedPadDispatch_clear(self);
+        Mem_free(self);
+   }
+}
+SelectNextPushedPadDispatch *SelectNextPushedPadDispatch_new()
+{
+    SelectNextPushedPadDispatch *self = Mem_malloc(sizeof(SelectNextPushedPadDispatch));
+    SelectNextPushedPadDispatch_init(self);
+    return self;
+}
+void TimedOff_init(TimedOff *self)
+{
+    self->time = 0;
+    self->pitch = 0;
+    return;
+}
+void TimedOff_clear(TimedOff *self)
+{
+    return;
+}
+void TimedOff_free(TimedOff *self)
+{
+   if (self != NULL) {
+        TimedOff_clear(self);
+        Mem_free(self);
+   }
+}
+TimedOff *TimedOff_new()
+{
+    TimedOff *self = Mem_malloc(sizeof(TimedOff));
+    TimedOff_init(self);
     return self;
 }
 void Track_init(Track *self)
@@ -2730,158 +3008,6 @@ TrackList *TrackList_new()
     TrackList_init(self);
     return self;
 }
-void PortRef_init(PortRef *self)
-{
-    self->port = Port_new();
-    self->outlet = 0;
-    return;
-}
-void PortRef_clear(PortRef *self)
-{
-    Port_free(self->port);
-    return;
-}
-void PortRef_free(PortRef *self)
-{
-   if (self != NULL) {
-        PortRef_clear(self);
-        Mem_free(self);
-   }
-}
-PortRef *PortRef_new()
-{
-    PortRef *self = Mem_malloc(sizeof(PortRef));
-    PortRef_init(self);
-    return self;
-}
-void DropDown_init(DropDown *self)
-{
-    SymbolPtrAr_init(&self->table, 0);
-    self->selected = 0;
-    PortRef_init(&self->portRef);            
-    return;
-}
-void DropDown_clear(DropDown *self)
-{
-    SymbolPtrAr_clear(&self->table);
-    PortRef_clear(&self->portRef);
-    return;
-}
-void DropDown_free(DropDown *self)
-{
-   if (self != NULL) {
-        DropDown_clear(self);
-        Mem_free(self);
-   }
-}
-DropDown *DropDown_new()
-{
-    DropDown *self = Mem_malloc(sizeof(DropDown));
-    DropDown_init(self);
-    return self;
-}
-void Hub_init(Hub *self)
-{
-    self->padList = PadList_new();
-    self->trackList = TrackList_new();
-    self->currBankPort = Port_new();
-    self->currFramePort = Port_new();
-    self->selBankPort = Port_new();
-    self->selFramePort = Port_new();
-    self->selPadPort = Port_new();
-    self->chokeGroupPort = Port_new();
-    DropDown_init(&self->cgLocalGlobalMenu);            
-    DropDown_init(&self->cgInstrumentMenu);            
-    DropDown_init(&self->cgIndexMenu);            
-    self->bank = 0;
-    self->frame = 0;
-    self->grabNextTappedPad = 0;
-    self->selectedPad = 0;
-    Arguments_init(&self->arguments);            
-    DispatchPtAr_init(&self->dispatcher, 0);
-    self->masterClock = 0;
-    return;
-}
-void Hub_clear(Hub *self)
-{
-    PadList_free(self->padList);
-    TrackList_free(self->trackList);
-    Port_free(self->currBankPort);
-    Port_free(self->currFramePort);
-    Port_free(self->selBankPort);
-    Port_free(self->selFramePort);
-    Port_free(self->selPadPort);
-    Port_free(self->chokeGroupPort);
-    DropDown_clear(&self->cgLocalGlobalMenu);
-    DropDown_clear(&self->cgInstrumentMenu);
-    DropDown_clear(&self->cgIndexMenu);
-    Arguments_clear(&self->arguments);
-    DispatchPtAr_clear(&self->dispatcher);
-    return;
-}
-void Hub_free(Hub *self)
-{
-   if (self != NULL) {
-        Hub_clear(self);
-        Mem_free(self);
-   }
-}
-Hub *Hub_new()
-{
-    Hub *self = Mem_malloc(sizeof(Hub));
-    Hub_init(self);
-    return self;
-}
-void PortFindCell_init(PortFindCell *self)
-{
-    self->reciever = Port_new();
-    self->varname = NULL;
-    return;
-}
-void PortFindCell_clear(PortFindCell *self)
-{
-    Port_free(self->reciever);
-    return;
-}
-void PortFindCell_free(PortFindCell *self)
-{
-   if (self != NULL) {
-        PortFindCell_clear(self);
-        Mem_free(self);
-   }
-}
-PortFindCell *PortFindCell_new()
-{
-    PortFindCell *self = Mem_malloc(sizeof(PortFindCell));
-    PortFindCell_init(self);
-    return self;
-}
-void PortFind_init(PortFind *self)
-{
-    PortFindCellAr_init(&self->objects, 0);
-    self->hub = NULL;
-    self->anythingDispatch = 0;
-    self->intDispatch = 0;
-    return;
-}
-void PortFind_clear(PortFind *self)
-{
-    PortFindCellAr_clear(&self->objects);
-    return;
-}
-void PortFind_free(PortFind *self)
-{
-   if (self != NULL) {
-        PortFind_clear(self);
-        Mem_free(self);
-   }
-}
-PortFind *PortFind_new()
-{
-    PortFind *self = Mem_malloc(sizeof(PortFind));
-    PortFind_init(self);
-    return self;
-}
 #define Hub_padsPerFrame           24
 #define Hub_framesPerBank           8
 #define Hub_padsPerBank            (Hub_padsPerFrame*Hub_framesPerBank)
@@ -2896,42 +3022,6 @@ PortFind *PortFind_new()
 #define Hub_relativeSelectedPad(hub) hub_padIndexToRelativePad(Hub_selectedPad(hub))
 
 #define Hub_padIndexFromInNote(hub, inputNote) (Hub_bank(hub)*Hub_padsPerBank + Hub_frame(hub)*Hub_padsPerFrame + (inputNote - Hub_firstMidiNote))
-
-void Marshal_process(Marshal *self, Arguments *a1, long a2, Atom *a3, Error *err)
-{
-    switch(self->itype) {
-        case MarshalSi_itype:
-            MarshalSi_process((MarshalSi*)self, a1, a2, a3, err);
-            return;
-        case MarshalSii_itype:
-            MarshalSii_process((MarshalSii*)self, a1, a2, a3, err);
-            return;
-        case MarshalSs_itype:
-            MarshalSs_process((MarshalSs*)self, a1, a2, a3, err);
-            return;
-       default:
-            Error_format(err, "Failed to resolve interface call in MarshalSs_process: found type %s", Interface_toString(self->itype));
-    }
-    return;
-}
-
-void Marshal_zeroArgs(Marshal *self, Arguments *a1, Error *err)
-{
-    switch(self->itype) {
-        case MarshalSi_itype:
-            MarshalSi_zeroArgs((MarshalSi*)self, a1);
-            return;
-        case MarshalSii_itype:
-            MarshalSii_zeroArgs((MarshalSii*)self, a1);
-            return;
-        case MarshalSs_itype:
-            MarshalSs_zeroArgs((MarshalSs*)self, a1);
-            return;
-       default:
-            Error_format(err, "Failed to resolve interface call in MarshalSs_zeroArgs: found type %s", Interface_toString(self->itype));
-    }
-    return;
-}
 
 void Dispatch_exec(Dispatch *self, Hub *a1, Arguments *a2, Error *err)
 {
@@ -3024,27 +3114,63 @@ void Dispatch_initDispatchPtAr(int itype, DispatchPtAr *a1, Error *err)
     return;
 }
 
+void Marshal_process(Marshal *self, Arguments *a1, long a2, Atom *a3, Error *err)
+{
+    switch(self->itype) {
+        case MarshalSi_itype:
+            MarshalSi_process((MarshalSi*)self, a1, a2, a3, err);
+            return;
+        case MarshalSii_itype:
+            MarshalSii_process((MarshalSii*)self, a1, a2, a3, err);
+            return;
+        case MarshalSs_itype:
+            MarshalSs_process((MarshalSs*)self, a1, a2, a3, err);
+            return;
+       default:
+            Error_format(err, "Failed to resolve interface call in MarshalSs_process: found type %s", Interface_toString(self->itype));
+    }
+    return;
+}
+
+void Marshal_zeroArgs(Marshal *self, Arguments *a1, Error *err)
+{
+    switch(self->itype) {
+        case MarshalSi_itype:
+            MarshalSi_zeroArgs((MarshalSi*)self, a1);
+            return;
+        case MarshalSii_itype:
+            MarshalSii_zeroArgs((MarshalSii*)self, a1);
+            return;
+        case MarshalSs_itype:
+            MarshalSs_zeroArgs((MarshalSs*)self, a1);
+            return;
+       default:
+            Error_format(err, "Failed to resolve interface call in MarshalSs_zeroArgs: found type %s", Interface_toString(self->itype));
+    }
+    return;
+}
+
 const char *Interface_toString(int itype)
 {
     switch(itype) {
         case Undefined_itype:
             return "Undefined";
+        case DecrementFrameDispatch_itype:
+            return "DecrementFrameDispatch";
+        case IncrementFrameDispatch_itype:
+            return "IncrementFrameDispatch";
+        case ManageChokeGroupsDispatch_itype:
+            return "ManageChokeGroupsDispatch";
         case MarshalSi_itype:
             return "MarshalSi";
         case MarshalSii_itype:
             return "MarshalSii";
         case MarshalSs_itype:
             return "MarshalSs";
-        case IncrementFrameDispatch_itype:
-            return "IncrementFrameDispatch";
-        case DecrementFrameDispatch_itype:
-            return "DecrementFrameDispatch";
-        case SelectNextPushedPadDispatch_itype:
-            return "SelectNextPushedPadDispatch";
         case MidiFileDropDispatch_itype:
             return "MidiFileDropDispatch";
-        case ManageChokeGroupsDispatch_itype:
-            return "ManageChokeGroupsDispatch";
+        case SelectNextPushedPadDispatch_itype:
+            return "SelectNextPushedPadDispatch";
     }
     return "Unknown";
 }
@@ -5494,3 +5620,6 @@ APIF void BinFile_verifyTag(BinFile *bf, const char *tag, Error *err) {
 
 
 
+#line 24 "test/for_tarray.in.c"
+
+#line 32 "test/for_tarray.in.c"

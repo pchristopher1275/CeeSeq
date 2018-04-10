@@ -232,6 +232,8 @@ sub main {
     }
     my %opts = (noDoubleCheck => $clineOpts->{f}, runInDebugger=>$clineOpts->{d});
 
+    ## Generate the application
+    run "script/generate.pl -a -g test/application.c src test";
 
     my %spec = collectTagsAndFiles(%opts);
     

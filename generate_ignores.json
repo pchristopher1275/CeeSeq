@@ -1,5 +1,5 @@
 {
    "ignores": {
-       "sequence.in.c": true
+       "sequence.in.c": false
    }
 }

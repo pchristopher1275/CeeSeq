@@ -1575,7 +1575,7 @@ APIF int PortFind_discover(PortFind *pf, MaxObject *sourceMaxObject, void *hub, 
 #endif
 
 #ifdef TEST_BUILD
-APIF PortFind *PortFind_pushPortFindCell(PortFind *self, PortFindCell cell)
+APIF void PortFind_pushPortFindCell(PortFind *self, PortFindCell cell)
 {
     PortFindCellAr_push(&self->objects, cell);
 }
@@ -1583,7 +1583,7 @@ APIF PortFind *PortFind_pushPortFindCell(PortFind *self, PortFindCell cell)
 
 APIF Port *PortFind_findByVarname(PortFind *pf, Symbol *symbol)
 {
-    PortFindCellAr_foreach(it, &pf->objects){
+    PortFindCellAr_foreach(it, &pf->objects) {
         if (it.var->varname == symbol) {
             return it.var->reciever;
         }
@@ -1632,10 +1632,7 @@ APIF Port *PortFind_findByIndex(PortFind *pf, int index, Error *err)
 
 APIF Outlet *PortFind_createOutlet(PortFind *self, OutletSpecifier *spec) 
 {
-    Port *port = Port_null;
-    if (self->portFind != NULL) {
-        port = PortFind_findByTrack(self, spec->track);
-    }
+    Port *port = PortFind_findByTrack(self, spec->track);
 
     if (spec->parameter == Symbol_gen("*note")) {
         NoteOutlet *outlet = NoteOutlet_newBuild(port);
