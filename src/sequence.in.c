@@ -466,7 +466,8 @@ APIF int NoteEvent_cmp(NoteEvent *left, NoteEvent *right)
         },
         {  
             "name":"recordingSeq",
-            "type":"NoteSequence *"
+            "type":"NoteSequence *",
+            "lifecycle": "unmanaged"
         },
         {  
             "name":"offs",
@@ -772,7 +773,8 @@ APIF int FloatEvent_cmp(FloatEvent *left, FloatEvent *right)
         },
         {  
             "name":"recordingSeq",
-            "type":"FloatSequence *"
+            "type":"FloatSequence *",
+            "lifecycle": "unmanaged"
         },
         {  
             "name":"events",
@@ -1011,7 +1013,7 @@ APIF void FloatSequence_makeConsistent(FloatSequence *self)
             "type": "array", 
             "typeName": "SequenceAr", 
             "elemName": "Sequence *",
-            "clearer": "Sequence_free",
+            "clearer": "Sequence_freePpErrless",
             "binarySearch": [
                 {"compare": "Sequence_cmpPp"},
                 {"compare": "Sequence_cmpPointerPp", "tag": "Pointer"}
@@ -1020,6 +1022,13 @@ APIF void FloatSequence_makeConsistent(FloatSequence *self)
     ]
 }
 @end
+
+APIF void Sequence_freePpErrless(Sequence **s)
+{
+    Error_declare(err);
+    Sequence_free(*s, err);
+    Error_maypost(err);
+}
 
 APIF int Sequence_cmp(Sequence *leftSeq, Sequence *rightSeq) {
     Error_declare(err);

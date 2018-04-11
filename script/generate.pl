@@ -115,7 +115,8 @@ ENDxxxxxxxxxx
 		symbol => '',
 		tmpl   => <<'ENDxxxxxxxxxx', 
 			@static inline ${TYPENAME} *${TYPENAME}_new(int nelems) {
-			@	return (${TYPENAME}*)Array_new(nelems, sizeof(${ELEMNAME_NS}), (Array_clearElement)${CLEARER});
+			@	void (*clearer)(${ELEMNAME}*) = ${CLEARER};
+			@	return (${TYPENAME}*)Array_new(nelems, sizeof(${ELEMNAME_NS}), (Array_clearElement)clearer);
 			@}
 ENDxxxxxxxxxx
 	},
@@ -125,7 +126,8 @@ ENDxxxxxxxxxx
 		symbol => '',
 		tmpl   => <<'ENDxxxxxxxxxx', 
 			@static inline void ${TYPENAME}_init(${TYPENAME} *arr, int nelems) {
-			@	Array_init((Array*)arr, nelems, sizeof(${ELEMNAME_NS}), (Array_clearElement)${CLEARER});
+			@   void (*clearer)(${ELEMNAME}*) = ${CLEARER};
+			@	Array_init((Array*)arr, nelems, sizeof(${ELEMNAME_NS}), (Array_clearElement)clearer);
 			@}
 ENDxxxxxxxxxx
 	},
@@ -1276,7 +1278,7 @@ sub ClassArtifact_emitLifecyle {
 			my $isInterface = $isKnown ? $artifactMap->{$typeName}{itype} eq 'Interface' : 0;
 			my $isPointer   = ($type =~ /\*/);
 			my $isString    = $typeName eq 'String';
-			my $isUnmanaged = defined($self->{lifecycle}) && $self->{lifecycle} eq 'unmanaged' ? 1 : 0;
+			my $isUnmanaged = defined($field->{lifecycle}) && $field->{lifecycle} eq 'unmanaged' ? 1 : 0;
 			my $dict        = {FIELDTYPE=>$typeName, FIELDNAME=>$name, TYPENAME=>$self->{typeName}};
 			
 			if ($isItype) {

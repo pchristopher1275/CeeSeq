@@ -93,15 +93,16 @@ int Array_len(Array *arr) {
 }
 
 void Array_mayGrow(Array *arr, int increment) {
-   if (arr->len + increment >= arr->cap) {
-      int requiredBytes = (arr->len + increment)*arr->elemSize;
-      int dblCurrBytes  = 2*arr->cap*arr->elemSize;
-      int szBytes       = dblCurrBytes >= requiredBytes ? dblCurrBytes : requiredBytes;
-      int oldCap        = arr->cap;
-      arr->cap          = szBytes/arr->elemSize;
-      arr->data         = (char*)Mem_realloc(arr->data, szBytes);
-      memset(arr->data + oldCap*arr->elemSize, 0, (arr->cap-oldCap)*arr->elemSize);
-   }
+
+    if (arr->len + increment >= arr->cap) {
+        int requiredBytes = (arr->len + increment)*arr->elemSize;
+        int dblCurrBytes  = 2*arr->cap*arr->elemSize;
+        int szBytes       = dblCurrBytes >= requiredBytes ? dblCurrBytes : requiredBytes;
+        int oldCap        = arr->cap;
+        arr->cap          = szBytes/arr->elemSize;
+        arr->data         = (char*)Mem_realloc(arr->data, szBytes);
+        memset(arr->data + oldCap*arr->elemSize, 0, (arr->cap-oldCap)*arr->elemSize);
+    }
 }
 
 #define Array_at(arr, index) ((arr)->data + index*(arr)->elemSize)
@@ -426,9 +427,9 @@ char *Array_binSearch(Array *arr, char *elem, Array_compare comparer, ArrayFIt *
 
 #define PQ_LESS(i, j) ((comparer(arr->data + arr->elemSize*i, arr->data + arr->elemSize*j)) < 0)
 #define PQ_SWAP(i, j) do {\
-   memmove(arr->data + arr->elemSize*arr->len, arr->data + arr->elemSize*i,        arr->elemSize);\
-   memmove(arr->data + arr->elemSize*i,        arr->data + arr->elemSize*j,        arr->elemSize);\
-   memmove(arr->data + arr->elemSize*j,        arr->data + arr->elemSize*arr->len, arr->elemSize);\
+    memmove(arr->data + arr->elemSize*arr->len, arr->data + arr->elemSize*i,        arr->elemSize);\
+    memmove(arr->data + arr->elemSize*i,        arr->data + arr->elemSize*j,        arr->elemSize);\
+    memmove(arr->data + arr->elemSize*j,        arr->data + arr->elemSize*arr->len, arr->elemSize);\
 } while (0)
 
 
@@ -480,25 +481,25 @@ func down(h Interface, i0, n int) bool {
 }
 */
 bool Array_pqDown(Array *arr, int i0, int n, int (*comparer)(const char *, const char *)) {
-   Array_mayGrow(arr, 1);
-   int i = i0;
-   for (;;) {
-      int j1 = 2*i + 1; // left child
-      if (j1 >= n || j1 < 0) { // j1 < 0 after int overflow
-         break; 
-      }
-      int j = j1; 
-      int j2 = j1 + 1; // right child
-      if (j2 < n && PQ_LESS(j2, j1)) {
-         j = j2;
-      }
-      if (PQ_LESS(j, i)) {
-         break;
-      }
-      PQ_SWAP(i, j);
-      i = j;
-   }
-   return i > i0;
+    Array_mayGrow(arr, 1);
+    int i = i0;
+    for (;;) {
+        int j1 = 2*i + 1; // left child
+        if (j1 >= n || j1 < 0) { // j1 < 0 after int overflow
+            break; 
+        }
+        int j = j1; 
+        int j2 = j1 + 1; // right child
+        if (j2 < n && PQ_LESS(j2, j1)) {
+            j = j2;
+        }
+        if (!PQ_LESS(j, i)) {
+            break;
+        }
+        PQ_SWAP(i, j);
+        i = j;
+    }
+    return i > i0;
 }
 
 /*
@@ -513,10 +514,10 @@ func Init(h Interface) {
 
 void Array_pqSort(Array *arr, int (*comparer)(const char *, const char*)) 
 {
-   int n = Array_len(arr);
-   for (int i = n/2-1; i >= 0; i--) {
-      Array_pqDown(arr, i, n, comparer);
-   }
+    int n = Array_len(arr);
+    for (int i = n/2-1; i >= 0; i--) {
+        Array_pqDown(arr, i, n, comparer);
+    }
 }
 
 /*
