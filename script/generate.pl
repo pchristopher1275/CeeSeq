@@ -2212,6 +2212,11 @@ sub Main_main {
 	$gMasterSourceDir =~ s[/$][];
 	my @extraCallFiles = ("$gMasterSourceDir/shared.c", "$gMasterSourceDir/hub.c", "$gMasterSourceDir/port.c",);
 	Called_scan($called, [@extraCallFiles, @templateFiles]);
+	
+	## For now I accept everything. This is because when I have interface methods that rely on method accessors, the method
+	## accessors may note be generated. We need to search for interface methods that rely on method accessors, and add those
+	## accessors to the Called_is list.
+	$gAcceptAllCalls = 1;
 	if ($gAcceptAllCalls) {
 		Called_setAllUsed($called);
 	}

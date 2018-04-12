@@ -43,7 +43,8 @@ APIF void NoteOutlet_sendNote(NoteOutlet *self, uint8_t pitch, uint8_t velocity)
 #   ifdef TEST_BUILD
     NoteOutlet_dbRecordEvent(pitch, velocity);
 #   endif
-    
+
+    AtomAr_changeLength(&self->atoms, 4);
     Atom *av = self->atoms.data;
     av[0] = Atom_fromSymbol(Symbol_gen("midievent"));
     av[1] = Atom_fromInteger(NOTEON_COMMAND);
@@ -105,13 +106,14 @@ APIF void CcOutlet_sendFloat(CcOutlet *self, double value)
     FloatEventAr_push(CcOutlet_dbSent, e);
 #   else
     int v = (int)value;
-    Atom *av = self->atoms;
+    AtomAr_changeLength(&self->atoms, 4);
+    Atom *av = self->atoms.data;
     av[0] = Atom_fromSymbol(Symbol_gen("midievent"));
     av[1] = Atom_fromInteger(CC_COMMAND);
     av[2] = Atom_fromInteger(self->cc);
     av[3] = Atom_fromInteger(v);
     Error_declare(err);
-    PortRef_send(ref, 0, 4, av, err);
+    Port_send(self->port, 0, 4, av, err);
     Error_maypost(err);   
 #   endif
 }
@@ -165,13 +167,14 @@ APIF void BendOutlet_sendFloat(BendOutlet *self, double value)
     int v = (int)value;
     int lsb = v & 0x7F;
     int msb = (v >> 7) & 0x7F;
-    Atom *av = self->atoms;
+    AtomAr_changeLength(&self->atoms, 4);
+    Atom *av = self->atoms.data;
     av[0] = Atom_fromSymbol(Symbol_gen("midievent"));
     av[1] = Atom_fromInteger(BEND_COMMAND);
     av[2] = Atom_fromInteger(msb);
     av[3] = Atom_fromInteger(lsb);
     Error_declare(err);
-    PortRef_send(ref, 0, 4, av, err);
+    Port_send(self->port, 0, 4, av, err);
     Error_maypost(err);   
 #   endif
 }

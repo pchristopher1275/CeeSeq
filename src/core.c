@@ -198,19 +198,22 @@ typedef struct Error_t
     String *message;
 } Error;
 
-#ifdef TEST_BUILD
-#  define Error_post(first, ...) dblog(first, __VA_ARGS__) 
+#ifndef TEST_BUILD
+#define Error_post(first, ...) dblog(first, __VA_ARGS__) 
 #else
+
 static inline void Error_postImpl(String *s)
 {
     printf("ERROR: %s\n", s);
     String_free(s);
 }
+
 #define Error_post(first, ...) do {\
     String *s = String_fmt(first, __VA_ARGS__);\
     printf("ERROR: %s\n", s);\
     String_free(s);\
 while (0)
+
 #endif
 
 
