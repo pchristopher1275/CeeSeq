@@ -86,6 +86,15 @@ void Symbol_freeAll()
    }
 @end
 
+@container    
+   {       
+       "type": "array",
+       "typeName": "AtomArAr", 
+       "elemName": "AtomAr",
+       "clearer": "AtomAr_clear"
+   }
+@end
+
 @type
 {
    "typeName": "Port",
@@ -116,6 +125,7 @@ Port Port_nullImpl =
 
 #define Port_null (&Port_nullImpl)
 
+
 APIF Port *Port_new() 
 {
     return Port_null;
@@ -125,6 +135,7 @@ APIF void Port_init(Port *p)
     *p = Port_nullImpl;
 }
 
+#ifndef TEST_BUILD
 APIF void Port_free(Port *p)
 {
 }
@@ -132,7 +143,7 @@ APIF void Port_free(Port *p)
 APIF void Port_clear(Port *p)
 {
 }
-
+#endif
 
 // Will parse id's of the form ev\d+ and return the \d+ number. Returns -1 otherwise
 APIF int port_parseEvSymbol(Symbol *id)
@@ -157,12 +168,24 @@ APIF void Port_send(Port *self, int outletIndex, short argc, Atom *argv, Error *
     if (self == Port_null) {
         return;
     }
-#   ifndef TEST_BUILD
+
     Symbol *selector = Atom_toSymbol(argv + 0);
     void *out = PtrAr_get(&self->outlet, outletIndex, err);
     Error_returnVoidOnError(err);
+#ifndef TEST_BUILD
     outlet_anything(out, selector, argc-1, argv+1);  
-#   endif 
+#else
+    AtomArAr *arr = self->obj.utilityPointer;
+    if (arr != NULL) {
+        AtomAr subAr;
+        AtomAr_init(&subAr, 0);
+        for (int i = 0; i < argc; i++){
+            AtomAr_push(&subAr, argv[i]);
+        }
+        AtomArAr_push(arr, subAr);
+        // Explicitly DO NOT deallocate subAr
+    }
+#endif
 }
 
 APIF void Port_sendInteger(Port *self, int outlet, long value) 
@@ -170,14 +193,24 @@ APIF void Port_sendInteger(Port *self, int outlet, long value)
     if (self == Port_null) {
         return;
     }
-#   ifndef TEST_BUILD
+
     Error_declare(err);
     void *out = PtrAr_get(&self->outlet, outlet, err);
     if (Error_maypost(err)) {
         return;
+    } 
+#ifndef TEST_BUILD
+    outlet_int(out, value);  
+#else
+    AtomArAr *arr = self->obj.utilityPointer;
+    if (arr != NULL) {
+        AtomAr subAr;
+        AtomAr_init(&subAr, 0);
+        AtomAr_push(&subAr, Atom_fromInteger(value));
+        AtomArAr_push(arr, subAr);
+        // Explicitly DO NOT deallocate subAr
     }
-    outlet_int(out, value);   
-#   endif
+#endif
 }
 
 @container    
@@ -1571,13 +1604,6 @@ APIF long PortFind_iterator(PortFind *pf, MaxObject *targetBox)
 APIF int PortFind_discover(PortFind *pf, MaxObject *sourceMaxObject, void *hub, Error *err)
 {
     return 0;
-}
-#endif
-
-#ifdef TEST_BUILD
-APIF void PortFind_pushPortFindCell(PortFind *self, PortFindCell cell)
-{
-    PortFindCellAr_push(&self->objects, cell);
 }
 #endif
 

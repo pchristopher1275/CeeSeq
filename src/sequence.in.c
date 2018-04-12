@@ -37,26 +37,13 @@
 // This is the decimal representation of binary 10010000
 #define NOTEON_COMMAND 144
 
-#ifdef TEST_BUILD
-Ticks Ticks_dbCurrent = 0;
-NoteEventAr *NoteOutlet_dbSent = NULL;
-APIF void NoteOutlet_dbRewindSent() 
-{
-    if (NoteOutlet_dbSent != NULL) {
-        NoteEventAr_truncate(NoteOutlet_dbSent);    
-    }
-}
-#endif
 
 APIF void NoteOutlet_sendNote(NoteOutlet *self, uint8_t pitch, uint8_t velocity)
 {
 #   ifdef TEST_BUILD
-    if (NoteOutlet_dbSent == NULL) {
-        NoteOutlet_dbSent = NoteEventAr_new(0);
-    }
-    NoteEvent e = {.pitch = pitch, .velocity = velocity, .stime = Ticks_dbCurrent, .duration = 0};
-    NoteEventAr_push(NoteOutlet_dbSent, e);
-#   else
+    NoteOutlet_dbRecordEvent(pitch, velocity);
+#   endif
+    
     Atom *av = self->atoms.data;
     av[0] = Atom_fromSymbol(Symbol_gen("midievent"));
     av[1] = Atom_fromInteger(NOTEON_COMMAND);
@@ -65,7 +52,6 @@ APIF void NoteOutlet_sendNote(NoteOutlet *self, uint8_t pitch, uint8_t velocity)
     Error_declare(err);
     Port_send(self->port, 0, 4, av, err);
     Error_maypost(err);
-#   endif
 }
 
 APIF NoteOutlet *NoteOutlet_newBuild(Port *port)
@@ -498,6 +484,10 @@ APIF NoteSequence *NoteSequence_newFromEvents(Symbol *track, PortFind *portFind,
         NoteEventAr_push(&self->events, argv[i]);
     }
     NoteSequence_makeConsistent(self);
+    NoteEventAr_rforeach(it, &self->events) {
+        self->sequenceLength = it.var->stime;
+        break;
+    }
     return self;
 }
 

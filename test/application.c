@@ -1,17 +1,19 @@
-// *** DO NOT MODIFY THIS FILE generated 04/11/2018 14:20:11 ***
-// *** DO NOT MODIFY THIS FILE generated 04/11/2018 14:20:11 ***
-// *** DO NOT MODIFY THIS FILE generated 04/11/2018 14:20:11 ***
-// *** DO NOT MODIFY THIS FILE generated 04/11/2018 14:20:11 ***
-// *** DO NOT MODIFY THIS FILE generated 04/11/2018 14:20:11 ***
-// *** DO NOT MODIFY THIS FILE generated 04/11/2018 14:20:11 ***
-// *** DO NOT MODIFY THIS FILE generated 04/11/2018 14:20:11 ***
-// *** DO NOT MODIFY THIS FILE generated 04/11/2018 14:20:11 ***
-// *** DO NOT MODIFY THIS FILE generated 04/11/2018 14:20:11 ***
-// *** DO NOT MODIFY THIS FILE generated 04/11/2018 14:20:11 ***
+// *** DO NOT MODIFY THIS FILE generated 04/11/2018 16:42:56 ***
+// *** DO NOT MODIFY THIS FILE generated 04/11/2018 16:42:56 ***
+// *** DO NOT MODIFY THIS FILE generated 04/11/2018 16:42:56 ***
+// *** DO NOT MODIFY THIS FILE generated 04/11/2018 16:42:56 ***
+// *** DO NOT MODIFY THIS FILE generated 04/11/2018 16:42:56 ***
+// *** DO NOT MODIFY THIS FILE generated 04/11/2018 16:42:56 ***
+// *** DO NOT MODIFY THIS FILE generated 04/11/2018 16:42:56 ***
+// *** DO NOT MODIFY THIS FILE generated 04/11/2018 16:42:56 ***
+// *** DO NOT MODIFY THIS FILE generated 04/11/2018 16:42:56 ***
+// *** DO NOT MODIFY THIS FILE generated 04/11/2018 16:42:56 ***
 struct Arguments_t;
 typedef struct Arguments_t Arguments;
 struct AtomAr_t;
 typedef struct AtomAr_t AtomAr;
+struct AtomArAr_t;
+typedef struct AtomArAr_t AtomArAr;
 struct BendOutlet_t;
 typedef struct BendOutlet_t BendOutlet;
 struct BinFile_t;
@@ -1356,14 +1358,6 @@ struct IncrementFrameDispatch_t
 {
     int itype;
 };
-struct Arguments_t
-{
-    Symbol *s1;
-    long i1;
-    long i2;
-    long ivalue;
-    long inlet;
-};
 typedef struct DispatchPtAr_t {
    int len;
    int cap;
@@ -1390,6 +1384,14 @@ typedef struct DispatchPtArRIt_t {
    Dispatch **var;
 } DispatchPtArRIt;
 
+struct Arguments_t
+{
+    Symbol *s1;
+    long i1;
+    long i2;
+    long ivalue;
+    long inlet;
+};
 struct DropDown_t
 {
     SymbolPtrAr table;
@@ -1531,6 +1533,32 @@ struct BendOutlet_t
     AtomAr atoms;
     Port *port;
 };
+typedef struct AtomArAr_t {
+   int len;
+   int cap;
+   int elemSize;
+   void (*clearer)(AtomAr*);
+   AtomAr *data;
+} AtomArAr;
+
+typedef struct AtomArArFIt_t {
+   AtomArAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   AtomAr *var;
+} AtomArArFIt;
+
+typedef struct AtomArArRIt_t {
+   AtomArAr *arr;
+   int lBound;
+   int uBound;
+
+   int index;
+   AtomAr *var;
+} AtomArArRIt;
+
 const char *Interface_toString(int itype);
 void MarshalSi_process(MarshalSi *self, Arguments *args, long argc, Atom *argv, Error *err);
 void MarshalSi_zeroArgs(MarshalSi *self, Arguments *args);
@@ -1597,7 +1625,6 @@ long PortFind_iterator(PortFind *pf, MaxObject *targetBox);
 int PortFind_discover(PortFind *pf, MaxObject *sourceMaxObject, void *hub, Error *err);
 long PortFind_iterator(PortFind *pf, MaxObject *targetBox);
 int PortFind_discover(PortFind *pf, MaxObject *sourceMaxObject, void *hub, Error *err);
-void PortFind_pushPortFindCell(PortFind *self, PortFindCell cell);
 Port *PortFind_findByVarname(PortFind *pf, Symbol *symbol);
 Port *PortFind_findByTrack(PortFind *pf, Symbol *symbol);
 Port *PortFind_findById(PortFind *pf, Symbol *symbol);
@@ -1719,6 +1746,11 @@ void Frontend_stop(Hub *hub);
 void Foo_recorder(Foo *self);
 int Foo_cmp(Foo *left, Foo *right);
 int Foo_cmpBoth(Foo *left, Foo *right);
+Port *Port_newTrackId(Symbol *track, Symbol *id);
+void Port_free(Port *self);
+PortFind *PortFind_newFromTable(int argc, PortFindCell *cells);
+PortFind *PortFind_createStandardSpoof();
+void PortFind_userClear(PortFind *self);
 void Arguments_clear(Arguments *self);
 void Arguments_free(Arguments *self);
 void Arguments_init(Arguments *self);
@@ -2062,6 +2094,153 @@ static inline bool AtomArRIt_next(AtomArRIt *iterator) {
 }
 
 static inline bool AtomArRIt_remove(AtomArRIt *iterator) {
+    return ArrayRIt_remove((ArrayRIt*)iterator);
+}
+
+static inline void AtomArAr_changeLength(AtomArAr *arr, int newLength) {
+    Array_changeLength((Array*)arr, newLength);
+}                        
+
+static inline void AtomArAr_clear(AtomArAr *arr) {
+    Array_clear((Array*)arr);
+    AtomArAr zero = {0};
+    *arr = zero;
+}
+
+#define AtomArAr_each(it, arr) for (AtomAr* it = arr->data; it < arr->data + arr->len; it++)
+
+static inline void AtomArAr_fit(AtomArAr *arr) {
+    Array_fit((Array*)arr);
+}
+
+#define AtomArAr_foreach(var, arr)                for (AtomArArFIt_declare(var, arr, 0); AtomArArFIt_next(&var); )
+#define AtomArAr_foreachOffset(var, arr, offset)  for (AtomArArFIt_declare(var, arr, offset); AtomArArFIt_next(&var); )            
+
+static inline void AtomArAr_free(AtomArAr *arr) {
+    Array_free((Array*)arr);
+}
+
+static inline AtomAr AtomArAr_get(AtomArAr *arr, int index, Error *err) {
+    AtomAr v = {0};
+    Array_getCheck(arr, index, v, err);
+    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
+    return v;
+}
+
+static inline AtomAr *AtomArAr_getp(AtomArAr *arr, int index, Error *err) {
+    Array_getCheck(arr, index, NULL, err);
+    return (AtomAr *)Array_get((Array*)arr, index);
+}
+
+static inline void AtomArAr_init(AtomArAr *arr, int nelems) {
+   void (*clearer)(AtomAr *) = AtomAr_clear;
+    Array_init((Array*)arr, nelems, sizeof(AtomAr), (Array_clearElement)clearer);
+}
+
+static inline void AtomArAr_insert(AtomArAr *arr, int index, AtomAr elem, Error *err) {
+    Array_insertNCheck(arr, index, 1, err);
+    AtomAr *p = (AtomAr *)Array_insertN((Array*)arr, index, 1);
+    *p = elem;
+}
+
+static inline void AtomArAr_insertp(AtomArAr *arr, int index, AtomAr *elem, Error *err) {
+    Array_insertNCheck(arr, index, 1, err);
+    AtomAr *p = (AtomAr *)Array_insertN((Array*)arr, index, 1);
+    *p = *elem;
+}            
+
+static inline int AtomArAr_last(AtomArAr *arr) {
+    return Array_len((Array*)arr)-1;
+}            
+
+static inline int AtomArAr_len(AtomArAr *arr) {
+    return Array_len((Array*)arr);
+}
+
+#define AtomArAr_loop(var) while (AtomArArFIt_next(&var)) 
+
+static inline AtomArAr *AtomArAr_new(int nelems) {
+    void (*clearer)(AtomAr *) = AtomAr_clear;
+    return (AtomArAr*)Array_new(nelems, sizeof(AtomAr), (Array_clearElement)clearer);
+}
+
+static inline void AtomArAr_pop(AtomArAr *arr, Error *err) {
+    Array_popNCheck(arr, 1, err);
+    Array_popN((Array*)arr, 1);
+}
+
+static inline void AtomArAr_push(AtomArAr *arr, AtomAr elem) {
+    AtomAr *p = (AtomAr *)Array_pushN((Array*)arr, 1);
+    *p = elem;
+    return; 
+}            
+
+static inline void AtomArAr_pushp(AtomArAr *arr, AtomAr *elem) {
+    AtomAr *p = (AtomAr *)Array_pushN((Array*)arr, 1);
+    *p = *elem;
+    return; 
+}
+
+#define AtomArAr_reach(it, arr) for (AtomAr* it = arr->data+arr->len-1; it >= arr->data; it--)
+
+static inline void AtomArAr_remove(AtomArAr *arr, int index, Error *err) {
+    Array_removeNCheck(arr, index, 1, err);
+    Array_removeN((Array*)arr, index, 1);
+}    
+
+static inline void AtomArAr_removeN(AtomArAr *arr, int index, int N, Error *err) {
+    Array_removeNCheck(arr, index, N, err);
+    Array_removeN((Array*)arr, index, N);
+}
+
+#define AtomArAr_rforeach(var, arr)                for (AtomArArRIt_declare(var, arr, 0); AtomArArRIt_next(&var); )
+#define AtomArAr_rforeachOffset(var, arr, offset)  for (AtomArArRIt_declare(var, arr, offset); AtomArArRIt_next(&var); )
+
+#define AtomArAr_rloop(var) while (AtomArArRIt_next(&var))             
+
+static inline void AtomArAr_set(AtomArAr *arr, int index, AtomAr elem, Error *err) {
+    Array_setCheck(arr, index, err);
+    Array_set((Array*)arr, index, (char*)&elem);
+}
+
+static inline void AtomArAr_setp(AtomArAr *arr, int index, AtomAr *elem, Error *err) {
+    Array_setCheck(arr, index, err);
+    Array_set((Array*)arr, index, (char*)elem);
+}
+
+static inline void AtomArAr_truncate(AtomArAr *arr) {
+    Array_truncate((Array*)arr);
+}
+
+static inline bool AtomArArFIt_atEnd(AtomArArFIt *iterator) {
+    return iterator->index+1 >= iterator->uBound;
+}
+
+#define AtomArArFIt_declare(var, arr, offset)  AtomArArFIt var = {arr, 0, (arr)->len, offset-1, NULL}
+
+#define AtomArArFIt_declare0(var)  AtomArArFIt var = {0}
+
+static inline bool AtomArArFIt_next(AtomArArFIt *iterator) {
+    return ArrayFIt_next((ArrayFIt*)iterator);
+}
+
+static inline bool AtomArArFIt_remove(AtomArArFIt *iterator) {
+    return ArrayFIt_remove((ArrayFIt*)iterator);
+}
+
+static inline bool AtomArArRIt_atEnd(AtomArArRIt *iterator) {
+    return iterator->index-1 < iterator->lBound;
+}
+
+#define AtomArArRIt_declare(var, arr, offset)  AtomArArRIt var = {arr, 0, (arr)->len, (arr)->len-offset, NULL}
+
+#define AtomArArRIt_declare0(var)  AtomArArRIt var = {0}
+
+static inline bool AtomArArRIt_next(AtomArArRIt *iterator) {
+    return ArrayRIt_next((ArrayRIt*)iterator);
+}
+
+static inline bool AtomArArRIt_remove(AtomArArRIt *iterator) {
     return ArrayRIt_remove((ArrayRIt*)iterator);
 }
 
@@ -6580,6 +6759,7 @@ void PortFind_init(PortFind *self)
 }
 void PortFind_clear(PortFind *self)
 {
+    PortFind_userClear(self);
     PortFindCellAr_clear(&self->objects);
     return;
 }
@@ -7471,7 +7651,9 @@ void Symbol_freeAll()
 
 #line 88 "src/midiseq.in.c"
 
-#line 108 "src/midiseq.in.c"
+#line 97 "src/midiseq.in.c"
+
+#line 117 "src/midiseq.in.c"
 
 
 Port Port_nullImpl =
@@ -7483,6 +7665,7 @@ Port Port_nullImpl =
 
 #define Port_null (&Port_nullImpl)
 
+
 APIF Port *Port_new() 
 {
     return Port_null;
@@ -7492,6 +7675,7 @@ APIF void Port_init(Port *p)
     *p = Port_nullImpl;
 }
 
+#ifndef TEST_BUILD
 APIF void Port_free(Port *p)
 {
 }
@@ -7499,7 +7683,7 @@ APIF void Port_free(Port *p)
 APIF void Port_clear(Port *p)
 {
 }
-
+#endif
 
 // Will parse id's of the form ev\d+ and return the \d+ number. Returns -1 otherwise
 APIF int port_parseEvSymbol(Symbol *id)
@@ -7524,12 +7708,24 @@ APIF void Port_send(Port *self, int outletIndex, short argc, Atom *argv, Error *
     if (self == Port_null) {
         return;
     }
-#   ifndef TEST_BUILD
+
     Symbol *selector = Atom_toSymbol(argv + 0);
     void *out = PtrAr_get(&self->outlet, outletIndex, err);
     Error_returnVoidOnError(err);
+#ifndef TEST_BUILD
     outlet_anything(out, selector, argc-1, argv+1);  
-#   endif 
+#else
+    AtomArAr *arr = self->obj.utilityPointer;
+    if (arr != NULL) {
+        AtomAr subAr;
+        AtomAr_init(&subAr, 0);
+        for (int i = 0; i < argc; i++){
+            AtomAr_push(&subAr, argv[i]);
+        }
+        AtomArAr_push(arr, subAr);
+        // Explicitly DO NOT deallocate subAr
+    }
+#endif
 }
 
 APIF void Port_sendInteger(Port *self, int outlet, long value) 
@@ -7537,29 +7733,39 @@ APIF void Port_sendInteger(Port *self, int outlet, long value)
     if (self == Port_null) {
         return;
     }
-#   ifndef TEST_BUILD
+
     Error_declare(err);
     void *out = PtrAr_get(&self->outlet, outlet, err);
     if (Error_maypost(err)) {
         return;
+    } 
+#ifndef TEST_BUILD
+    outlet_int(out, value);  
+#else
+    AtomArAr *arr = self->obj.utilityPointer;
+    if (arr != NULL) {
+        AtomAr subAr;
+        AtomAr_init(&subAr, 0);
+        AtomAr_push(&subAr, Atom_fromInteger(value));
+        AtomArAr_push(arr, subAr);
+        // Explicitly DO NOT deallocate subAr
     }
-    outlet_int(out, value);   
-#   endif
+#endif
 }
 
-#line 190 "src/midiseq.in.c"
+#line 223 "src/midiseq.in.c"
 
-#line 198 "src/midiseq.in.c"
+#line 231 "src/midiseq.in.c"
 
-#line 206 "src/midiseq.in.c"
+#line 239 "src/midiseq.in.c"
 
-#line 214 "src/midiseq.in.c"
+#line 247 "src/midiseq.in.c"
 
 
 
-#line 230 "src/midiseq.in.c"
+#line 263 "src/midiseq.in.c"
 
-#line 260 "src/midiseq.in.c"
+#line 293 "src/midiseq.in.c"
 #define BinFile_nullLengthFieldSizeStr "11"
 #define BinFile_maxLength              2147483647
 #define BinFileFlag_tag                1
@@ -7575,27 +7781,27 @@ const int Midiseq_cctype     = 3;
 const int Midiseq_cycletype  = 4;
 const int Midiseq_endgrptype = 5;
 
-#line 307 "src/midiseq.in.c"
+#line 340 "src/midiseq.in.c"
 
 
-#line 373 "src/midiseq.in.c"
+#line 406 "src/midiseq.in.c"
 
 
-#line 401 "src/midiseq.in.c"
+#line 434 "src/midiseq.in.c"
 
-#line 428 "src/midiseq.in.c"
+#line 461 "src/midiseq.in.c"
 
-#line 452 "src/midiseq.in.c"
-
-
-#line 473 "src/midiseq.in.c"
-
-#line 498 "src/midiseq.in.c"
+#line 485 "src/midiseq.in.c"
 
 
-#line 513 "src/midiseq.in.c"
+#line 506 "src/midiseq.in.c"
 
-#line 530 "src/midiseq.in.c"
+#line 531 "src/midiseq.in.c"
+
+
+#line 546 "src/midiseq.in.c"
+
+#line 563 "src/midiseq.in.c"
 
 #define PortRef_declare(name, port, outlet)    PortRef _##name = {port, outlet}; PortRef *name = &_##name
 static inline void PortRef_set(PortRef *pr, Port *port, int outlet) {
@@ -7628,7 +7834,7 @@ APIF int PortRef_cmp(PortRef *left, PortRef *right)
 
 
 
-#line 586 "src/midiseq.in.c"
+#line 619 "src/midiseq.in.c"
 
 static inline PortRef *DropDown_portRef(DropDown *dd) {
     return &dd->portRef;
@@ -7740,9 +7946,9 @@ APIF void DropDown_initializeMenu(DropDown *dd, Error *err) {
         Error_returnVoidOnError(err);        
     }
 }
-#line 809 "src/midiseq.in.c"
+#line 842 "src/midiseq.in.c"
 
-#line 827 "src/midiseq.in.c"
+#line 860 "src/midiseq.in.c"
 
 //
 // Memory allocation Notes. These are the functions that are used in sdsalloc.h
@@ -8384,9 +8590,9 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
 //
 // P A T C H E R    F I N D
 //
-#line 1490 "src/midiseq.in.c"
+#line 1523 "src/midiseq.in.c"
 
-#line 1514 "src/midiseq.in.c"
+#line 1547 "src/midiseq.in.c"
 
 #define PortFind_declare(name) PortFind _##name; PortFind *name = &_##name; memset(name, 0, sizeof(PortFind)); PortFind_init(name)        
 
@@ -8447,13 +8653,6 @@ APIF long PortFind_iterator(PortFind *pf, MaxObject *targetBox)
 APIF int PortFind_discover(PortFind *pf, MaxObject *sourceMaxObject, void *hub, Error *err)
 {
     return 0;
-}
-#endif
-
-#ifdef TEST_BUILD
-APIF void PortFind_pushPortFindCell(PortFind *self, PortFindCell cell)
-{
-    PortFindCellAr_push(&self->objects, cell);
 }
 #endif
 
@@ -9857,6 +10056,10 @@ APIF NoteSequence *NoteSequence_newFromEvents(Symbol *track, PortFind *portFind,
         NoteEventAr_push(&self->events, argv[i]);
     }
     NoteSequence_makeConsistent(self);
+    NoteEventAr_rforeach(it, &self->events) {
+        self->sequenceLength = it.var->stime;
+        break;
+    }
     return self;
 }
 
@@ -10063,7 +10266,7 @@ APIF void NoteSequence_makeConsistent(NoteSequence *self)
     }
 }
 
-#line 727 "src/sequence.in.c"
+#line 731 "src/sequence.in.c"
 
 APIF int FloatEvent_cmp(FloatEvent *left, FloatEvent *right)
 {
@@ -10075,7 +10278,7 @@ APIF int FloatEvent_cmp(FloatEvent *left, FloatEvent *right)
     return 0;
 }
 
-#line 791 "src/sequence.in.c"
+#line 795 "src/sequence.in.c"
 
 APIF FloatSequence *FloatSequence_newCc(Symbol *track, int cc, PortFind *portFind) 
 {
@@ -10240,7 +10443,7 @@ APIF void FloatSequence_makeConsistent(FloatSequence *self)
 }
 
 
-#line 1025 "src/sequence.in.c"
+#line 1029 "src/sequence.in.c"
 
 APIF void Sequence_freePpErrless(Sequence **s)
 {
@@ -10307,7 +10510,7 @@ APIF void Sequence_incVersion(Sequence *seq) {
     seq->version++;
 }
 
-#line 1106 "src/sequence.in.c"
+#line 1110 "src/sequence.in.c"
 
 APIF void RecordBuffer_push(RecordBuffer *self, Sequence *sequence)
 {
@@ -10758,3 +10961,48 @@ void Foo_zeroRecord() {
 
 
 
+
+
+APIF Port *Port_newTrackId(Symbol *track, Symbol *id)
+{
+	Port *self = Mem_calloc(sizeof(Port));
+	self->obj.utilityPointer = AtomArAr_new(0);
+	self->track              = track;
+	self->id                 = id;
+	return self;
+}
+
+APIF void Port_free(Port *self)
+{
+	if (self->obj.utilityPointer != NULL) {
+		AtomArAr_free(self->obj.utilityPointer);
+	}
+	Mem_free(self);
+}
+
+APIF PortFind *PortFind_newFromTable(int argc, PortFindCell *cells)
+{
+    PortFind *self = PortFind_new();
+    for (int i = 0; i < argc; i++) {
+        PortFindCellAr_push(&self->objects, cells[i]);       
+    }
+    return self;
+}
+
+APIF PortFind *PortFind_createStandardSpoof()
+{
+	const int ncells = 3;
+	PortFindCell cells[ncells] = {
+		{.reciever = Port_newTrackId(Symbol_gen("piano"),  Symbol_gen("idPiano")),  .varname = Symbol_gen("unknown")},
+		{.reciever = Port_newTrackId(Symbol_gen("guitar"), Symbol_gen("idGuitar")), .varname = Symbol_gen("unknown")},
+		{.reciever = Port_newTrackId(Symbol_gen("drums"),  Symbol_gen("idDrums")),  .varname = Symbol_gen("unknown")},
+	};
+	return PortFind_newFromTable(ncells, cells);
+}
+
+APIF void PortFind_userClear(PortFind *self)
+{
+	PortFindCellAr_foreach(it, &self->objects) {
+		Port_free(it.var->reciever);
+	}
+}

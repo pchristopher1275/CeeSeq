@@ -361,7 +361,7 @@ APIF void DBLog_init(const char *tag, Error *err)
 // M A X   O B J E C T
 //
 #ifdef TEST_BUILD
-typedef struct MaxObject_t {int unused;} MaxObject;
+typedef struct MaxObject_t {void *utilityPointer;} MaxObject;
 #else
 #  define MaxObject t_object
 #endif 
