@@ -52,7 +52,7 @@ APIF int Symbol_cmpUnderlying(Symbol **left, Symbol **right)
 #ifdef TEST_BUILD
 SymbolPtAr *gSymbols = NULL;
 
-Symbol *Symbol_gen(const char *word) 
+APIF Symbol *Symbol_gen(const char *word) 
 {
     if (gSymbols == NULL) {
         gSymbols = SymbolPtAr_new(0);
@@ -68,7 +68,7 @@ Symbol *Symbol_gen(const char *word)
     return n;
 }
 
-void Symbol_freeAll() 
+APIF void Symbol_freeAll() 
 {
     SymbolPtAr_foreach(it, gSymbols) {
         Mem_free(*it.var);
@@ -296,8 +296,8 @@ APIF void Port_sendInteger(Port *self, int outlet, long value)
 #define BinFile_writeBackLength(bf, location, err) BinFile_writeBackLengthFlags(bf, location, -1, err)
 #define BinFile_readLength(bf, err) BinFile_readLengthFlags(bf, NULL, err)
 #define BinFile_writeLength(bf, length, err) BinFile_writeLengthFlags(bf, length, -1, err)
-static inline PortFind *BinFile_portFindPayload(BinFile *self){ return (self->payload == NULL ? NULL : self->payload->portFind); }
-static inline void BinFile_setPayload(BinFile *self, BinFilePayload *payload) { self->payload = payload;}
+NOCOVER static inline PortFind *BinFile_portFindPayload(BinFile *self){ return (self->payload == NULL ? NULL : self->payload->portFind); }
+NOCOVER static inline void BinFile_setPayload(BinFile *self, BinFilePayload *payload) { self->payload = payload;}
 
 const int Midiseq_notetype   = 1;
 const int Midiseq_bendtype   = 2;
@@ -562,7 +562,7 @@ const int Midiseq_endgrptype = 5;
 @end
 
 #define PortRef_declare(name, port, outlet)    PortRef _##name = {port, outlet}; PortRef *name = &_##name
-static inline void PortRef_set(PortRef *pr, Port *port, int outlet) {
+COVER static inline void PortRef_set(PortRef *pr, Port *port, int outlet) {
    pr->port   = port;
    pr->outlet = outlet;
 }
@@ -617,11 +617,11 @@ APIF int PortRef_cmp(PortRef *left, PortRef *right)
    }
 @end
 
-static inline PortRef *DropDown_portRef(DropDown *dd) {
+COVER static inline PortRef *DropDown_portRef(DropDown *dd) {
     return &dd->portRef;
 }
 
-static inline void DropDown_setPortRef(DropDown *dd, PortRef *pr) {
+COVER static inline void DropDown_setPortRef(DropDown *dd, PortRef *pr) {
    dd->portRef = *pr;
 }
 
@@ -642,15 +642,18 @@ APIF void DropDown_build(DropDown *dd, const char **table, PortRef *pr) {
 }
 
 APIF void DropDown_buildCGLocalGlobal(DropDown *dd, PortRef *pr) {
+    Coverage_off;
     const char *t[] = {
         "local",
         "global",
         NULL
     };
+    Coverage_on;
     DropDown_build(dd, t, pr);
 }
 
 APIF void DropDown_buildCGInstrument(DropDown *dd, PortRef *pr) {
+    Coverage_off;
     const char *t[] = {
         "none",
         "lead",
@@ -660,10 +663,12 @@ APIF void DropDown_buildCGInstrument(DropDown *dd, PortRef *pr) {
         "drums",
         NULL,
     };
+    Coverage_on;
     DropDown_build(dd, t, pr);
 }
 
 APIF void DropDown_buildCGIndex(DropDown *dd, PortRef *pr) {
+    Coverage_off;
     const char *t[] = {
         "none",
         "1",
@@ -684,6 +689,7 @@ APIF void DropDown_buildCGIndex(DropDown *dd, PortRef *pr) {
         "16",
         NULL
     };
+    Coverage_on;
     DropDown_build(dd, t, pr);
 }
 
@@ -699,10 +705,8 @@ APIF void DropDown_buildCGIndex(DropDown *dd, PortRef *pr) {
 APIF void DropDown_updateSelected(DropDown *dd, Error *err) {
     Symbol *s = SymbolPtrAr_get(&dd->table, dd->selected, err);
     Error_returnVoidOnError(err);
-    Atom a[2] = {
-        Atom_fromSymbol(Symbol_gen("set")),
-        Atom_fromSymbol(s)
-    };
+
+    Atom a[2] = {Atom_fromSymbol(Symbol_gen("set")), Atom_fromSymbol(s)};
     PortRef_send(DropDown_portRef(dd), 2, a, err);
 }
 
@@ -879,9 +883,10 @@ APIF int Midiseq_convertIntFileLine(const char *src, Error *err, const char *fun
     errno = 0;
     long v = strtol(src, NULL, 10);
     if (errno != 0) {
-        Error_formatFileLine(err, function, file, line,
-            String_fmt("Failed to convert int error code %s",
-            (errno == EINVAL ? "EINVAL" : errno == ERANGE ? "ERANGE" : "Unknown")));
+        Coverage_off;
+        Error_formatFileLine(err, function, file, line, String_fmt("Failed to convert int error code %s", 
+          (errno == EINVAL ? "EINVAL" : errno == ERANGE ? "ERANGE" : "Unknown")));
+        Coverage_on;
 
     }
     return v;
@@ -1012,12 +1017,7 @@ APIF Midiseq *Midiseq_newNote(int pitch)
 
     mseq->sequenceLength = 480*4;
     
-    MEvent zero = {
-        0
-    }
-    , cell = {
-        0
-    };
+    MEvent zero = {0}, cell = {0};
 
     MEvent_t(cell)    = 0;
     MEvent_type(cell) = Midiseq_endgrptype;
@@ -1081,8 +1081,7 @@ APIF void Midiseq_dblog(Midiseq *mseq)
         MEvent cell = *it.var;
         switch (MEvent_type(cell)) {
             case Midiseq_notetype:
-                dblog("    %15lld note %15ld %15ld %15ld", MEvent_t(cell),
-                    (long)MEvent_notePitch(cell), (long)MEvent_noteVelocity(cell), (long)MEvent_noteDuration(cell));
+                dblog("    %15lld note %15ld %15ld %15ld", MEvent_t(cell), (long)MEvent_notePitch(cell), (long)MEvent_noteVelocity(cell), (long)MEvent_noteDuration(cell));
                 break;
             case Midiseq_bendtype:
                 dblog("    %15lld bend", MEvent_t(cell));
@@ -1400,8 +1399,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
                 }
                 Midiseq_push(mseq, cell);
                 ons[pitch] = Midiseq_len(mseq);
-            }
-            else {
+            } else {
                 if (ons[pitch] == 0) {
                     Error_format(err, "Found an unmatched note-off: while working on` file '%s' line %d", tempfile, linenum);
                     goto END;
@@ -1418,8 +1416,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
                 c->duration = cell.t - c->t;
                 ons[pitch] = 0;
             }
-        }
-        else if (strcmp(typ, "Pitch_bend_c") == 0) {
+        } else if (strcmp(typ, "Pitch_bend_c") == 0) {
             if (nfields < 5) {
                 Error_format(err, "Bad Pitch_bend_c file '%s' line %d", tempfile, linenum);
                 goto END;
@@ -1431,8 +1428,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
             cell.type   = Midiseq_bendtype;
             cell.b.bend = value;
             Midiseq_push(mseq, cell);
-        }
-        else if (strcmp(typ, "Control_c") == 0) {
+        } else if (strcmp(typ, "Control_c") == 0) {
             if (nfields < 5) {
                 Error_format(err, "Bad Control_c file '%s' line %d", tempfile, linenum);
                 goto END;
@@ -1446,8 +1442,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
             cell.b.b[0]  = (uint8_t)cc;
             cell.b.b[1]  = (uint8_t)val;
             Midiseq_push(mseq, cell);
-        }
-        else if (strcmp(typ, "Header") == 0) {
+        } else if (strcmp(typ, "Header") == 0) {
             if (nfields < 6) {
                 Error_format(err, "Bad Header file '%s' line %d", tempfile, linenum);
                 goto END;
@@ -2025,8 +2020,7 @@ APIF bool NoteManager_insertNoteOff(NoteManager *manager, Ticks timestamp, int p
         // Mark this pitch as endgroup
         IndexedOff_declare(off, padIndexForEndgroup, pitch);
         IndexedOffAr_binInsertPadIndex(&manager->endgroups, off);
-    }
-    else {
+    } else {
         TimedOff_declare(off, timestamp, pitch);
         TimedOffAr_binInsertTime(&manager->pending, off);
     }
@@ -2471,12 +2465,14 @@ APIF off_t BinFile_writeNullLength(BinFile *bf, bool spaceForFlags, Error *err) 
 } 
 
 APIF void BinFile_writeFlags(BinFile *bf, long flags, Error *err) {
+    Coverage_off;
     char hex[4] = {
         binFile_intToHexDigit((flags)       & 0xFF),
         binFile_intToHexDigit((flags >> 8)  & 0xFF),
         binFile_intToHexDigit((flags >> 16) & 0xFF),
         binFile_intToHexDigit((flags >> 24) & 0xFF),
     };
+    Coverage_on;
     if (fprintf(BinFile_stream(bf), "%c%c%c%c ", hex[0], hex[1], hex[2], hex[3]) < 0) {
         Error_format(err, "Failed fprintf while writing %s", BinFile_filename(bf));
         return;

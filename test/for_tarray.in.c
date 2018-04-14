@@ -68,7 +68,7 @@ APIF int Foo_cmpBoth(Foo *left, Foo *right)
 }
 
 
-void Foo_zeroRecord() {
+NOCOVER void Foo_zeroRecord() {
 	numRecorded = 0;
 	memset(recorded, 0, sizeof(Foo)*maxNumRecorded);
 }

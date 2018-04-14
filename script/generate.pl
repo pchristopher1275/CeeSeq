@@ -11,6 +11,7 @@ my $gAcceptAllCalls      = 0;
 my $gNow                 = strftime("%m/%d/%Y %H:%M:%S", localtime);
 my $gUndefinedItype      = 10;
 my $gMasterSourceDir     = undef;
+my $gGenerateCoverage    = 0;
 
 sub run {
     my ($cmd, %opts) = @_;
@@ -1062,6 +1063,47 @@ ENDxxxxxxxxxx
 ENDxxxxxxxxxx
 	},
 
+	{
+		key =>    'Coverage:preamble',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@const bool Coverage_activated = ${ACTIVATE};
+			@const char **Coverage_array   = NULL;
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Coverage:finalize',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@#line 1 "**coverage**" 
+			@void Coverage_initialize()
+			@{
+			@	Coverage_array = Mem_calloc(sizeof(const char *) * ${COVERSIZE});	
+			@}
+			@
+			@void Coverage_finalize(const char *file)
+			@{
+			@	String *coverFile = Coverage_createCoverageFile(file);
+			@	FILE *out = fopen(coverFile, "w");
+			@	if (!out) {
+			@		Error_declare(err);
+			@		Error_format(err, "Failed to open coverage file %s", coverFile);
+			@		Error_maypost(err);
+			@		exit(1);
+			@	}
+			@	fprintf(out, "*totalSize %d\n", ${COVERSIZE});
+			@	for (int i = 0; i < ${COVERSIZE}; i++) {
+			@		if (Coverage_array[i] != NULL) {
+			@			fprintf(out, "%s\n", Coverage_array[i]);
+			@		}
+			@	}
+			@	fclose(out);
+			@	String_free(coverFile);
+			@}
+ENDxxxxxxxxxx
+	},
+
 );
 my %templateMap = map {$_->{key} => $_} @templates;
 
@@ -1624,6 +1666,109 @@ sub ContainerArtifact_emitInlines {
 	}
 }
 
+sub Coverage_new {
+	my ($coverageActivated) = @_;
+	return {
+		itype => "Coverage", 
+		coverageIndex => 0, 
+		coverageOn => 1, 
+		coverageActivated => $coverageActivated ? 1 : 0,
+		directory => "test/coverage",
+	};
+}
+
+sub Coverage_openTriedFile {
+	my ($self, $srcPath) = @_;
+	return unless $self->{coverageActivated};
+	my ($basename) = ($srcPath =~ m{([^/]+)$});
+	die "INTERNAL ERROR" unless defined($basename);
+	my $triedFile  = "$self->{directory}/$basename.tried";
+	open my $fd, ">", $triedFile or die "Failed to open $triedFile";
+	$self->{triedOut} = $fd;
+}
+
+sub Coverage_closeTriedFile {
+	my ($self) = @_;
+	return unless $self->{coverageActivated};
+	close($self->{triedOut});
+	$self->{triedOut} = undef;
+}
+
+sub Coverage_writePreamble {
+	my ($self, $out) = @_;
+	Expand_emit($out, ['Coverage:preamble'], {ACTIVATE => $self->{coverageActivated} ? "true" : "false"});
+}
+
+sub Coverage_writeFinalize {
+	my ($self, $out) = @_;
+	Expand_emit($out, ['Coverage:finalize'], {COVERSIZE => $self->{coverageIndex}});
+}
+
+## This is a strange function. It takes a line of text and tests that it doesn't look like a function def that
+## DOES NOT have either COVER or APIF. But if it finds such a line, it looks at the rest of the file
+## it's working on for other unmarked functions, and then aborts.
+sub Coverage_verifyNoUnmarkedFunctions {
+	my ($self, $text, $inp, $filename, $line) = @_;
+	return if /^\s/;
+	return if m[^(?:NOCOVER|COVER|APIF|\#|\s*/)];
+	return unless (/^\S/ && /\(/ && !/;\s*$/);
+
+	my $err = sub {
+		print "COVER BUG at line $line file $filename: `$_[0]`\n";
+	};
+	$err->($text);
+	while (<$inp>) {
+		chomp;
+		$line++;
+		next if /^\s/;
+		next if m[^(?:NOCOVER|COVER|APIF|\#|\s*/)];
+		if (/^\S/ && /\(/ && !/;\s*$/) {
+			$err->($_);
+		}
+	}
+	die "COVER FATALITY";
+}
+
+sub Coverage_write {
+	my ($self, $out, $text, $file, $line, $inp) = @_;
+	Coverage_verifyNoUnmarkedFunctions($self, $text, $inp, $file, $line);
+
+	my $hasAPIF         = ($text =~ /^APIF/ || $text =~ /^COVER/);
+	my $looksLikeDefine = ($text =~ /^#/);
+	my $looksLikeCase   = ($text =~ /^\s*case/);
+	if ($self->{inFunction} || $hasAPIF) {
+		my $lead = "";
+		if ($looksLikeDefine) {
+			$lead = "#";
+			$text =~ s/^#//;
+		} elsif (!$looksLikeCase && !$hasAPIF && !$self->{needOpenBracket} && $self->{coverageOn}) {
+			my $coverageIndex = $self->{coverageIndex}++;
+			my $coverageLine  = "$file $line";
+			my $triedOut      = $self->{triedOut};
+			print {$triedOut} "$coverageLine\n";
+			$lead = "Coverage_array[$coverageIndex] = \"$coverageLine\"; ";
+		}
+		$text =~ s/\t/    /g;
+		printf {$out} "%-55s%s\n", $lead, $text;
+	} else {
+		print {$out} "$text\n";
+	}
+
+	if ($self->{inFunction} && $text =~ /^\}/) {
+		$self->{inFunction} = 0;
+	} elsif ($hasAPIF) {
+		die "Found APIF while waiting for close of APIF function" if $self->{inFunction};
+		$self->{inFunction}      = 1;
+		$self->{needOpenBracket} = ($text !~ m{\{\s*$} );
+	} elsif ($self->{needOpenBracket} && $text =~ /^\s*\{/) {
+		$self->{needOpenBracket} = 0;
+	} elsif ($text =~ /Coverage_off/) {
+		$self->{coverageOn} = 0;
+	} elsif ($text =~ /Coverage_on/) {
+		$self->{coverageOn} = 1;
+	}
+}
+
 sub TemplateFile_scanUntilAtEnd {
 	my ($self) = @_;
 	die "Bad type" unless $self->{itype} eq 'TemplateFile';
@@ -1710,7 +1855,7 @@ sub TemplateFile_scanAllArtifacts {
 }
 
 sub TemplateFile_copyTemplateCode {
-	my ($self, $out) = @_;
+	my ($self, $out, $coverage) = @_;
 	die "Bad type" unless $self->{itype} eq 'TemplateFile';
 	open my $inp, "<", $self->{file} or die "Failed to open $self->{file}";
 	$self->{inp} = $inp;
@@ -1718,6 +1863,18 @@ sub TemplateFile_copyTemplateCode {
 	my $lineDir = sub {
 		print {$out} "#line ", $self->{line}+1, " \"$self->{file}\"\n";
 	};
+	$self->{line} = 0;
+	$lineDir->();
+
+	my $triedOut;
+	if ($gGenerateCoverage) {
+		Coverage_openTriedFile($coverage, $self->{file});
+	}
+
+	my $file = $self->{file};
+	if ($file =~ m{([^/]+)$}) {
+		$file = $1;
+	}
 
 	while (<$inp>) {
 		chomp;
@@ -1735,9 +1892,14 @@ sub TemplateFile_copyTemplateCode {
 			TemplateFile_scanUntilAtEnd($self);
 			$lineDir->();
 		} else {
-			print {$out} "$_\n";
+			if ($gGenerateCoverage) {
+				Coverage_write($coverage, $out, $_, $file, $self->{line}, $inp);
+			} else {
+				print {$out} "$_\n";
+			}
 		}
 	}
+	Coverage_closeTriedFile($coverage) if ($gGenerateCoverage);
 	close($self->{inp});
 }
 
@@ -2139,6 +2301,8 @@ sub Main_handleArgs {
 			$gApplicationName = $needArg->("-g");
 		} elsif ($a =~ /-a/) {
 			$gAcceptAllCalls = 1;
+		} elsif ($a =~ /-c/) {
+			$gGenerateCoverage = 1;
 		} elsif ($a =~ /^-/){
 			die "Unknown option $a"
 		} else {
@@ -2231,9 +2395,12 @@ sub Main_main {
 		$outFile = "$gMasterSourceDir/application.c";
 	}
 	
+	my $coverage = Coverage_new($gGenerateCoverage);
+
 	## Let's write the application
 	open my $out, ">", $outFile or die "Failed to open $outFile";
 	Main_emitWarning($out);
+	Coverage_writePreamble($coverage, $out);
 	ArtifactList_emitPredefined($artifactList, $out);
 	ArtifactList_emitStructs($artifactList, $out);
 	Api_emitPrototypes($api, $out);
@@ -2248,8 +2415,9 @@ sub Main_main {
 	ArtifactList_emitInterfaceMethods($artifactList, $out, $api);
 	for my $tFile (@templateFiles) {
 		my $templateFile = TemplateFile_new($tFile);
-		TemplateFile_copyTemplateCode($templateFile, $out);	
+		TemplateFile_copyTemplateCode($templateFile, $out, $coverage);	
 	}
+	Coverage_writeFinalize($coverage, $out);
 	close($out);
 	
 	return;

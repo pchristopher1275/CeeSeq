@@ -257,7 +257,7 @@ APIF void VstOutlet_sendFloat(VstOutlet *self, double value)
 }
 @end
 
-OutletSpecifier OutletSpecifier_makeCC(Symbol *track, int cc) {
+COVER OutletSpecifier OutletSpecifier_makeCC(Symbol *track, int cc) {
     OutletSpecifier selfValue = {0}, *self = &selfValue;
     OutletSpecifier_init(self);
     self->track       = track;
@@ -267,7 +267,7 @@ OutletSpecifier OutletSpecifier_makeCC(Symbol *track, int cc) {
     return selfValue;
 }
 
-OutletSpecifier OutletSpecifier_makeBend(Symbol *track) {
+COVER OutletSpecifier OutletSpecifier_makeBend(Symbol *track) {
     OutletSpecifier selfValue = {0}, *self = &selfValue;
     OutletSpecifier_init(self);
     self->track       = track;
@@ -277,7 +277,7 @@ OutletSpecifier OutletSpecifier_makeBend(Symbol *track) {
     return selfValue;
 }
 
-OutletSpecifier OutletSpecifier_makeNote(Symbol *track) {
+COVER OutletSpecifier OutletSpecifier_makeNote(Symbol *track) {
     OutletSpecifier selfValue = {0}, *self = &selfValue;
     OutletSpecifier_init(self);
     self->track       = track;
@@ -287,7 +287,7 @@ OutletSpecifier OutletSpecifier_makeNote(Symbol *track) {
     return selfValue;
 }
 
-OutletSpecifier OutletSpecifier_makeVst(Symbol *track, int pluginIndex, Symbol *parameter) {
+COVER OutletSpecifier OutletSpecifier_makeVst(Symbol *track, int pluginIndex, Symbol *parameter) {
     OutletSpecifier selfValue = {0}, *self = &selfValue;
     OutletSpecifier_init(self);
     self->track       = track;
@@ -499,7 +499,7 @@ Ticks NoteSequence_endgDuration       = -2;
 Ticks NoteSequence_noteOffDuration    = -3;
 #define NoteSequence_isMarkerValue(v) (v < 0)
 #define NoteSequence_minSequenceLength 5
-static inline void NoteSequence_playNoteOffs(NoteSequence *self, Ticks current, Error *err) 
+COVER static inline void NoteSequence_playNoteOffs(NoteSequence *self, Ticks current, Error *err) 
 {
     self->nextOffEvent = -1;
     int nremoves = 0;
@@ -517,7 +517,7 @@ static inline void NoteSequence_playNoteOffs(NoteSequence *self, Ticks current, 
     }
 }
 
-static inline void NoteSequence_playNoteOns(NoteSequence *self, Ticks current, Error *err) 
+COVER static inline void NoteSequence_playNoteOns(NoteSequence *self, Ticks current, Error *err) 
 {
     self->nextOnEvent = -1;
     for (;;) {
@@ -554,7 +554,7 @@ static inline void NoteSequence_playNoteOns(NoteSequence *self, Ticks current, E
     }
 }
 
-static inline Ticks NoteSequence_nextEvent(NoteSequence *self) {
+COVER static inline Ticks NoteSequence_nextEvent(NoteSequence *self) {
     if (self->nextOnEvent < 0 && self->nextOffEvent < 0) {
         return -1;
     } else if (self->nextOffEvent < 0) {
@@ -1118,7 +1118,7 @@ typedef struct MidiEvent_t {
     long arg2;
 } MidiEvent;
 
-MidiEvent Midi_getNextEvent(FILE *pipe, Error *err)
+COVER MidiEvent Midi_getNextEvent(FILE *pipe, Error *err)
 {
     static String *buffer       = NULL;
     static StringPtAr *arBuffer = NULL;

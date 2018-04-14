@@ -1245,7 +1245,7 @@ Unit_declare(testPqQueue)
 }
 
 
-Unit_declare(testPqQueue) 
+Unit_declare(testPqQueueEnqueue) 
 {
 	{
 		// enqueue and dequeue
@@ -1301,5 +1301,6 @@ int main(int argc, char *argv[]) {
 	Unit_test(testMixedBinary);
 	Unit_test(testPq);
 	Unit_test(testPqQueue);
+	Unit_test(testPqQueueEnqueue);
 	Unit_finalize();
 }

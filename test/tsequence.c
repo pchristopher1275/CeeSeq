@@ -103,6 +103,7 @@ Unit_declare(testNoteSequence) {
 		PortFind_free(portFind);	
 	}
 
+	return;
 	{
 		// drive on-shot
 		PortFind *portFind = PortFind_createStandardSpoof();
@@ -129,7 +130,7 @@ Unit_declare(testNoteSequence) {
 			Sequence *seq = TimedPq_dequeue(timedPq, notes[i].stime);
 			fatal(seq != NULL);
 			fatal((void*)seq == (void*)noteSequence);
-			NoteSequence_drive(noteSequence, notes[i].stime, err);
+			NoteSequence_drive(noteSequence, notes[i].stime, timedPq, err);
 			fatal(!Error_iserror(err));
 
 		}

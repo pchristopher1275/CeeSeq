@@ -8,9 +8,10 @@
 #include <errno.h>
 #include <unistd.h> 
 #include <stdint.h>
+#include <limits.h>
 #include "../src/core.c"
 #include "../src/unit.c"
-#include "../src/application.c"
+#include "application.c"
 
 Unit_declare(testStringSplit) 
 {

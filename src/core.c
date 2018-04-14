@@ -1,9 +1,10 @@
-#ifndef CORE_C
-#define CORE_C
+#define APIF /**/
+#define Coverage_off /**/
+#define Coverage_on /**/
+#define COVER /**/
+#define NOCOVER /**/
 
-#ifndef APIF
-#  define APIF /**/
-#endif 
+
 
 #ifdef TEST_BUILD
 #  define Error_maxErrorInteger int
@@ -150,6 +151,26 @@ APIF void String_resize(String **src, int newLen)
     *src = nw->ch;
 }
 
+char *basename(char *filename)
+{
+    char *p = strrchr(filename, '/');
+    return p ? p + 1 : (char *)filename;
+}
+APIF String *Coverage_createCoverageFile(const char *filename)
+{
+    String *str = String_fmt("%s", filename);
+    char *dot   = strrchr(str, '.');
+    char *slash = strrchr(str, '/');
+    if (!slash) {
+        slash = (char*)str;
+    }
+    if (dot && dot > slash) {
+        *dot = '\0';
+    }
+    String *coverFile = String_fmt("test/coverage/%s.touched", (*slash == '/' ? slash+1 : slash));
+    return coverFile;    
+}
+
 //
 // T E X T    L O G G I N G
 //
@@ -212,7 +233,7 @@ static inline void Error_postImpl(String *s)
     String *s = String_fmt(first, __VA_ARGS__);\
     printf("ERROR: %s\n", s);\
     String_free(s);\
-while (0)
+} while (0)
 
 #endif
 
@@ -502,6 +523,10 @@ static inline double Atom_toFloat(Atom *a) {
 //
 typedef long long Ticks;
 #define Ticks_maxTime LLONG_MAX 
+#ifdef TEST_BUILD
+Ticks Ticks_dbCurrent = -1;
+#endif
+
 #ifndef TEST_BUILD
 APIF Ticks cseqHub_now()
 {
@@ -542,6 +567,3 @@ struct Port_t;
 typedef struct Port_t Port;
 typedef void (*Port_anythingDispatchFunc)(void *hub, struct Port_t *port, Symbol *msg, long argc, Atom *argv);
 typedef void (*Port_intDispatchFunc)(void *hub, struct Port_t *port, long value, long inlet);
-
-// ifndef CORE_C
-#endif

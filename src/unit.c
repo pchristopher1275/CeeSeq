@@ -57,9 +57,19 @@ Unit *Unit_instance = &Unit_instanceStruct;
 	} else {\
 		printf("no arguments\n");\
 	}\
+	if (Coverage_activated) { \
+		Coverage_initialize();\
+	}\
 } while (0)
 
 #define Unit_finalize() do {\
+	for (int i = 0; i < Unit_shouldRunLength; i++) {\
+		free(Unit_shouldRun[i]);\
+	}\
+	free(Unit_shouldRun);\
+	if (Coverage_activated) {\
+		Coverage_finalize(__FILE__);\
+	}\
 	if (Unit_numTestFails > 0) {\
 		printf(Unit_tab0 "FAILED tests in file %s: %d tests failed out of %d tests\n", __FILE__, Unit_numTestFails, Unit_numTests);\
 		exit(1);\
@@ -67,10 +77,6 @@ Unit *Unit_instance = &Unit_instanceStruct;
 		printf(Unit_tab0 "test file %s ok\n", __FILE__);\
 		exit(0);\
 	}\
-	for (int i = 0; i < Unit_shouldRunLength; i++) {\
-		free(Unit_shouldRun[i]);\
-	}\
-	free(Unit_shouldRun);\
 } while (0)
 
 #define Unit_declare(testName) void testName(void)

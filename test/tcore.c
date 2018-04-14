@@ -5,9 +5,17 @@
 #include <time.h>
 #include <stdarg.h>
 #include <ctype.h>
-
+#include <errno.h>
+#include <unistd.h> 
+#include <stdint.h>
+#include <limits.h>
 #include "../src/core.c"
 #include "../src/unit.c"
+
+const bool Coverage_activated = false;
+const char **Coverage_array   = NULL;
+void Coverage_initialize(){}
+void Coverage_finalize(const char *file){}
 
 Unit_declare(testString) {
 	{

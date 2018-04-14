@@ -26,14 +26,16 @@ APIF PortFind *PortFind_newFromTable(int argc, PortFindCell *cells)
     return self;
 }
 
-APIF PortFind *PortFind_createStandardSpoof()
+APIF PortFind *PortFind_createStandardSpoof(void)
 {
 	const int ncells = 3;
+	Coverage_off;
 	PortFindCell cells[ncells] = {
 		{.reciever = Port_newTrackId(Symbol_gen("piano"),  Symbol_gen("idPiano")),  .varname = Symbol_gen("unknown")},
 		{.reciever = Port_newTrackId(Symbol_gen("guitar"), Symbol_gen("idGuitar")), .varname = Symbol_gen("unknown")},
 		{.reciever = Port_newTrackId(Symbol_gen("drums"),  Symbol_gen("idDrums")),  .varname = Symbol_gen("unknown")},
 	};
+	Coverage_on;
 	return PortFind_newFromTable(ncells, cells);
 }
 
@@ -44,7 +46,6 @@ APIF void PortFind_userClear(PortFind *self)
 	}
 }
 
-Ticks Ticks_dbCurrent = 0;
 NoteEventAr *NoteOutlet_dbSent = NULL;
 
 APIF void NoteOutlet_dbRewindSent() 
@@ -65,7 +66,7 @@ APIF void NoteOutlet_dbRecordEvent(int pitch, int velocity)
 APIF void NoteOutlet_dbGetResults(NoteEventAr *arr)
 {
 	if (NoteOutlet_dbSent == NULL) {
-		return NULL;
+		return;
 	}
 	NoteEventAr_truncate(arr);
 

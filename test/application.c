@@ -1,13 +1,15 @@
-// *** DO NOT MODIFY THIS FILE generated 04/11/2018 16:42:56 ***
-// *** DO NOT MODIFY THIS FILE generated 04/11/2018 16:42:56 ***
-// *** DO NOT MODIFY THIS FILE generated 04/11/2018 16:42:56 ***
-// *** DO NOT MODIFY THIS FILE generated 04/11/2018 16:42:56 ***
-// *** DO NOT MODIFY THIS FILE generated 04/11/2018 16:42:56 ***
-// *** DO NOT MODIFY THIS FILE generated 04/11/2018 16:42:56 ***
-// *** DO NOT MODIFY THIS FILE generated 04/11/2018 16:42:56 ***
-// *** DO NOT MODIFY THIS FILE generated 04/11/2018 16:42:56 ***
-// *** DO NOT MODIFY THIS FILE generated 04/11/2018 16:42:56 ***
-// *** DO NOT MODIFY THIS FILE generated 04/11/2018 16:42:56 ***
+// *** DO NOT MODIFY THIS FILE generated 04/13/2018 21:35:18 ***
+// *** DO NOT MODIFY THIS FILE generated 04/13/2018 21:35:18 ***
+// *** DO NOT MODIFY THIS FILE generated 04/13/2018 21:35:18 ***
+// *** DO NOT MODIFY THIS FILE generated 04/13/2018 21:35:18 ***
+// *** DO NOT MODIFY THIS FILE generated 04/13/2018 21:35:18 ***
+// *** DO NOT MODIFY THIS FILE generated 04/13/2018 21:35:18 ***
+// *** DO NOT MODIFY THIS FILE generated 04/13/2018 21:35:18 ***
+// *** DO NOT MODIFY THIS FILE generated 04/13/2018 21:35:18 ***
+// *** DO NOT MODIFY THIS FILE generated 04/13/2018 21:35:18 ***
+// *** DO NOT MODIFY THIS FILE generated 04/13/2018 21:35:18 ***
+const bool Coverage_activated = false;
+const char **Coverage_array   = NULL;
 struct Arguments_t;
 typedef struct Arguments_t Arguments;
 struct AtomAr_t;
@@ -1384,6 +1386,12 @@ typedef struct DispatchPtArRIt_t {
    Dispatch **var;
 } DispatchPtArRIt;
 
+struct DropDown_t
+{
+    SymbolPtrAr table;
+    int selected;
+    PortRef portRef;
+};
 struct Arguments_t
 {
     Symbol *s1;
@@ -1391,12 +1399,6 @@ struct Arguments_t
     long i2;
     long ivalue;
     long inlet;
-};
-struct DropDown_t
-{
-    SymbolPtrAr table;
-    int selected;
-    PortRef portRef;
 };
 struct Hub_t
 {
@@ -1585,6 +1587,8 @@ void Dispatch_initDispatchPtArDefault(int itype, DispatchPtAr *disPtAr, Error *e
 void DispatchPtAr_populate(DispatchPtAr *self, Error *err);
 void String_split(String *src, const char *delim, StringPtAr *stringPtAr);
 int Symbol_cmpUnderlying(Symbol **left, Symbol **right);
+Symbol *Symbol_gen(const char *word);
+void Symbol_freeAll();
 Port *Port_new();
 void Port_init(Port *p);
 void Port_free(Port *p);
@@ -1697,7 +1701,6 @@ void BinFile_writeBool(BinFile *bf, bool value, Error *err);
 bool BinFile_readBool(BinFile *bf, Error *err);
 void BinFile_writeTag(BinFile *bf, const char *tag, Error *err);
 void BinFile_verifyTag(BinFile *bf, const char *tag, Error *err);
-void NoteOutlet_dbRewindSent();
 void NoteOutlet_sendNote(NoteOutlet *self, uint8_t pitch, uint8_t velocity);
 NoteOutlet *NoteOutlet_newBuild(Port *port);
 void CcOutlet_dbRewindSent();
@@ -1749,8 +1752,11 @@ int Foo_cmpBoth(Foo *left, Foo *right);
 Port *Port_newTrackId(Symbol *track, Symbol *id);
 void Port_free(Port *self);
 PortFind *PortFind_newFromTable(int argc, PortFindCell *cells);
-PortFind *PortFind_createStandardSpoof();
+PortFind *PortFind_createStandardSpoof(void);
 void PortFind_userClear(PortFind *self);
+void NoteOutlet_dbRewindSent();
+void NoteOutlet_dbRecordEvent(int pitch, int velocity);
+void NoteOutlet_dbGetResults(NoteEventAr *arr);
 void Arguments_clear(Arguments *self);
 void Arguments_free(Arguments *self);
 void Arguments_init(Arguments *self);
@@ -7314,6 +7320,7 @@ const char *Interface_toString(int itype)
     }
     return "Unknown";
 }
+#line 1 "src/dispatch.in.c"
 
 #line 15 "src/dispatch.in.c"
 
@@ -7585,6 +7592,7 @@ APIF void DispatchPtAr_populate(DispatchPtAr *self, Error *err) {
 }
 
 
+#line 1 "src/midiseq.in.c"
 
 #define APIF /**/
 String *stripBaseName(const char *path);
@@ -7623,7 +7631,7 @@ APIF int Symbol_cmpUnderlying(Symbol **left, Symbol **right)
 #ifdef TEST_BUILD
 SymbolPtAr *gSymbols = NULL;
 
-Symbol *Symbol_gen(const char *word) 
+APIF Symbol *Symbol_gen(const char *word) 
 {
     if (gSymbols == NULL) {
         gSymbols = SymbolPtAr_new(0);
@@ -7639,7 +7647,7 @@ Symbol *Symbol_gen(const char *word)
     return n;
 }
 
-void Symbol_freeAll() 
+APIF void Symbol_freeAll() 
 {
     SymbolPtAr_foreach(it, gSymbols) {
         Mem_free(*it.var);
@@ -7772,8 +7780,8 @@ APIF void Port_sendInteger(Port *self, int outlet, long value)
 #define BinFile_writeBackLength(bf, location, err) BinFile_writeBackLengthFlags(bf, location, -1, err)
 #define BinFile_readLength(bf, err) BinFile_readLengthFlags(bf, NULL, err)
 #define BinFile_writeLength(bf, length, err) BinFile_writeLengthFlags(bf, length, -1, err)
-static inline PortFind *BinFile_portFindPayload(BinFile *self){ return (self->payload == NULL ? NULL : self->payload->portFind); }
-static inline void BinFile_setPayload(BinFile *self, BinFilePayload *payload) { self->payload = payload;}
+NOCOVER static inline PortFind *BinFile_portFindPayload(BinFile *self){ return (self->payload == NULL ? NULL : self->payload->portFind); }
+NOCOVER static inline void BinFile_setPayload(BinFile *self, BinFilePayload *payload) { self->payload = payload;}
 
 const int Midiseq_notetype   = 1;
 const int Midiseq_bendtype   = 2;
@@ -7804,7 +7812,7 @@ const int Midiseq_endgrptype = 5;
 #line 563 "src/midiseq.in.c"
 
 #define PortRef_declare(name, port, outlet)    PortRef _##name = {port, outlet}; PortRef *name = &_##name
-static inline void PortRef_set(PortRef *pr, Port *port, int outlet) {
+COVER static inline void PortRef_set(PortRef *pr, Port *port, int outlet) {
    pr->port   = port;
    pr->outlet = outlet;
 }
@@ -7836,11 +7844,11 @@ APIF int PortRef_cmp(PortRef *left, PortRef *right)
 
 #line 619 "src/midiseq.in.c"
 
-static inline PortRef *DropDown_portRef(DropDown *dd) {
+COVER static inline PortRef *DropDown_portRef(DropDown *dd) {
     return &dd->portRef;
 }
 
-static inline void DropDown_setPortRef(DropDown *dd, PortRef *pr) {
+COVER static inline void DropDown_setPortRef(DropDown *dd, PortRef *pr) {
    dd->portRef = *pr;
 }
 
@@ -7861,15 +7869,18 @@ APIF void DropDown_build(DropDown *dd, const char **table, PortRef *pr) {
 }
 
 APIF void DropDown_buildCGLocalGlobal(DropDown *dd, PortRef *pr) {
+    Coverage_off;
     const char *t[] = {
         "local",
         "global",
         NULL
     };
+    Coverage_on;
     DropDown_build(dd, t, pr);
 }
 
 APIF void DropDown_buildCGInstrument(DropDown *dd, PortRef *pr) {
+    Coverage_off;
     const char *t[] = {
         "none",
         "lead",
@@ -7879,10 +7890,12 @@ APIF void DropDown_buildCGInstrument(DropDown *dd, PortRef *pr) {
         "drums",
         NULL,
     };
+    Coverage_on;
     DropDown_build(dd, t, pr);
 }
 
 APIF void DropDown_buildCGIndex(DropDown *dd, PortRef *pr) {
+    Coverage_off;
     const char *t[] = {
         "none",
         "1",
@@ -7903,6 +7916,7 @@ APIF void DropDown_buildCGIndex(DropDown *dd, PortRef *pr) {
         "16",
         NULL
     };
+    Coverage_on;
     DropDown_build(dd, t, pr);
 }
 
@@ -7918,10 +7932,8 @@ APIF void DropDown_buildCGIndex(DropDown *dd, PortRef *pr) {
 APIF void DropDown_updateSelected(DropDown *dd, Error *err) {
     Symbol *s = SymbolPtrAr_get(&dd->table, dd->selected, err);
     Error_returnVoidOnError(err);
-    Atom a[2] = {
-        Atom_fromSymbol(Symbol_gen("set")),
-        Atom_fromSymbol(s)
-    };
+
+    Atom a[2] = {Atom_fromSymbol(Symbol_gen("set")), Atom_fromSymbol(s)};
     PortRef_send(DropDown_portRef(dd), 2, a, err);
 }
 
@@ -7946,9 +7958,9 @@ APIF void DropDown_initializeMenu(DropDown *dd, Error *err) {
         Error_returnVoidOnError(err);        
     }
 }
-#line 842 "src/midiseq.in.c"
+#line 846 "src/midiseq.in.c"
 
-#line 860 "src/midiseq.in.c"
+#line 864 "src/midiseq.in.c"
 
 //
 // Memory allocation Notes. These are the functions that are used in sdsalloc.h
@@ -7971,9 +7983,10 @@ APIF int Midiseq_convertIntFileLine(const char *src, Error *err, const char *fun
     errno = 0;
     long v = strtol(src, NULL, 10);
     if (errno != 0) {
-        Error_formatFileLine(err, function, file, line,
-            String_fmt("Failed to convert int error code %s",
-            (errno == EINVAL ? "EINVAL" : errno == ERANGE ? "ERANGE" : "Unknown")));
+        Coverage_off;
+        Error_formatFileLine(err, function, file, line, String_fmt("Failed to convert int error code %s", 
+          (errno == EINVAL ? "EINVAL" : errno == ERANGE ? "ERANGE" : "Unknown")));
+        Coverage_on;
 
     }
     return v;
@@ -8104,12 +8117,7 @@ APIF Midiseq *Midiseq_newNote(int pitch)
 
     mseq->sequenceLength = 480*4;
     
-    MEvent zero = {
-        0
-    }
-    , cell = {
-        0
-    };
+    MEvent zero = {0}, cell = {0};
 
     MEvent_t(cell)    = 0;
     MEvent_type(cell) = Midiseq_endgrptype;
@@ -8173,8 +8181,7 @@ APIF void Midiseq_dblog(Midiseq *mseq)
         MEvent cell = *it.var;
         switch (MEvent_type(cell)) {
             case Midiseq_notetype:
-                dblog("    %15lld note %15ld %15ld %15ld", MEvent_t(cell),
-                    (long)MEvent_notePitch(cell), (long)MEvent_noteVelocity(cell), (long)MEvent_noteDuration(cell));
+                dblog("    %15lld note %15ld %15ld %15ld", MEvent_t(cell), (long)MEvent_notePitch(cell), (long)MEvent_noteVelocity(cell), (long)MEvent_noteDuration(cell));
                 break;
             case Midiseq_bendtype:
                 dblog("    %15lld bend", MEvent_t(cell));
@@ -8492,8 +8499,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
                 }
                 Midiseq_push(mseq, cell);
                 ons[pitch] = Midiseq_len(mseq);
-            }
-            else {
+            } else {
                 if (ons[pitch] == 0) {
                     Error_format(err, "Found an unmatched note-off: while working on` file '%s' line %d", tempfile, linenum);
                     goto END;
@@ -8510,8 +8516,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
                 c->duration = cell.t - c->t;
                 ons[pitch] = 0;
             }
-        }
-        else if (strcmp(typ, "Pitch_bend_c") == 0) {
+        } else if (strcmp(typ, "Pitch_bend_c") == 0) {
             if (nfields < 5) {
                 Error_format(err, "Bad Pitch_bend_c file '%s' line %d", tempfile, linenum);
                 goto END;
@@ -8523,8 +8528,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
             cell.type   = Midiseq_bendtype;
             cell.b.bend = value;
             Midiseq_push(mseq, cell);
-        }
-        else if (strcmp(typ, "Control_c") == 0) {
+        } else if (strcmp(typ, "Control_c") == 0) {
             if (nfields < 5) {
                 Error_format(err, "Bad Control_c file '%s' line %d", tempfile, linenum);
                 goto END;
@@ -8538,8 +8542,7 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
             cell.b.b[0]  = (uint8_t)cc;
             cell.b.b[1]  = (uint8_t)val;
             Midiseq_push(mseq, cell);
-        }
-        else if (strcmp(typ, "Header") == 0) {
+        } else if (strcmp(typ, "Header") == 0) {
             if (nfields < 6) {
                 Error_format(err, "Bad Header file '%s' line %d", tempfile, linenum);
                 goto END;
@@ -8590,9 +8593,9 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
 //
 // P A T C H E R    F I N D
 //
-#line 1523 "src/midiseq.in.c"
+#line 1518 "src/midiseq.in.c"
 
-#line 1547 "src/midiseq.in.c"
+#line 1542 "src/midiseq.in.c"
 
 #define PortFind_declare(name) PortFind _##name; PortFind *name = &_##name; memset(name, 0, sizeof(PortFind)); PortFind_init(name)        
 
@@ -9074,8 +9077,7 @@ APIF bool NoteManager_insertNoteOff(NoteManager *manager, Ticks timestamp, int p
         // Mark this pitch as endgroup
         IndexedOff_declare(off, padIndexForEndgroup, pitch);
         IndexedOffAr_binInsertPadIndex(&manager->endgroups, off);
-    }
-    else {
+    } else {
         TimedOff_declare(off, timestamp, pitch);
         TimedOffAr_binInsertTime(&manager->pending, off);
     }
@@ -9520,12 +9522,14 @@ APIF off_t BinFile_writeNullLength(BinFile *bf, bool spaceForFlags, Error *err) 
 } 
 
 APIF void BinFile_writeFlags(BinFile *bf, long flags, Error *err) {
+    Coverage_off;
     char hex[4] = {
         binFile_intToHexDigit((flags)       & 0xFF),
         binFile_intToHexDigit((flags >> 8)  & 0xFF),
         binFile_intToHexDigit((flags >> 16) & 0xFF),
         binFile_intToHexDigit((flags >> 24) & 0xFF),
     };
+    Coverage_on;
     if (fprintf(BinFile_stream(bf), "%c%c%c%c ", hex[0], hex[1], hex[2], hex[3]) < 0) {
         Error_format(err, "Failed fprintf while writing %s", BinFile_filename(bf));
         return;
@@ -9776,6 +9780,7 @@ APIF void BinFile_verifyTag(BinFile *bf, const char *tag, Error *err) {
 
 
 
+#line 1 "src/sequence.in.c"
 
 #line 17 "src/sequence.in.c"
 
@@ -9786,26 +9791,14 @@ APIF void BinFile_verifyTag(BinFile *bf, const char *tag, Error *err) {
 // This is the decimal representation of binary 10010000
 #define NOTEON_COMMAND 144
 
-#ifdef TEST_BUILD
-Ticks Ticks_dbCurrent = 0;
-NoteEventAr *NoteOutlet_dbSent = NULL;
-APIF void NoteOutlet_dbRewindSent() 
-{
-    if (NoteOutlet_dbSent != NULL) {
-        NoteEventAr_truncate(NoteOutlet_dbSent);    
-    }
-}
-#endif
 
 APIF void NoteOutlet_sendNote(NoteOutlet *self, uint8_t pitch, uint8_t velocity)
 {
 #   ifdef TEST_BUILD
-    if (NoteOutlet_dbSent == NULL) {
-        NoteOutlet_dbSent = NoteEventAr_new(0);
-    }
-    NoteEvent e = {.pitch = pitch, .velocity = velocity, .stime = Ticks_dbCurrent, .duration = 0};
-    NoteEventAr_push(NoteOutlet_dbSent, e);
-#   else
+    NoteOutlet_dbRecordEvent(pitch, velocity);
+#   endif
+
+    AtomAr_changeLength(&self->atoms, 4);
     Atom *av = self->atoms.data;
     av[0] = Atom_fromSymbol(Symbol_gen("midievent"));
     av[1] = Atom_fromInteger(NOTEON_COMMAND);
@@ -9814,7 +9807,6 @@ APIF void NoteOutlet_sendNote(NoteOutlet *self, uint8_t pitch, uint8_t velocity)
     Error_declare(err);
     Port_send(self->port, 0, 4, av, err);
     Error_maypost(err);
-#   endif
 }
 
 APIF NoteOutlet *NoteOutlet_newBuild(Port *port)
@@ -9825,7 +9817,7 @@ APIF NoteOutlet *NoteOutlet_newBuild(Port *port)
     return self;
 }
 
-#line 99 "src/sequence.in.c"
+#line 86 "src/sequence.in.c"
 
 #ifdef TEST_BUILD
 FloatEventAr *CcOutlet_dbSent = NULL;
@@ -9849,13 +9841,14 @@ APIF void CcOutlet_sendFloat(CcOutlet *self, double value)
     FloatEventAr_push(CcOutlet_dbSent, e);
 #   else
     int v = (int)value;
-    Atom *av = self->atoms;
+    AtomAr_changeLength(&self->atoms, 4);
+    Atom *av = self->atoms.data;
     av[0] = Atom_fromSymbol(Symbol_gen("midievent"));
     av[1] = Atom_fromInteger(CC_COMMAND);
     av[2] = Atom_fromInteger(self->cc);
     av[3] = Atom_fromInteger(v);
     Error_declare(err);
-    PortRef_send(ref, 0, 4, av, err);
+    Port_send(self->port, 0, 4, av, err);
     Error_maypost(err);   
 #   endif
 }
@@ -9869,7 +9862,7 @@ APIF CcOutlet *CcOutlet_newBuild(Port *port, int cc)
     return self;
 }
 
-#line 158 "src/sequence.in.c"
+#line 146 "src/sequence.in.c"
 
 #ifdef TEST_BUILD
 FloatEventAr *BendOutlet_dbSent = NULL;
@@ -9894,13 +9887,14 @@ APIF void BendOutlet_sendFloat(BendOutlet *self, double value)
     int v = (int)value;
     int lsb = v & 0x7F;
     int msb = (v >> 7) & 0x7F;
-    Atom *av = self->atoms;
+    AtomAr_changeLength(&self->atoms, 4);
+    Atom *av = self->atoms.data;
     av[0] = Atom_fromSymbol(Symbol_gen("midievent"));
     av[1] = Atom_fromInteger(BEND_COMMAND);
     av[2] = Atom_fromInteger(msb);
     av[3] = Atom_fromInteger(lsb);
     Error_declare(err);
-    PortRef_send(ref, 0, 4, av, err);
+    Port_send(self->port, 0, 4, av, err);
     Error_maypost(err);   
 #   endif
 }
@@ -9914,20 +9908,20 @@ APIF BendOutlet *BendOutlet_newBuild(Port *port)
 }
 
 
-#line 218 "src/sequence.in.c"
+#line 207 "src/sequence.in.c"
 
 APIF void VstOutlet_sendFloat(VstOutlet *self, double value)
 {
 }
 
-#line 235 "src/sequence.in.c"
+#line 224 "src/sequence.in.c"
 
 
-#line 258 "src/sequence.in.c"
+#line 247 "src/sequence.in.c"
 
-#line 270 "src/sequence.in.c"
+#line 259 "src/sequence.in.c"
 
-OutletSpecifier OutletSpecifier_makeCC(Symbol *track, int cc) {
+COVER OutletSpecifier OutletSpecifier_makeCC(Symbol *track, int cc) {
     OutletSpecifier selfValue = {0}, *self = &selfValue;
     OutletSpecifier_init(self);
     self->track       = track;
@@ -9937,7 +9931,7 @@ OutletSpecifier OutletSpecifier_makeCC(Symbol *track, int cc) {
     return selfValue;
 }
 
-OutletSpecifier OutletSpecifier_makeBend(Symbol *track) {
+COVER OutletSpecifier OutletSpecifier_makeBend(Symbol *track) {
     OutletSpecifier selfValue = {0}, *self = &selfValue;
     OutletSpecifier_init(self);
     self->track       = track;
@@ -9947,7 +9941,7 @@ OutletSpecifier OutletSpecifier_makeBend(Symbol *track) {
     return selfValue;
 }
 
-OutletSpecifier OutletSpecifier_makeNote(Symbol *track) {
+COVER OutletSpecifier OutletSpecifier_makeNote(Symbol *track) {
     OutletSpecifier selfValue = {0}, *self = &selfValue;
     OutletSpecifier_init(self);
     self->track       = track;
@@ -9957,7 +9951,7 @@ OutletSpecifier OutletSpecifier_makeNote(Symbol *track) {
     return selfValue;
 }
 
-OutletSpecifier OutletSpecifier_makeVst(Symbol *track, int pluginIndex, Symbol *parameter) {
+COVER OutletSpecifier OutletSpecifier_makeVst(Symbol *track, int pluginIndex, Symbol *parameter) {
     OutletSpecifier selfValue = {0}, *self = &selfValue;
     OutletSpecifier_init(self);
     self->track       = track;
@@ -9968,7 +9962,7 @@ OutletSpecifier OutletSpecifier_makeVst(Symbol *track, int pluginIndex, Symbol *
 }
 
 
-#line 332 "src/sequence.in.c"
+#line 321 "src/sequence.in.c"
 
 APIF int Timed_cmp(Timed *left, Timed *right)
 {
@@ -10022,7 +10016,7 @@ APIF void TimedPq_invalidateSequence(TimedPq *self, SequenceAr *removes)
 
 
 
-#line 407 "src/sequence.in.c"
+#line 396 "src/sequence.in.c"
 
 APIF int NoteEvent_cmp(NoteEvent *left, NoteEvent *right)
 {
@@ -10038,7 +10032,7 @@ APIF int NoteEvent_cmp(NoteEvent *left, NoteEvent *right)
     return 0;
 }
 
-#line 484 "src/sequence.in.c"
+#line 473 "src/sequence.in.c"
 
 APIF NoteSequence *NoteSequence_newTrack(Symbol *track, PortFind *portFind)
 {
@@ -10068,7 +10062,7 @@ Ticks NoteSequence_endgDuration       = -2;
 Ticks NoteSequence_noteOffDuration    = -3;
 #define NoteSequence_isMarkerValue(v) (v < 0)
 #define NoteSequence_minSequenceLength 5
-static inline void NoteSequence_playNoteOffs(NoteSequence *self, Ticks current, Error *err) 
+COVER static inline void NoteSequence_playNoteOffs(NoteSequence *self, Ticks current, Error *err) 
 {
     self->nextOffEvent = -1;
     int nremoves = 0;
@@ -10086,7 +10080,7 @@ static inline void NoteSequence_playNoteOffs(NoteSequence *self, Ticks current, 
     }
 }
 
-static inline void NoteSequence_playNoteOns(NoteSequence *self, Ticks current, Error *err) 
+COVER static inline void NoteSequence_playNoteOns(NoteSequence *self, Ticks current, Error *err) 
 {
     self->nextOnEvent = -1;
     for (;;) {
@@ -10123,7 +10117,7 @@ static inline void NoteSequence_playNoteOns(NoteSequence *self, Ticks current, E
     }
 }
 
-static inline Ticks NoteSequence_nextEvent(NoteSequence *self) {
+COVER static inline Ticks NoteSequence_nextEvent(NoteSequence *self) {
     if (self->nextOnEvent < 0 && self->nextOffEvent < 0) {
         return -1;
     } else if (self->nextOffEvent < 0) {
@@ -10266,7 +10260,7 @@ APIF void NoteSequence_makeConsistent(NoteSequence *self)
     }
 }
 
-#line 731 "src/sequence.in.c"
+#line 720 "src/sequence.in.c"
 
 APIF int FloatEvent_cmp(FloatEvent *left, FloatEvent *right)
 {
@@ -10278,7 +10272,7 @@ APIF int FloatEvent_cmp(FloatEvent *left, FloatEvent *right)
     return 0;
 }
 
-#line 795 "src/sequence.in.c"
+#line 784 "src/sequence.in.c"
 
 APIF FloatSequence *FloatSequence_newCc(Symbol *track, int cc, PortFind *portFind) 
 {
@@ -10443,7 +10437,7 @@ APIF void FloatSequence_makeConsistent(FloatSequence *self)
 }
 
 
-#line 1029 "src/sequence.in.c"
+#line 1018 "src/sequence.in.c"
 
 APIF void Sequence_freePpErrless(Sequence **s)
 {
@@ -10510,7 +10504,7 @@ APIF void Sequence_incVersion(Sequence *seq) {
     seq->version++;
 }
 
-#line 1110 "src/sequence.in.c"
+#line 1099 "src/sequence.in.c"
 
 APIF void RecordBuffer_push(RecordBuffer *self, Sequence *sequence)
 {
@@ -10533,7 +10527,7 @@ typedef struct MidiEvent_t {
     long arg2;
 } MidiEvent;
 
-MidiEvent Midi_getNextEvent(FILE *pipe, Error *err)
+COVER MidiEvent Midi_getNextEvent(FILE *pipe, Error *err)
 {
     static String *buffer       = NULL;
     static StringPtAr *arBuffer = NULL;
@@ -10912,6 +10906,7 @@ APIF void Frontend_stop(Hub *hub) {
 	}
 }
 */
+#line 1 "test/for_tarray.in.c"
 #line 24 "test/for_tarray.in.c"
 
 #line 32 "test/for_tarray.in.c"
@@ -10954,13 +10949,14 @@ APIF int Foo_cmpBoth(Foo *left, Foo *right)
 }
 
 
-void Foo_zeroRecord() {
+NOCOVER void Foo_zeroRecord() {
 	numRecorded = 0;
 	memset(recorded, 0, sizeof(Foo)*maxNumRecorded);
 }
 
 
 
+#line 1 "test/for_tsequence.in.c"
 
 
 APIF Port *Port_newTrackId(Symbol *track, Symbol *id)
@@ -10989,14 +10985,16 @@ APIF PortFind *PortFind_newFromTable(int argc, PortFindCell *cells)
     return self;
 }
 
-APIF PortFind *PortFind_createStandardSpoof()
+APIF PortFind *PortFind_createStandardSpoof(void)
 {
 	const int ncells = 3;
+	Coverage_off;
 	PortFindCell cells[ncells] = {
 		{.reciever = Port_newTrackId(Symbol_gen("piano"),  Symbol_gen("idPiano")),  .varname = Symbol_gen("unknown")},
 		{.reciever = Port_newTrackId(Symbol_gen("guitar"), Symbol_gen("idGuitar")), .varname = Symbol_gen("unknown")},
 		{.reciever = Port_newTrackId(Symbol_gen("drums"),  Symbol_gen("idDrums")),  .varname = Symbol_gen("unknown")},
 	};
+	Coverage_on;
 	return PortFind_newFromTable(ncells, cells);
 }
 
@@ -11005,4 +11003,66 @@ APIF void PortFind_userClear(PortFind *self)
 	PortFindCellAr_foreach(it, &self->objects) {
 		Port_free(it.var->reciever);
 	}
+}
+
+NoteEventAr *NoteOutlet_dbSent = NULL;
+
+APIF void NoteOutlet_dbRewindSent() 
+{
+    if (NoteOutlet_dbSent != NULL) {
+        NoteEventAr_truncate(NoteOutlet_dbSent);    
+    }
+}
+
+APIF void NoteOutlet_dbRecordEvent(int pitch, int velocity) 
+{
+   	if (NoteOutlet_dbSent == NULL) {
+        NoteOutlet_dbSent = NoteEventAr_new(0);
+    }
+    NoteEvent e = {.pitch = pitch, .velocity = velocity, .stime = Ticks_dbCurrent, .duration = 0};
+    NoteEventAr_push(NoteOutlet_dbSent, e);
+}
+APIF void NoteOutlet_dbGetResults(NoteEventAr *arr)
+{
+	if (NoteOutlet_dbSent == NULL) {
+		return;
+	}
+	NoteEventAr_truncate(arr);
+
+	Ticks offTime[128] = {0};
+	NoteEventAr_rforeach(it, NoteOutlet_dbSent) {
+		if (it.var->velocity == 0) {
+			offTime[it.var->pitch] = it.var->stime;
+		} else {
+			NoteEvent e = *it.var;
+			e.duration  = offTime[e.pitch] - e.stime;
+			NoteEventAr_push(arr, e);
+		}
+	}
+	NoteOutlet_dbRewindSent();
+}
+#line 1 "**coverage**" 
+void Coverage_initialize()
+{
+    Coverage_array = Mem_calloc(sizeof(const char *) * 0);    
+}
+
+void Coverage_finalize(const char *file)
+{
+    String *coverFile = Coverage_createCoverageFile(file);
+    FILE *out = fopen(coverFile, "w");
+    if (!out) {
+        Error_declare(err);
+        Error_format(err, "Failed to open coverage file %s", coverFile);
+        Error_maypost(err);
+        exit(1);
+    }
+    fprintf(out, "*totalSize %d\n", 0);
+    for (int i = 0; i < 0; i++) {
+        if (Coverage_array[i] != NULL) {
+            fprintf(out, "%s\n", Coverage_array[i]);
+        }
+    }
+    fclose(out);
+    String_free(coverFile);
 }
