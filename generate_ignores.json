@@ -1,5 +1,6 @@
 {
    "ignores": {
-       "sequence.in.c": false
+       "sequence.in.c": false,
+       "audio.in.c": true 
    }
 }

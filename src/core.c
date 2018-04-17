@@ -92,6 +92,11 @@ APIF int String_cmp(String *self, String *other)
     return strcmp(self, other);
 }
 
+APIF int String_cmpPp(String **self, String **other)
+{
+    return strcmp(*self, *other);
+}
+
 APIF int String_equal(String *self, String *other)
 {
     return String_cmp(self, other) == 0;
@@ -525,6 +530,14 @@ typedef long long Ticks;
 #define Ticks_maxTime LLONG_MAX 
 #ifdef TEST_BUILD
 Ticks Ticks_dbCurrent = -1;
+void Ticks_dbSetNow(Ticks current){Ticks_dbCurrent = current;}
+Ticks Ticks_dbNow(){return Ticks_dbCurrent;}
+Ticks Ticks_replaceMaxTime(Ticks value, Ticks replace) {
+    if (value == Ticks_maxTime) {
+        return replace;
+    }
+    return value;
+}
 #endif
 
 #ifndef TEST_BUILD

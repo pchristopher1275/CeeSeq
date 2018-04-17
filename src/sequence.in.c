@@ -41,6 +41,7 @@
 APIF void NoteOutlet_sendNote(NoteOutlet *self, uint8_t pitch, uint8_t velocity)
 {
 #   ifdef TEST_BUILD
+    // printf("OUTLET pitch=%d velocity=%d\n", pitch, velocity);
     NoteOutlet_dbRecordEvent(pitch, velocity);
 #   endif
 
@@ -488,6 +489,7 @@ APIF NoteSequence *NoteSequence_newFromEvents(Symbol *track, PortFind *portFind,
     }
     NoteSequence_makeConsistent(self);
     NoteEventAr_rforeach(it, &self->events) {
+        // This assumes that you always correctly add a cycle marker at the end of you input NoteEvent table
         self->sequenceLength = it.var->stime;
         break;
     }
@@ -501,7 +503,7 @@ Ticks NoteSequence_noteOffDuration    = -3;
 #define NoteSequence_minSequenceLength 5
 COVER static inline void NoteSequence_playNoteOffs(NoteSequence *self, Ticks current, Error *err) 
 {
-    self->nextOffEvent = -1;
+    self->nextOffEvent = Ticks_maxTime;
     int nremoves = 0;
     TimedOffAr_foreach(it, &self->offs) {
         if (it.var->time > current) {
@@ -519,7 +521,7 @@ COVER static inline void NoteSequence_playNoteOffs(NoteSequence *self, Ticks cur
 
 COVER static inline void NoteSequence_playNoteOns(NoteSequence *self, Ticks current, Error *err) 
 {
-    self->nextOnEvent = -1;
+    self->nextOnEvent = Ticks_maxTime;
     for (;;) {
         NoteEventAr_foreachOffset(it, &self->events, self->cursor) {
             NoteEvent *ne = it.var;
@@ -528,8 +530,14 @@ COVER static inline void NoteSequence_playNoteOns(NoteSequence *self, Ticks curr
                 return;
             }
             if (!NoteSequence_isMarkerValue(ne->duration)) {
+                // Queue the note off
                 TimedOff off = {.time = self->startTime + ne->stime + ne->duration, .pitch = ne->pitch};
                 TimedOffAr_binInsertTime(&self->offs, off);
+                if (self->nextOffEvent > off.time) {
+                    self->nextOffEvent = off.time;
+                }
+
+                // Play the note on
                 Outlet_sendNote(self->outlet, ne->pitch, ne->velocity, err);
             } else if (ne->duration == NoteSequence_endgDuration) {
                 self->inEndgroup = true;
@@ -555,11 +563,13 @@ COVER static inline void NoteSequence_playNoteOns(NoteSequence *self, Ticks curr
 }
 
 COVER static inline Ticks NoteSequence_nextEvent(NoteSequence *self) {
-    if (self->nextOnEvent < 0 && self->nextOffEvent < 0) {
+    bool maxOff = self->nextOffEvent == Ticks_maxTime;
+    bool maxOn  = self->nextOnEvent  == Ticks_maxTime;
+    if (maxOff && maxOn) {
         return -1;
-    } else if (self->nextOffEvent < 0) {
+    } else if (maxOff) {
         return self->nextOnEvent;
-    } else if (self->nextOnEvent < 0) {
+    } else if (maxOn) {
         return self->nextOffEvent;
     } else {
         return self->nextOffEvent < self->nextOnEvent ? self->nextOffEvent : self->nextOnEvent;
@@ -605,9 +615,8 @@ APIF void NoteSequence_start(NoteSequence *self, Ticks clockStart, Ticks current
             self->cursor++;
         }
         if (self->cursor >= nevents) {
-            self->startTime += self->sequenceLength;
-            nextEvent        = self->startTime;
-            self->cursor     = 0;
+            Error_format0(err, "INTERNAL ERROR: cursor found to be >= nevents");
+            return;
         }
     } else {
         NoteEventAr_foreach(it, &self->events) {
@@ -615,7 +624,6 @@ APIF void NoteSequence_start(NoteSequence *self, Ticks clockStart, Ticks current
             break;
         }
     }
-
     self->recordingSeq = NULL;
     if (recordBuffer != NULL) {
         NoteSequence *other = NoteSequence_recordClone(self);

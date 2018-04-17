@@ -109,7 +109,9 @@ bool Unit_checkShouldRun(const char *func) {
 	}\
 } while (0)
 
+bool Unit_fatal = false;
 #define Unit_assert(expr, message, fatal) do {\
+	Unit_fatal = false;\
 	Unit_numAsserts++;\
 	const char *m = (message);\
 	if (!(expr)) {\
@@ -121,13 +123,23 @@ bool Unit_checkShouldRun(const char *func) {
 			printf("\n");\
 		}\
 		if (fatal) {\
+			Unit_fatal = true;\
 			return;\
 		}\
 	}\
 } while (0)
 
+#define Unit_call(funcCall) funcCall; if (Unit_fatal){return;}
+
 #define chk(e)        Unit_assert(e, NULL, 0)
 #define chkm(e, m)    Unit_assert(e, m, 0)
 #define fatal(e)      Unit_assert(e, NULL, 1)
 #define fatalm(e, m)  Unit_assert(e, m, 1)
+
+bool Unit_useCase = false;
+void Unit_setUseCase(bool value)
+{
+	Unit_useCase = value;
+}
+#define Unit_case(a) if (!Unit_useCase || a)
 

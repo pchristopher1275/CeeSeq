@@ -7,7 +7,11 @@ String *stripBaseName(const char *path);
     "type": "array",
     "typeName": "StringPtAr",
     "elemName": "String *",
-    "clearer":  "String_freep"
+    "clearer":  "String_freep",
+    "binarySearch": [
+        {"compare": "String_cmpPp"}
+    ]   
+
 }
 @end
 
@@ -168,11 +172,11 @@ APIF void Port_send(Port *self, int outletIndex, short argc, Atom *argv, Error *
     if (self == Port_null) {
         return;
     }
-
+    
+#ifndef TEST_BUILD
     Symbol *selector = Atom_toSymbol(argv + 0);
     void *out = PtrAr_get(&self->outlet, outletIndex, err);
     Error_returnVoidOnError(err);
-#ifndef TEST_BUILD
     outlet_anything(out, selector, argc-1, argv+1);  
 #else
     AtomArAr *arr = self->obj.utilityPointer;

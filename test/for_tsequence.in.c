@@ -76,9 +76,47 @@ APIF void NoteOutlet_dbGetResults(NoteEventAr *arr)
 			offTime[it.var->pitch] = it.var->stime;
 		} else {
 			NoteEvent e = *it.var;
+			if (offTime[e.pitch] == 0) {
+				// This is the case when we have a note-on without a closing note-off. For better or worse
+				// I handle this case by ignoring all notes that don't have a note off.
+				continue;
+			}
 			e.duration  = offTime[e.pitch] - e.stime;
 			NoteEventAr_push(arr, e);
 		}
 	}
+	// reverse arr
+	int N = NoteEventAr_len(arr);
+	NoteEvent *d = arr->data;
+	for (int i = 0; i < N/2; i++) {
+		NoteEvent h = d[i];
+		d[i] = d[N-i-1];
+		d[N-i-1] = h;
+	}
 	NoteOutlet_dbRewindSent();
 }
+
+APIF void NoteOutlet_dbReportNoteOffs(NoteEventAr *arr)
+{
+	if (NoteOutlet_dbSent == NULL) {
+		return;
+	}
+	NoteEventAr_truncate(arr);
+
+	NoteEventAr_foreach(it, NoteOutlet_dbSent) {
+		if (it.var->velocity == 0) {
+			NoteEvent e = *it.var;
+			NoteEventAr_push(arr, e);
+		}
+	}
+	// reverse arr
+	int N = NoteEventAr_len(arr);
+	NoteEvent *d = arr->data;
+	for (int i = 0; i < N/2; i++) {
+		NoteEvent h = d[i];
+		d[i] = d[N-i-1];
+		d[N-i-1] = h;
+	}
+	NoteOutlet_dbRewindSent();
+}
+
