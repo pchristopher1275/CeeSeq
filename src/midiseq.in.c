@@ -198,7 +198,6 @@ APIF void Port_sendInteger(Port *self, int outlet, long value, Error *err)
         return;
     }
 
-    Error_declare(err);
     void *out = PtrAr_get(&self->outlet, outlet, err);
     Error_returnVoidOnError(err); 
 #ifndef TEST_BUILD
@@ -2196,8 +2195,11 @@ APIF void Hub_build(Hub *hub, PortFind *pf, Error *err) {
 
 APIF void Hub_updateGuiCurrentCoordinates(Hub *hub) 
 {
-    Port_sendInteger(Hub_currBankPort(hub),  0, Hub_bank(hub));
-    Port_sendInteger(Hub_currFramePort(hub), 0, Hub_frame(hub));
+    Error_declare(err);
+    Port_sendInteger(Hub_currBankPort(hub),  0, Hub_bank(hub), err);
+    Error_maypost(err);
+    Port_sendInteger(Hub_currFramePort(hub), 0, Hub_frame(hub), err);
+    Error_maypost(err);
 }
 
 APIF void Hub_changeSelectedPad(Hub *hub, int selectedPadIndex, Error *err) {
@@ -2222,9 +2224,12 @@ APIF void Hub_changeSelectedPad(Hub *hub, int selectedPadIndex, Error *err) {
     Error_returnVoidOnError(err);
 
     // Selected coordinates
-    Port_sendInteger(Hub_selBankPort(hub),  0, (long)Hub_selectedBank(hub));
-    Port_sendInteger(Hub_selFramePort(hub), 0, (long)Hub_selectedFrame(hub));  
-    Port_sendInteger(Hub_selPadPort(hub),   0, (long)Hub_relativeSelectedPad(hub));
+    Port_sendInteger(Hub_selBankPort(hub),  0, (long)Hub_selectedBank(hub), err);
+    Error_returnVoidOnError(err);
+    Port_sendInteger(Hub_selFramePort(hub), 0, (long)Hub_selectedFrame(hub), err);  
+    Error_returnVoidOnError(err);
+    Port_sendInteger(Hub_selPadPort(hub),   0, (long)Hub_relativeSelectedPad(hub), err);
+    Error_returnVoidOnError(err);
 }
 
 APIF void Hub_anythingDispatch(Hub *hub, Port *port, Symbol *selector, long argc, Atom *argv)

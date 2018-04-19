@@ -474,6 +474,7 @@ APIF int NoteEvent_cmp(NoteEvent *left, NoteEvent *right)
 
 APIF NoteSequence *NoteSequence_newTrack(Symbol *track, PortFind *portFind)
 {
+    // XXX: I don't know if this should be a legal new! 
     NoteSequence *self    = NoteSequence_new();
     self->outletSpecifier = OutletSpecifier_makeNote(track);
     self->outlet          = PortFind_createOutlet(portFind, &self->outletSpecifier);
@@ -631,7 +632,6 @@ APIF void NoteSequence_start(NoteSequence *self, Ticks clockStart, Ticks current
         self->recordingSeq  = other; 
         RecordBuffer_push(recordBuffer, NoteSequence_castToSequence(other));
     }
-// printf("nextEvent %lld %d %lld\n", nextEvent, self->cursor, self->startTime);
     TimedPq_enqueue(queue, nextEvent, NoteSequence_castToSequence(self));
 }
 

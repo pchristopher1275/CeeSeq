@@ -123,9 +123,7 @@ void testNoteSequenceDriveFixture(Ticks clockStart, Ticks current, int noteCurso
 	PortFind_free(portFind);	
 }
 
-Unit_declare(testNoteSequence) {
-	// Unit_setUseCase(true);
-
+Unit_declare(testNoteSequenceStartAndDrive) {
 	Unit_case(0) {
 		// Outlet initialization
 		PortFind *portFind = PortFind_createStandardSpoof();
@@ -189,8 +187,95 @@ Unit_declare(testNoteSequence) {
 	}	
 }
 
+Unit_declare(testNoteSequenceStopAndEndgroup)
+{
+	{
+		// Test NoteSequence_stop
+		PortFind *portFind = PortFind_createStandardSpoof();
+		const int nnotes = 2;
+		NoteEvent notes[nnotes] = {
+			{.pitch = 0,  .velocity = 0,   .stime = 400,     .duration = NoteSequence_endgDuration},
+			{.pitch = 0,  .velocity = 0,   .stime = 400,     .duration = NoteSequence_cycleDuration}
+		};
+		NoteSequence *noteSequence = NoteSequence_newFromEvents(Symbol_gen("piano"), portFind, nnotes, notes);
+		Outlet *ol = noteSequence->outlet;
+		NoteOutlet *nol = NoteOutlet_castFromOutlet(ol);
+		fatal(nol != NULL); 
+
+		const int noffPitches = 3;
+		int offPitches[noffPitches] = {60, 61, 62};
+		for (int i = noffPitches-1; i >= 0; i--) {
+			// I don't know why I have to add these in reverse order. But I don't much care.
+			TimedOff t = {.time = Ticks_maxTime, .pitch = offPitches[i]};
+			TimedOffAr_push(&noteSequence->offs, t);
+		}
+		fatal(TimedOffAr_len(&noteSequence->offs) == 3);
+		chk(noteSequence->version == 0);
+		chk(noteSequence->cursor  == 0);
+
+		Error_declare(err);
+		NoteSequence_stop(noteSequence, Ticks_maxTime, err);
+		fatal(!Error_iserror(err));
+
+		chk(TimedOffAr_len(&noteSequence->offs) == 0);
+		chk(noteSequence->version == 1);
+		chk(noteSequence->cursor  == NoteEventAr_len(&noteSequence->events));
+
+		NoteEventAr *res = NoteEventAr_new(0);
+		NoteOutlet_dbReportNoteOffs(res);
+		fatal(NoteEventAr_len(res) == noffPitches);
+		NoteEvent *evs = res->data;
+		for (int i = 0; i < noffPitches; i++) {
+			chk(evs[i].pitch == offPitches[i]);
+		}
+		NoteEventAr_free(res);
+		PortFind_free(portFind);
+		NoteSequence_free(noteSequence);
+	}
+
+	{
+		// Test NoteSequence_padNoteOff
+		PortFind *portFind = PortFind_createStandardSpoof();
+		const int nnotes = 2;
+		NoteEvent notes[nnotes] = {
+			{.pitch = 0,  .velocity = 0,   .stime = 400,     .duration = NoteSequence_endgDuration},
+			{.pitch = 0,  .velocity = 0,   .stime = 400,     .duration = NoteSequence_cycleDuration}
+		};
+		NoteSequence *noteSequence = NoteSequence_newFromEvents(Symbol_gen("piano"), portFind, nnotes, notes);
+		Outlet *ol = noteSequence->outlet;
+		NoteOutlet *nol = NoteOutlet_castFromOutlet(ol);
+		fatal(nol != NULL); 
+
+		const int noffPitches = 3;
+		int offPitches[noffPitches] = {60, 61, 62};
+		for (int i = noffPitches-1; i >= 0; i--) {
+			// I don't know why I have to add these in reverse order. But I don't much care.
+			TimedOff t = {.time = Ticks_maxTime, .pitch = offPitches[i]};
+			TimedOffAr_push(&noteSequence->offs, t);
+		}
+		fatal(TimedOffAr_len(&noteSequence->offs) == 3);
+		noteSequence->inEndgroup = true;
+		// APIF void NoteSequence_padNoteOff(NoteSequence *self, int padIndex, Ticks current, Error *err) 
+		Error_declare(err);
+		NoteSequence_padNoteOff(noteSequence, 0, Ticks_maxTime, err);
+		chk(TimedOffAr_len(&noteSequence->offs) == 0);
+		
+		NoteEventAr *res = NoteEventAr_new(0);
+		NoteOutlet_dbReportNoteOffs(res);
+		fatal(NoteEventAr_len(res) == noffPitches);
+		NoteEvent *evs = res->data;
+		for (int i = 0; i < noffPitches; i++) {
+			chk(evs[i].pitch == offPitches[i]);
+		}
+		NoteEventAr_free(res);
+		PortFind_free(portFind);
+		NoteSequence_free(noteSequence);
+	}
+}
+
 int main(int argc, char *argv[]) {
 	Unit_initialize(argc, argv);
-	Unit_test(testNoteSequence);
+	Unit_test(testNoteSequenceStartAndDrive);
+	Unit_test(testNoteSequenceStopAndEndgroup);
 	Unit_finalize();
 }
