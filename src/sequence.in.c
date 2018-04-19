@@ -608,7 +608,7 @@ APIF void NoteSequence_start(NoteSequence *self, Ticks clockStart, Ticks current
         }
 
         NoteEventAr_foreach(it, &self->events) {
-            if (it.var->stime + self->startTime > current) {
+            if (it.var->stime + self->startTime >= current) {
                 nextEvent = it.var->stime + self->startTime;
                 break;
             }
@@ -631,7 +631,7 @@ APIF void NoteSequence_start(NoteSequence *self, Ticks clockStart, Ticks current
         self->recordingSeq  = other; 
         RecordBuffer_push(recordBuffer, NoteSequence_castToSequence(other));
     }
-
+// printf("nextEvent %lld %d %lld\n", nextEvent, self->cursor, self->startTime);
     TimedPq_enqueue(queue, nextEvent, NoteSequence_castToSequence(self));
 }
 

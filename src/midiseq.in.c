@@ -192,7 +192,7 @@ APIF void Port_send(Port *self, int outletIndex, short argc, Atom *argv, Error *
 #endif
 }
 
-APIF void Port_sendInteger(Port *self, int outlet, long value) 
+APIF void Port_sendInteger(Port *self, int outlet, long value, Error *err) 
 {
     if (self == Port_null) {
         return;
@@ -200,9 +200,7 @@ APIF void Port_sendInteger(Port *self, int outlet, long value)
 
     Error_declare(err);
     void *out = PtrAr_get(&self->outlet, outlet, err);
-    if (Error_maypost(err)) {
-        return;
-    } 
+    Error_returnVoidOnError(err); 
 #ifndef TEST_BUILD
     outlet_int(out, value);  
 #else

@@ -1,40 +1,80 @@
 
 @type
 {
-	
+	"typeName": "AudioOutlet",
+	"fields": [
+		{"name": "port",   "type": "Port *"},
+		{"name": "outlet", "type": "int"},
+		{"name": "atoms",  "type": "AtomAr"}
+	],
+	"containers": [
+        {
+            "type": "array",
+            "typeName": "AudioOutletPtAr", 
+            "elemName": "AudioOutlet *"
+        }
+    ]
 }
 @end
+
+APIF void AudioOutlet_userInit(AudioOutlet *self)
+{
+	AtomAr_changeLength(&self->atoms, 4);
+}
+
+APIF void AudioOutlet_sendPreload(AudioOutlet *self, Symbol *fileSymbol, int cue, Ticks offset, Error *err)
+{
+	Atom *a = self->atoms.data;
+	a[0] = Atom_fromSymbol(Symbol_gen("preload"));
+	a[1] = Atom_fromInteger(cue);
+	a[2] = Atom_fromSymbol(fileSymbol);
+	int argc = 3;
+	if (offset > 0) {
+		double ms = Ticks_toMs(offset);
+		a[3] = Atom_fromInteger((long)ms);
+		argc++;
+	}
+	Port_send(self->port, self->outlet, argc, argv, err);
+	return;
+}
+
+APIF void AutioOutlet_sendPlay(AudioOutlet *self, int cue, Error *err)
+{
+	Port_sendInteger(self->port, self->outlet, cue, err);
+}
+
+APIF void AutioOutlet_sendStop(AudioOutlet *self, Error *err)
+{
+	Port_sendInteger(self->port, self->outlet, 0, err);
+}
+
+
 
 @type
 {
 	"typeName": "CueEntry"
 	"fields": [
-		{"name": "fileId", "type": "String *"},
-		{"name": "cues",   "type": "IntAr"}
+		{"name": "fileSymbol", "type": "Symbol *"},
+		{"name": "cues",       "type": "IntAr"}
 	]
 	"containers": [
         {
             "type": "array",
             "typeName": "CueEntryAr", 
-            "elemName": "CueEntr",
+            "elemName": "CueEntry",
             "binarySearch": [
-               {"compare": "CueEntry_cmpByFileIdPp", "multi": true, "tag": "ByFilename"}
+               {"compare": "CueEntry_cmpByFileSymbol", "tag": "ByFileSymbol"}
             ]
-        },
-        {
-            "type": "array",
-            "typeName": "CueEntryPtAr", 
-            "elemName": "CueEntry *"
         }
   	]
 }
 @end
 
-APIF void CueEntry_cmpByFileId(CueEntry *left, CueEntry *right)
+APIF void CueEntry_cmpByFileSymbol(CueEntry *left, CueEntry *right)
 {
-	if (left->fileId < right->fileId) {
+	if (left->fileSymbol < right->fileSymbol) {
 		return -1;
-	} else if (left->fileId > right->fileId) {
+	} else if (left->fileSymbol > right->fileSymbol) {
 		return 1;
 	}
 	return 0;
@@ -42,65 +82,44 @@ APIF void CueEntry_cmpByFileId(CueEntry *left, CueEntry *right)
 
 @type
 {
-	"typeName": "FilenameEntry",
-	"fields": [
-		{"name": "filename", "type": "String *"},
-		{"name": "fileId",   "type": "int"}
-	]
-	"containers": [
-        {
-            "type": "array",
-            "typeName": "FilenameEntryAr", 
-            "elemName": "FilenameEntry",
-            "binarySearch": [
-               {"compare": "FilenameEntry_cmp"}
-            ]
-        }
-    ]
-}
-@end
-
-APIF int FilenameEntry_cmp(FilenameEntry *left, FilenameEntry *right)
-{
-	return String_cmp(left->filename, right->filename);
-}
-
-
-@type
-{
 	"typeName": "AudioBuffer",
 	"fields": [
-		{"name": "fileId",         "type": "int"},
-		{"name": "cueOutlet",      "type": "CueOutlet"},
+		{"name": "fileSymbol",     "type": "Symbol *"},
+		{"name": "audioOutlet",    "type": "AudioOutlet *"},
 		{"name": "cancel",         "type": "Sequence *", "lifecycle": "unmanaged"},
+		{"name": "isTempCue",      "type": "bool"},
 		{"name": "cue",            "type": "int"}
 	],
 	"containers": [
         {
             "type": "array",
-            "typeName": "AudioBufferAr", 
-            "elemName": "AudioBuffer"
-        },
-        {
-            "type": "array",
             "typeName": "AudioBufferPtAr", 
             "elemName": "AudioBuffer *",
             "binarySearch": [
-               {"compare": "AudioBuffer_cmpByCuePp", "tag": "ByCue"}
+               {"compare": "AudioBuffer_cmpByPointerPp", "tag": "ByPointer"}
             ]
         }
   	]
 }
 @end
-#define AudioBuffer_isPlaying(ab) ((ab)->cue > 1)
 
-APIF int AudioBuffer_cmpByCuePp(AudioBuffer **leftP, AudioBuffer **rightP)
+COVER static inline bool AudioBuffer_isPlaying(AudioBuffer *self)
+{
+	return self->audioOutlet != NULL;
+}
+
+COVER static inline bool AudioBuffer_needsStop(AudioBuffer *self)
+{
+	return AudioBuffer_isPlaying(self) || self->isTempCue;
+}
+
+APIF int AudioBuffer_cmpByPointerPp(AudioBuffer **leftP, AudioBuffer **rightP)
 {
 	AudioBuffer *left  = *leftP;
 	AudioBuffer *right = *rightP;
-	if (left->cue < right->cue) {
+	if (left < right) {
 		return -1
-	} else if (left->cue > right->cue) {
+	} else if (left > right) {
 		return 1
 	}
 	return 0;
@@ -110,44 +129,44 @@ APIF int AudioBuffer_cmpByCuePp(AudioBuffer **leftP, AudioBuffer **rightP)
 {
 	"typeName": "AudioPlayer",
 	"fields": [
-		{"name", "nextCue",                "type": "int"},
+		{"name", "nextNormalCue",          "type": "int"},
+		{"name", "nextTempCue",            "type": "int"},
 		{"name", "nextCancel",             "type": "int"},
 		{"name", "nextFileId",             "type": "int"},
-		{"name": "cueMap",                 "type": "CueEntryAr"},
+		{"name": "normalCueMap",           "type": "CueEntryPtAr"},
+		{"name": "freeTempCues",           "type": "IntAr"},
+		{"name": "listTildeOutlet",        "type": "AudioOutlet *"},
 		{"name": "runningAudioBuffers",    "type": "AudioBufferPtAr"},
-		{"name": "freePlayerPool",         "type": "PortPtAr"},
+		{"name": "freePlayerPool",         "type": "AudioOutletPtAr"},
 		{"name": "filenames",              "type": "FilenameEntryAr"},
 		{"name": "atoms",                  "type": "AtomAr"}
 	]
 }
 @end
 
-COVER static inline int AudioPlayer_fileIdFromFilename(AudioPlayer *self, String *filename, Error *err)
+#define AudioPlayer_firstUsableCue   2
+#define AudioPlayer_lastUsableCue    32767
+#define AudioPlayer_tempReservedCues 1000
+#define AudioPlayer_firstNormalCue   AudioPlayer_firstUsableCue
+#define AudioPlayer_lastNormalCue    (AudioPlayer_lastUsableCue - AudioPlayer_tempReservedCues - 1)
+#define AudioPlayer_firstTempCue     (AudioPlayer_lastNormalCue + 1)
+#define AudioPlayer_lastTempCue      AudioPlayer_lastUsableCue 
+
+COVER void AudioPlayer_userInit(AudioPlayer *self)
 {
-	FilenameEntry *filenameEntry = FilenameEntryAr_binSearch(&self->filenames, filename);
-	if (filenameEntry == NULL) {
-		FilenameEntry e = {.filename = String_dup(filename), .fileId = self->nextFileId++};
-		FilenameEntryAr_binInsert(&self->filenames, e);
-		filenameEntry = StringPtAr_binSearch(&self->filenames, filename);
-		if (fname == NULL) {
-			Error_format0(err, "INTERNAL ERROR");
-			return 0;
-		}
-	}
-	return filenameEntry->fileId;
+	self->nextNormalCue = AudioPlayer_firstNormalCue;
+	self->nextTempCue   = AudioPlayer_firstTempCue;
 }
 
-COVER static inline int AudioPlayer_getCue(AudioPlayer *self, int fileId, Error *err)
+COVER static inline int AudioPlayer_getNormalCue(AudioPlayer *self, Symbol *fileSymbol, Error *err)
 {
-
-	CueEntry *cueEntry = CueEntryAr_binSearchByFileId(&self->cueMap, fileId);
+	CueEntry *cueEntry = CueEntryPtAr_binSearchByFileSymbol(&self->normalCueMap, fileSymbol);
 	if (cueEntry == NULL) {
-		// XXX: need to preload the file in question
-		CueEntry cueEntry = {0};
-		CueEntry_init(&cueEntry);
-		cueEntry.fileId = fileId;
-		CueEntryAr_binInsertByFileId(&self->cueMap, cueEntry);
-		cueEntry = CueEntryAr_binSearchByFileId(&self->cueMap, fileId);
+		CueEntry cueEntryValue = {0};
+		CueEntry_init(&cueEntryValue);
+		cueEntryValue.fileSymbol = fileSymbol;
+		CueEntryAr_binInsertByFileSymbol(&self->normalCueMap, cueEntryValue);
+		cueEntry = CueEntryPtAr_binSearchByFileSymbol(&self->normalCueMap, fileSymbol);
 		if (cueEntry == NULL) {
 			Error_format0(err, "INTERNAL ERROR");
 			return 0;
@@ -159,25 +178,32 @@ COVER static inline int AudioPlayer_getCue(AudioPlayer *self, int fileId, Error 
 		Error_returnNullOnError(err);
 		IntAr_pop(&cueEntry->cues);
 	} else {
-		cue = self->nextCue++;
-		// XXX: need to preload this cue
+		if (self->nextNormalCue > AudioPlayer_lastNormalCue) {
+			Error_format0(err, "Exhausted normal cues");
+			return 0;
+		}
+		cue = self->nextNormalCue++;
+		AudioOutlet_sendPreload(self->listTildeOutlet, fileSymbol, cue, -1, err);
+		Error_returnZeroOnError(err);
 	}
 	return cue;
 }
 
-COVER static inline void AudioPlayer_releaseCue(AudioPlayer *self, int fileId, int cue) 
+COVER static inline void AudioPlayer_releaseNormalCue(AudioPlayer *self, Symbol *fileSymbol, int cue) 
 {
-	CueEntry *cueEntry = CueEntryAr_binSearchByFileId(&self->cueMap, fileId);
+	CueEntry *cueEntry = CueEntryPtAr_binSearchByFileSymbol(&self->normalCueMap, fileSymbol);
 	if (cueEntry == NULL) {
 		return;
 	}
 	IntAr_push(&cueEntry->cues, cue);
 }
 
-COVER static inline void AudioPlayer_maybeFreeUpPort(AudioPlayer *self, Error *err)
+COVER static inline void AudioPlayer_maybeFreeUpPlayer(AudioPlayer *self, Error *err)
 {
+	
+	// Loop as long as there are no free ports or until maxTries.
 	const int maxTries = 10;
-	for (int i = 0; i < maxTries && PortPtAr_len(&self->freePlayerPool) <= 0; i++) {
+	for (int i = 0; i < maxTries && AudioOutletPtAr_len(&self->freePlayerPool) <= 0; i++) {
 		if (self->nextCancel >= AudioBufferPtAr_len(&self->runningAudioBuffers)) {
 			self->nextCancel = 0;
 		}
@@ -185,35 +211,47 @@ COVER static inline void AudioPlayer_maybeFreeUpPort(AudioPlayer *self, Error *e
 		Sequence_stop((*audioBuffer)->cancel);
 		self->nextCancel++;
 	}
-	if (PortPtAr_len(&self->freePlayerPool) > 0) {
+	
+	if (AudioOutletPtAr_len(&self->freePlayerPool) > 0) {
 		return;
 	}
+
 	Error_format0(err, "INTERNAL ERROR: failed to free up port");
 }
 
-COVER static inline void AudioPlayer_sendPlayMessage(AudioPlayer *self, AudioBuffer *audioBuffer)
+APIF AudioBuffer *AudioPlayer_createBuffer(AudioPlayer *self, String *filename)
 {
-	AtomAr_truncate(&self->atoms);
-	AtomAr_push(&self->atoms,)
-
-}
-
-APIF AudioBuffer *AudioPlayer_createBuffer(AudioPlayer *self, String *filename, Error *err)
-{
-	// XXX: need to assign port
-	int fileId = AudioPlayer_fileIdFromFilename(self, filename, err);
-	Error_returnNullOnError(err);
 	AudioBuffer *audioBuffer = AudioBuffer_new();
-	audioBuffer->fileId   = fileId;
+	audioBuffer->fileSymbol  = Symbol_gen(filename);
 	return audioBuffer;
 }
 
 APIF void AudioPlayer_releaseBuffer(AudioPlayer *self, AudioBuffer *audioBuffer)
 {
-	if (AudioBuffer_isPlaying) {
+	if (AudioBuffer_needsStop(audioBuffer)) {
 		AudioPlayer_stop(self, audioBuffer);
-	}	
+	} 
 	AudioBuffer_free(audioBuffer);
+}
+
+APIF void AudioPlayer_prepareTemporaryCue(AudioPlayer *self, AudioBuffer *audioBuffer, Ticks offset, Error *err)
+{
+	int cue = 0;
+	if (IntAr_len(&self->freeTempCues) <= 0) {
+		if (self->nextTempCue > AudioPlayer_lastTempCue) {
+			Error_format0(err, "Exhausted temporary cues");
+			return;
+		}
+		cue = self->nextTempCue++;
+	} else {
+		cue = IntAr_get(&self->freeTempCues, IntAr_last(&self->freeTempCues), err);
+		Error_returnVoidOnError(err);
+		IntAr_pop(&self->freeTempCues);
+	}
+	audioBuffer->isTempCue = true;
+	audioBuffer->cue       = cue;
+	AudioOutlet_sendPreload(audioBuffer->listTildeOutlet, audioBuffer->fileSymbol, offset, err);
+	Error_returnVoidOnError(err);
 }
 
 APIF void AudioPlayer_play(AudioPlayer *self, AudioBuffer *audioBuffer, Sequence *cancel, Error *err) 
@@ -222,29 +260,52 @@ APIF void AudioPlayer_play(AudioPlayer *self, AudioBuffer *audioBuffer, Sequence
 		AudioPlayer_stop(self, audioBuffer);
 	}
 
-	AudioPlayer_maybeFreeUpPort(self, err);
+	AudioPlayer_maybeFreeUpPlayer(self, err);
 	Error_returnVoidOnError(err);
 
-	Port *port = PortPtAr_get(&self->freePlayerPool, PortPtAr_last(&self->freePlayerPool), err);
+	AudioOutlet **audioOutlet = AudioOutletPtAr_get(&self->freePlayerPool, AudioOutletPtAr_last(&self->freePlayerPool), err);
 	Error_returnVoidOnError(err);
-	int cue = AudioPlayer_getCue(self, filename, err);
-	Error_returnVoidOnError(err);
+
+	int cue = 0;
+	if (!audioBuffer->isTempCue) {
+		cue = AudioPlayer_getNormalCue(self, audioBuffer->fileSymbol, err);
+		Error_returnVoidOnError(err);
+	}
+	
 
 	// At this point we commit
-	PortPtAr_pop(&self->freePlayerPool);
-	audioBuffer->outputPort = port;
-	audioBuffer->cue        = cue;
-	audioBuffer->cancel     = cancel;
+	AudioOutletPtAr_pop(&self->freePlayerPool);
+	if (!audioBuffer->isTempCue) {
+		audioBuffer->cue = cue;
+	}
+	audioBuffer->audioOutlet = *audioOutlet;
+	audioBuffer->cancel      = cancel;
+	AudioOutlet_sendPlay(audioBuffer->audioOutlet);
+	AudioBufferPtAr_binInsertByPointer(&self->runningAudioBuffers, audioBuffer);
 	return;	
 }
 
 APIF void AudioPlayer_stop(AudioPlayer *self, AudioBuffer *audioBuffer)
 {
+	// 3 States to consider 
+	//    (1) The audioBuffer only has fileSymbol is populated. The sequence is stoped
+	//    (2) The audioBuffer has fileSymbol and cue populated. The sequence is stoped, but a temporary cue has been allocated
+	//    (3) The audioBuffer is playing, so everything is allocated.
 	// Send stop message
-	AudioBufferPtAr_binRemoveByCue(&self->runningAudioBuffers, audioBuffer);
-	AudioPlayer_releaseCue(self, audioBuffer->fileId, audioBuffer->cue);
-	PortPtAr_push(&self->freePlayerPool, audioBuffer->outputPort);
-	audioBuffer->outputPort = NULL;
-	audioBuffer->cue        = 0;
-	audioBuffer->cancel     = NULL;
+	if (AudioBuffer_isPlaying(audioBuffer)) {
+		AudioBufferPtAr_binRemoveByPointer(&self->runningAudioBuffers, audioBuffer);	
+		AudioOutletPtAr_push(&self->freePlayerPool, audioBuffer->outputPort);
+	}
+	if (AudioBuffer_needsStop(audioBuffer)) {
+		if (audioBuffer->isTempCue) {
+			IntAr_push(&self->freeTempCues, audioBuffer->cue);
+		} else {
+			AudioPlayer_releaseNormalCue(self, audioBuffer->fileSymbol, audioBuffer->cue);
+		}
+	}
+	
+	audioBuffer->cue         = 0;
+	audioBuffer->audioOutlet = NULL;
+	audioBuffer->cancel      = NULL;
+	audioBuffer->isTempCue   = false;
 }

@@ -52,7 +52,7 @@ void testNoteSequenceStartFixture(Ticks clockStart, Ticks current, Ticks expStar
 	NoteSequence_free(noteSequence);
 	PortFind_free(portFind);
 }
-void testNoteSequenceDriveFixture(Ticks clockStart, Ticks current, int noteCursor, int realNoteCount, bool useCycle, Ticks noteDuration, Ticks timeStop)
+void testNoteSequenceDriveFixture(Ticks clockStart, Ticks current, int noteCursor, int realNoteCount, bool useCycle, Ticks noteDuration, Ticks timeStop, Ticks tdeltaStart)
 {
 	PortFind *portFind = PortFind_createStandardSpoof();
 	const int nnotes = 5;
@@ -102,7 +102,7 @@ void testNoteSequenceDriveFixture(Ticks clockStart, Ticks current, int noteCurso
 	NoteOutlet_dbGetResults(res);
 	fatal(NoteEventAr_len(res) == realNoteCount);
 	int nptr = noteCursor;
-	Ticks tdelta = 0;
+	Ticks tdelta = tdeltaStart;
 	NoteEventAr_foreach(it, res) {
 		if (NoteSequence_isMarkerValue(notes[nptr].duration)) {
 			if (notes[nptr].duration == NoteSequence_cycleDuration) {
@@ -145,7 +145,7 @@ Unit_declare(testNoteSequence) {
 
 	Unit_case(0) {
 		// Start a master-clock
-		Unit_call(testNoteSequenceStartFixture(0, 241, 0, 2, true, 480));	
+		Unit_call(testNoteSequenceStartFixture(0, 241, 0, 1, true, 480));	
 	}
 
 	Unit_case(0) {
@@ -160,7 +160,7 @@ Unit_declare(testNoteSequence) {
 
 	Unit_case(0) {
 		// Start a master-clock short duration
-		Unit_call(testNoteSequenceStartFixture(0, 241, 0, 2, true, 480/16));	
+		Unit_call(testNoteSequenceStartFixture(0, 241, 0, 1, true, 480/16));	
 	}
 
 	Unit_case(0) {
@@ -170,17 +170,22 @@ Unit_declare(testNoteSequence) {
 
 	Unit_case(0) { 
 		// drive on-shot
-		Unit_call(testNoteSequenceDriveFixture(0, 0, 0, 3, false, 250, Ticks_maxTime));	
+		Unit_call(testNoteSequenceDriveFixture(0, 0, 0, 3, false, 250, Ticks_maxTime, 0));	
 	}
 
 	Unit_case(0) { 
 		// drive on-shot short duration
-		Unit_call(testNoteSequenceDriveFixture(0, 0, 0, 3, false, 50, Ticks_maxTime));	
+		Unit_call(testNoteSequenceDriveFixture(0, 0, 0, 3, false, 50, Ticks_maxTime, 0));	
 	}
 
 	Unit_case(0) { 
 		// drive master clock
-		Unit_call(testNoteSequenceDriveFixture(0, 350, 3, 4, true, 250, 1200));	
+		Unit_call(testNoteSequenceDriveFixture(0, 350, 3, 4, true, 250, 1200, 0));	
+	}
+
+	Unit_case(0) { 
+		// drive master clock start later
+		Unit_call(testNoteSequenceDriveFixture(0, 600, 0, 3, true, 250, 1200, 400));	
 	}	
 }
 

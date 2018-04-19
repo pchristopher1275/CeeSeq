@@ -528,6 +528,7 @@ static inline double Atom_toFloat(Atom *a) {
 //
 typedef long long Ticks;
 #define Ticks_maxTime LLONG_MAX 
+
 #ifdef TEST_BUILD
 Ticks Ticks_dbCurrent = -1;
 void Ticks_dbSetNow(Ticks current){Ticks_dbCurrent = current;}
@@ -548,6 +549,10 @@ APIF Ticks cseqHub_now()
 APIF Ticks Ticks_now()
 {
     return (Ticks)itm_getticks(itm_getglobal());
+}
+APIF double Ticks_toMs(Ticks ticks)
+{
+    return itm_tickstoms(itm_getglobal(), (double)ticks);
 }
 #endif
 

@@ -1,13 +1,13 @@
-// *** DO NOT MODIFY THIS FILE generated 04/17/2018 16:40:00 ***
-// *** DO NOT MODIFY THIS FILE generated 04/17/2018 16:40:00 ***
-// *** DO NOT MODIFY THIS FILE generated 04/17/2018 16:40:00 ***
-// *** DO NOT MODIFY THIS FILE generated 04/17/2018 16:40:00 ***
-// *** DO NOT MODIFY THIS FILE generated 04/17/2018 16:40:00 ***
-// *** DO NOT MODIFY THIS FILE generated 04/17/2018 16:40:00 ***
-// *** DO NOT MODIFY THIS FILE generated 04/17/2018 16:40:00 ***
-// *** DO NOT MODIFY THIS FILE generated 04/17/2018 16:40:00 ***
-// *** DO NOT MODIFY THIS FILE generated 04/17/2018 16:40:00 ***
-// *** DO NOT MODIFY THIS FILE generated 04/17/2018 16:40:00 ***
+// *** DO NOT MODIFY THIS FILE generated 04/17/2018 16:53:58 ***
+// *** DO NOT MODIFY THIS FILE generated 04/17/2018 16:53:58 ***
+// *** DO NOT MODIFY THIS FILE generated 04/17/2018 16:53:58 ***
+// *** DO NOT MODIFY THIS FILE generated 04/17/2018 16:53:58 ***
+// *** DO NOT MODIFY THIS FILE generated 04/17/2018 16:53:58 ***
+// *** DO NOT MODIFY THIS FILE generated 04/17/2018 16:53:58 ***
+// *** DO NOT MODIFY THIS FILE generated 04/17/2018 16:53:58 ***
+// *** DO NOT MODIFY THIS FILE generated 04/17/2018 16:53:58 ***
+// *** DO NOT MODIFY THIS FILE generated 04/17/2018 16:53:58 ***
+// *** DO NOT MODIFY THIS FILE generated 04/17/2018 16:53:58 ***
 const bool Coverage_activated = true;
 const char **Coverage_array   = NULL;
 struct Arguments_t;
@@ -1360,14 +1360,6 @@ struct IncrementFrameDispatch_t
 {
     int itype;
 };
-struct Arguments_t
-{
-    Symbol *s1;
-    long i1;
-    long i2;
-    long ivalue;
-    long inlet;
-};
 typedef struct DispatchPtAr_t {
    int len;
    int cap;
@@ -1399,6 +1391,14 @@ struct DropDown_t
     SymbolPtrAr table;
     int selected;
     PortRef portRef;
+};
+struct Arguments_t
+{
+    Symbol *s1;
+    long i1;
+    long i2;
+    long ivalue;
+    long inlet;
 };
 struct Hub_t
 {
@@ -10211,7 +10211,7 @@ Coverage_array[1978] = "sequence.in.c 607";                        self->startTi
 Coverage_array[1979] = "sequence.in.c 608";                    }
 Coverage_array[1980] = "sequence.in.c 609";            
 Coverage_array[1981] = "sequence.in.c 610";                    NoteEventAr_foreach(it, &self->events) {
-Coverage_array[1982] = "sequence.in.c 611";                        if (it.var->stime + self->startTime > current) {
+Coverage_array[1982] = "sequence.in.c 611";                        if (it.var->stime + self->startTime >= current) {
 Coverage_array[1983] = "sequence.in.c 612";                            nextEvent = it.var->stime + self->startTime;
 Coverage_array[1984] = "sequence.in.c 613";                            break;
 Coverage_array[1985] = "sequence.in.c 614";                        }
@@ -10234,7 +10234,7 @@ Coverage_array[2001] = "sequence.in.c 630";                    other->startTime 
 Coverage_array[2002] = "sequence.in.c 631";                    self->recordingSeq  = other; 
 Coverage_array[2003] = "sequence.in.c 632";                    RecordBuffer_push(recordBuffer, NoteSequence_castToSequence(other));
 Coverage_array[2004] = "sequence.in.c 633";                }
-Coverage_array[2005] = "sequence.in.c 634";            
+Coverage_array[2005] = "sequence.in.c 634";            // printf("nextEvent %lld %d %lld\n", nextEvent, self->cursor, self->startTime);
 Coverage_array[2006] = "sequence.in.c 635";                TimedPq_enqueue(queue, nextEvent, NoteSequence_castToSequence(self));
 Coverage_array[2007] = "sequence.in.c 636";            }
 
