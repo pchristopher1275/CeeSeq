@@ -307,18 +307,23 @@ Unit_declare(testNoteSequenceStopAndEndgroup)
 
 	{
 		// Test NoteSequence_makeConsistent
-		// Start a one-shot
 		Error_declare(err);
 		PortFind *portFind = PortFind_createStandardSpoof();
-		const int nnotes = 4;
+		const int nnotes = 6;
 		NoteEvent notes[nnotes] = {
-			{.pitch = 60, .velocity = 100, .stime = 200, .duration = 300},
-			{.pitch = 0,  .velocity = 0,   .stime = 200, .duration = NoteSequence_endgDuration},
-			{.pitch = 60, .velocity = 100, .stime = 100, .duration = 300},
 			{.pitch = 0,  .velocity = 0,   .stime = 400, .duration = NoteSequence_cycleDuration},
+			{.pitch = 61, .velocity = 102, .stime = 400, .duration = 100},
+			{.pitch = 61, .velocity = 102, .stime = 400, .duration = 100},
+			{.pitch = 60, .velocity = 100, .stime = 200, .duration = 300},
+			{.pitch = 60, .velocity = 100, .stime = 100, .duration = 300},
+			{.pitch = 0,  .velocity = 0,   .stime = 200, .duration = NoteSequence_endgDuration},
 		};
+		// NoteSequence_makeConsistent is called in newFromEvents
 		NoteSequence *noteSequence = NoteSequence_newFromEvents(Symbol_gen("piano"), portFind, nnotes, notes, err);
-		fatal(NoteEventAr_len(&noteSequence->events) == 4);
+		fatal(!Error_iserror(err));
+
+		// Notice that this is 1 less than nnotes b/c one of the notes above is removed.
+		fatal(NoteEventAr_len(&noteSequence->events) == nnotes-1);
 		NoteEvent *evs = noteSequence->events.data;
 		chk(evs[0].stime == 100);
 		chk(evs[0].pitch == 60);
@@ -328,8 +333,8 @@ Unit_declare(testNoteSequenceStopAndEndgroup)
 		chk(evs[2].pitch == 60);
 		chk(evs[2].duration == 300);
 
-		chk(evs[3].stime == 400);
-		chk(evs[3].duration == NoteSequence_cycleDuration);
+		chk(evs[4].stime == 400);
+		chk(evs[4].duration == NoteSequence_cycleDuration);
 		chk(noteSequence->sequenceLength == 400);
 
 		NoteSequence_free(noteSequence);

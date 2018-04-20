@@ -1,13 +1,13 @@
-// *** DO NOT MODIFY THIS FILE generated 04/15/2018 09:51:01 ***
-// *** DO NOT MODIFY THIS FILE generated 04/15/2018 09:51:01 ***
-// *** DO NOT MODIFY THIS FILE generated 04/15/2018 09:51:01 ***
-// *** DO NOT MODIFY THIS FILE generated 04/15/2018 09:51:01 ***
-// *** DO NOT MODIFY THIS FILE generated 04/15/2018 09:51:01 ***
-// *** DO NOT MODIFY THIS FILE generated 04/15/2018 09:51:01 ***
-// *** DO NOT MODIFY THIS FILE generated 04/15/2018 09:51:01 ***
-// *** DO NOT MODIFY THIS FILE generated 04/15/2018 09:51:01 ***
-// *** DO NOT MODIFY THIS FILE generated 04/15/2018 09:51:01 ***
-// *** DO NOT MODIFY THIS FILE generated 04/15/2018 09:51:01 ***
+// *** DO NOT MODIFY THIS FILE generated 04/20/2018 10:20:35 ***
+// *** DO NOT MODIFY THIS FILE generated 04/20/2018 10:20:35 ***
+// *** DO NOT MODIFY THIS FILE generated 04/20/2018 10:20:35 ***
+// *** DO NOT MODIFY THIS FILE generated 04/20/2018 10:20:35 ***
+// *** DO NOT MODIFY THIS FILE generated 04/20/2018 10:20:35 ***
+// *** DO NOT MODIFY THIS FILE generated 04/20/2018 10:20:35 ***
+// *** DO NOT MODIFY THIS FILE generated 04/20/2018 10:20:35 ***
+// *** DO NOT MODIFY THIS FILE generated 04/20/2018 10:20:35 ***
+// *** DO NOT MODIFY THIS FILE generated 04/20/2018 10:20:35 ***
+// *** DO NOT MODIFY THIS FILE generated 04/20/2018 10:20:35 ***
 const bool Coverage_activated = false;
 const char **Coverage_array   = NULL;
 struct Arguments_t;
@@ -957,10 +957,19 @@ typedef struct SequenceArRIt_t {
    Sequence **var;
 } SequenceArRIt;
 
+struct OutletSpecifier_t
+{
+    Symbol *track;
+    int pluginIndex;
+    Symbol *parameter;
+    int paramIndex;
+};
 struct Sequence_t
 {
     int itype;
     long version;
+    Ticks startTime;
+    OutletSpecifier outletSpecifier;
 };
 struct SelectNextPushedPadDispatch_t
 {
@@ -1125,13 +1134,6 @@ struct PadList_t
     PadAr pads;
     PadPtrAr running;
 };
-struct OutletSpecifier_t
-{
-    Symbol *track;
-    int pluginIndex;
-    Symbol *parameter;
-    int paramIndex;
-};
 struct Outlet_t
 {
     int itype;
@@ -1179,8 +1181,8 @@ struct NoteSequence_t
     int itype;
     long version;
     Ticks startTime;
-    Ticks sequenceLength;
     OutletSpecifier outletSpecifier;
+    Ticks sequenceLength;
     int cursor;
     bool cycle;
     Ticks nextOffEvent;
@@ -1336,12 +1338,6 @@ struct Arguments_t
     long ivalue;
     long inlet;
 };
-struct DropDown_t
-{
-    SymbolPtrAr table;
-    int selected;
-    PortRef portRef;
-};
 typedef struct DispatchPtAr_t {
    int len;
    int cap;
@@ -1368,6 +1364,12 @@ typedef struct DispatchPtArRIt_t {
    Dispatch **var;
 } DispatchPtArRIt;
 
+struct DropDown_t
+{
+    SymbolPtrAr table;
+    int selected;
+    PortRef portRef;
+};
 struct Hub_t
 {
     PadList *padList;
@@ -1425,8 +1427,8 @@ struct FloatSequence_t
     int itype;
     long version;
     Ticks startTime;
-    Ticks sequenceLength;
     OutletSpecifier outletSpecifier;
+    Ticks sequenceLength;
     int cursor;
     bool cycle;
     bool inEndgroup;
@@ -1532,7 +1534,7 @@ void Port_free(Port *p);
 void Port_clear(Port *p);
 int port_parseEvSymbol(Symbol *id);
 void Port_send(Port *self, int outletIndex, short argc, Atom *argv, Error *err);
-void Port_sendInteger(Port *self, int outlet, long value);
+void Port_sendInteger(Port *self, int outlet, long value, Error *err);
 static inline Symbol *PortRef_track(PortRef *self);
 int PortRef_cmp(PortRef *left, PortRef *right);
 void DropDown_build(DropDown *dd, const char **table, PortRef *pr);
@@ -1653,14 +1655,15 @@ Sequence *TimedPq_dequeue(TimedPq *self, Ticks current);
 void TimedPq_invalidateSequence(TimedPq *self, SequenceAr *removes);
 int NoteEvent_cmp(NoteEvent *left, NoteEvent *right);
 NoteSequence *NoteSequence_newTrack(Symbol *track, PortFind *portFind);
-NoteSequence *NoteSequence_newFromEvents(Symbol *track, PortFind *portFind, int argc, NoteEvent *argv);
+NoteSequence *NoteSequence_newFromEvents(Symbol *track, PortFind *portFind, int argc, NoteEvent *argv, Error *err);
 void NoteSequence_start(NoteSequence *self, Ticks clockStart, Ticks current, TimedPq *queue, RecordBuffer *recordBuffer, Error *err);
 void NoteSequence_stop(NoteSequence *self, Ticks current, Error *err);
 void NoteSequence_drive(NoteSequence *self, Ticks current, TimedPq *queue, Error *err);
 void NoteSequence_padNoteOff(NoteSequence *self, int padIndex, Ticks current, Error *err);
 OutletSpecifier *NoteSequence_outSpec(NoteSequence *self);
-NoteSequence *NoteSequence_recordClone(NoteSequence *self);
-void NoteSequence_makeConsistent(NoteSequence *self);
+void NoteSequence_makeConsistent(NoteSequence *self, Error *err);
+Sequence *NoteSequence_compactNew(NoteSequence *self);
+void NoteSequence_compactConcat(NoteSequence *self, Sequence *otherSeq, Error *err);
 int FloatEvent_cmp(FloatEvent *left, FloatEvent *right);
 FloatSequence *FloatSequence_newCc(Symbol *track, int cc, PortFind *portFind);
 FloatSequence *FloatSequence_newBend(Symbol *track, PortFind *portFind);
@@ -1679,6 +1682,7 @@ int Sequence_cmpPp(Sequence **left, Sequence **right);
 int Sequence_cmpPointerPp(Sequence **left, Sequence **right);
 void Sequence_incVersion(Sequence *seq);
 void RecordBuffer_push(RecordBuffer *self, Sequence *sequence);
+void RecordBuffer_compact(RecordBuffer *self, SequenceAr *output, Error *err);
 void Midi_fromfile(const char *midiFilePath, SequenceAr *output, Symbol *defaultTrack, PortFind *portFind, Error *err);
 void Frontend_recievedPadHit(Hub *hub, long pitchIn, long velocityIn);
 void Frontend_drive(Hub *hub);
@@ -1853,6 +1857,7 @@ Undefined Undefined_instance = {Undefined_itype, {0}};
 #define NullOutlet_itype 23
 #define SelectNextPushedPadDispatch_itype 24
 #define VstOutlet_itype 25
+#define Interface_itype(self) (self->itype) 
 void Dispatch_exec(Dispatch *self, Hub *a1, Arguments *a2, Error *err);
 Dispatch *Dispatch_create(int itype, Error *err);
 void Dispatch_free(Dispatch *self, Error *err);
@@ -1867,7 +1872,9 @@ void Sequence_stop(Sequence *self, Ticks a1, Error *err);
 void Sequence_padNoteOff(Sequence *self, int a1, Ticks a2, Error *err);
 void Sequence_setCycle(Sequence *self, bool a1, Error *err);
 void Sequence_free(Sequence *self, Error *err);
-OutletSpecifier *Sequence_outSpec(Sequence *self, Error *err);
+Sequence *Sequence_compactNew(Sequence *self, Error *err);
+Sequence *Sequence_compactConcat(Sequence *self, Sequence *a1, Error *err);
+void Sequence_compactFinish(Sequence *self, Error *err);
 static inline Symbol *Arguments_s1(Arguments *self){return self->s1;}
 static inline void Arguments_setS1(Arguments *self, Symbol *value){self->s1 = value;}
 static inline long Arguments_i1(Arguments *self){return self->i1;}
@@ -2620,10 +2627,10 @@ static inline long FloatSequence_version(FloatSequence *self){return self->versi
 static inline void FloatSequence_setVersion(FloatSequence *self, long value){self->version = value;}
 static inline Ticks FloatSequence_startTime(FloatSequence *self){return self->startTime;}
 static inline void FloatSequence_setStartTime(FloatSequence *self, Ticks value){self->startTime = value;}
-static inline Ticks FloatSequence_sequenceLength(FloatSequence *self){return self->sequenceLength;}
-static inline void FloatSequence_setSequenceLength(FloatSequence *self, Ticks value){self->sequenceLength = value;}
 static inline OutletSpecifier FloatSequence_outletSpecifier(FloatSequence *self){return self->outletSpecifier;}
 static inline void FloatSequence_setOutletSpecifier(FloatSequence *self, OutletSpecifier value){self->outletSpecifier = value;}
+static inline Ticks FloatSequence_sequenceLength(FloatSequence *self){return self->sequenceLength;}
+static inline void FloatSequence_setSequenceLength(FloatSequence *self, Ticks value){self->sequenceLength = value;}
 static inline int FloatSequence_cursor(FloatSequence *self){return self->cursor;}
 static inline void FloatSequence_setCursor(FloatSequence *self, int value){self->cursor = value;}
 static inline bool FloatSequence_cycle(FloatSequence *self){return self->cycle;}
@@ -3469,10 +3476,10 @@ static inline long NoteSequence_version(NoteSequence *self){return self->version
 static inline void NoteSequence_setVersion(NoteSequence *self, long value){self->version = value;}
 static inline Ticks NoteSequence_startTime(NoteSequence *self){return self->startTime;}
 static inline void NoteSequence_setStartTime(NoteSequence *self, Ticks value){self->startTime = value;}
-static inline Ticks NoteSequence_sequenceLength(NoteSequence *self){return self->sequenceLength;}
-static inline void NoteSequence_setSequenceLength(NoteSequence *self, Ticks value){self->sequenceLength = value;}
 static inline OutletSpecifier NoteSequence_outletSpecifier(NoteSequence *self){return self->outletSpecifier;}
 static inline void NoteSequence_setOutletSpecifier(NoteSequence *self, OutletSpecifier value){self->outletSpecifier = value;}
+static inline Ticks NoteSequence_sequenceLength(NoteSequence *self){return self->sequenceLength;}
+static inline void NoteSequence_setSequenceLength(NoteSequence *self, Ticks value){self->sequenceLength = value;}
 static inline int NoteSequence_cursor(NoteSequence *self){return self->cursor;}
 static inline void NoteSequence_setCursor(NoteSequence *self, int value){self->cursor = value;}
 static inline bool NoteSequence_cycle(NoteSequence *self){return self->cycle;}
@@ -4207,6 +4214,10 @@ static inline int Sequence_nthIType(int n, int *itype) {
 #define Sequence_foreachIType(itype) for (int __##itype = 0, itype = 0; Sequence_nthIType(__##itype, &itype); __##itype++)
 static inline long Sequence_version(Sequence *self){return self->version;}
 static inline void Sequence_setVersion(Sequence *self, long value){self->version = value;}
+static inline Ticks Sequence_startTime(Sequence *self){return self->startTime;}
+static inline void Sequence_setStartTime(Sequence *self, Ticks value){self->startTime = value;}
+static inline OutletSpecifier Sequence_outletSpecifier(Sequence *self){return self->outletSpecifier;}
+static inline void Sequence_setOutletSpecifier(Sequence *self, OutletSpecifier value){self->outletSpecifier = value;}
 static inline void SequenceAr_changeLength(SequenceAr *arr, int newLength) {
     Array_changeLength((Array*)arr, newLength);
 }                        
@@ -4578,6 +4589,45 @@ static inline bool StringPtArRIt_next(StringPtArRIt *iterator) {
 static inline bool StringPtArRIt_remove(StringPtArRIt *iterator) {
     return ArrayRIt_remove((ArrayRIt*)iterator);
 }
+
+static inline void StringPtAr_binInsert(StringPtAr *arr, String *elem) {
+    int (*compare)(String **, String **) = String_cmpPp;
+    Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)compare, false);
+}            
+
+static inline void StringPtAr_binRemove(StringPtAr *arr, String *elem) {
+    int (*compare)(String **, String **) = String_cmpPp;
+    Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)compare, false);
+}        
+
+static inline String **StringPtAr_binSearch(StringPtAr *arr, String *elem) {
+    int (*compare)(String **, String **) = String_cmpPp;
+    return (String **)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, NULL);
+}
+
+static inline String **StringPtAr_pqPeek(StringPtAr *arr) {
+   return (String **)Array_pqPeek((Array*)arr);
+}
+
+static inline bool StringPtAr_pqPop(StringPtAr *arr, String **elem) {
+    int (*compare)(String **, String **) = String_cmpPp;
+   return Array_pqPop((Array*)arr, (char*)elem, (Array_compare)compare);
+}
+
+static inline void StringPtAr_pqPush(StringPtAr *arr, String *elem) {
+    int (*compare)(String **, String **) = String_cmpPp;
+   Array_pqPush((Array*)arr, (char*)&elem, (Array_compare)compare);
+}
+
+static inline void StringPtAr_pqSort(StringPtAr *arr) {
+    int (*compare)(String **, String **) = String_cmpPp;
+   Array_pqSort((Array*)arr, (Array_compare)compare);
+}
+
+static inline void StringPtAr_sort(StringPtAr *arr) {
+    int (*compare)(String **, String **) = String_cmpPp;
+    Array_sort((Array*)arr, (Array_compare)compare);
+}                
 
 static inline void SymbolPtAr_changeLength(SymbolPtAr *arr, int newLength) {
     Array_changeLength((Array*)arr, newLength);
@@ -5674,8 +5724,8 @@ void FloatSequence_init(FloatSequence *self)
     self->itype = FloatSequence_itype;
     self->version = 0;
     self->startTime = 0;
-    self->sequenceLength = 0;
     OutletSpecifier_init(&self->outletSpecifier);            
+    self->sequenceLength = 0;
     self->cursor = 0;
     self->cycle = 0;
     self->inEndgroup = 0;
@@ -6048,8 +6098,8 @@ void NoteSequence_init(NoteSequence *self)
     self->itype = NoteSequence_itype;
     self->version = 0;
     self->startTime = 0;
-    self->sequenceLength = 0;
     OutletSpecifier_init(&self->outletSpecifier);            
+    self->sequenceLength = 0;
     self->cursor = 0;
     self->cycle = 0;
     self->nextOffEvent = 0;
@@ -6701,17 +6751,43 @@ void Sequence_free(Sequence *self, Error *err)
     return;
 }
 
-OutletSpecifier *Sequence_outSpec(Sequence *self, Error *err)
+Sequence *Sequence_compactNew(Sequence *self, Error *err)
 {
     switch(self->itype) {
         case FloatSequence_itype:
-            return FloatSequence_outSpec((FloatSequence*)self);
+            return NULL;
         case NoteSequence_itype:
-            return NoteSequence_outSpec((NoteSequence*)self);
+            return NoteSequence_compactNew((NoteSequence*)self);
         default:
-            Error_format(err, "Failed to resolve interface call in NoteSequence_outSpec: found type %s", Interface_toString(self->itype));
+            Error_format(err, "Failed to resolve interface call in NoteSequence_compactNew: found type %s", Interface_toString(self->itype));
     }
     return NULL;
+}
+
+Sequence *Sequence_compactConcat(Sequence *self, Sequence *a1, Error *err)
+{
+    switch(self->itype) {
+        case FloatSequence_itype:
+            return NULL;
+        case NoteSequence_itype:
+            return NoteSequence_compactConcat((NoteSequence*)self, a1);
+        default:
+            Error_format(err, "Failed to resolve interface call in NoteSequence_compactConcat: found type %s", Interface_toString(self->itype));
+    }
+    return NULL;
+}
+
+void Sequence_compactFinish(Sequence *self, Error *err)
+{
+    switch(self->itype) {
+        case FloatSequence_itype:
+            return;
+        case NoteSequence_itype:
+            return;
+       default:
+            Error_format(err, "Failed to resolve interface call in NoteSequence_compactFinish: found type %s", Interface_toString(self->itype));
+    }
+    return;
 }
 
 const char *Interface_toString(int itype)
@@ -7029,7 +7105,7 @@ APIF void DispatchPtAr_populate(DispatchPtAr *self, Error *err) {
 #define APIF /**/
 String *stripBaseName(const char *path);
 
-#line 13 "src/midiseq.in.c"
+#line 17 "src/midiseq.in.c"
 
 APIF void String_split(String *src, const char *delim, StringPtAr *stringPtAr)
 {
@@ -7053,7 +7129,7 @@ APIF void String_split(String *src, const char *delim, StringPtAr *stringPtAr)
     return;
 }
 
-#line 46 "src/midiseq.in.c"
+#line 50 "src/midiseq.in.c"
 
 APIF int Symbol_cmpUnderlying(Symbol **left, Symbol **right) 
 {
@@ -7089,11 +7165,11 @@ APIF void Symbol_freeAll()
 
 #endif
 
-#line 88 "src/midiseq.in.c"
+#line 92 "src/midiseq.in.c"
 
-#line 97 "src/midiseq.in.c"
+#line 101 "src/midiseq.in.c"
 
-#line 117 "src/midiseq.in.c"
+#line 121 "src/midiseq.in.c"
 
 
 Port Port_nullImpl =
@@ -7168,17 +7244,14 @@ APIF void Port_send(Port *self, int outletIndex, short argc, Atom *argv, Error *
 #endif
 }
 
-APIF void Port_sendInteger(Port *self, int outlet, long value) 
+APIF void Port_sendInteger(Port *self, int outlet, long value, Error *err) 
 {
     if (self == Port_null) {
         return;
     }
 
-    Error_declare(err);
     void *out = PtrAr_get(&self->outlet, outlet, err);
-    if (Error_maypost(err)) {
-        return;
-    } 
+    Error_returnVoidOnError(err); 
 #ifndef TEST_BUILD
     outlet_int(out, value);  
 #else
@@ -7193,19 +7266,19 @@ APIF void Port_sendInteger(Port *self, int outlet, long value)
 #endif
 }
 
-#line 223 "src/midiseq.in.c"
+#line 224 "src/midiseq.in.c"
 
-#line 231 "src/midiseq.in.c"
+#line 232 "src/midiseq.in.c"
 
-#line 239 "src/midiseq.in.c"
+#line 240 "src/midiseq.in.c"
 
-#line 247 "src/midiseq.in.c"
+#line 248 "src/midiseq.in.c"
 
 
 
-#line 263 "src/midiseq.in.c"
+#line 264 "src/midiseq.in.c"
 
-#line 293 "src/midiseq.in.c"
+#line 294 "src/midiseq.in.c"
 #define BinFile_nullLengthFieldSizeStr "11"
 #define BinFile_maxLength              2147483647
 #define BinFileFlag_tag                1
@@ -7221,27 +7294,27 @@ const int Midiseq_cctype     = 3;
 const int Midiseq_cycletype  = 4;
 const int Midiseq_endgrptype = 5;
 
-#line 340 "src/midiseq.in.c"
+#line 341 "src/midiseq.in.c"
 
 
-#line 406 "src/midiseq.in.c"
+#line 407 "src/midiseq.in.c"
 
 
-#line 434 "src/midiseq.in.c"
+#line 435 "src/midiseq.in.c"
 
-#line 461 "src/midiseq.in.c"
+#line 462 "src/midiseq.in.c"
 
-#line 485 "src/midiseq.in.c"
-
-
-#line 506 "src/midiseq.in.c"
-
-#line 531 "src/midiseq.in.c"
+#line 486 "src/midiseq.in.c"
 
 
-#line 546 "src/midiseq.in.c"
+#line 507 "src/midiseq.in.c"
 
-#line 563 "src/midiseq.in.c"
+#line 532 "src/midiseq.in.c"
+
+
+#line 547 "src/midiseq.in.c"
+
+#line 564 "src/midiseq.in.c"
 
 #define PortRef_declare(name, port, outlet)    PortRef _##name = {port, outlet}; PortRef *name = &_##name
 COVER static inline void PortRef_set(PortRef *pr, Port *port, int outlet) {
@@ -7274,7 +7347,7 @@ APIF int PortRef_cmp(PortRef *left, PortRef *right)
 
 
 
-#line 619 "src/midiseq.in.c"
+#line 620 "src/midiseq.in.c"
 
 COVER static inline PortRef *DropDown_portRef(DropDown *dd) {
     return &dd->portRef;
@@ -7390,9 +7463,9 @@ APIF void DropDown_initializeMenu(DropDown *dd, Error *err) {
         Error_returnVoidOnError(err);        
     }
 }
-#line 846 "src/midiseq.in.c"
+#line 847 "src/midiseq.in.c"
 
-#line 864 "src/midiseq.in.c"
+#line 865 "src/midiseq.in.c"
 
 //
 // Memory allocation Notes. These are the functions that are used in sdsalloc.h
@@ -8025,9 +8098,9 @@ APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
 //
 // P A T C H E R    F I N D
 //
-#line 1518 "src/midiseq.in.c"
+#line 1519 "src/midiseq.in.c"
 
-#line 1542 "src/midiseq.in.c"
+#line 1543 "src/midiseq.in.c"
 
 #define PortFind_declare(name) PortFind _##name; PortFind *name = &_##name; memset(name, 0, sizeof(PortFind)); PortFind_init(name)        
 
@@ -8683,8 +8756,11 @@ APIF void Hub_build(Hub *hub, PortFind *pf, Error *err) {
 
 APIF void Hub_updateGuiCurrentCoordinates(Hub *hub) 
 {
-    Port_sendInteger(Hub_currBankPort(hub),  0, Hub_bank(hub));
-    Port_sendInteger(Hub_currFramePort(hub), 0, Hub_frame(hub));
+    Error_declare(err);
+    Port_sendInteger(Hub_currBankPort(hub),  0, Hub_bank(hub), err);
+    Error_maypost(err);
+    Port_sendInteger(Hub_currFramePort(hub), 0, Hub_frame(hub), err);
+    Error_maypost(err);
 }
 
 APIF void Hub_changeSelectedPad(Hub *hub, int selectedPadIndex, Error *err) {
@@ -8709,9 +8785,12 @@ APIF void Hub_changeSelectedPad(Hub *hub, int selectedPadIndex, Error *err) {
     Error_returnVoidOnError(err);
 
     // Selected coordinates
-    Port_sendInteger(Hub_selBankPort(hub),  0, (long)Hub_selectedBank(hub));
-    Port_sendInteger(Hub_selFramePort(hub), 0, (long)Hub_selectedFrame(hub));  
-    Port_sendInteger(Hub_selPadPort(hub),   0, (long)Hub_relativeSelectedPad(hub));
+    Port_sendInteger(Hub_selBankPort(hub),  0, (long)Hub_selectedBank(hub), err);
+    Error_returnVoidOnError(err);
+    Port_sendInteger(Hub_selFramePort(hub), 0, (long)Hub_selectedFrame(hub), err);  
+    Error_returnVoidOnError(err);
+    Port_sendInteger(Hub_selPadPort(hub),   0, (long)Hub_relativeSelectedPad(hub), err);
+    Error_returnVoidOnError(err);
 }
 
 APIF void Hub_anythingDispatch(Hub *hub, Port *port, Symbol *selector, long argc, Atom *argv)
@@ -9227,7 +9306,7 @@ APIF void BinFile_verifyTag(BinFile *bf, const char *tag, Error *err) {
 APIF void NoteOutlet_sendNote(NoteOutlet *self, uint8_t pitch, uint8_t velocity)
 {
 #   ifdef TEST_BUILD
-    printf("OUTLET %d %d\n", pitch, velocity);
+    // printf("OUTLET pitch=%d velocity=%d\n", pitch, velocity);
     NoteOutlet_dbRecordEvent(pitch, velocity);
 #   endif
 
@@ -9451,13 +9530,34 @@ APIF void TimedPq_invalidateSequence(TimedPq *self, SequenceAr *removes)
 
 #line 397 "src/sequence.in.c"
 
+Ticks NoteSequence_cycleDuration   = -1;
+Ticks NoteSequence_endgDuration    = -2;
+Ticks NoteSequence_noteOffDuration = -3;
+
 APIF int NoteEvent_cmp(NoteEvent *left, NoteEvent *right)
 {
     if (left->stime < right->stime) {
         return -1;
     } else if (left->stime > right->stime) {
         return 1;
-    } else if (left->pitch < right->pitch) {
+    } 
+
+    // This sorts cycle to the end of equal time, and endgroup to the begining of equal time.
+    Coverage_off;
+    Ticks leftDuration = left->duration >= 0 ? left->duration : 
+                         left->duration == NoteSequence_cycleDuration ? Ticks_maxTime :
+                         left->duration == NoteSequence_endgDuration ? -Ticks_maxTime : left->duration;
+    Ticks rightDuration = right->duration >= 0 ? right->duration : 
+                          right->duration == NoteSequence_cycleDuration ? Ticks_maxTime :
+                          right->duration == NoteSequence_endgDuration ? -Ticks_maxTime : right->duration;
+    Coverage_on;
+    if (leftDuration < rightDuration) {
+        return -1;
+    } else if (leftDuration > rightDuration) {
+        return 1;
+    }
+
+    if (left->pitch < right->pitch) {
         return -1;
     } else if (left->pitch > right->pitch) {
         return 1;
@@ -9465,61 +9565,73 @@ APIF int NoteEvent_cmp(NoteEvent *left, NoteEvent *right)
     return 0;
 }
 
-#line 474 "src/sequence.in.c"
+#line 495 "src/sequence.in.c"
+
+#define NoteSequence_isMarkerValue(v) (v < 0)
+#define NoteSequence_minSequenceLength 5
 
 APIF NoteSequence *NoteSequence_newTrack(Symbol *track, PortFind *portFind)
 {
+    // XXX: I don't know if this should be a legal new! 
     NoteSequence *self    = NoteSequence_new();
     self->outletSpecifier = OutletSpecifier_makeNote(track);
     self->outlet          = PortFind_createOutlet(portFind, &self->outletSpecifier);
     return self;
 }
 
-APIF NoteSequence *NoteSequence_newFromEvents(Symbol *track, PortFind *portFind, int argc, NoteEvent *argv)
+APIF NoteSequence *NoteSequence_newFromEvents(Symbol *track, PortFind *portFind, int argc, NoteEvent *argv, Error *err)
 {
+    if (argc <= 0) {
+        Error_format0(err, "Bad argc passed to newFromEvents");
+        goto END;
+    }
+
     NoteSequence *self = NoteSequence_newTrack(track, portFind);
     NoteEventAr_truncate(&self->events);
     for (int i = 0; i < argc; i++) {
         NoteEventAr_push(&self->events, argv[i]);
     }
-    NoteSequence_makeConsistent(self);
-    NoteEventAr_rforeach(it, &self->events) {
-        self->sequenceLength = it.var->stime;
-        break;
+    NoteEventAr_sort(&self->events);
+
+    NoteEvent last = NoteEventAr_get(&self->events, NoteEventAr_last(&self->events), err);
+    Error_returnNullOnError(err);
+
+    if (last.duration != NoteSequence_cycleDuration) {
+        Error_format0(err, "Called newFromEvents without proper cycle marker");
+        goto END;
+    }
+    self->sequenceLength = last.stime;
+    NoteSequence_makeConsistent(self, err);
+
+  END:
+    if (Error_iserror(err)) {
+        NoteSequence_free(self);
+        return NULL;
     }
     return self;
 }
 
-Ticks NoteSequence_cycleDuration      = -1;
-Ticks NoteSequence_endgDuration       = -2;
-Ticks NoteSequence_noteOffDuration    = -3;
-#define NoteSequence_isMarkerValue(v) (v < 0)
-#define NoteSequence_minSequenceLength 5
 COVER static inline void NoteSequence_playNoteOffs(NoteSequence *self, Ticks current, Error *err) 
 {
-    self->nextOffEvent = -1;
+    self->nextOffEvent = Ticks_maxTime;
     int nremoves = 0;
-    printf("TURN_OFF %d\n", TimedOffAr_len(&self->offs));
     TimedOffAr_foreach(it, &self->offs) {
-        printf("hmm %lld %d | %lld %d\n", it.var->time, it.var->pitch, current, it.var->time > current);
         if (it.var->time > current) {
-            printf("WHAT??\n");
             self->nextOffEvent = it.var->time;
             break;
         }
         Outlet_sendNote(self->outlet, it.var->pitch, 0, err);
         nremoves++;
     }
-    printf("TURN_xxx %d\n", TimedOffAr_len(&self->offs));
     if (nremoves > 0) {
         TimedOffAr_removeN(&self->offs, 0, nremoves, err);
         Error_maypost(err);
     }
 }
 
-COVER static inline void NoteSequence_playNoteOns(NoteSequence *self, Ticks current, Error *err) 
+COVER static inline void NoteSequence_playEvents(NoteSequence *self, Ticks current, Error *err) 
 {
-    self->nextOnEvent = -1;
+    self->nextOnEvent = Ticks_maxTime;
     for (;;) {
         NoteEventAr_foreachOffset(it, &self->events, self->cursor) {
             NoteEvent *ne = it.var;
@@ -9528,12 +9640,16 @@ COVER static inline void NoteSequence_playNoteOns(NoteSequence *self, Ticks curr
                 return;
             }
             if (!NoteSequence_isMarkerValue(ne->duration)) {
+                // Queue the note off
                 TimedOff off = {.time = self->startTime + ne->stime + ne->duration, .pitch = ne->pitch};
-                printf("BEFORE %d\n", TimedOffAr_len(&self->offs));
                 TimedOffAr_binInsertTime(&self->offs, off);
-                printf("AFTER %d\n", TimedOffAr_len(&self->offs));
+                if (self->nextOffEvent > off.time) {
+                    self->nextOffEvent = off.time;
+                }
+
+                // Play the note on
                 Outlet_sendNote(self->outlet, ne->pitch, ne->velocity, err);
-            } else if (ne->duration == NoteSequence_endgDuration) {
+            } else if (ne->duration == NoteSequence_endgDuration && !self->cycle) {
                 self->inEndgroup = true;
             } 
 
@@ -9557,11 +9673,13 @@ COVER static inline void NoteSequence_playNoteOns(NoteSequence *self, Ticks curr
 }
 
 COVER static inline Ticks NoteSequence_nextEvent(NoteSequence *self) {
-    if (self->nextOnEvent < 0 && self->nextOffEvent < 0) {
+    bool maxOff = self->nextOffEvent == Ticks_maxTime;
+    bool maxOn  = self->nextOnEvent  == Ticks_maxTime;
+    if (maxOff && maxOn) {
         return -1;
-    } else if (self->nextOffEvent < 0) {
+    } else if (maxOff) {
         return self->nextOnEvent;
-    } else if (self->nextOnEvent < 0) {
+    } else if (maxOn) {
         return self->nextOffEvent;
     } else {
         return self->nextOffEvent < self->nextOnEvent ? self->nextOffEvent : self->nextOnEvent;
@@ -9600,16 +9718,15 @@ APIF void NoteSequence_start(NoteSequence *self, Ticks clockStart, Ticks current
         }
 
         NoteEventAr_foreach(it, &self->events) {
-            if (it.var->stime + self->startTime > current) {
+            if (it.var->stime + self->startTime >= current) {
                 nextEvent = it.var->stime + self->startTime;
                 break;
             }
             self->cursor++;
         }
         if (self->cursor >= nevents) {
-            self->startTime += self->sequenceLength;
-            nextEvent        = self->startTime;
-            self->cursor     = 0;
+            Error_format0(err, "INTERNAL ERROR: cursor found to be >= nevents");
+            return;
         }
     } else {
         NoteEventAr_foreach(it, &self->events) {
@@ -9617,15 +9734,12 @@ APIF void NoteSequence_start(NoteSequence *self, Ticks clockStart, Ticks current
             break;
         }
     }
-
     self->recordingSeq = NULL;
     if (recordBuffer != NULL) {
-        NoteSequence *other = NoteSequence_recordClone(self);
-        other->startTime    = self->startTime;
+        NoteSequence *other = NoteSequence_compactNew(self);
         self->recordingSeq  = other; 
         RecordBuffer_push(recordBuffer, NoteSequence_castToSequence(other));
     }
-
     TimedPq_enqueue(queue, nextEvent, NoteSequence_castToSequence(self));
 }
 
@@ -9652,9 +9766,8 @@ APIF void NoteSequence_stop(NoteSequence *self, Ticks current, Error *err) {
 APIF void NoteSequence_drive(NoteSequence *self, Ticks current, TimedPq *queue, Error *err) 
 {
     NoteSequence_playNoteOffs(self, current, err);
-    NoteSequence_playNoteOns(self, current, err);
+    NoteSequence_playEvents(self, current, err);
     Ticks nextEvent = NoteSequence_nextEvent(self);
-    printf(":: offs=%lld ons=%lld  => %lld\n", self->nextOffEvent, self->nextOnEvent, nextEvent);
     if (nextEvent >= 0) {
         TimedPq_enqueue(queue, nextEvent, NoteSequence_castToSequence(self));
     }
@@ -9672,21 +9785,32 @@ APIF OutletSpecifier *NoteSequence_outSpec(NoteSequence *self)
     return &self->outletSpecifier;
 }
 
-APIF NoteSequence *NoteSequence_recordClone(NoteSequence *self)
+APIF void NoteSequence_makeConsistent(NoteSequence *self, Error *err)
 {
-    NoteSequence *other    = NoteSequence_new();
-    other->outletSpecifier = self->outletSpecifier;
-    other->outlet          = NullOutlet_castToOutlet(NullOutlet_new());
-    return other;
-}   
+    if (NoteEventAr_len(&self->events) < 1) {
+        Error_format0(err, "Called makeConsistent on empty sequence");
+        return;
+    }
 
-APIF void NoteSequence_makeConsistent(NoteSequence *self)
-{
+    NoteEventAr_sort(&self->events);
+
+    NoteEvent last = NoteEventAr_get(&self->events, NoteEventAr_last(&self->events), err);
+    Error_returnVoidOnError(err);
+
+    if (last.duration != NoteSequence_cycleDuration) {
+        Error_format0(err, "Called makeConsistent without proper cycle marker");
+        return;
+    }
+
+    if (last.stime != self->sequenceLength) {
+        Error_format0(err, "Called cycle marker and sequenceLength are inconsistent");
+        return;
+    }
+
     int timeNextNoteStart[128] = {0};
     for (int i = 0; i < 128; i++) {
         timeNextNoteStart[i] = INT_MAX;
     }
-    NoteEventAr_sort(&self->events);
     NoteEventAr_rforeach(it, &self->events) {
         if (it.var->stime + it.var->duration > timeNextNoteStart[it.var->pitch]) {
             it.var->duration = timeNextNoteStart[it.var->pitch] - it.var->stime;
@@ -9698,9 +9822,27 @@ APIF void NoteSequence_makeConsistent(NoteSequence *self)
         }
         timeNextNoteStart[it.var->pitch] = it.var->stime;
     }
+    return;
 }
 
-#line 728 "src/sequence.in.c"
+APIF Sequence *NoteSequence_compactNew(NoteSequence *self)
+{
+    NoteSequence *other    = NoteSequence_new();
+    other->startTime       = self->startTime;
+    other->outletSpecifier = self->outletSpecifier
+    other->outlet          = self->outlet;
+    return NoteSequence_castToSequence(other);
+}
+
+APIF void NoteSequence_compactConcat(NoteSequence *self, Sequence *otherSeq, Error *err)
+{
+    NoteSequence *other = NoteSequence_castFromSequence(otherSeq);
+    if (other == NULL) {
+        Error_format0(err, "NoteSequence_compactConcat was passed a sequence of type %s", Interface_toString(otherSeq->itype));
+    }
+}
+
+#line 791 "src/sequence.in.c"
 
 APIF int FloatEvent_cmp(FloatEvent *left, FloatEvent *right)
 {
@@ -9712,7 +9854,7 @@ APIF int FloatEvent_cmp(FloatEvent *left, FloatEvent *right)
     return 0;
 }
 
-#line 792 "src/sequence.in.c"
+#line 855 "src/sequence.in.c"
 
 APIF FloatSequence *FloatSequence_newCc(Symbol *track, int cc, PortFind *portFind) 
 {
@@ -9877,7 +10019,14 @@ APIF void FloatSequence_makeConsistent(FloatSequence *self)
 }
 
 
-#line 1026 "src/sequence.in.c"
+#line 1116 "src/sequence.in.c"
+
+// APIF void SequenceAr_truncateNoClear(SequenceAr *self) {
+//     SequenceAr_foreach(it, self) {
+//         *it.var = NULL;
+//     }
+//     SequenceAr_truncate(self);
+// }
 
 APIF void Sequence_freePpErrless(Sequence **s)
 {
@@ -9887,12 +10036,7 @@ APIF void Sequence_freePpErrless(Sequence **s)
 }
 
 APIF int Sequence_cmp(Sequence *leftSeq, Sequence *rightSeq) {
-    Error_declare(err);
-    OutletSpecifier *left  = Sequence_outSpec(leftSeq, err);
-    OutletSpecifier *right = Sequence_outSpec(rightSeq, err);
-    Error_clear(err);
-
-    int q = Symbol_cmp(OutletSpecifier_track(left), OutletSpecifier_track(right));
+    int q = Symbol_cmp(OutletSpecifier_track(leftSeq->outletSpecifier), OutletSpecifier_track(rightSeq->outletSpecifier));
     if (q) {
         return q;
     }
@@ -9944,11 +10088,37 @@ APIF void Sequence_incVersion(Sequence *seq) {
     seq->version++;
 }
 
-#line 1107 "src/sequence.in.c"
+#line 1204 "src/sequence.in.c"
 
 APIF void RecordBuffer_push(RecordBuffer *self, Sequence *sequence)
 {
     SequenceAr_push(&self->sequences, sequence);
+}
+
+APIF void RecordBuffer_compact(RecordBuffer *self, SequenceAr *output, Error *err)
+{
+    SequenceAr_sort(&self->sequences);
+    SequenceAr_truncate(output);
+    Sequence *current = NULL;
+    SequenceAr_foreach(it, &self->sequences) {
+        if (current == NULL || Sequence_cmp(*it.var, current) != 0) {
+            current = Sequence_compactNew(*it.var, err);
+            Error_gotoLabelOnError(err, END);
+            SequenceAr_push(output, current);
+        } 
+        Sequence_compactConcat(current, *it.var, err);
+        Error_gotoLabelOnError(err, END); 
+    }
+    SequenceAr_foreach(it, output) {
+        Sequence_compactFinish(current, self->recordStart, err);
+        Error_gotoLabelOnError(err, END);
+    }
+
+  END:
+    if (Error_iserror(err)) {
+        SequenceAr_truncate(output);
+    }
+    return;
 }
 
 
@@ -10058,7 +10228,7 @@ APIF void Midi_fromfile(const char *midiFilePath, SequenceAr *output, Symbol *de
         Error_format(err, "Failed to create pipe for command `%s`", midiCsvExecPath);
         return;
     }
-//NullOutlet_castToOutlet(NullOutlet_new());
+
     //
     // Loop and collect events. Write them into each sequence type
     //
@@ -10249,6 +10419,20 @@ APIF void Midi_fromfile(const char *midiFilePath, SequenceAr *output, Symbol *de
         }
     }
 
+    // Make all the sequences consistent
+    if (noteSeq != NULL) {
+        NoteSequence_makeConsistent(noteSeq, err);
+        Error_gotoLabelOnError(err, END);
+    }
+    if (bendSeq != NULL) {
+        FloatSequence_makeConsistent(bendSeq);
+    }
+    for (int i = 0; i < 128; i++) {
+        if (ccSeqs[i] != NULL) {
+            FloatSequence_makeConsistent(ccSeqs[i]);  
+        }
+    }
+
   END:
     if (pipe != NULL) {
         pclose(pipe);
@@ -10273,16 +10457,13 @@ APIF void Midi_fromfile(const char *midiFilePath, SequenceAr *output, Symbol *de
     //
     SequenceAr_truncate(output);
     if (noteSeq != NULL) {
-        NoteSequence_makeConsistent(noteSeq);
         SequenceAr_push(output, NoteSequence_castToSequence(noteSeq));
     }
     if (bendSeq != NULL) {
-        FloatSequence_makeConsistent(bendSeq);
         SequenceAr_push(output, FloatSequence_castToSequence(bendSeq));
     }
     for (int i = 0; i < 128; i++) {
         if (ccSeqs[i] != NULL) {
-            FloatSequence_makeConsistent(ccSeqs[i]);
             SequenceAr_push(output, FloatSequence_castToSequence(ccSeqs[i]));
         }
     }

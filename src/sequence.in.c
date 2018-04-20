@@ -443,12 +443,12 @@ APIF int NoteEvent_cmp(NoteEvent *left, NoteEvent *right)
             "type":"Ticks"
         },
         {  
-            "name":"sequenceLength",
-            "type":"Ticks"
-        },
-        {  
             "name":"outletSpecifier",
             "type":"OutletSpecifier"
+        },
+        {  
+            "name":"sequenceLength",
+            "type":"Ticks"
         },
         {  
             "name":"cursor",
@@ -523,10 +523,6 @@ APIF NoteSequence *NoteSequence_newFromEvents(Symbol *track, PortFind *portFind,
     Error_returnNullOnError(err);
 
     if (last.duration != NoteSequence_cycleDuration) {
-        printf("---- THERE\n");
-        NoteEventAr_foreach(it, &self->events) {
-            printf(":: %lld %lld\n", it.var->stime, it.var->duration);
-        }
         Error_format0(err, "Called newFromEvents without proper cycle marker");
         goto END;
     }
@@ -666,8 +662,7 @@ APIF void NoteSequence_start(NoteSequence *self, Ticks clockStart, Ticks current
     }
     self->recordingSeq = NULL;
     if (recordBuffer != NULL) {
-        NoteSequence *other = NoteSequence_recordClone(self);
-        other->startTime    = self->startTime;
+        NoteSequence *other = NoteSequence_castFromSequence(NoteSequence_compactNew(self, self->startTime));
         self->recordingSeq  = other; 
         RecordBuffer_push(recordBuffer, NoteSequence_castToSequence(other));
     }
@@ -711,19 +706,6 @@ APIF void NoteSequence_padNoteOff(NoteSequence *self, int padIndex, Ticks curren
     }
 }
 
-APIF OutletSpecifier *NoteSequence_outSpec(NoteSequence *self)
-{
-    return &self->outletSpecifier;
-}
-
-APIF NoteSequence *NoteSequence_recordClone(NoteSequence *self)
-{
-    NoteSequence *other    = NoteSequence_new();
-    other->outletSpecifier = self->outletSpecifier;
-    other->outlet          = NullOutlet_castToOutlet(NullOutlet_new());
-    return other;
-}   
-
 APIF void NoteSequence_makeConsistent(NoteSequence *self, Error *err)
 {
     if (NoteEventAr_len(&self->events) < 1) {
@@ -762,6 +744,105 @@ APIF void NoteSequence_makeConsistent(NoteSequence *self, Error *err)
         timeNextNoteStart[it.var->pitch] = it.var->stime;
     }
     return;
+}
+
+APIF Sequence *NoteSequence_compactNew(NoteSequence *self, Ticks recordStart)
+{
+    NoteSequence *other    = NoteSequence_new();
+    // WHen we create a compact sequence, we always set it's startTime to the recordStart which is <= than all the startTimes in the RecordBuffer
+    other->startTime       = recordStart;
+    other->outletSpecifier = self->outletSpecifier;
+    other->outlet          = self->outlet;
+    return NoteSequence_castToSequence(other);
+}
+
+APIF void NoteSequence_compactConcat(NoteSequence *self, Sequence *otherSeq, Error *err)
+{
+    NoteSequence *other = NoteSequence_castFromSequence(otherSeq);
+    if (other == NULL) {
+        Error_format(err, "NoteSequence_compactConcat was passed a sequence of type %s", Interface_toString(Interface_itype(otherSeq)));
+        return;
+    }
+    NoteEventAr_foreach(it, &other->events) {
+        NoteEvent e = *it.var;
+        if (NoteSequence_isMarkerValue(e.duration)) {
+            continue;
+        }
+        // Rememver in RecordBuffer_compact we're gauranteed that self->startTime < other->startTime
+        e.stime += (other->startTime - self->startTime);
+        NoteEventAr_push(&self->events, e); 
+    }
+}
+
+APIF void NoteSequence_compactSortEvents(NoteSequence *self)
+{
+    NoteEventAr_sort(&self->events);
+}
+
+// Return the time that endgroup should be inserted, or -1 if no endgroup applies.
+// Note we return absolute time.
+APIF Ticks NoteSequence_computeEndgroupTime(NoteSequence *self)
+{
+    NoteEventAr_sort(&self->events);
+
+    // Endgroup is the 
+    Ticks endgroupTime = -1;
+    NoteEventAr_rforeach(it, &self->events) {
+        if (NoteSequence_isMarkerValue(it.var->duration)) {
+            continue;
+        }
+        endgroupTime = self->startTime + it.var->stime;
+        break;
+    }
+    return endgroupTime;
+}
+
+APIF Ticks NoteSequence_compactComputeSequenceLength(NoteSequence *self)
+{
+    Ticks lastTime = -1;
+    NoteEventAr_rforeach(it, &self->events) {
+        lastTime = it.var->stime;
+        break;
+    }
+
+    MusicalContext_declareDefault(musicalContext);
+    Ticks mlen   = musicalContext.quarterNotesPerMeasure*musicalContext.ticksPerQuarterNote;
+    Ticks seqLen = (lastTime/mlen)*mlen + (lastTime % mlen == 0 ? 0 : mlen);
+    if (seqLen < NoteSequence_minSequenceLength) {
+        seqLen = NoteSequence_minSequenceLength;
+    }
+    return seqLen;
+}
+
+APIF void NoteSequence_compactFinish(NoteSequence *self, Ticks endgroupTime, Ticks sequenceLength, Error *err)
+{
+    if (endgroupTime >= 0) {
+        int index = NoteEventAr_len(&self->events) > 0 ? 0 : -1;
+        NoteEventAr_rforeach(it, &self->events) {
+            if (NoteSequence_isMarkerValue(it.var->duration)) {
+                continue;
+            }
+            if (self->startTime + it.var->stime < endgroupTime) {
+                index = it.index + 1;
+                break;
+            }
+        }
+        if (index >= 0) {
+            Error_declare(err);
+            NoteEvent newEv = {.stime = endgroupTime, .duration = NoteSequence_endgDuration, .pitch = 0, .velocity = 0};
+            NoteEventAr_insert(&self->events, index, newEv, err);
+            Error_maypost(err);
+        }
+    }
+
+
+    self->sequenceLength = sequenceLength;
+    NoteEvent newEv = {.stime = sequenceLength, .duration = NoteSequence_endgDuration, .pitch = 0, .velocity = 0};
+    NoteEventAr_push(&self->events, newEv);
+
+    NoteSequence_makeConsistent(self, err);
+    return;
+
 }
 
 @type
@@ -808,12 +889,12 @@ APIF int FloatEvent_cmp(FloatEvent *left, FloatEvent *right)
             "type":"Ticks"
         },
         {  
-            "name":"sequenceLength",
-            "type":"Ticks"
-        },
-        {  
             "name":"outletSpecifier",
             "type":"OutletSpecifier"
+        },
+        {  
+            "name":"sequenceLength",
+            "type":"Ticks"
         },
         {  
             "name":"cursor",
@@ -1011,6 +1092,50 @@ APIF void FloatSequence_makeConsistent(FloatSequence *self)
     }
 }
 
+APIF void FloatSequence_compactAssignEndgroup(FloatSequence *self, Ticks endgroupTime)
+{
+    int index = FloatEventAr_len(&self->events) > 0 ? 0 : -1;
+    FloatEventAr_rforeach(it, &self->events) {
+        if (FloatSequence_isMarkerValue(it.var->value)) {
+            continue;
+        }
+        if (self->startTime + it.var->stime < endgroupTime) {
+            index = it.index+1;
+            break;
+        } 
+    }
+    if (index >= 0) {
+        Error_declare(err);
+        FloatEvent newEv = {.stime = endgroupTime, .value = FloatSequence_endgMarker};
+        FloatEventAr_insert(&self->events, index, newEv, err);
+        Error_maypost(err);
+    }
+}
+
+APIF Sequence *FloatSequence_compactNew(FloatSequence *self, Ticks recordStart)
+{
+    return NULL;
+}
+
+APIF void FloatSequence_compactConcat(FloatSequence *self, Sequence *otherSeq, Error *err)
+{
+    return;
+}
+
+APIF void FloatSequence_compactSortEvents(FloatSequence *self)
+{
+    FloatEventAr_sort(&self->events);
+}
+
+APIF Ticks FloatSequence_compactComputeSequenceLength(FloatSequence *self)
+{
+    return -1;
+}
+
+APIF void FloatSequence_compactFinish(FloatSequence *self, Ticks endgroupTime, Ticks sequenceLength, Error *err)
+{
+    return;
+}
 
 @interface
 {
@@ -1019,6 +1144,14 @@ APIF void FloatSequence_makeConsistent(FloatSequence *self)
         {
             "name": "version", 
             "type": "long"
+        },
+        {
+            "name": "startTime", 
+            "type": "Ticks"
+        },
+        {  
+            "name":"outletSpecifier",
+            "type":"OutletSpecifier"
         }
     ],
     "methods": [
@@ -1059,11 +1192,46 @@ APIF void FloatSequence_makeConsistent(FloatSequence *self)
             "args": []
         },
 
-        // Comparison helper
+        // Compaction
         {
-            "name": "outSpec",
-            "retVal": "OutletSpecifier *",
-            "args": []
+            "name": "compactNew",
+            "retVal": "Sequence *",
+            "args": ["Ticks"],
+
+            // This is temporary
+            "absentOk": true
+        },
+        {
+            "name": "compactConcat",
+            "retVal": "void",
+            "args": ["Sequence *", "Error *"],
+
+            // This is temporary
+            "absentOk": true
+        },
+        {
+            "name": "compactSortEvents",
+            "retVal": "void",
+            "args": [],
+
+            // This is temporary
+            "absentOk": true
+        },  
+        {
+            "name": "compactComputeSequenceLength",
+            "retVal": "Ticks",
+            "args": [],
+
+            // This is temporary
+            "absentOk": true
+        },   
+        {
+            "name": "compactFinish",
+            "retVal": "void",
+            "args": ["Ticks", "Ticks", "Error *"],
+
+            // This is temporary
+            "absentOk": true
         }
 
 
@@ -1083,6 +1251,13 @@ APIF void FloatSequence_makeConsistent(FloatSequence *self)
 }
 @end
 
+// APIF void SequenceAr_truncateNoClear(SequenceAr *self) {
+//     SequenceAr_foreach(it, self) {
+//         *it.var = NULL;
+//     }
+//     SequenceAr_truncate(self);
+// }
+
 APIF void Sequence_freePpErrless(Sequence **s)
 {
     Error_declare(err);
@@ -1090,16 +1265,24 @@ APIF void Sequence_freePpErrless(Sequence **s)
     Error_maypost(err);
 }
 
+// Sort into unique OutletSpecifiers, and sort by startTime within the same OutletSpecifier.
 APIF int Sequence_cmp(Sequence *leftSeq, Sequence *rightSeq) {
-    Error_declare(err);
-    OutletSpecifier *left  = Sequence_outSpec(leftSeq, err);
-    OutletSpecifier *right = Sequence_outSpec(rightSeq, err);
-    Error_clear(err);
-
+    OutletSpecifier *left  = &leftSeq->outletSpecifier;
+    OutletSpecifier *right = &rightSeq->outletSpecifier;
     int q = Symbol_cmp(OutletSpecifier_track(left), OutletSpecifier_track(right));
     if (q) {
         return q;
     }
+
+    // Want to sort NoteSequence to the front of the array. We could do this by looking for *note in parameter name, but I like this better.
+    bool noteLeft  = Interface_itype(leftSeq)  == NoteSequence_itype;
+    bool noteRight = Interface_itype(rightSeq) == NoteSequence_itype;
+    if (noteLeft && !noteRight) {
+        return -1;
+    } else if (!noteLeft && noteRight) {
+        return 1;
+    }
+    
 
     int leftPi  = OutletSpecifier_pluginIndex(left);
     int rightPi = OutletSpecifier_pluginIndex(right);
@@ -1121,6 +1304,12 @@ APIF int Sequence_cmp(Sequence *leftSeq, Sequence *rightSeq) {
     } else if (leftPi > rightPi) {
         return 1;
     }    
+
+    if (leftSeq->startTime < rightSeq->startTime) {
+        return -1;
+    } else if (leftSeq->startTime > rightSeq->startTime) {
+        return 1;
+    }
 
     return 0;
 }
@@ -1153,6 +1342,11 @@ APIF void Sequence_incVersion(Sequence *seq) {
     "typeName": "RecordBuffer",
     "fields": [
         {
+            // Couple things to remember. 
+            //    (1) recordStart is absolute time ALWAYS
+            //    (2) The stime fields in the sequences are relative to that sequences startTime ALWAYS
+            //    (3) All startTimes in sequences are absolute time WHILE RECORDING
+            //        - This means that after record is done all members of sequences have to have their startTimes adjusted
             "name": "recordStart", 
             "type": "Ticks"
         },
@@ -1167,6 +1361,62 @@ APIF void Sequence_incVersion(Sequence *seq) {
 APIF void RecordBuffer_push(RecordBuffer *self, Sequence *sequence)
 {
     SequenceAr_push(&self->sequences, sequence);
+}
+
+APIF void RecordBuffer_compact(RecordBuffer *self, SequenceAr *output, Error *err)
+{
+    SequenceAr_sort(&self->sequences);
+    SequenceAr_truncate(output);
+
+    // Compact all the sequences we can
+    Sequence *current = NULL;
+    SequenceAr_foreach(it, &self->sequences) {
+        if (current == NULL || Sequence_cmp(*it.var, current) != 0) {
+            current = Sequence_compactNew(*it.var, self->recordStart, err);
+            Error_gotoLabelOnError(err, END);
+            SequenceAr_push(output, current);
+        } 
+        Sequence_compactConcat(current, *it.var, err);
+        Error_gotoLabelOnError(err, END); 
+    }
+
+    Ticks sequenceLength = -1;
+    SequenceAr_foreach(it, output) {
+        Sequence *s = *it.var;
+        Sequence_compactSortEvents(s, err);
+        Error_gotoLabelOnError(err, END); 
+        Ticks len = Sequence_compactComputeSequenceLength(s, err);
+        Error_gotoLabelOnError(err, END);
+        if (len > sequenceLength) {
+            len = sequenceLength;
+        }
+    }
+
+    // We assign the endgroup for a collection of sequences by looking at the first and only noteSequence for a given track. If no noteSequence
+    // exists for this track, endgroup is unassigned.
+    Ticks currentEndgroupTime = -1;
+    Symbol *track = NULL;
+    SequenceAr_foreach(it, output) {
+        Sequence *s = *it.var;
+
+        if (track != s->outletSpecifier.track) {
+            track = s->outletSpecifier.track;
+            NoteSequence *ns = NoteSequence_castFromSequence(s);
+            if (ns == NULL) {
+                currentEndgroupTime = -1;
+            } else {
+                currentEndgroupTime = NoteSequence_computeEndgroupTime(ns);
+            }
+        }
+        Sequence_compactFinish(s, currentEndgroupTime, sequenceLength, err);
+        Error_gotoLabelOnError(err, END);
+    }
+
+  END:
+    if (Error_iserror(err)) {
+        SequenceAr_truncate(output);
+    }
+    return;
 }
 
 
@@ -1276,7 +1526,7 @@ APIF void Midi_fromfile(const char *midiFilePath, SequenceAr *output, Symbol *de
         Error_format(err, "Failed to create pipe for command `%s`", midiCsvExecPath);
         return;
     }
-//NullOutlet_castToOutlet(NullOutlet_new());
+
     //
     // Loop and collect events. Write them into each sequence type
     //
@@ -1349,135 +1599,48 @@ APIF void Midi_fromfile(const char *midiFilePath, SequenceAr *output, Symbol *de
     //
     // Try and compute endgroup
     //
-    Ticks endGroupTime = 0;
+    Ticks endgroupTime = -1;
     if (noteSeq != NULL) {
-        NoteEventAr_rforeach(it, &noteSeq->events) {
-            if (it.var->duration == NoteSequence_noteOffDuration) {
-                Error_format(err, "Unpaired note-on at %lld", it.var->stime);
-                goto END;
-            }
-        }
-
-        // Install endgroup
-        Ticks endTime = -1;
-        int endIndex  = -1;
-        NoteEventAr_rforeach(it, &noteSeq->events) {
-            if (endTime < 0) {
-                endTime  = it.var->stime;
-                endIndex = it.index;
-                continue;
-            } else if (it.var->stime != endTime) {
-                break;
-            } else {
-                endIndex = it.index;
-            }
-        }
-        if (endTime >= 0) {
-            NoteEvent newEv = {.stime = endTime, .duration = NoteSequence_endgDuration, .pitch = 0, .velocity = 0};
-            NoteEventAr_insert(&noteSeq->events, endIndex, newEv, err);
-            Error_gotoLabelOnError(err, END);
-            endGroupTime = endTime;
-        } 
+        endgroupTime = NoteSequence_computeEndgroupTime(noteSeq);  
     }
-
-    
-    if (bendSeq != NULL) {
-        int insertIndex = 0;
-        FloatEventAr_rforeach(it, &bendSeq->events) {
-            if (it.var->stime > endGroupTime) {
-                insertIndex = it.index;
-            } else {
-                break;
-            }
-        }
-        FloatEvent newEv = {.stime = endGroupTime, .value = FloatSequence_endgMarker};
-        FloatEventAr_insert(&bendSeq->events, insertIndex, newEv, err);
-    }
-    for (int i = 0; i < 128; i++) {
-        if (ccSeqs[i] != NULL) {
-            int insertIndex = 0;
-            FloatEventAr_rforeach(it, &bendSeq->events) {
-                if (it.var->stime > endGroupTime) {
-                    insertIndex = it.index;
-                } else {
-                    break;
-                }
-            }
-            FloatEvent newEv = {.stime = endGroupTime, .value = FloatSequence_endgMarker};
-            FloatEventAr_insert(&(ccSeqs[i]->events), insertIndex, newEv, err);
-            Error_gotoLabelOnError(err, END);       
-        }
-    }
-
 
     //
     // Compute length
     //
-    Ticks lastTime = 0;
+    Ticks sequenceLength = -1;
     if (noteSeq != NULL) {
-        NoteEventAr_rforeach(it, &noteSeq->events) {
-            if (it.var->stime > lastTime) {
-                lastTime = it.var->stime;
-            }
-            break;
-        }
+        sequenceLength = NoteSequence_compactComputeSequenceLength(noteSeq);
     }
     if (bendSeq != NULL) {
-        FloatEventAr_rforeach(it, &bendSeq->events) {
-            if (it.var->stime > lastTime) {
-                lastTime = it.var->stime;
-            }
-            break;
+        Ticks len = FloatSequence_compactComputeSequenceLength(bendSeq);
+        if (sequenceLength < len) {
+            sequenceLength = len;
         }
     }
     for (int i = 0; i < 128; i++) {
         if (ccSeqs[i] != NULL) {
-            FloatEventAr_rforeach(it, &(ccSeqs[i]->events)) {
-                if (it.var->stime > lastTime) {
-                    lastTime = it.var->stime;
-                }
-                break;
+            Ticks len = FloatSequence_compactComputeSequenceLength(ccSeqs[i]);
+            if (sequenceLength < len) {
+                sequenceLength = len;
             }       
         }
     }
 
-    Ticks mlen   = musicalContext.quarterNotesPerMeasure*musicalContext.ticksPerQuarterNote;
-    Ticks seqLen = (lastTime/mlen)*mlen + (lastTime % mlen == 0 ? 0 : mlen);
-    if (seqLen < NoteSequence_minSequenceLength) {
-        seqLen = NoteSequence_minSequenceLength;
-    }
     //
-    // Set each sequence length
+    // Finish sequences off
     //
     if (noteSeq != NULL) {
-        noteSeq->sequenceLength = seqLen;
-        NoteEvent newEv = {.stime = seqLen, .duration = NoteSequence_cycleDuration, .pitch = 0, .velocity = 0};
-        NoteEventAr_push(&noteSeq->events, newEv);
-    }
-    if (bendSeq != NULL) {
-        bendSeq->sequenceLength = seqLen;
-        FloatEvent newEv = {.stime = seqLen, .value = FloatSequence_cycleMarker};
-        FloatEventAr_push(&bendSeq->events, newEv);
-    }
-    for (int i = 0; i < 128; i++) {
-        if (ccSeqs[i] != NULL) {
-            ccSeqs[i]->sequenceLength = seqLen;
-            FloatEvent newEv = {.stime = seqLen, .value = FloatSequence_cycleMarker};
-            FloatEventAr_push(&(ccSeqs[i]->events), newEv);       
-        }
-    }
-
-    // Make all the sequences consistent
-    if (noteSeq != NULL) {
-        NoteSequence_makeConsistent(noteSeq, err);
+        NoteSequence_compactFinish(noteSeq, endgroupTime, sequenceLength, err);
         Error_gotoLabelOnError(err, END);
     }
     if (bendSeq != NULL) {
-        FloatSequence_makeConsistent(bendSeq);
+        FloatSequence_compactFinish(bendSeq, endgroupTime, sequenceLength, err);
+        Error_gotoLabelOnError(err, END);
     }
     for (int i = 0; i < 128; i++) {
         if (ccSeqs[i] != NULL) {
-            FloatSequence_makeConsistent(ccSeqs[i]);  
+            FloatSequence_compactFinish(ccSeqs[i], endgroupTime, sequenceLength, err);
+            Error_gotoLabelOnError(err, END);
         }
     }
 

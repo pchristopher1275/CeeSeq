@@ -707,6 +707,13 @@ ENDxxxxxxxxxx
 			@${RTYPE}${IFCNAME}_${METHODNAME}(int itype)
 ENDxxxxxxxxxx
 	},
+	{
+		key =>    'Interface:itype',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx',
+			@#define Interface_itype(self) (self->itype) 
+ENDxxxxxxxxxx
+	},
 
 	{
 		key =>    'Interface:startFunction',
@@ -2076,12 +2083,14 @@ sub ArtifactList_emitStructs {
 sub ArtifactList_emitInterfaceDefines {
 	my ($self, $out) = @_;
 	
+
 	Expand_emit($out, ["Interface:undefined"], {ITYPE=>$gUndefinedItype});
 	for my $artifact (@{$self->{artifacts}}) {
 		if (ClassArtifact_isa($artifact) && defined($artifact->{itypeIndex})) {
 			printf {$out} "#define $artifact->{typeName}_itype $artifact->{itypeIndex}\n";
 		}
 	}
+	Expand_emit($out, ["Interface:itype"], {});
 	for my $artifact (@{$self->{artifacts}}) {
 		if (InterfaceArtifact_isa($artifact)) {
 			for (my $methodIndex = 0; $methodIndex < @{$artifact->{methods}}; $methodIndex++) {
