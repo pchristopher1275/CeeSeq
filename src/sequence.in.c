@@ -494,7 +494,7 @@ APIF int NoteEvent_cmp(NoteEvent *left, NoteEvent *right)
 @end
 
 #define NoteSequence_isMarkerValue(v) (v < 0)
-#define NoteSequence_minSequenceLength 5
+#define Sequence_minSequenceLength 5
 
 APIF NoteSequence *NoteSequence_newTrack(Symbol *track, PortFind *portFind)
 {
@@ -587,8 +587,8 @@ COVER static inline void NoteSequence_playEvents(NoteSequence *self, Ticks curre
             self->cursor++;
         }
         if (self->cycle) {
-            if (self->sequenceLength <= NoteSequence_minSequenceLength) {
-               self->sequenceLength = NoteSequence_minSequenceLength;
+            if (self->sequenceLength <= Sequence_minSequenceLength) {
+               self->sequenceLength = Sequence_minSequenceLength;
             }
             self->startTime += self->sequenceLength;
             self->cursor     = 0;
@@ -636,8 +636,8 @@ APIF void NoteSequence_start(NoteSequence *self, Ticks clockStart, Ticks current
     self->inEndgroup   = false;
     Ticks nextEvent    = 0;
     if (self->cycle) {
-        if (self->sequenceLength <= NoteSequence_minSequenceLength) {
-            self->sequenceLength = NoteSequence_minSequenceLength;
+        if (self->sequenceLength <= Sequence_minSequenceLength) {
+            self->sequenceLength = Sequence_minSequenceLength;
         }
         while (current - self->startTime > self->sequenceLength) {
             self->startTime += self->sequenceLength;
@@ -808,8 +808,8 @@ APIF Ticks NoteSequence_compactComputeSequenceLength(NoteSequence *self)
     MusicalContext_declareDefault(musicalContext);
     Ticks mlen   = musicalContext.quarterNotesPerMeasure*musicalContext.ticksPerQuarterNote;
     Ticks seqLen = (lastTime/mlen)*mlen + (lastTime % mlen == 0 ? 0 : mlen);
-    if (seqLen < NoteSequence_minSequenceLength) {
-        seqLen = NoteSequence_minSequenceLength;
+    if (seqLen < Sequence_minSequenceLength) {
+        seqLen = Sequence_minSequenceLength;
     }
     return seqLen;
 }
@@ -842,7 +842,6 @@ APIF void NoteSequence_compactFinish(NoteSequence *self, Ticks endgroupTime, Tic
 
     NoteSequence_makeConsistent(self, err);
     return;
-
 }
 
 @type
@@ -978,8 +977,8 @@ APIF void FloatSequence_start(FloatSequence *self, Ticks clockStart, Ticks curre
     self->inEndgroup   = false;
     Ticks nextEvent    = 0;
     if (self->cycle) {
-        if (self->sequenceLength <= NoteSequence_minSequenceLength) {
-            self->sequenceLength = NoteSequence_minSequenceLength;
+        if (self->sequenceLength <= Sequence_minSequenceLength) {
+            self->sequenceLength = Sequence_minSequenceLength;
         }
         while (current-self->startTime > self->sequenceLength) {
             self->startTime += self->sequenceLength;
@@ -1046,8 +1045,8 @@ APIF void FloatSequence_drive(FloatSequence *self, Ticks current, TimedPq *queue
             self->cursor++;
         }
         if (self->cycle) {
-            if (self->sequenceLength <= NoteSequence_minSequenceLength) {
-                self->sequenceLength = NoteSequence_minSequenceLength;
+            if (self->sequenceLength <= Sequence_minSequenceLength) {
+                self->sequenceLength = Sequence_minSequenceLength;
             }
             self->startTime += self->sequenceLength;
             self->cursor     = 0;
@@ -1114,11 +1113,29 @@ APIF void FloatSequence_compactAssignEndgroup(FloatSequence *self, Ticks endgrou
 
 APIF Sequence *FloatSequence_compactNew(FloatSequence *self, Ticks recordStart)
 {
-    return NULL;
+    FloatSequence *other   = FloatSequence_new();
+    other->startTime       = recordStart;
+    other->outletSpecifier = self->outletSpecifier;
+    other->outlet          = self->outlet;
+    return FloatSequence_castToSequence(other);
 }
 
 APIF void FloatSequence_compactConcat(FloatSequence *self, Sequence *otherSeq, Error *err)
 {
+    FloatSequence *other = FloatSequence_castFromSequence(otherSeq);
+    if (other == NULL) {
+        Error_format(err, "FloatSequence_compactConcat was passed a sequence of type %s", Interface_toString(Interface_itype(otherSeq)));
+        return;
+    }
+    FloatEventAr_foreach(it, &other->events) {
+        FloatEvent e = *it.var;
+        if (FloatSequence_isMarkerValue(e.value)) {
+            continue;
+        }
+        // Remember that self->startTime == recordStart
+        e.stime += (other->startTime - self->startTime);
+        FloatEventAr_push(&self->events, e); 
+    }
     return;
 }
 
@@ -1129,11 +1146,46 @@ APIF void FloatSequence_compactSortEvents(FloatSequence *self)
 
 APIF Ticks FloatSequence_compactComputeSequenceLength(FloatSequence *self)
 {
-    return -1;
+    Ticks lastTime = -1;
+    FloatEventAr_rforeach(it, &self->events) {
+        lastTime = it.var->stime;
+        break;
+    }
+
+    MusicalContext_declareDefault(musicalContext);
+    Ticks mlen   = musicalContext.quarterNotesPerMeasure*musicalContext.ticksPerQuarterNote;
+    Ticks seqLen = (lastTime/mlen)*mlen + (lastTime % mlen == 0 ? 0 : mlen);
+    if (seqLen < Sequence_minSequenceLength) {
+        seqLen = Sequence_minSequenceLength;
+    }
+    return seqLen;
 }
 
 APIF void FloatSequence_compactFinish(FloatSequence *self, Ticks endgroupTime, Ticks sequenceLength, Error *err)
 {
+    if (endgroupTime >= 0) {
+        int index = FloatEventAr_len(&self->events) > 0 ? 0 : -1;
+        FloatEventAr_rforeach(it, &self->events) {
+            if (FloatSequence_isMarkerValue(it.var->value)) {
+                continue;
+            }
+            if (self->startTime + it.var->stime < endgroupTime) {
+                index = it.index + 1;
+                break;
+            }
+        }
+        if (index >= 0) {
+            FloatEvent newEv = {.stime = endgroupTime, .value = FloatSequence_endgMarker};
+            FloatEventAr_insert(&self->events, index, newEv, err);
+            Error_returnVoidOnError(err);
+        }
+    }
+
+    self->sequenceLength = sequenceLength;
+    FloatEvent newEv = {.stime = sequenceLength, .value = FloatSequence_cycleMarker};
+    FloatEventAr_push(&self->events, newEv);
+
+    FloatSequence_makeConsistent(self);
     return;
 }
 
