@@ -15,7 +15,7 @@
 
 void testNoteSequenceStartFixture(Ticks clockStart, Ticks current, Ticks expStartTime, int expCursor, bool useCycle, Ticks noteDuration)
 {
-	// Start a one-shot
+	Error_declare(err);
 	PortFind *portFind = PortFind_createStandardSpoof();
 	const int nnotes = 5;
 	NoteEvent notes[nnotes] = {
@@ -25,11 +25,12 @@ void testNoteSequenceStartFixture(Ticks clockStart, Ticks current, Ticks expStar
 		{.pitch = 62, .velocity = 102, .stime = 242,              .duration = noteDuration},
 		{.pitch = 0,  .velocity = 0,   .stime = 242+noteDuration, .duration = NoteSequence_cycleDuration},
 	};
-	NoteSequence *noteSequence = NoteSequence_newFromEvents(Symbol_gen("piano"), portFind, nnotes, notes);
+	NoteSequence *noteSequence = NoteSequence_newFromEvents(Symbol_gen("piano"), portFind, nnotes, notes, err);
+	fatal(!Error_iserror(err));
 	NoteSequence_setCycle(noteSequence, useCycle);
 	TimedPq *timedPq = TimedPq_new(0);
 	
-	Error_declare(err);
+	
 	NoteSequence_start(noteSequence, clockStart, current, timedPq, NULL, err);
 	fatal(!Error_iserror(err));
 	chk(noteSequence->startTime == expStartTime);
@@ -54,6 +55,7 @@ void testNoteSequenceStartFixture(Ticks clockStart, Ticks current, Ticks expStar
 }
 void testNoteSequenceDriveFixture(Ticks clockStart, Ticks current, int noteCursor, int realNoteCount, bool useCycle, Ticks noteDuration, Ticks timeStop, Ticks tdeltaStart)
 {
+	Error_declare(err);
 	PortFind *portFind = PortFind_createStandardSpoof();
 	const int nnotes = 5;
 	NoteEvent notes[nnotes] = {
@@ -64,13 +66,13 @@ void testNoteSequenceDriveFixture(Ticks clockStart, Ticks current, int noteCurso
 		{.pitch = 0,  .velocity = 0,   .stime = 400,     .duration = NoteSequence_cycleDuration},
 	};
 	TimedPq *timedPq = TimedPq_new(0);
-	NoteSequence *noteSequence = NoteSequence_newFromEvents(Symbol_gen("piano"), portFind, nnotes, notes);
+	NoteSequence *noteSequence = NoteSequence_newFromEvents(Symbol_gen("piano"), portFind, nnotes, notes, err);
+	fatal(!Error_iserror(err));
 	NoteSequence_setCycle(noteSequence, useCycle);
 	Outlet *ol = noteSequence->outlet;
 	NoteOutlet *nol = NoteOutlet_castFromOutlet(ol);
 	fatal(nol != NULL); 
 	
-	Error_declare(err);
 	NoteSequence_start(noteSequence, clockStart, current, timedPq, NULL, err);
 	fatal(!Error_iserror(err));
 
@@ -191,13 +193,15 @@ Unit_declare(testNoteSequenceStopAndEndgroup)
 {
 	{
 		// Test NoteSequence_stop
+		Error_declare(err);
 		PortFind *portFind = PortFind_createStandardSpoof();
 		const int nnotes = 2;
 		NoteEvent notes[nnotes] = {
 			{.pitch = 0,  .velocity = 0,   .stime = 400,     .duration = NoteSequence_endgDuration},
 			{.pitch = 0,  .velocity = 0,   .stime = 400,     .duration = NoteSequence_cycleDuration}
 		};
-		NoteSequence *noteSequence = NoteSequence_newFromEvents(Symbol_gen("piano"), portFind, nnotes, notes);
+		NoteSequence *noteSequence = NoteSequence_newFromEvents(Symbol_gen("piano"), portFind, nnotes, notes, err);
+		fatal(!Error_iserror(err));
 		Outlet *ol = noteSequence->outlet;
 		NoteOutlet *nol = NoteOutlet_castFromOutlet(ol);
 		fatal(nol != NULL); 
@@ -213,7 +217,6 @@ Unit_declare(testNoteSequenceStopAndEndgroup)
 		chk(noteSequence->version == 0);
 		chk(noteSequence->cursor  == 0);
 
-		Error_declare(err);
 		NoteSequence_stop(noteSequence, Ticks_maxTime, err);
 		fatal(!Error_iserror(err));
 
@@ -235,13 +238,15 @@ Unit_declare(testNoteSequenceStopAndEndgroup)
 
 	{
 		// Test NoteSequence_padNoteOff
+		Error_declare(err);
 		PortFind *portFind = PortFind_createStandardSpoof();
 		const int nnotes = 2;
 		NoteEvent notes[nnotes] = {
 			{.pitch = 0,  .velocity = 0,   .stime = 400,     .duration = NoteSequence_endgDuration},
 			{.pitch = 0,  .velocity = 0,   .stime = 400,     .duration = NoteSequence_cycleDuration}
 		};
-		NoteSequence *noteSequence = NoteSequence_newFromEvents(Symbol_gen("piano"), portFind, nnotes, notes);
+		NoteSequence *noteSequence = NoteSequence_newFromEvents(Symbol_gen("piano"), portFind, nnotes, notes, err);
+		fatal(!Error_iserror(err));
 		Outlet *ol = noteSequence->outlet;
 		NoteOutlet *nol = NoteOutlet_castFromOutlet(ol);
 		fatal(nol != NULL); 
@@ -255,11 +260,11 @@ Unit_declare(testNoteSequenceStopAndEndgroup)
 		}
 		fatal(TimedOffAr_len(&noteSequence->offs) == 3);
 		noteSequence->inEndgroup = true;
-		// APIF void NoteSequence_padNoteOff(NoteSequence *self, int padIndex, Ticks current, Error *err) 
-		Error_declare(err);
+	
+		
 		NoteSequence_padNoteOff(noteSequence, 0, Ticks_maxTime, err);
 		chk(TimedOffAr_len(&noteSequence->offs) == 0);
-		
+
 		NoteEventAr *res = NoteEventAr_new(0);
 		NoteOutlet_dbReportNoteOffs(res);
 		fatal(NoteEventAr_len(res) == noffPitches);
@@ -270,6 +275,65 @@ Unit_declare(testNoteSequenceStopAndEndgroup)
 		NoteEventAr_free(res);
 		PortFind_free(portFind);
 		NoteSequence_free(noteSequence);
+	}
+
+	{
+		// Test setting of noteSequence->inEndgroup
+		Error_declare(err);
+		PortFind *portFind = PortFind_createStandardSpoof();
+		const int nnotes = 2;
+		NoteEvent notes[nnotes] = {
+			{.pitch = 0,  .velocity = 0,   .stime = 200,     .duration = NoteSequence_endgDuration},
+			{.pitch = 0,  .velocity = 0,   .stime = 400,     .duration = NoteSequence_cycleDuration}
+		};
+		NoteSequence *noteSequence = NoteSequence_newFromEvents(Symbol_gen("piano"), portFind, nnotes, notes, err);
+		fatal(!Error_iserror(err));
+		TimedPq *timedPq = TimedPq_new(0);
+
+		noteSequence->inEndgroup = true;
+
+		NoteSequence_start(noteSequence, 0, 0, timedPq, NULL, err);
+		fatal(!Error_iserror(err));
+		chk(noteSequence->inEndgroup == false);
+		
+		NoteSequence_drive(noteSequence, 200, timedPq, err);
+		fatal(!Error_iserror(err));
+		chk(noteSequence->inEndgroup == true);					
+
+		TimedPq_free(timedPq);
+		PortFind_free(portFind);
+		NoteSequence_free(noteSequence);
+	}
+
+	{
+		// Test NoteSequence_makeConsistent
+		// Start a one-shot
+		Error_declare(err);
+		PortFind *portFind = PortFind_createStandardSpoof();
+		const int nnotes = 4;
+		NoteEvent notes[nnotes] = {
+			{.pitch = 60, .velocity = 100, .stime = 200, .duration = 300},
+			{.pitch = 0,  .velocity = 0,   .stime = 200, .duration = NoteSequence_endgDuration},
+			{.pitch = 60, .velocity = 100, .stime = 100, .duration = 300},
+			{.pitch = 0,  .velocity = 0,   .stime = 400, .duration = NoteSequence_cycleDuration},
+		};
+		NoteSequence *noteSequence = NoteSequence_newFromEvents(Symbol_gen("piano"), portFind, nnotes, notes, err);
+		fatal(NoteEventAr_len(&noteSequence->events) == 4);
+		NoteEvent *evs = noteSequence->events.data;
+		chk(evs[0].stime == 100);
+		chk(evs[0].pitch == 60);
+		chk(evs[0].duration == 100);
+		
+		chk(evs[2].stime == 200);
+		chk(evs[2].pitch == 60);
+		chk(evs[2].duration == 300);
+
+		chk(evs[3].stime == 400);
+		chk(evs[3].duration == NoteSequence_cycleDuration);
+		chk(noteSequence->sequenceLength == 400);
+
+		NoteSequence_free(noteSequence);
+		PortFind_free(portFind);
 	}
 }
 

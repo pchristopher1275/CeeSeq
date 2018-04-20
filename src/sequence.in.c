@@ -395,13 +395,34 @@ APIF void TimedPq_invalidateSequence(TimedPq *self, SequenceAr *removes)
 }
 @end
 
+Ticks NoteSequence_cycleDuration   = -1;
+Ticks NoteSequence_endgDuration    = -2;
+Ticks NoteSequence_noteOffDuration = -3;
+
 APIF int NoteEvent_cmp(NoteEvent *left, NoteEvent *right)
 {
     if (left->stime < right->stime) {
         return -1;
     } else if (left->stime > right->stime) {
         return 1;
-    } else if (left->pitch < right->pitch) {
+    } 
+
+    // This sorts cycle to the end of equal time, and endgroup to the begining of equal time.
+    Coverage_off;
+    Ticks leftDuration = left->duration >= 0 ? left->duration : 
+                         left->duration == NoteSequence_cycleDuration ? Ticks_maxTime :
+                         left->duration == NoteSequence_endgDuration ? -Ticks_maxTime : left->duration;
+    Ticks rightDuration = right->duration >= 0 ? right->duration : 
+                          right->duration == NoteSequence_cycleDuration ? Ticks_maxTime :
+                          right->duration == NoteSequence_endgDuration ? -Ticks_maxTime : right->duration;
+    Coverage_on;
+    if (leftDuration < rightDuration) {
+        return -1;
+    } else if (leftDuration > rightDuration) {
+        return 1;
+    }
+
+    if (left->pitch < right->pitch) {
         return -1;
     } else if (left->pitch > right->pitch) {
         return 1;
@@ -472,6 +493,9 @@ APIF int NoteEvent_cmp(NoteEvent *left, NoteEvent *right)
 }
 @end
 
+#define NoteSequence_isMarkerValue(v) (v < 0)
+#define NoteSequence_minSequenceLength 5
+
 APIF NoteSequence *NoteSequence_newTrack(Symbol *track, PortFind *portFind)
 {
     // XXX: I don't know if this should be a legal new! 
@@ -481,27 +505,42 @@ APIF NoteSequence *NoteSequence_newTrack(Symbol *track, PortFind *portFind)
     return self;
 }
 
-APIF NoteSequence *NoteSequence_newFromEvents(Symbol *track, PortFind *portFind, int argc, NoteEvent *argv)
+APIF NoteSequence *NoteSequence_newFromEvents(Symbol *track, PortFind *portFind, int argc, NoteEvent *argv, Error *err)
 {
+    if (argc <= 0) {
+        Error_format0(err, "Bad argc passed to newFromEvents");
+        goto END;
+    }
+
     NoteSequence *self = NoteSequence_newTrack(track, portFind);
     NoteEventAr_truncate(&self->events);
     for (int i = 0; i < argc; i++) {
         NoteEventAr_push(&self->events, argv[i]);
     }
-    NoteSequence_makeConsistent(self);
-    NoteEventAr_rforeach(it, &self->events) {
-        // This assumes that you always correctly add a cycle marker at the end of you input NoteEvent table
-        self->sequenceLength = it.var->stime;
-        break;
+    NoteEventAr_sort(&self->events);
+
+    NoteEvent last = NoteEventAr_get(&self->events, NoteEventAr_last(&self->events), err);
+    Error_returnNullOnError(err);
+
+    if (last.duration != NoteSequence_cycleDuration) {
+        printf("---- THERE\n");
+        NoteEventAr_foreach(it, &self->events) {
+            printf(":: %lld %lld\n", it.var->stime, it.var->duration);
+        }
+        Error_format0(err, "Called newFromEvents without proper cycle marker");
+        goto END;
+    }
+    self->sequenceLength = last.stime;
+    NoteSequence_makeConsistent(self, err);
+
+  END:
+    if (Error_iserror(err)) {
+        NoteSequence_free(self);
+        return NULL;
     }
     return self;
 }
 
-Ticks NoteSequence_cycleDuration      = -1;
-Ticks NoteSequence_endgDuration       = -2;
-Ticks NoteSequence_noteOffDuration    = -3;
-#define NoteSequence_isMarkerValue(v) (v < 0)
-#define NoteSequence_minSequenceLength 5
 COVER static inline void NoteSequence_playNoteOffs(NoteSequence *self, Ticks current, Error *err) 
 {
     self->nextOffEvent = Ticks_maxTime;
@@ -520,7 +559,7 @@ COVER static inline void NoteSequence_playNoteOffs(NoteSequence *self, Ticks cur
     }
 }
 
-COVER static inline void NoteSequence_playNoteOns(NoteSequence *self, Ticks current, Error *err) 
+COVER static inline void NoteSequence_playEvents(NoteSequence *self, Ticks current, Error *err) 
 {
     self->nextOnEvent = Ticks_maxTime;
     for (;;) {
@@ -540,7 +579,7 @@ COVER static inline void NoteSequence_playNoteOns(NoteSequence *self, Ticks curr
 
                 // Play the note on
                 Outlet_sendNote(self->outlet, ne->pitch, ne->velocity, err);
-            } else if (ne->duration == NoteSequence_endgDuration) {
+            } else if (ne->duration == NoteSequence_endgDuration && !self->cycle) {
                 self->inEndgroup = true;
             } 
 
@@ -658,7 +697,7 @@ APIF void NoteSequence_stop(NoteSequence *self, Ticks current, Error *err) {
 APIF void NoteSequence_drive(NoteSequence *self, Ticks current, TimedPq *queue, Error *err) 
 {
     NoteSequence_playNoteOffs(self, current, err);
-    NoteSequence_playNoteOns(self, current, err);
+    NoteSequence_playEvents(self, current, err);
     Ticks nextEvent = NoteSequence_nextEvent(self);
     if (nextEvent >= 0) {
         TimedPq_enqueue(queue, nextEvent, NoteSequence_castToSequence(self));
@@ -685,13 +724,32 @@ APIF NoteSequence *NoteSequence_recordClone(NoteSequence *self)
     return other;
 }   
 
-APIF void NoteSequence_makeConsistent(NoteSequence *self)
+APIF void NoteSequence_makeConsistent(NoteSequence *self, Error *err)
 {
+    if (NoteEventAr_len(&self->events) < 1) {
+        Error_format0(err, "Called makeConsistent on empty sequence");
+        return;
+    }
+
+    NoteEventAr_sort(&self->events);
+
+    NoteEvent last = NoteEventAr_get(&self->events, NoteEventAr_last(&self->events), err);
+    Error_returnVoidOnError(err);
+
+    if (last.duration != NoteSequence_cycleDuration) {
+        Error_format0(err, "Called makeConsistent without proper cycle marker");
+        return;
+    }
+
+    if (last.stime != self->sequenceLength) {
+        Error_format0(err, "Called cycle marker and sequenceLength are inconsistent");
+        return;
+    }
+
     int timeNextNoteStart[128] = {0};
     for (int i = 0; i < 128; i++) {
         timeNextNoteStart[i] = INT_MAX;
     }
-    NoteEventAr_sort(&self->events);
     NoteEventAr_rforeach(it, &self->events) {
         if (it.var->stime + it.var->duration > timeNextNoteStart[it.var->pitch]) {
             it.var->duration = timeNextNoteStart[it.var->pitch] - it.var->stime;
@@ -703,6 +761,7 @@ APIF void NoteSequence_makeConsistent(NoteSequence *self)
         }
         timeNextNoteStart[it.var->pitch] = it.var->stime;
     }
+    return;
 }
 
 @type
@@ -1408,6 +1467,20 @@ APIF void Midi_fromfile(const char *midiFilePath, SequenceAr *output, Symbol *de
         }
     }
 
+    // Make all the sequences consistent
+    if (noteSeq != NULL) {
+        NoteSequence_makeConsistent(noteSeq, err);
+        Error_gotoLabelOnError(err, END);
+    }
+    if (bendSeq != NULL) {
+        FloatSequence_makeConsistent(bendSeq);
+    }
+    for (int i = 0; i < 128; i++) {
+        if (ccSeqs[i] != NULL) {
+            FloatSequence_makeConsistent(ccSeqs[i]);  
+        }
+    }
+
   END:
     if (pipe != NULL) {
         pclose(pipe);
@@ -1432,16 +1505,13 @@ APIF void Midi_fromfile(const char *midiFilePath, SequenceAr *output, Symbol *de
     //
     SequenceAr_truncate(output);
     if (noteSeq != NULL) {
-        NoteSequence_makeConsistent(noteSeq);
         SequenceAr_push(output, NoteSequence_castToSequence(noteSeq));
     }
     if (bendSeq != NULL) {
-        FloatSequence_makeConsistent(bendSeq);
         SequenceAr_push(output, FloatSequence_castToSequence(bendSeq));
     }
     for (int i = 0; i < 128; i++) {
         if (ccSeqs[i] != NULL) {
-            FloatSequence_makeConsistent(ccSeqs[i]);
             SequenceAr_push(output, FloatSequence_castToSequence(ccSeqs[i]));
         }
     }
