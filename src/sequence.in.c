@@ -298,6 +298,17 @@ COVER OutletSpecifier OutletSpecifier_makeVst(Symbol *track, int pluginIndex, Sy
     return selfValue;
 }
 
+COVER OutletSpecifier OutletSpecifier_makeAudio() {
+    // Every audio sequence sorts equal. So every audio sequence shares the same config for OutletSpecifier
+    OutletSpecifier selfValue = {0}, *self = &selfValue;
+    OutletSpecifier_init(self);
+    self->track       = Symbol_gen("*audio");
+    self->pluginIndex = 0;
+    self->parameter   = Symbol_gen("*audio");
+    self->paramIndex  = 0;
+    return selfValue;
+}
+
 
 @type
 {
@@ -799,10 +810,15 @@ APIF Ticks NoteSequence_computeEndgroupTime(NoteSequence *self)
 
 APIF Ticks NoteSequence_compactComputeSequenceLength(NoteSequence *self)
 {
-    Ticks lastTime = -1;
+    Ticks lastTime = Sequence_minSequenceLength;
     NoteEventAr_rforeach(it, &self->events) {
-        lastTime = it.var->stime;
-        break;
+        if (NoteSequence_isMarkerValue(it.var->duration)) {
+            continue;
+        }
+        Ticks end = it.var->stime + it.var->duration;
+        if (end > lastTime) {
+            lastTime = end;
+        }
     }
 
     MusicalContext_declareDefault(musicalContext);
@@ -964,7 +980,7 @@ APIF FloatSequence *FloatSequence_newFromEvents(Symbol *track, int ccOrNegForBen
 
 double FloatSequence_endgMarker  = -1.0e40;
 double FloatSequence_cycleMarker = -1.0e41;
-#define FloatSequence_isMarkerValue(v) (v < 1e10)
+#define FloatSequence_isMarkerValue(v) (v < -1.0e10)
 
 APIF void FloatSequence_start(FloatSequence *self, Ticks clockStart, Ticks current, TimedPq *queue, RecordBuffer *recordBuffer, Error *err) {
     int nevents = FloatEventAr_len(&self->events);
@@ -1005,19 +1021,12 @@ APIF void FloatSequence_start(FloatSequence *self, Ticks clockStart, Ticks curre
 
     self->recordingSeq = NULL;
     if (recordBuffer != NULL) {
-        FloatSequence *other = FloatSequence_recordClone(self);
-        other->startTime    = self->startTime;
+        FloatSequence *other = FloatSequence_castFromSequence(FloatSequence_compactNew(self, self->startTime));        
         self->recordingSeq  = other;    
         RecordBuffer_push(recordBuffer, FloatSequence_castToSequence(other));
     }
 
     TimedPq_enqueue(queue, nextEvent, FloatSequence_castToSequence(self));
-}
-
-APIF void FloatSequence_stop(FloatSequence *self, Ticks current, Error *err) {
-    self->cursor       = FloatEventAr_len(&self->events);
-    self->recordingSeq = NULL;
-    Outlet_sendFloat(self->outlet, self->restoreValue, err);
 }
 
 APIF void FloatSequence_drive(FloatSequence *self, Ticks current, TimedPq *queue, Error *err) {
@@ -1060,23 +1069,17 @@ APIF void FloatSequence_drive(FloatSequence *self, Ticks current, TimedPq *queue
     }
 }
 
+APIF void FloatSequence_stop(FloatSequence *self, Ticks current, Error *err) {
+    self->cursor       = FloatEventAr_len(&self->events);
+    self->version++;
+    self->recordingSeq = NULL;
+    Outlet_sendFloat(self->outlet, self->restoreValue, err);
+}
+
 APIF void FloatSequence_padNoteOff(FloatSequence *self, int padIndex, Ticks current, Error *err) {
-    if (self->inEndgroup) {
-        Outlet_sendFloat(self->outlet, self->restoreValue, err);
+    if (self->inEndgroup && !self->cycle) {
+        FloatSequence_stop(self, current, err);
     }
-}
-
-APIF OutletSpecifier *FloatSequence_outSpec(FloatSequence *self)
-{
-    return &self->outletSpecifier;
-}
-
-APIF FloatSequence *FloatSequence_recordClone(FloatSequence *self)
-{
-    FloatSequence *other   = FloatSequence_new();
-    other->outletSpecifier = self->outletSpecifier;
-    other->outlet          = NullOutlet_castToOutlet(NullOutlet_new());
-    return other;
 }
 
 APIF void FloatSequence_makeConsistent(FloatSequence *self)
@@ -1088,26 +1091,6 @@ APIF void FloatSequence_makeConsistent(FloatSequence *self)
             FloatEventArRIt_remove(&it);
         }
         seen = it.var->stime;
-    }
-}
-
-APIF void FloatSequence_compactAssignEndgroup(FloatSequence *self, Ticks endgroupTime)
-{
-    int index = FloatEventAr_len(&self->events) > 0 ? 0 : -1;
-    FloatEventAr_rforeach(it, &self->events) {
-        if (FloatSequence_isMarkerValue(it.var->value)) {
-            continue;
-        }
-        if (self->startTime + it.var->stime < endgroupTime) {
-            index = it.index+1;
-            break;
-        } 
-    }
-    if (index >= 0) {
-        Error_declare(err);
-        FloatEvent newEv = {.stime = endgroupTime, .value = FloatSequence_endgMarker};
-        FloatEventAr_insert(&self->events, index, newEv, err);
-        Error_maypost(err);
     }
 }
 
@@ -1184,7 +1167,6 @@ APIF void FloatSequence_compactFinish(FloatSequence *self, Ticks endgroupTime, T
     self->sequenceLength = sequenceLength;
     FloatEvent newEv = {.stime = sequenceLength, .value = FloatSequence_cycleMarker};
     FloatEventAr_push(&self->events, newEv);
-
     FloatSequence_makeConsistent(self);
     return;
 }

@@ -1,6 +1,208 @@
 
 @type
 {
+	"typeName": "Resource",
+	"fields": [
+		// projectLibrary must be a full (starts with slash) path to the project library directory (i.e. the dir where all the projects are stored)
+		{"name": "songLibrary", "type": "String *"},
+
+		// Which song is currently is currently (or will be) loaded.
+		{"name": "songName",    "type": "String *",  "setter":"none"}
+
+		{"name": "lastTime",    "type": "time_t"},
+		{"name": "batchIndex",  "type": "int"}
+	],
+}
+@end
+
+APIF Resource *Resource_newBuild(String *songLibrary) 
+{
+	Resource *self = Resource_new();
+	String_free(self->songLibrary);
+	self->songLibrary = String_fmt("%s", "/Users/pete/Desktop/SnippetSequencer");
+	self->songLibrary = String_dup(songLibrary);
+	return self;
+}
+
+APIF bool Resource_setSongName(Resource *self, String *songName, Error *err) 
+{
+	String_free(self->songName);
+	self->songName = String_dup(songName);
+
+#   ifndef TEST_BUILD
+	{
+		String *projectDir = String_fmt("%s/%s", self->projectLibrary, self->songName);
+
+		char filename[MAX_PATH_CHARS] = "UNUSED";
+		char fullpath[MAX_PATH_CHARS] = "";
+		strncpy(fullpath, projectDir, MAX_PATH_CHARS-1);
+		short path = 0;
+		if (path_frompathname(fullpath, &path, filename)) {
+			Error_fomrmat("path_frompathname failed for path '%s'", projectDir);
+			return;
+		}
+
+
+		short recursive = 1;
+		if (!path_setdefault(path, recursive)) {
+			Error_format(err, "Failed to set default path to %s", projectDir);
+		}
+		String_free(projectDir);
+	}
+#   endif
+
+	
+	return;
+}
+
+APIF bool Resource_projectAudioFileExists(Resource *self, Symbol *fileSymbol, Error *err)
+{
+	if (String_isempty(self->songName)) {
+		Error_format(err, "Resource not assigned songName");
+		return false;
+	}
+
+	String *path = String_fmt("%s/%s/audio/%s.wav", self->songLibrary, self->songName, Symbol_cstr(fileSymbol));
+	int q = access(path, F_OK);
+	if (!q) {
+		Error_format(err, "Audio file '%s' does not exist", path);
+	}
+	String_free(path);
+	return q ? true : false;
+}
+
+APIF Symbol *Resource_createProjectAudioFile(Resource *self, Error *err)
+{
+	time_t now;
+	if (time(&now) < 0) {
+		Error_format0(err, "Unix time command failed");
+		return NULL;
+	}
+	if (self->lastTime == now) {
+		self->batchIndex++;
+	} else {
+		self->batchIndex = 0;
+	}
+	String *buffer = String_fmt("%lld_%d", (long long)now, self->batchIndex);
+	Symbol *fileSymbol = Symbol_gen(buffer):
+	String_free(buffer);
+
+	self->lastTime = now;
+	return fileSymbol;
+}
+
+
+APIF void Resource_listDirectoryTEMP(Resource *self, String *path, Error *err)
+{
+	const char *paths[2] = {path, NULL};
+	// FTS *tree = fts_open((char *const *)paths, FTS_PHYSICAL | FTS_NOCHDIR | FTS_NOSTAT, NULL);
+	FTS *tree = fts_open((char *const *)paths, FTS_PHYSICAL | FTS_NOCHDIR, NULL);
+	if(tree == NULL) {
+		Error_format0(err, "Failed fts_open");
+		return;
+	}
+
+	for (;;) {
+		FTSENT *ent = fts_read(tree); // get next entry (could be file or directory).
+		if(ent == NULL) {
+			if(errno == 0) {
+				break; // No more items, bail out of while loop
+			}
+			
+			Error_format0(err, "Failed fts_read");
+			return;
+		}
+			
+ 		if (ent->fts_info == FTS_F) {
+ 			printf("FILE: %s '%s'\n", ent->fts_path, ent->fts_name);
+ 		} else if (ent->fts_info == FTS_DP) {
+ 			printf("DP:   %s\n", ent->fts_path);
+ 			
+ 		} else if (ent->fts_info == FTS_DC) {
+			Error_format0(err, "Unexpected directory cycle in fts call chain");
+			goto END;
+		}
+	}
+ 
+	/* fts_read() sets errno = 0 unless it has error. */
+	if (errno != 0) {
+		Error_format0(err, "Failed fts_read");
+		goto END;
+	}
+ 
+  END:
+	if(fts_close(tree) == -1) {
+		if (!Error_iserror(err)) {
+			Error_format0(err, "Failed fts_close");
+		}
+	}
+}
+
+COVER void Resource_unlinkDirectory(Resource *self, String *path, Error *err)
+{
+	const char *paths[2] = {path, NULL};
+	FTS *tree = fts_open(paths, FTS_PHYSICAL | FTS_NOCHDIR | FTS_NOSTAT, NULL);
+	if(tree == NULL) {
+		Error_format0(err, "Failed fts_open");
+		return;
+	}
+
+	for (;;) {
+		FTSENT *ent = fts_read(tree); // get next entry (could be file or directory).
+		if(ent == NULL) {
+			if(errno == 0) {
+				break; // No more items, bail out of while loop
+			}
+			
+			Error_format0(err, "Failed fts_read")
+			return;
+		}
+			
+ 		if (ent->fts_info == FTS_F) {
+ 			if (unlink(ent->fts_path) != 0) {
+ 				Error_format(err, "Resource_unlinkDirectory failed to remove file %s", ent->fts_path);
+ 				goto END;
+ 			}
+ 		} else if (ent->fts_info == FTS_DP) {
+ 			if (rmdir(ent->fts_path) != 0) {
+ 				Error_format(err, "Resource_unlinkDirectory failed to remove directory %s", ent->fts_path);
+ 				goto END;
+ 			}
+ 		}
+
+		if (f->fts_info == FTS_DC) {
+			Error_format0(err, "Unexpected directory cycle in fts call chain");
+			goto END;
+		}
+	}
+ 
+	/* fts_read() sets errno = 0 unless it has error. */
+	if (errno != 0) {
+		Error_format0(err, "Failed fts_read");
+		goto END;
+	}
+ 
+  END:
+	if(fts_close(tree) == -1) {
+		if (!Error_iserror(err)) {
+			Error_format0(err, "Failed fts_close");
+		}
+	}
+}
+
+APIF void Resource_createUntitled(Resource *self, Error *err)
+{
+	String *path = String_fmt("%s/untitled", self->songLibrary);
+	struct stat pathstat;
+    if (stat(path, &pathstat) == 0) {
+
+    }
+    return S_ISREG(path_stat.st_mode);
+}
+
+
+@type
+{
 	"typeName": "AudioOutlet",
 	"fields": [
 		{"name": "port",   "type": "Port *"},
@@ -19,22 +221,24 @@
 
 APIF void AudioOutlet_userInit(AudioOutlet *self)
 {
-	AtomAr_changeLength(&self->atoms, 4);
+	AtomAr_changeLength(&self->atoms, 5);
 }
 
-APIF void AudioOutlet_sendPreload(AudioOutlet *self, Symbol *fileSymbol, int cue, Ticks offset, Error *err)
+APIF void AudioOutlet_sendPreload(AudioOutlet *self, Symbol *fileSymbol, int cue, Ticks startOffset, Ticks endOffset, Error *err)
 {
+	if (startOffset <= 0) {
+		startOffset = 0;
+	}
+	if (endOffset <= 0) {
+		endOffset = 0;
+	}
 	Atom *a = self->atoms.data;
 	a[0] = Atom_fromSymbol(Symbol_gen("preload"));
 	a[1] = Atom_fromInteger(cue);
 	a[2] = Atom_fromSymbol(fileSymbol);
-	int argc = 3;
-	if (offset > 0) {
-		double ms = Ticks_toMs(offset);
-		a[3] = Atom_fromInteger((long)ms);
-		argc++;
-	}
-	Port_send(self->port, self->outlet, argc, argv, err);
+	a[3] = Atom_fromInteger((long)Ticks_toMs(startOffset));
+	a[4] = Atom_fromInteger((long)Ticks_toMs(endOffset));
+	Port_send(self->port, self->outlet, 5, self->atoms.data, err);
 	return;
 }
 
@@ -85,7 +289,13 @@ APIF void CueEntry_cmpByFileSymbol(CueEntry *left, CueEntry *right)
 	"typeName": "AudioBuffer",
 	"fields": [
 		{"name": "fileSymbol",     "type": "Symbol *"},
-		{"name": "audioOutlet",    "type": "AudioOutlet *"},
+
+		// NOTE: startTime/endTime are start and end OF THE AUDIO FILE, not the absolute time.
+		{"name": "startTime",      "type": "Ticks"},
+		{"name": "endTime",        "type": "Ticks"},
+		{"name": "audioOutlet",    "type": "AudioOutlet *", "lifecycle": "unmanaged"},
+
+
 		{"name": "cancel",         "type": "Sequence *", "lifecycle": "unmanaged"},
 		{"name": "isTempCue",      "type": "bool"},
 		{"name": "cue",            "type": "int"}
@@ -125,10 +335,31 @@ APIF int AudioBuffer_cmpByPointerPp(AudioBuffer **leftP, AudioBuffer **rightP)
 	return 0;
 }
 
+APIF AudioBuffer AudioBuffer_make(String *filename, Ticks startTime, Ticks endTime)
+{
+	AudioBuffer audioBuffer  = {0};
+	AudioBuffer_init(&audioBuffer);
+	audioBuffer.fileSymbol  = Symbol_gen(filename);
+	audioBuffer.startTime   = startTime;
+	audioBuffer.endTime     = endTime;
+	return audioBuffer;
+}
+
+APIF AudioBuffer AudioBuffer_cleanClone(AudioBuffer *self)
+{
+	AudioBuffer other = *self;
+	other.audioOutlet = NULL;
+	other.cancel      = NULL;
+	other.isTempCue   = false;
+	other.cue         = 0
+	return other;
+}
+
 @type
 {
 	"typeName": "AudioPlayer",
 	"fields": [
+		{"name": "pathManager",            "type": "Resource *"},
 		{"name", "nextNormalCue",          "type": "int"},
 		{"name", "nextTempCue",            "type": "int"},
 		{"name", "nextCancel",             "type": "int"},
@@ -158,15 +389,15 @@ COVER void AudioPlayer_userInit(AudioPlayer *self)
 	self->nextTempCue   = AudioPlayer_firstTempCue;
 }
 
-COVER static inline int AudioPlayer_getNormalCue(AudioPlayer *self, Symbol *fileSymbol, Error *err)
+COVER static inline int AudioPlayer_getNormalCue(AudioPlayer *self, AudioBuffer *audioBuffer, Error *err)
 {
 	CueEntry *cueEntry = CueEntryPtAr_binSearchByFileSymbol(&self->normalCueMap, fileSymbol);
 	if (cueEntry == NULL) {
 		CueEntry cueEntryValue = {0};
 		CueEntry_init(&cueEntryValue);
-		cueEntryValue.fileSymbol = fileSymbol;
+		cueEntryValue.fileSymbol = audioBuffer->fileSymbol;
 		CueEntryAr_binInsertByFileSymbol(&self->normalCueMap, cueEntryValue);
-		cueEntry = CueEntryPtAr_binSearchByFileSymbol(&self->normalCueMap, fileSymbol);
+		cueEntry = CueEntryPtAr_binSearchByFileSymbol(&self->normalCueMap, audioBuffer->fileSymbol);
 		if (cueEntry == NULL) {
 			Error_format0(err, "INTERNAL ERROR");
 			return 0;
@@ -183,7 +414,7 @@ COVER static inline int AudioPlayer_getNormalCue(AudioPlayer *self, Symbol *file
 			return 0;
 		}
 		cue = self->nextNormalCue++;
-		AudioOutlet_sendPreload(self->listTildeOutlet, fileSymbol, cue, -1, err);
+		AudioOutlet_sendPreload(self->listTildeOutlet, audioBuffer->fileSymbol, cue, audioBuffer->startTime, audioBuffer->endTime, err);
 		Error_returnZeroOnError(err);
 	}
 	return cue;
@@ -219,19 +450,37 @@ COVER static inline void AudioPlayer_maybeFreeUpPlayer(AudioPlayer *self, Error 
 	Error_format0(err, "INTERNAL ERROR: failed to free up port");
 }
 
-APIF AudioBuffer *AudioPlayer_createBuffer(AudioPlayer *self, String *filename)
+
+APIF AudioBuffer AudioPlayer_openBuffer(AudioPlayer *audioPlayer, String *filename, Ticks startTime, Ticks endTime, Error *err)
 {
-	AudioBuffer *audioBuffer = AudioBuffer_new();
-	audioBuffer->fileSymbol  = Symbol_gen(filename);
+	AudioBuffer audioBuffer = {0};
+	Resource_projectAudioFileExists(audioPlayer->pathManager, filename, err);
+	Error_returnValueOnError(err, audioBuffer);
+
+	AudioBuffer_init(&audioBuffer);
+	audioBuffer.fileSymbol  = Symbol_gen(filename);
+	audioBuffer.startTime   = startTime;
+	audioBuffer.endTime     = endTime;
 	return audioBuffer;
 }
 
-APIF void AudioPlayer_releaseBuffer(AudioPlayer *self, AudioBuffer *audioBuffer)
+APIF void AudioPlayer_closeBuffer(AudioPlayer *self, AudioBuffer *audioBuffer)
 {
 	if (AudioBuffer_needsStop(audioBuffer)) {
 		AudioPlayer_stop(self, audioBuffer);
 	} 
-	AudioBuffer_free(audioBuffer);
+	AudioBuffer_clear(audioBuffer);
+}
+
+APIF AudioBuffer AudioPlayer_cloneBuffer(AudioPlayer *self, AudioBuffer *input)
+{
+	AudioBuffer other = {0};
+	AudioBuffer_init(&other);
+	other.audioOutlet = NULL;
+	other.cancel      = NULL;
+	other.isTempCue   = false;
+	other.cue         = 0;
+	return other;
 }
 
 APIF void AudioPlayer_prepareTemporaryCue(AudioPlayer *self, AudioBuffer *audioBuffer, Ticks offset, Error *err)
@@ -250,7 +499,7 @@ APIF void AudioPlayer_prepareTemporaryCue(AudioPlayer *self, AudioBuffer *audioB
 	}
 	audioBuffer->isTempCue = true;
 	audioBuffer->cue       = cue;
-	AudioOutlet_sendPreload(audioBuffer->listTildeOutlet, audioBuffer->fileSymbol, offset, err);
+	AudioOutlet_sendPreload(audioBuffer->listTildeOutlet, audioBuffer->fileSymbol, audioBuffer->startTime+offset, audioBuffer->endTime, err);
 	Error_returnVoidOnError(err);
 }
 
@@ -268,7 +517,7 @@ APIF void AudioPlayer_play(AudioPlayer *self, AudioBuffer *audioBuffer, Sequence
 
 	int cue = 0;
 	if (!audioBuffer->isTempCue) {
-		cue = AudioPlayer_getNormalCue(self, audioBuffer->fileSymbol, err);
+		cue = AudioPlayer_getNormalCue(self, audioBuffer, err);
 		Error_returnVoidOnError(err);
 	}
 	
@@ -308,4 +557,343 @@ APIF void AudioPlayer_stop(AudioPlayer *self, AudioBuffer *audioBuffer)
 	audioBuffer->audioOutlet = NULL;
 	audioBuffer->cancel      = NULL;
 	audioBuffer->isTempCue   = false;
+}
+
+@type
+{
+	"typeName": "AudioEvent",
+	"fields": [
+		// NOTE: stime can hold sequence time AND absolute time depending on the context
+		{"name": "stime",         "type": "Ticks"},
+		{"name": "tempCueTime",  "type": "Ticks"},
+		{"name": "audioBuffer",   "type": "AudioBuffer"}
+	],
+	"containers": [
+        {
+            "type": "array",
+            "typeName": "AudioEventAr", 
+            "elemName": "AudioEvent",
+            "binarySearch": [
+               {"compare": "AudioEvent_cmpByTime", "tag": "ByTime"}
+            ]
+        },
+        {
+            "type": "array",
+            "typeName": "AudioEventPq", 
+            "elemName": "AudioEvent",
+            "binarySearch": [
+               {"compare": "AudioEvent_cmpByTime", "tag": "ByTime"}
+            ]
+        },
+  	]
+}
+@end
+
+APIF int AudioEvent_cmpByTime(AudioEvent *left, AudioEvent *right) 
+{
+	if (left->stime < right->stime) {
+		return -1;
+	} else if (left->stime > right->stime) {
+		return 1;
+	}
+	return 0;
+}
+
+@type 
+{
+    "typeName": "AudioSequence",
+    "fields":[  
+        {
+            "name": "version", 
+            "type": "long"
+        },
+        {  
+            "name":"startTime",
+            "type":"Ticks"
+        },
+        {  
+            "name":"outletSpecifier",
+            "type":"OutletSpecifier"
+        },
+        {  
+            "name":"sequenceLength",
+            "type":"Ticks"
+        },
+        {  
+            "name":"cycle",
+            "type":"bool"
+        },
+        {  
+            "name":"inEndgroup",
+            "type":"bool"
+        },
+        {  
+            "name":"recordingSeq",
+            "type":"AudioSequence *",
+            "lifecycle": "unmanaged"
+        },
+        {
+            "name":"audioPlayer",
+            "type":"AudioPlayer *",
+            "lifecycle": "unmanaged"
+        },
+        {  
+            "name":"pendingStops",
+            "type":"AudioEventPtPq"
+        },
+        {  
+            "name":"events",
+            "type":"AudioEventAr"
+        },
+
+        // In order to support extra an extra tail at the end of a cycling sequence, we have to be able to have 2 AudioBuffers running at once. In
+        // order for that to be true, we have to have 2 seperate AudioBuffers. The easiest way to do this is to have a second set of AudioBuffers
+        // that are used if cycle is true. NOTE: that this limits the length of the tail region of a file to be as long as the sequence (i.e. you
+        // can have a 4 bar audio loop with an UPTO 4 bar tail).
+        {  
+            "name":"useEvents2",
+            "type":"bool"
+        },
+        {  
+            "name":"events2",
+            "type":"AudioEventAr"
+        },
+    ], 
+    "implements": ["Sequence"]
+}
+@end
+
+AudioBuffer AudioSequence_cycleMarkerImpl = {0}, *AudioSequence_cycleMarker = &AudioSequence_cycleMarkerImpl;
+AudioBuffer AudioSequence_endgMarkerImpl = {0},  *AudioSequence_endgMarker  = &AudioSequence_endgMarkerImpl;
+#define AudioSequence_isMarkerBuffer(b) (b == AudioSequence_cycleMarker || b == AudioSequence_endgMarker)
+#define AudioSequence_prepareLeadtime 15
+
+APIF void AudioSequence_start(AudioSequence *self, Ticks clockStart, Ticks current, TimedPq *queue, RecordBuffer *recordBuffer, Error *err) 
+{
+	int nevents = AudioEventAr_len(&self->events);
+    if (nevents <= 0) {
+        return;
+    }
+
+    self->startTime    = self->cycle ? clockStart : current;
+    self->cursor       = 0;
+    self->inEndgroup   = false;
+    self->useEvents2   = false;
+    Ticks nextEvent    = 0;
+    bool locateCursor  = true;
+    if (self->cycle) {
+        if (self->sequenceLength <= Sequence_minSequenceLength) {
+            self->sequenceLength = Sequence_minSequenceLength;
+        }
+        while (current - self->startTime > self->sequenceLength) {
+            self->startTime += self->sequenceLength;
+        }
+
+        AudioEventAr_foreach(it, &self->events) {
+        	Ticks startTime     = it.var->stime + self->startTime;
+        	Ticks endTime       = startTime + it.var->audioBuffer.endTime - it.var->audioBuffer.startTime;
+        	Ticks realStartTime = startTime;
+        	if (startTime <= current && current <= endTime) {
+        		// The start time cuts the audio file into pieces
+        		realStartTime = it.var->tempCueTime = current + AudioSequence_prepareLeadtime;
+        		AudioPlayer_prepareTemporaryCue(self->audioPlayer, &it.var->audioBuffer, realStartTime-startTime, err);
+        		Error_returnVoidOnError(err);
+        	}
+
+        	if (locateCursor) {
+        		if (realStartTime >= current) {
+	            	locateCursor = false;
+	                nextEvent = realStartTime;
+	            } else if (getNextEvent) {
+	            	self->cursor++;
+	        	}
+        	}
+        }
+        if (self->cursor >= nevents) {
+            Error_format0(err, "INTERNAL ERROR: cursor found to be >= nevents");
+            return;
+        }
+
+    } else {
+        AudioEventAr_foreach(it, &self->events) {
+            nextEvent = it.var->stime + self->startTime;
+            break;
+        }
+    }
+    self->recordingSeq = NULL;
+    if (recordBuffer != NULL) {
+        NoteSequence *other = AudioSequence_castFromSequence(AudioSequence_compactNew(self, self->startTime));
+        self->recordingSeq  = other; 
+        RecordBuffer_push(recordBuffer, AudioSequence_castToSequence(other));
+    }
+    TimedPq_enqueue(queue, nextEvent, AudioSequence_castToSequence(self));
+}
+
+COVER static inline void AudioSequence_playStops(AudioSequence *self, Ticks current)
+{
+	// Play stops
+    AudioEvent *peeked = AudioEventPq_pqPeek(&self->pendingStops);
+    while (peeked != NULL) {
+    	if (AudioEvent_time(peeked) > current) {
+    		break;
+    	}
+    	AudioPlayer_stop(self->audioPlayer, &peeked->audioBuffer);
+    	AudioEventPq_pqPop(&self->pendingStops);
+    	peeked = AudioEventPq_pqPeek(&self->pendingStops);
+    }
+}
+
+APIF void AudioSequence_stop(AudioSequence *self, Ticks current, Error *err) 
+{
+	self->cursor = AudioEventAr_len(&self->events);
+	self->version++;
+	AudioSequence_playStops(self, Ticks_maxTime);
+}
+
+APIF void AudioSequence_padNoteOff(AudioSequence *self, int padIndex, Ticks current, Error *err) 
+{
+    if (self->inEndgroup && !self->cycle) {
+        AudioSequence_stop(self, current, err);
+    }
+}
+
+APIF void AudioSequence_drive(AudioSequence *self, Ticks current, TimedPq *queue, Error *err) 
+{
+    Ticks nextEvent = Ticks_maxTime;
+
+    // Play stops
+    AudioSequence_playStops(self, current);
+
+    // Start new sequences
+    for (;;) {
+    	AudioEventAr *events = self->useEvents2 ? &self->events2 : &self->events;
+        AudioEventAr_foreachOffset(it, events, self->cursor) {
+            AudioEvent *e = it.var;
+            Ticks startTime = e.tempCueTime >= 0 ? e.tempCueTime : (e.stime + self->startTime);
+            if (startTime > current) {
+            	Ticks nextEvent = startTime;
+            	TimedPq_enqueue(queue, nextEvent, AudioSequence_castToSequence(self));
+               	return;
+            }
+
+            // This invalidates the tempCueTime in case it was used
+            it.var->tempCueTime = -1;
+
+            bool isMarker = AudioSequence_isMarkerBuffer(e->audioBuffer);
+            if (!isMarker) {
+                Ticks delta    = (e->audioBuffer.endTime-e->audioBuffer.startTime) - (startTime - self->startTime);
+                AudioEvent off = {.stime = startTime + delta, .audioBuffer = e->audioBuffer};
+                AudioEventPq_pqPush(&self->pendingStops, off);
+                AudioBuffer_play(self->audioPlayer, &e->audioBuffer, AudioSequence_castToSequence(self), err);
+                Error_returnVoidOnError(err);
+            } else if (e->audioBuffer == AudioSequence_endgMarker && !self->cycle) {
+                self->inEndgroup = true;
+            } 
+
+            if (self->recordingSeq != NULL && !isMarker) {
+                AudioEvent e  = *ne;
+                e.stime       = self->recordingSeq->startTime + e.stime;
+                e.audioBuffer = AudioPlayer_cloneBuffer(self->audioPlayer, &e.audioBuffer);
+                AudioEventAr_push(&self->recordingSeq->events, e);
+            }
+            self->cursor++;
+        }
+        if (self->cycle) {
+            if (self->sequenceLength <= Sequence_minSequenceLength) {
+               self->sequenceLength = Sequence_minSequenceLength;
+            }
+            self->startTime += self->sequenceLength;
+            self->cursor     = 0;
+            self->useEvents2 = !self->useEvents2;
+        } else {
+            return;
+        }
+    }
+
+}
+
+
+APIF Sequence *AudioSequence_compactNew(AudioSequence *self, Ticks recordStart)
+{
+    AudioSequence *other   = AudioSequence_new();
+    other->startTime       = recordStart;
+    other->outletSpecifier = self->outletSpecifier;
+    return AudioSequence_castToSequence(other);
+}
+
+APIF void AudioSequence_compactConcat(AudioSequence *self, Sequence *otherSeq, Error *err)
+{
+    AudioSequence *other = AudioSequence_castFromSequence(otherSeq);
+    if (other == NULL) {
+        Error_format(err, "AudioSequence_compactConcat was passed a sequence of type %s", Interface_toString(Interface_itype(otherSeq)));
+        return;
+    }
+    AudioEventAr_foreach(it, &other->events) {
+        if (AudioSequence_isMarkerValue(it.var)) {
+            continue;
+        }
+        // Remember that self->startTime == recordStart
+        AudioEvent e = *it.var;
+        e.stime += (other->startTime - self->startTime);
+        AudioEventAr_push(&self->events, e); 
+    }
+    return;
+}
+
+APIF void AudioSequence_compactSortEvents(AudioSequence *self)
+{
+    AudioEventAr_sort(&self->events);
+}
+
+APIF Ticks AudioSequence_compactComputeSequenceLength(AudioSequence *self)
+{
+    Ticks lastTime = Sequence_minSequenceLength;
+    AudioEventAr_foreach(it, &self->events) {
+    	Ticks end = it.var->stime + (it.var->audioBuffer.endTime - it.var->audioBuffer.startTime);
+    	if (end > lastTime) {
+    		lastTime = end;
+    	} 
+    }
+
+    MusicalContext_declareDefault(musicalContext);
+    Ticks mlen   = musicalContext.quarterNotesPerMeasure*musicalContext.ticksPerQuarterNote;
+    Ticks seqLen = (lastTime/mlen)*mlen + (lastTime % mlen == 0 ? 0 : mlen);
+    if (seqLen < Sequence_minSequenceLength) {
+        seqLen = Sequence_minSequenceLength;
+    }
+    return seqLen;
+}
+
+APIF void AudioSequence_compactFinish(AudioSequence *self, Ticks endgroupTime, Ticks sequenceLength, Error *err)
+{
+    if (endgroupTime >= 0) {
+        int index = AudioEventAr_len(&self->events) > 0 ? 0 : -1;
+        AudioEventAr_rforeach(it, &self->events) {
+            if (AudioSequence_isMarkerValue(it.var)) {
+                continue;
+            }
+            if (self->startTime + it.var->stime < endgroupTime) {
+                index = it.index + 1;
+                break;
+            }
+        }
+        if (index >= 0) {
+            AudioEvent newEv = {.stime = endgroupTime, .tempCueTime = -1, .audioBuffer = AudioSequence_endgMarker};
+            AudioEventAr_insert(&self->events, index, newEv, err);
+            Error_returnVoidOnError(err);
+        }
+    }
+
+    self->sequenceLength = sequenceLength;
+    FloatEvent newEv = {.stime = sequenceLength, .audioBuffer = AudioSequence_cycleMarker};
+    AudioEventAr_push(&self->events, newEv);
+    AudioEventAr_sort(&self->events);
+
+    // Now copy all events to events2
+    AudioEventAr_truncate(&self->events2);
+    AudioEventAr_foreach(it, &self->events) {
+    	AudioEventAr_push(&self->events2, *it.var);
+    } 
+
+    return;
 }

@@ -120,3 +120,126 @@ APIF void NoteOutlet_dbReportNoteOffs(NoteEventAr *arr)
 	NoteOutlet_dbRewindSent();
 }
 
+
+@type
+{
+	"typeName": "SequenceDriveDirective",
+	"fields": [
+		{"name": "time",      "type": "Ticks"},
+		{"name": "directive", "type": "int"},
+		{"name": "sequences", "type": "SequenceAr *"}
+	],
+  	"containers": [
+        {
+            "type": "array", 
+            "typeName": "SequenceDriveDirectivePq", 
+            "elemName": "SequenceDriveDirective",
+            "binarySearch": [
+                {"compare": "SequenceDriveDirective_cmp"}
+            ]
+        }
+   ]
+}
+@end
+
+APIF int SequenceDriveDirective_cmp(SequenceDriveDirective *left, SequenceDriveDirective *right)
+{
+	if (left->time < right->time) {
+		return -1;
+	} else if (left->time > right->time) {
+		return 1;
+	}
+	return 0;
+}
+
+@type
+{
+	"typeName": "SequenceDrive",
+	"fields": [
+		{"name": "directives",        "type": "SequenceDriveDirectivePq"},
+		{"name": "queue",             "type": "TimedPq *"},
+		{"name": "timeStop",          "type": "Ticks"},
+		{"name": "timeDelta",         "type": "Ticks"},
+		{"name": "maxIterations",     "type": "int"}
+		
+	]
+}
+@end
+
+#define SequenceDrive_stop 1
+#define SequenceDrive_padNoteOff 2
+
+
+APIF void SequenceDrive_toCompletion(SequenceDrive *self, Error *err)
+{
+
+	SequenceDriveDirectivePq_pqSort(&self->directives);
+	if (self->maxIterations <= 0) {
+		self->maxIterations = 1000;
+	}
+	if (self->timeStop <= 0) {
+		self->timeStop = Ticks_maxTime;
+	}
+	if (self->timeDelta <= 0) {
+		self->timeDelta = 480/8; // 32nd note resolution
+	} 
+
+	Ticks now     = 0;
+	int iteration = 0;
+	for (;;) {
+
+		// Grab directives
+		SequenceDriveDirective *peeked = SequenceDriveDirectivePq_pqPeek(&self->directives);
+	    while (peeked != NULL) {
+	        if (SequenceDriveDirective_time(peeked) > now) {
+	            break;
+	        } 
+
+	        SequenceDriveDirective timed = {0};
+	        SequenceDriveDirectivePq_pqPop(&self->directives, &timed);
+	        int directive = SequenceDriveDirective_directive(&timed);
+	        if (directive == SequenceDrive_stop) {
+	        	SequenceAr *seqAr = SequenceDriveDirective_sequences(&timed);
+	        	SequenceAr_foreach(it, seqAr) {
+	        		Sequence_stop(*it.var, timed.time, err);
+	        		Error_returnVoidOnError(err);
+	        	}
+	        } else if (directive == SequenceDrive_padNoteOff) {
+	        	SequenceAr *seqAr = SequenceDriveDirective_sequences(&timed);
+	        	SequenceAr_foreach(it, seqAr) {
+	        		Sequence_padNoteOff(*it.var, 0, now, err);
+	        		Error_returnVoidOnError(err);
+	        	}
+	        } else {
+	        	Error_format(err, "Unknown directive %d\n", directive);
+	        }
+  
+	        peeked = SequenceDriveDirectivePq_pqPeek(&self->directives);
+	    }
+
+	    // Drive 
+	    for (;;) {
+	    	Sequence *seq = TimedPq_dequeue(self->queue, now);
+	    	if (seq == NULL) {
+	    		break;
+	    	}
+	    	Sequence_drive(seq, now, self->queue, err);
+	    	Error_returnVoidOnError(err);
+		}
+
+	    // Time book keeping
+	    if (iteration > self->maxIterations) {
+	    	Error_format(err, "Exceeded maxIterations (%d)", iteration);
+	    	return;
+	    }
+	    now += self->timeDelta;
+	    if (now > self->timeStop) {
+	    	return;
+	    }
+
+	    if (TimedPq_len(self->queue) == 0 && SequenceDriveDirectivePq_len(&self->directives) == 0) {
+	    	return;
+	    }
+	}
+}
+

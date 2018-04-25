@@ -76,6 +76,11 @@ APIF int String_len(String *s) {
     return body->len;
 }
 
+APIF bool String_isempty(String *s)
+{
+    return String_len(s) == 0;
+}
+
 APIF void String_freep(String **sp) 
 {
     String_free(*sp);

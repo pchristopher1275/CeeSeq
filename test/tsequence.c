@@ -9,6 +9,9 @@
 #include <unistd.h> 
 #include <stdint.h>
 #include <limits.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fts.h>
 #include "../src/core.c"
 #include "../src/unit.c"
 #include "application.c"
@@ -340,7 +343,15 @@ Unit_declare(testNoteSequenceStopAndEndgroup)
 		NoteSequence_free(noteSequence);
 		PortFind_free(portFind);
 	}
+
+	Error_declare(err);
+	String *t = String_fmt("%s", "/Users/pete/noconflict");
+	// COVER void Resource_listDirectory(Resource *self, String *path, Error *err)
+	Resource r = {0};
+	Resource_listDirectory(&r, t, err);
+	Error_maypost(err);
 }
+
 
 int main(int argc, char *argv[]) {
 	Unit_initialize(argc, argv);
