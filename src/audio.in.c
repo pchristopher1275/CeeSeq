@@ -143,7 +143,7 @@ COVER void Resource_unlinkDirectory(Resource *self, String *path, Error *err)
 	const char *paths[2] = {path, NULL};
 	FTS *tree = fts_open(paths, FTS_PHYSICAL | FTS_NOCHDIR | FTS_NOSTAT, NULL);
 	if(tree == NULL) {
-		Error_format0(err, "Failed fts_open");
+		Error_format(err, "Failed fts_open: %s", strerror(errno));
 		return;
 	}
 
@@ -154,18 +154,18 @@ COVER void Resource_unlinkDirectory(Resource *self, String *path, Error *err)
 				break; // No more items, bail out of while loop
 			}
 			
-			Error_format0(err, "Failed fts_read")
+			Error_format(err, "Failed fts_read: %s", strerror(errno));
 			return;
 		}
 			
  		if (ent->fts_info == FTS_F) {
  			if (unlink(ent->fts_path) != 0) {
- 				Error_format(err, "Resource_unlinkDirectory failed to remove file %s", ent->fts_path);
+ 				Error_format(err, "Resource_unlinkDirectory failed to remove file %s: %s", ent->fts_path, strerror(errno));
  				goto END;
  			}
  		} else if (ent->fts_info == FTS_DP) {
  			if (rmdir(ent->fts_path) != 0) {
- 				Error_format(err, "Resource_unlinkDirectory failed to remove directory %s", ent->fts_path);
+ 				Error_format(err, "Resource_unlinkDirectory failed to remove directory %s: %s", ent->fts_path, strerror(errno));
  				goto END;
  			}
  		}
@@ -178,26 +178,65 @@ COVER void Resource_unlinkDirectory(Resource *self, String *path, Error *err)
  
 	/* fts_read() sets errno = 0 unless it has error. */
 	if (errno != 0) {
-		Error_format0(err, "Failed fts_read");
+		Error_format(err, "Failed fts_read: %s", strerror(errno));
 		goto END;
 	}
  
   END:
 	if(fts_close(tree) == -1) {
 		if (!Error_iserror(err)) {
-			Error_format0(err, "Failed fts_close");
+			Error_format(err, "Failed fts_close: %s", strerror(errno));
+			return;
 		}
 	}
 }
 
-APIF void Resource_createUntitled(Resource *self, Error *err)
+APIF void Resource_setSongToUntitled(Resource *self, Error *err)
 {
-	String *path = String_fmt("%s/untitled", self->songLibrary);
+	String_free(self->songName);
+	self->songName = String_fmt("%s", "untitled");
+	String *path = String_fmt("%s/%s", self->songLibrary, self->songName);
 	struct stat pathstat;
-    if (stat(path, &pathstat) == 0) {
-
+    if (stat(path, &pathstat) == 0 && (path.st_mode & S_IFDIR) != 0 ) {
+    	Resource_unlinkDirectory(self, path, err);
+    	Error_gotoLabelOnError(err, END);
     }
-    return S_ISREG(path_stat.st_mode);
+    if (mkdir(path, 0755) != 0) {
+    	Error_format(err, "Failed to mkdir: %s", strerror(errno));
+    	goto END;
+    }
+    String_free(path);
+    path = String_fmt("%s/%s/audio", self->songLibrary, self->songName);
+    if (mkdir(path, 0755) != 0) {
+    	Error_format(err, "Failed to mkdir: %s", strerror(errno));
+    	goto END;
+    }
+    
+  END:
+  	if (path != NULL) {
+  		String_free(path);
+  	}
+  	return;
+}
+
+APIF void Resource_moveSong(Resource *self, String *newSongName, Error *err)
+{
+	if (String_isempty(self->songName)) {
+		Error_format0(err, "Called Resource method without setting songName");
+		return;
+	}
+
+	String *src = String_fmt("%s", self->songLibrary, self->songName);
+	String *dst = String_fmt("%s/%s", self->songLibrary, newSongName);
+	if (rename(src, dst) != 0) {
+		Error_format(err, "Failed to move '%s' to '%s'", src, dst);
+	} else {
+		String_free(self->songName);
+		self->songName = String_dup(newSongName);	
+	}
+	String_free(src);
+	String_free(dst);
+	return;
 }
 
 
@@ -256,6 +295,7 @@ APIF void AutioOutlet_sendStop(AudioOutlet *self, Error *err)
 
 @type
 {
+	// Cue entry maps a fileSymbol to a list of predefined
 	"typeName": "CueEntry"
 	"fields": [
 		{"name": "fileSymbol", "type": "Symbol *"},
@@ -284,74 +324,80 @@ APIF void CueEntry_cmpByFileSymbol(CueEntry *left, CueEntry *right)
 	return 0;
 }
 
+
+
 @type
 {
-	"typeName": "AudioBuffer",
+	"typeName": "AudioEvent",
 	"fields": [
+		// NOTE: stime can hold sequence time AND absolute time depending on the context
+		{"name": "stime",         "type": "Ticks"},
+		{"name": "cue",            "type": "int"},
+
+		{"name": "offsetSTime",     "type": "Ticks"},
+		{"name": "offsetCue",       "type": "int"}
+
+		// Serialized
 		{"name": "fileSymbol",     "type": "Symbol *"},
 
-		// NOTE: startTime/endTime are start and end OF THE AUDIO FILE, not the absolute time.
-		{"name": "startTime",      "type": "Ticks"},
-		{"name": "endTime",        "type": "Ticks"},
+		{"name": "sampleStart",    "type": "Ticks"},
+		{"name": "sampleEnd",      "type": "Ticks"},
+
+		{"name": "fileLength",     "type": "Ticks"},
+		
+
+		// Unserialized
 		{"name": "audioOutlet",    "type": "AudioOutlet *", "lifecycle": "unmanaged"},
-
-
 		{"name": "cancel",         "type": "Sequence *", "lifecycle": "unmanaged"},
-		{"name": "isTempCue",      "type": "bool"},
-		{"name": "cue",            "type": "int"}
 	],
 	"containers": [
         {
             "type": "array",
-            "typeName": "AudioBufferPtAr", 
-            "elemName": "AudioBuffer *",
+            "typeName": "AudioEventAr", 
+            "elemName": "AudioEvent",
             "binarySearch": [
-               {"compare": "AudioBuffer_cmpByPointerPp", "tag": "ByPointer"}
+               {"compare": "AudioEvent_cmpByTime", "tag": "ByTime"}
             ]
-        }
+        },
+        {
+            "type": "array",
+            "typeName": "AudioEventPq", 
+            "elemName": "AudioEvent",
+            "binarySearch": [
+               {"compare": "AudioEvent_cmpByTime", "tag": "ByTime"}
+            ]
+        },
   	]
 }
 @end
 
-COVER static inline bool AudioBuffer_isPlaying(AudioBuffer *self)
+COVER static inline bool AudioEvent_isPlaying(AudioBuffer *self)
 {
 	return self->audioOutlet != NULL;
 }
 
-COVER static inline bool AudioBuffer_needsStop(AudioBuffer *self)
+COVER static inline bool AudioEvent_needsStop(AudioBuffer *self)
 {
-	return AudioBuffer_isPlaying(self) || self->isTempCue;
+	return AudioBuffer_isPlaying(self) || self->offsetCue > 0;
 }
 
-APIF int AudioBuffer_cmpByPointerPp(AudioBuffer **leftP, AudioBuffer **rightP)
+APIF int AudioEvent_cmpByTime(AudioEvent *left, AudioEvent *right) 
 {
-	AudioBuffer *left  = *leftP;
-	AudioBuffer *right = *rightP;
-	if (left < right) {
-		return -1
-	} else if (left > right) {
-		return 1
+	if (left->stime < right->stime) {
+		return -1;
+	} else if (left->stime > right->stime) {
+		return 1;
 	}
 	return 0;
 }
 
-APIF AudioBuffer AudioBuffer_make(String *filename, Ticks startTime, Ticks endTime)
+APIF AudioEvent AudioEvent_cleanClone(AudioEvent *self)
 {
-	AudioBuffer audioBuffer  = {0};
-	AudioBuffer_init(&audioBuffer);
-	audioBuffer.fileSymbol  = Symbol_gen(filename);
-	audioBuffer.startTime   = startTime;
-	audioBuffer.endTime     = endTime;
-	return audioBuffer;
-}
-
-APIF AudioBuffer AudioBuffer_cleanClone(AudioBuffer *self)
-{
-	AudioBuffer other = *self;
-	other.audioOutlet = NULL;
-	other.cancel      = NULL;
-	other.isTempCue   = false;
-	other.cue         = 0
+	AudioEvent e = {0};
+	e.fileSymbol  = self->fileSymbol;
+	e.sampleStart = self->sampleStart;
+	e.sampleEnd   = self->sampleEnd;
+	e.fileLength  = self->fileLength;
 	return other;
 }
 
@@ -414,7 +460,7 @@ COVER static inline int AudioPlayer_getNormalCue(AudioPlayer *self, AudioBuffer 
 			return 0;
 		}
 		cue = self->nextNormalCue++;
-		AudioOutlet_sendPreload(self->listTildeOutlet, audioBuffer->fileSymbol, cue, audioBuffer->startTime, audioBuffer->endTime, err);
+		AudioOutlet_sendPreload(self->listTildeOutlet, audioBuffer->fileSymbol, cue, audioBuffer->sampleStart, audioBuffer->sampleEnd, err);
 		Error_returnZeroOnError(err);
 	}
 	return cue;
@@ -499,7 +545,7 @@ APIF void AudioPlayer_prepareTemporaryCue(AudioPlayer *self, AudioBuffer *audioB
 	}
 	audioBuffer->isTempCue = true;
 	audioBuffer->cue       = cue;
-	AudioOutlet_sendPreload(audioBuffer->listTildeOutlet, audioBuffer->fileSymbol, audioBuffer->startTime+offset, audioBuffer->endTime, err);
+	AudioOutlet_sendPreload(audioBuffer->listTildeOutlet, audioBuffer->fileSymbol, audioBuffer->sampleStart+offset, audioBuffer->sampleEnd, err);
 	Error_returnVoidOnError(err);
 }
 
@@ -557,46 +603,6 @@ APIF void AudioPlayer_stop(AudioPlayer *self, AudioBuffer *audioBuffer)
 	audioBuffer->audioOutlet = NULL;
 	audioBuffer->cancel      = NULL;
 	audioBuffer->isTempCue   = false;
-}
-
-@type
-{
-	"typeName": "AudioEvent",
-	"fields": [
-		// NOTE: stime can hold sequence time AND absolute time depending on the context
-		{"name": "stime",         "type": "Ticks"},
-		{"name": "tempCueTime",  "type": "Ticks"},
-		{"name": "audioBuffer",   "type": "AudioBuffer"}
-	],
-	"containers": [
-        {
-            "type": "array",
-            "typeName": "AudioEventAr", 
-            "elemName": "AudioEvent",
-            "binarySearch": [
-               {"compare": "AudioEvent_cmpByTime", "tag": "ByTime"}
-            ]
-        },
-        {
-            "type": "array",
-            "typeName": "AudioEventPq", 
-            "elemName": "AudioEvent",
-            "binarySearch": [
-               {"compare": "AudioEvent_cmpByTime", "tag": "ByTime"}
-            ]
-        },
-  	]
-}
-@end
-
-APIF int AudioEvent_cmpByTime(AudioEvent *left, AudioEvent *right) 
-{
-	if (left->stime < right->stime) {
-		return -1;
-	} else if (left->stime > right->stime) {
-		return 1;
-	}
-	return 0;
 }
 
 @type 
@@ -691,7 +697,7 @@ APIF void AudioSequence_start(AudioSequence *self, Ticks clockStart, Ticks curre
 
         AudioEventAr_foreach(it, &self->events) {
         	Ticks startTime     = it.var->stime + self->startTime;
-        	Ticks endTime       = startTime + it.var->audioBuffer.endTime - it.var->audioBuffer.startTime;
+        	Ticks endTime       = startTime + (it.var->audioBuffer.sampleStart - it.var->audioBuffer.sampleEnd);
         	Ticks realStartTime = startTime;
         	if (startTime <= current && current <= endTime) {
         		// The start time cuts the audio file into pieces
@@ -781,10 +787,10 @@ APIF void AudioSequence_drive(AudioSequence *self, Ticks current, TimedPq *queue
 
             bool isMarker = AudioSequence_isMarkerBuffer(e->audioBuffer);
             if (!isMarker) {
-                Ticks delta    = (e->audioBuffer.endTime-e->audioBuffer.startTime) - (startTime - self->startTime);
+                Ticks delta    = (e->audioBuffer.sampleEnd-e->audioBuffer.sampleStart) - (startTime - self->startTime);
                 AudioEvent off = {.stime = startTime + delta, .audioBuffer = e->audioBuffer};
                 AudioEventPq_pqPush(&self->pendingStops, off);
-                AudioBuffer_play(self->audioPlayer, &e->audioBuffer, AudioSequence_castToSequence(self), err);
+                AudioPlayer_play(self->audioPlayer, &e->audioBuffer, AudioSequence_castToSequence(self), err);
                 Error_returnVoidOnError(err);
             } else if (e->audioBuffer == AudioSequence_endgMarker && !self->cycle) {
                 self->inEndgroup = true;
@@ -849,7 +855,7 @@ APIF Ticks AudioSequence_compactComputeSequenceLength(AudioSequence *self)
 {
     Ticks lastTime = Sequence_minSequenceLength;
     AudioEventAr_foreach(it, &self->events) {
-    	Ticks end = it.var->stime + (it.var->audioBuffer.endTime - it.var->audioBuffer.startTime);
+    	Ticks end = it.var->stime + (it.var->audioBuffer.sampleEnd - it.var->audioBuffer.sampleStart);
     	if (end > lastTime) {
     		lastTime = end;
     	} 
