@@ -339,7 +339,7 @@ APIF void AudioOutlet_sendStopRecord(AudioOutlet *self, Symbol *fullPathSymbol, 
 	"typeName": "AudioEvent",
 	"fields": [
 		// NOTE: stime can hold sequence time AND absolute time depending on the context
-		{"name": "stime",         "type": "Ticks"},
+		{"name": "stime",          "type": "Ticks"},
 		{"name": "cue",            "type": "int"},
 
 		{"name": "offsetSTime",     "type": "Ticks"},
@@ -476,8 +476,8 @@ COVER static inline void AudioPlayer_maybeFreeUpPlayer(AudioPlayer *self, Error 
 		if (self->nextCancel >= AudioEventPtAr_len(&self->runningAudioEvents)) {
 			self->nextCancel = 0;
 		}
-		AudioBuffer **audioBuffer = AudioEventPtAr_get(&self->runningAudioEvents, self->nextCancel, err);
-		Sequence_stop((*audioBuffer)->cancel);
+		AudioEvent **event = AudioEventPtAr_get(&self->runningAudioEvents, self->nextCancel, err);
+		Sequence_stop((*event)->cancel);
 		self->nextCancel++;
 	}
 	
@@ -726,9 +726,9 @@ APIF AudioSequence *AudioSequence_newFromEvent(AudioEvent event, Error *err)
 
 
 // XXX this is wrong. Need to use the fileSymbol to mark cycle and endg
-AudioEvent AudioSequence_cycleMarkerImpl = {0}, *AudioSequence_cycleMarker = &AudioSequence_cycleMarkerImpl;
-AudioEvent AudioSequence_endgMarkerImpl = {0},  *AudioSequence_endgMarker  = &AudioSequence_endgMarkerImpl;
-#define AudioSequence_isMarkerEvent(e) (e == AudioSequence_cycleMarker || e == AudioSequence_endgMarker)
+#define AudioSequence_cueCycleMarker -1
+#define AudioSequence_cueEndgMarker  -2
+#define AudioSequence_isMarkerEvent(e) (e->cue == AudioSequence_cueCycleMarker || e->cue == AudioSequence_cueEndgMarker)
 #define AudioSequence_prepareLeadtime 15
 
 APIF void AudioSequence_start(AudioSequence *self, Ticks clockStart, Ticks current, TimedPq *queue, RecordBuffer *recordBuffer, Error *err) 
@@ -894,7 +894,7 @@ APIF void AudioSequence_drive(AudioSequence *self, Ticks current, TimedPq *queue
 	                AudioEventOff off = {.time = stop, .eventIndex = AudioEventAr_last(&self->recordingSeq->events)}; 
                 	AudioEventOffPq_pqPush(&self->recordingSeq->pendingStops, off);
 	            }
-            } else if (e->audioBuffer == AudioSequence_endgMarker && !self->cycle) {
+            } else if (AudioSequence_isMarkerEvent(e) && !self->cycle) {
                 self->inEndgroup = true;
             } 
 
@@ -950,7 +950,7 @@ APIF Ticks AudioSequence_compactComputeSequenceLength(AudioSequence *self)
 {
     Ticks lastTime = Sequence_minSequenceLength;
     AudioEventAr_foreach(it, &self->events) {
-    	Ticks end = it.var->stime + (it.var->audioBuffer.sampleEnd - it.var->audioBuffer.sampleStart);
+    	Ticks end = it.var->stime + (it.var->sampleEnd - it.var->sampleStart);
     	if (end > lastTime) {
     		lastTime = end;
     	} 
@@ -979,14 +979,18 @@ APIF void AudioSequence_compactFinish(AudioSequence *self, Ticks endgroupTime, T
             }
         }
         if (index >= 0) {
-            AudioEvent newEv = {.stime = endgroupTime, .tempCueTime = -1, .audioBuffer = AudioSequence_endgMarker};
+        	AudioEvent newEv = {0};
+        	newEv.stime = endgroupTime;
+        	newEv.cue   = AudioSequence_endgMarker;
             AudioEventAr_insert(&self->events, index, newEv, err);
             Error_returnVoidOnError(err);
         }
     }
 
     self->sequenceLength = sequenceLength;
-    FloatEvent newEv = {.stime = sequenceLength, .audioBuffer = AudioSequence_cycleMarker};
+    AudioEvent newEv = {0};
+    newEv.stime = sequenceLength;
+    newEv.cue   = AudioSequence_cycleMarker;
     AudioEventAr_push(&self->events, newEv);
     AudioEventAr_sort(&self->events);
 
