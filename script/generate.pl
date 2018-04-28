@@ -202,6 +202,21 @@ ENDxxxxxxxxxx
 ENDxxxxxxxxxx
 	},
 
+	{
+		key =>    'Array:at',
+		symbol => '${TYPENAME}_at',
+		tmpl   => <<'ENDxxxxxxxxxx',
+			@#define ${TYPENAME}_at(arr, index) (arr)->data[index]
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Array:atp',
+		symbol => '${TYPENAME}_at',
+		tmpl   => <<'ENDxxxxxxxxxx',
+			@#define ${TYPENAME}_atp(arr, index) ((arr)->data + (index))
+ENDxxxxxxxxxx
+	},
 
 	{
 		key =>    'Array:set',
@@ -1632,7 +1647,7 @@ sub ContainerArtifact_emitInlines {
 	##
 	my @keys = (
 		'Array:new', 'Array:init', 'Array:clear', 'Array:free',
-		'Array:truncate', 'Array:len',  'Array:get', 'Array:getp', 'Array:set', 'Array:setp',
+		'Array:truncate', 'Array:len',  'Array:get', 'Array:getp', 'Array:at', 'Array:atp', 'Array:set', 'Array:setp',
 		'Array:pop', 'Array:push', 'Array:pushp', 'Array:insert', 'Array:insertp', 'Array:remove',
 		'Array:removeN', 'Array:fit', 'Array:last', 'Array:changeLength', 'Array:foreach', 'Array:rforeach',
 		'Array:loop', 'Array:rloop', "ArrayFIt:next", "ArrayRIt:next", "ArrayFIt:remove", "ArrayRIt:remove",
@@ -1738,7 +1753,9 @@ sub Coverage_verifyNoUnmarkedFunctions {
 
 sub Coverage_write {
 	my ($self, $out, $text, $file, $line, $inp) = @_;
-	Coverage_verifyNoUnmarkedFunctions($self, $text, $inp, $file, $line);
+	if ($self->{coverageOn}) {
+		Coverage_verifyNoUnmarkedFunctions($self, $text, $inp, $file, $line);
+	}
 
 	my $hasAPIF         = ($text =~ /^APIF/ || $text =~ /^COVER/);
 	my $looksLikeDefine = ($text =~ /^#/);

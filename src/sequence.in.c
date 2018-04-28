@@ -591,9 +591,7 @@ COVER static inline void NoteSequence_playEvents(NoteSequence *self, Ticks curre
             } 
 
             if (self->recordingSeq != NULL && !NoteSequence_isMarkerValue(ne->duration)) {
-                NoteEvent e = *ne;
-                e.stime     = self->recordingSeq->startTime + ne->stime;
-                NoteEventAr_push(&self->recordingSeq->events, e);
+                NoteEventAr_push(&self->recordingSeq->events, *ne);
             }
             self->cursor++;
         }
@@ -710,7 +708,7 @@ APIF void NoteSequence_drive(NoteSequence *self, Ticks current, TimedPq *queue, 
     }
 }
 
-APIF void NoteSequence_padNoteOff(NoteSequence *self, int padIndex, Ticks current, Error *err) 
+APIF void NoteSequence_padNoteOff(NoteSequence *self, Ticks current, Error *err) 
 {
     if (self->inEndgroup && !self->cycle) {
         NoteSequence_stop(self, current, err);
@@ -1076,7 +1074,7 @@ APIF void FloatSequence_stop(FloatSequence *self, Ticks current, Error *err) {
     Outlet_sendFloat(self->outlet, self->restoreValue, err);
 }
 
-APIF void FloatSequence_padNoteOff(FloatSequence *self, int padIndex, Ticks current, Error *err) {
+APIF void FloatSequence_padNoteOff(FloatSequence *self, Ticks current, Error *err) {
     if (self->inEndgroup && !self->cycle) {
         FloatSequence_stop(self, current, err);
     }
@@ -1209,7 +1207,7 @@ APIF void FloatSequence_compactFinish(FloatSequence *self, Ticks endgroupTime, T
         {
             "name": "padNoteOff",
             "retVal": "void",
-            "args": ["int", "Ticks", "Error *"]
+            "args": ["Ticks", "Error *"]
         },
 
         // Configure sequence
@@ -1385,12 +1383,22 @@ APIF void Sequence_incVersion(Sequence *seq) {
             "type": "Ticks"
         },
         {
+            // During a recording session, each sequence that is playing will record all of the events that it plays during a given 
+            // Sequence_start/Sequence_stop pair. The resulting events are pushed onto this sequence array.
             "name": "sequences", 
-            "type": "SequenceAr"
+            "type": "SequenceAr",
+            "getterReturn":"pointer",
+            "setter": "none"
         }
     ]
 }
 @end
+APIF RecordBuffer *RecordBuffer_newStart(Ticks recordStart)
+{
+    RecordBuffer *self = RecordBuffer_new();
+    self->recordStart = recordStart;
+    return self;
+}
 
 APIF void RecordBuffer_push(RecordBuffer *self, Sequence *sequence)
 {

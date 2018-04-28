@@ -1,13 +1,13 @@
-// *** DO NOT MODIFY THIS FILE generated 04/24/2018 23:08:52 ***
-// *** DO NOT MODIFY THIS FILE generated 04/24/2018 23:08:52 ***
-// *** DO NOT MODIFY THIS FILE generated 04/24/2018 23:08:52 ***
-// *** DO NOT MODIFY THIS FILE generated 04/24/2018 23:08:52 ***
-// *** DO NOT MODIFY THIS FILE generated 04/24/2018 23:08:52 ***
-// *** DO NOT MODIFY THIS FILE generated 04/24/2018 23:08:52 ***
-// *** DO NOT MODIFY THIS FILE generated 04/24/2018 23:08:52 ***
-// *** DO NOT MODIFY THIS FILE generated 04/24/2018 23:08:52 ***
-// *** DO NOT MODIFY THIS FILE generated 04/24/2018 23:08:52 ***
-// *** DO NOT MODIFY THIS FILE generated 04/24/2018 23:08:52 ***
+// *** DO NOT MODIFY THIS FILE generated 04/27/2018 18:31:41 ***
+// *** DO NOT MODIFY THIS FILE generated 04/27/2018 18:31:41 ***
+// *** DO NOT MODIFY THIS FILE generated 04/27/2018 18:31:41 ***
+// *** DO NOT MODIFY THIS FILE generated 04/27/2018 18:31:41 ***
+// *** DO NOT MODIFY THIS FILE generated 04/27/2018 18:31:41 ***
+// *** DO NOT MODIFY THIS FILE generated 04/27/2018 18:31:41 ***
+// *** DO NOT MODIFY THIS FILE generated 04/27/2018 18:31:41 ***
+// *** DO NOT MODIFY THIS FILE generated 04/27/2018 18:31:41 ***
+// *** DO NOT MODIFY THIS FILE generated 04/27/2018 18:31:41 ***
+// *** DO NOT MODIFY THIS FILE generated 04/27/2018 18:31:41 ***
 const bool Coverage_activated = true;
 const char **Coverage_array   = NULL;
 struct Arguments_t;
@@ -103,8 +103,6 @@ struct PtrAr_t;
 typedef struct PtrAr_t PtrAr;
 struct RecordBuffer_t;
 typedef struct RecordBuffer_t RecordBuffer;
-struct Resource_t;
-typedef struct Resource_t Resource;
 typedef struct Dispatch_t SelectNextPushedPadDispatch;
 struct Sequence_t;
 typedef struct Sequence_t Sequence;
@@ -984,6 +982,7 @@ struct SequenceDrive_t
     Ticks timeStop;
     Ticks timeDelta;
     int maxIterations;
+    RecordBuffer *recordBuffer;
 };
 typedef struct SequenceAr_t {
    int len;
@@ -1028,13 +1027,6 @@ struct Sequence_t
 struct SelectNextPushedPadDispatch_t
 {
     int itype;
-};
-struct Resource_t
-{
-    String *songLibrary;
-    String *songName;
-    time_t lastTime;
-    int batchIndex;
 };
 struct RecordBuffer_t
 {
@@ -1423,14 +1415,6 @@ struct DropDown_t
     int selected;
     PortRef portRef;
 };
-struct Arguments_t
-{
-    Symbol *s1;
-    long i1;
-    long i2;
-    long ivalue;
-    long inlet;
-};
 typedef struct DispatchPtAr_t {
    int len;
    int cap;
@@ -1457,6 +1441,14 @@ typedef struct DispatchPtArRIt_t {
    Dispatch **var;
 } DispatchPtArRIt;
 
+struct Arguments_t
+{
+    Symbol *s1;
+    long i1;
+    long i2;
+    long ivalue;
+    long inlet;
+};
 struct Hub_t
 {
     PadList *padList;
@@ -1777,7 +1769,7 @@ NoteSequence *NoteSequence_newFromEvents(Symbol *track, PortFind *portFind, int 
 void NoteSequence_start(NoteSequence *self, Ticks clockStart, Ticks current, TimedPq *queue, RecordBuffer *recordBuffer, Error *err);
 void NoteSequence_stop(NoteSequence *self, Ticks current, Error *err);
 void NoteSequence_drive(NoteSequence *self, Ticks current, TimedPq *queue, Error *err);
-void NoteSequence_padNoteOff(NoteSequence *self, int padIndex, Ticks current, Error *err);
+void NoteSequence_padNoteOff(NoteSequence *self, Ticks current, Error *err);
 void NoteSequence_makeConsistent(NoteSequence *self, Error *err);
 Sequence *NoteSequence_compactNew(NoteSequence *self, Ticks recordStart);
 void NoteSequence_compactConcat(NoteSequence *self, Sequence *otherSeq, Error *err);
@@ -1792,7 +1784,7 @@ FloatSequence *FloatSequence_newFromEvents(Symbol *track, int ccOrNegForBend, Po
 void FloatSequence_start(FloatSequence *self, Ticks clockStart, Ticks current, TimedPq *queue, RecordBuffer *recordBuffer, Error *err);
 void FloatSequence_drive(FloatSequence *self, Ticks current, TimedPq *queue, Error *err);
 void FloatSequence_stop(FloatSequence *self, Ticks current, Error *err);
-void FloatSequence_padNoteOff(FloatSequence *self, int padIndex, Ticks current, Error *err);
+void FloatSequence_padNoteOff(FloatSequence *self, Ticks current, Error *err);
 void FloatSequence_makeConsistent(FloatSequence *self);
 Sequence *FloatSequence_compactNew(FloatSequence *self, Ticks recordStart);
 void FloatSequence_compactConcat(FloatSequence *self, Sequence *otherSeq, Error *err);
@@ -1805,6 +1797,7 @@ int Sequence_cmpPointer(Sequence *leftSeq, Sequence *rightSeq);
 int Sequence_cmpPp(Sequence **left, Sequence **right);
 int Sequence_cmpPointerPp(Sequence **left, Sequence **right);
 void Sequence_incVersion(Sequence *seq);
+RecordBuffer *RecordBuffer_newStart(Ticks recordStart);
 void RecordBuffer_push(RecordBuffer *self, Sequence *sequence);
 void RecordBuffer_compact(RecordBuffer *self, SequenceAr *output, Error *err);
 void Midi_fromfile(const char *midiFilePath, SequenceAr *output, Symbol *defaultTrack, PortFind *portFind, Error *err);
@@ -1823,9 +1816,10 @@ void NoteOutlet_dbRewindSent();
 void NoteOutlet_dbRecordEvent(int pitch, int velocity);
 void NoteOutlet_dbGetResults(NoteEventAr *arr);
 void NoteOutlet_dbReportNoteOffs(NoteEventAr *arr);
+bool NoteSequence_tableNotesEqual(NoteSequence *self, int argc, NoteEvent *argv, bool verbose);
 int SequenceDriveDirective_cmp(SequenceDriveDirective *left, SequenceDriveDirective *right);
+SequenceDrive *SequenceDrive_newBuild(int argc, SequenceDriveDirective *argv, RecordBuffer *recordBuffer);
 void SequenceDrive_toCompletion(SequenceDrive *self, Error *err);
-void Resource_listDirectory(Resource *self, String *path, Error *err);
 void Arguments_clear(Arguments *self);
 void Arguments_free(Arguments *self);
 void Arguments_init(Arguments *self);
@@ -1954,10 +1948,6 @@ void RecordBuffer_clear(RecordBuffer *self);
 void RecordBuffer_free(RecordBuffer *self);
 void RecordBuffer_init(RecordBuffer *self);
 RecordBuffer *RecordBuffer_new();
-void Resource_clear(Resource *self);
-void Resource_free(Resource *self);
-void Resource_init(Resource *self);
-Resource *Resource_new();
 void SelectNextPushedPadDispatch_clear(SelectNextPushedPadDispatch *self);
 void SelectNextPushedPadDispatch_free(SelectNextPushedPadDispatch *self);
 void SelectNextPushedPadDispatch_init(SelectNextPushedPadDispatch *self);
@@ -2024,7 +2014,7 @@ void Outlet_sendFloat(Outlet *self, double a1, Error *err);
 void Sequence_start(Sequence *self, Ticks a1, Ticks a2, TimedPq *a3, RecordBuffer *a4, Error *err);
 void Sequence_drive(Sequence *self, Ticks a1, TimedPq *a2, Error *err);
 void Sequence_stop(Sequence *self, Ticks a1, Error *err);
-void Sequence_padNoteOff(Sequence *self, int a1, Ticks a2, Error *err);
+void Sequence_padNoteOff(Sequence *self, Ticks a1, Error *err);
 void Sequence_setCycle(Sequence *self, bool a1, Error *err);
 void Sequence_free(Sequence *self, Error *err);
 Sequence *Sequence_compactNew(Sequence *self, Ticks a1, Error *err);
@@ -2042,6 +2032,10 @@ static inline long Arguments_ivalue(Arguments *self){return self->ivalue;}
 static inline void Arguments_setIvalue(Arguments *self, long value){self->ivalue = value;}
 static inline long Arguments_inlet(Arguments *self){return self->inlet;}
 static inline void Arguments_setInlet(Arguments *self, long value){self->inlet = value;}
+#define AtomAr_at(arr, index) (arr)->data[index]
+
+#define AtomAr_atp(arr, index) ((arr)->data + (index))
+
 static inline void AtomAr_changeLength(AtomAr *arr, int newLength) {
     Array_changeLength((Array*)arr, newLength);
 }                        
@@ -2188,6 +2182,10 @@ static inline bool AtomArRIt_next(AtomArRIt *iterator) {
 static inline bool AtomArRIt_remove(AtomArRIt *iterator) {
     return ArrayRIt_remove((ArrayRIt*)iterator);
 }
+
+#define AtomArAr_at(arr, index) (arr)->data[index]
+
+#define AtomArAr_atp(arr, index) ((arr)->data + (index))
 
 static inline void AtomArAr_changeLength(AtomArAr *arr, int newLength) {
     Array_changeLength((Array*)arr, newLength);
@@ -2402,6 +2400,10 @@ static inline void Dispatch_setInlet(Dispatch *self, int value){self->inlet = va
 static inline Marshal *Dispatch_marshal(Dispatch *self){return self->marshal;}
 static inline void Dispatch_setMarshal(Dispatch *self, Marshal *value){self->marshal = value;}
 #define Dispatch_declare(name, itype, selector, portId, inlet, marshal) Dispatch name = {(itype), (selector), (portId), (inlet), (marshal)}
+#define DispatchPtAr_at(arr, index) (arr)->data[index]
+
+#define DispatchPtAr_atp(arr, index) ((arr)->data + (index))
+
 static inline void DispatchPtAr_changeLength(DispatchPtAr *arr, int newLength) {
     Array_changeLength((Array*)arr, newLength);
 }                        
@@ -2594,6 +2596,10 @@ static inline Ticks FloatEvent_stime(FloatEvent *self){return self->stime;}
 static inline void FloatEvent_setStime(FloatEvent *self, Ticks value){self->stime = value;}
 static inline double FloatEvent_value(FloatEvent *self){return self->value;}
 static inline void FloatEvent_setValue(FloatEvent *self, double value){self->value = value;}
+#define FloatEventAr_at(arr, index) (arr)->data[index]
+
+#define FloatEventAr_atp(arr, index) ((arr)->data + (index))
+
 static inline void FloatEventAr_changeLength(FloatEventAr *arr, int newLength) {
     Array_changeLength((Array*)arr, newLength);
 }                        
@@ -2815,6 +2821,10 @@ static inline int Foo_i(Foo *self){return self->i;}
 static inline void Foo_setI(Foo *self, int value){self->i = value;}
 static inline double Foo_d(Foo *self){return self->d;}
 static inline void Foo_setD(Foo *self, double value){self->d = value;}
+#define FooArr_at(arr, index) (arr)->data[index]
+
+#define FooArr_atp(arr, index) ((arr)->data + (index))
+
 static inline void FooArr_changeLength(FooArr *arr, int newLength) {
     Array_changeLength((Array*)arr, newLength);
 }                        
@@ -3176,6 +3186,10 @@ static inline void IndexedOff_setPadIndex(IndexedOff *self, int value){self->pad
 static inline int IndexedOff_pitch(IndexedOff *self){return self->pitch;}
 static inline void IndexedOff_setPitch(IndexedOff *self, int value){self->pitch = value;}
 #define IndexedOff_declare(name, padIndex, pitch) IndexedOff name = {(padIndex), (pitch)}
+#define IndexedOffAr_at(arr, index) (arr)->data[index]
+
+#define IndexedOffAr_atp(arr, index) ((arr)->data + (index))
+
 static inline void IndexedOffAr_changeLength(IndexedOffAr *arr, int newLength) {
     Array_changeLength((Array*)arr, newLength);
 }                        
@@ -3368,6 +3382,10 @@ static inline void IndexedOffAr_sortPadIndex(IndexedOffAr *arr) {
     Array_sort((Array*)arr, (Array_compare)compare);
 }                
 
+#define IntAr_at(arr, index) (arr)->data[index]
+
+#define IntAr_atp(arr, index) ((arr)->data + (index))
+
 static inline void IntAr_changeLength(IntAr *arr, int newLength) {
     Array_changeLength((Array*)arr, newLength);
 }                        
@@ -3515,6 +3533,10 @@ static inline bool IntArRIt_remove(IntArRIt *iterator) {
     return ArrayRIt_remove((ArrayRIt*)iterator);
 }
 
+#define IntArr_at(arr, index) (arr)->data[index]
+
+#define IntArr_atp(arr, index) ((arr)->data + (index))
+
 static inline void IntArr_changeLength(IntArr *arr, int newLength) {
     Array_changeLength((Array*)arr, newLength);
 }                        
@@ -3661,6 +3683,10 @@ static inline bool IntArrRIt_next(IntArrRIt *iterator) {
 static inline bool IntArrRIt_remove(IntArrRIt *iterator) {
     return ArrayRIt_remove((ArrayRIt*)iterator);
 }
+
+#define MEventAr_at(arr, index) (arr)->data[index]
+
+#define MEventAr_atp(arr, index) ((arr)->data + (index))
 
 static inline void MEventAr_changeLength(MEventAr *arr, int newLength) {
     Array_changeLength((Array*)arr, newLength);
@@ -3888,6 +3914,10 @@ static inline Ticks NoteEvent_stime(NoteEvent *self){return self->stime;}
 static inline void NoteEvent_setStime(NoteEvent *self, Ticks value){self->stime = value;}
 static inline Ticks NoteEvent_duration(NoteEvent *self){return self->duration;}
 static inline void NoteEvent_setDuration(NoteEvent *self, Ticks value){self->duration = value;}
+#define NoteEventAr_at(arr, index) (arr)->data[index]
+
+#define NoteEventAr_atp(arr, index) ((arr)->data + (index))
+
 static inline void NoteEventAr_changeLength(NoteEventAr *arr, int newLength) {
     Array_changeLength((Array*)arr, newLength);
 }                        
@@ -4182,6 +4212,10 @@ static inline Track *Pad_track(Pad *self){return self->track;}
 static inline void Pad_setTrack(Pad *self, Track *value){self->track = value;}
 static inline bool Pad_useMasterClock(Pad *self){return self->useMasterClock;}
 static inline void Pad_setUseMasterClock(Pad *self, bool value){self->useMasterClock = value;}
+#define PadAr_at(arr, index) (arr)->data[index]
+
+#define PadAr_atp(arr, index) ((arr)->data + (index))
+
 static inline void PadAr_changeLength(PadAr *arr, int newLength) {
     Array_changeLength((Array*)arr, newLength);
 }                        
@@ -4331,6 +4365,10 @@ static inline bool PadArRIt_remove(PadArRIt *iterator) {
 
 static inline PadAr *PadList_pads(PadList *self){return &self->pads;}
 static inline PadPtrAr *PadList_running(PadList *self){return &self->running;}
+#define PadPtrAr_at(arr, index) (arr)->data[index]
+
+#define PadPtrAr_atp(arr, index) ((arr)->data + (index))
+
 static inline void PadPtrAr_changeLength(PadPtrAr *arr, int newLength) {
     Array_changeLength((Array*)arr, newLength);
 }                        
@@ -4512,6 +4550,10 @@ static inline Port *PortFindCell_reciever(PortFindCell *self){return self->recie
 static inline void PortFindCell_setReciever(PortFindCell *self, Port *value){self->reciever = value;}
 static inline Symbol *PortFindCell_varname(PortFindCell *self){return self->varname;}
 static inline void PortFindCell_setVarname(PortFindCell *self, Symbol *value){self->varname = value;}
+#define PortFindCellAr_at(arr, index) (arr)->data[index]
+
+#define PortFindCellAr_atp(arr, index) ((arr)->data + (index))
+
 static inline void PortFindCellAr_changeLength(PortFindCellAr *arr, int newLength) {
     Array_changeLength((Array*)arr, newLength);
 }                        
@@ -4663,6 +4705,10 @@ static inline Port *PortRef_port(PortRef *self){return self->port;}
 static inline void PortRef_setPort(PortRef *self, Port *value){self->port = value;}
 static inline int PortRef_outlet(PortRef *self){return self->outlet;}
 static inline void PortRef_setOutlet(PortRef *self, int value){self->outlet = value;}
+#define PtrAr_at(arr, index) (arr)->data[index]
+
+#define PtrAr_atp(arr, index) ((arr)->data + (index))
+
 static inline void PtrAr_changeLength(PtrAr *arr, int newLength) {
     Array_changeLength((Array*)arr, newLength);
 }                        
@@ -4812,15 +4858,7 @@ static inline bool PtrArRIt_remove(PtrArRIt *iterator) {
 
 static inline Ticks RecordBuffer_recordStart(RecordBuffer *self){return self->recordStart;}
 static inline void RecordBuffer_setRecordStart(RecordBuffer *self, Ticks value){self->recordStart = value;}
-static inline SequenceAr RecordBuffer_sequences(RecordBuffer *self){return self->sequences;}
-static inline void RecordBuffer_setSequences(RecordBuffer *self, SequenceAr value){self->sequences = value;}
-static inline String *Resource_songLibrary(Resource *self){return self->songLibrary;}
-static inline void Resource_setSongLibrary(Resource *self, String *value){self->songLibrary = value;}
-static inline String *Resource_songName(Resource *self){return self->songName;}
-static inline time_t Resource_lastTime(Resource *self){return self->lastTime;}
-static inline void Resource_setLastTime(Resource *self, time_t value){self->lastTime = value;}
-static inline int Resource_batchIndex(Resource *self){return self->batchIndex;}
-static inline void Resource_setBatchIndex(Resource *self, int value){self->batchIndex = value;}
+static inline SequenceAr *RecordBuffer_sequences(RecordBuffer *self){return &self->sequences;}
 static inline SelectNextPushedPadDispatch *SelectNextPushedPadDispatch_castFromDispatch(Dispatch *self) {
     if (self->itype == SelectNextPushedPadDispatch_itype) {
         return (SelectNextPushedPadDispatch*)self;
@@ -4848,6 +4886,10 @@ static inline Ticks Sequence_startTime(Sequence *self){return self->startTime;}
 static inline void Sequence_setStartTime(Sequence *self, Ticks value){self->startTime = value;}
 static inline OutletSpecifier Sequence_outletSpecifier(Sequence *self){return self->outletSpecifier;}
 static inline void Sequence_setOutletSpecifier(Sequence *self, OutletSpecifier value){self->outletSpecifier = value;}
+#define SequenceAr_at(arr, index) (arr)->data[index]
+
+#define SequenceAr_atp(arr, index) ((arr)->data + (index))
+
 static inline void SequenceAr_changeLength(SequenceAr *arr, int newLength) {
     Array_changeLength((Array*)arr, newLength);
 }                        
@@ -5083,12 +5125,18 @@ static inline Ticks SequenceDrive_timeDelta(SequenceDrive *self){return self->ti
 static inline void SequenceDrive_setTimeDelta(SequenceDrive *self, Ticks value){self->timeDelta = value;}
 static inline int SequenceDrive_maxIterations(SequenceDrive *self){return self->maxIterations;}
 static inline void SequenceDrive_setMaxIterations(SequenceDrive *self, int value){self->maxIterations = value;}
+static inline RecordBuffer *SequenceDrive_recordBuffer(SequenceDrive *self){return self->recordBuffer;}
+static inline void SequenceDrive_setRecordBuffer(SequenceDrive *self, RecordBuffer *value){self->recordBuffer = value;}
 static inline Ticks SequenceDriveDirective_time(SequenceDriveDirective *self){return self->time;}
 static inline void SequenceDriveDirective_setTime(SequenceDriveDirective *self, Ticks value){self->time = value;}
 static inline int SequenceDriveDirective_directive(SequenceDriveDirective *self){return self->directive;}
 static inline void SequenceDriveDirective_setDirective(SequenceDriveDirective *self, int value){self->directive = value;}
 static inline SequenceAr *SequenceDriveDirective_sequences(SequenceDriveDirective *self){return self->sequences;}
 static inline void SequenceDriveDirective_setSequences(SequenceDriveDirective *self, SequenceAr *value){self->sequences = value;}
+#define SequenceDriveDirectivePq_at(arr, index) (arr)->data[index]
+
+#define SequenceDriveDirectivePq_atp(arr, index) ((arr)->data + (index))
+
 static inline void SequenceDriveDirectivePq_changeLength(SequenceDriveDirectivePq *arr, int newLength) {
     Array_changeLength((Array*)arr, newLength);
 }                        
@@ -5274,6 +5322,10 @@ static inline void SequenceDriveDirectivePq_sort(SequenceDriveDirectivePq *arr) 
     int (*compare)(SequenceDriveDirective *, SequenceDriveDirective *) = SequenceDriveDirective_cmp;
     Array_sort((Array*)arr, (Array_compare)compare);
 }                
+
+#define StringPtAr_at(arr, index) (arr)->data[index]
+
+#define StringPtAr_atp(arr, index) ((arr)->data + (index))
 
 static inline void StringPtAr_changeLength(StringPtAr *arr, int newLength) {
     Array_changeLength((Array*)arr, newLength);
@@ -5461,6 +5513,10 @@ static inline void StringPtAr_sort(StringPtAr *arr) {
     Array_sort((Array*)arr, (Array_compare)compare);
 }                
 
+#define SymbolPtAr_at(arr, index) (arr)->data[index]
+
+#define SymbolPtAr_atp(arr, index) ((arr)->data + (index))
+
 static inline void SymbolPtAr_changeLength(SymbolPtAr *arr, int newLength) {
     Array_changeLength((Array*)arr, newLength);
 }                        
@@ -5647,6 +5703,10 @@ static inline void SymbolPtAr_sortUnderlying(SymbolPtAr *arr) {
     Array_sort((Array*)arr, (Array_compare)compare);
 }                
 
+#define SymbolPtrAr_at(arr, index) (arr)->data[index]
+
+#define SymbolPtrAr_atp(arr, index) ((arr)->data + (index))
+
 static inline void SymbolPtrAr_changeLength(SymbolPtrAr *arr, int newLength) {
     Array_changeLength((Array*)arr, newLength);
 }                        
@@ -5805,6 +5865,10 @@ static inline void TimedOff_setTime(TimedOff *self, Ticks value){self->time = va
 static inline int TimedOff_pitch(TimedOff *self){return self->pitch;}
 static inline void TimedOff_setPitch(TimedOff *self, int value){self->pitch = value;}
 #define TimedOff_declare(name, time, pitch) TimedOff name = {(time), (pitch)}
+#define TimedOffAr_at(arr, index) (arr)->data[index]
+
+#define TimedOffAr_atp(arr, index) ((arr)->data + (index))
+
 static inline void TimedOffAr_changeLength(TimedOffAr *arr, int newLength) {
     Array_changeLength((Array*)arr, newLength);
 }                        
@@ -5997,6 +6061,10 @@ static inline void TimedOffAr_sortTime(TimedOffAr *arr) {
     Array_sort((Array*)arr, (Array_compare)compare);
 }                
 
+#define TimedPq_at(arr, index) (arr)->data[index]
+
+#define TimedPq_atp(arr, index) ((arr)->data + (index))
+
 static inline void TimedPq_changeLength(TimedPq *arr, int newLength) {
     Array_changeLength((Array*)arr, newLength);
 }                        
@@ -6187,6 +6255,10 @@ static inline Symbol *Track_name(Track *self){return self->name;}
 static inline void Track_setName(Track *self, Symbol *value){self->name = value;}
 static inline NoteManager *Track_noteManager(Track *self){return self->noteManager;}
 static inline void Track_setNoteManager(Track *self, NoteManager *value){self->noteManager = value;}
+#define TrackAr_at(arr, index) (arr)->data[index]
+
+#define TrackAr_atp(arr, index) ((arr)->data + (index))
+
 static inline void TrackAr_changeLength(TrackAr *arr, int newLength) {
     Array_changeLength((Array*)arr, newLength);
 }                        
@@ -7191,33 +7263,6 @@ RecordBuffer *RecordBuffer_new()
     RecordBuffer_init(self);
     return self;
 }
-void Resource_init(Resource *self)
-{
-    self->songLibrary = String_empty();
-    self->songName = String_empty();
-    self->lastTime = 0;
-    self->batchIndex = 0;
-    return;
-}
-void Resource_clear(Resource *self)
-{
-    String_free(self->songLibrary);         
-    String_free(self->songName);         
-    return;
-}
-void Resource_free(Resource *self)
-{
-   if (self != NULL) {
-        Resource_clear(self);
-        Mem_free(self);
-   }
-}
-Resource *Resource_new()
-{
-    Resource *self = Mem_malloc(sizeof(Resource));
-    Resource_init(self);
-    return self;
-}
 void SelectNextPushedPadDispatch_init(SelectNextPushedPadDispatch *self)
 {
     self->itype = SelectNextPushedPadDispatch_itype;
@@ -7247,6 +7292,7 @@ void SequenceDrive_init(SequenceDrive *self)
     self->timeStop = 0;
     self->timeDelta = 0;
     self->maxIterations = 0;
+    self->recordBuffer = NULL;
     return;
 }
 void SequenceDrive_clear(SequenceDrive *self)
@@ -7642,14 +7688,14 @@ void Sequence_stop(Sequence *self, Ticks a1, Error *err)
     return;
 }
 
-void Sequence_padNoteOff(Sequence *self, int a1, Ticks a2, Error *err)
+void Sequence_padNoteOff(Sequence *self, Ticks a1, Error *err)
 {
     switch(self->itype) {
         case FloatSequence_itype:
-            FloatSequence_padNoteOff((FloatSequence*)self, a1, a2, err);
+            FloatSequence_padNoteOff((FloatSequence*)self, a1, err);
             return;
         case NoteSequence_itype:
-            NoteSequence_padNoteOff((NoteSequence*)self, a1, a2, err);
+            NoteSequence_padNoteOff((NoteSequence*)self, a1, err);
             return;
        default:
             Error_format(err, "Failed to resolve interface call in NoteSequence_padNoteOff: found type %s", Interface_toString(self->itype));
@@ -10633,37 +10679,35 @@ Coverage_array[1970] = "sequence.in.c 590";                            self->inE
 Coverage_array[1971] = "sequence.in.c 591";                        } 
 Coverage_array[1972] = "sequence.in.c 592";            
 Coverage_array[1973] = "sequence.in.c 593";                        if (self->recordingSeq != NULL && !NoteSequence_isMarkerValue(ne->duration)) {
-Coverage_array[1974] = "sequence.in.c 594";                            NoteEvent e = *ne;
-Coverage_array[1975] = "sequence.in.c 595";                            e.stime     = self->recordingSeq->startTime + ne->stime;
-Coverage_array[1976] = "sequence.in.c 596";                            NoteEventAr_push(&self->recordingSeq->events, e);
-Coverage_array[1977] = "sequence.in.c 597";                        }
-Coverage_array[1978] = "sequence.in.c 598";                        self->cursor++;
-Coverage_array[1979] = "sequence.in.c 599";                    }
-Coverage_array[1980] = "sequence.in.c 600";                    if (self->cycle) {
-Coverage_array[1981] = "sequence.in.c 601";                        if (self->sequenceLength <= Sequence_minSequenceLength) {
-Coverage_array[1982] = "sequence.in.c 602";                           self->sequenceLength = Sequence_minSequenceLength;
-Coverage_array[1983] = "sequence.in.c 603";                        }
-Coverage_array[1984] = "sequence.in.c 604";                        self->startTime += self->sequenceLength;
-Coverage_array[1985] = "sequence.in.c 605";                        self->cursor     = 0;
-Coverage_array[1986] = "sequence.in.c 606";                    } else {
-Coverage_array[1987] = "sequence.in.c 607";                        return;
-Coverage_array[1988] = "sequence.in.c 608";                    }
-Coverage_array[1989] = "sequence.in.c 609";                }
-Coverage_array[1990] = "sequence.in.c 610";            }
+Coverage_array[1974] = "sequence.in.c 594";                            NoteEventAr_push(&self->recordingSeq->events, *ne);
+Coverage_array[1975] = "sequence.in.c 595";                        }
+Coverage_array[1976] = "sequence.in.c 596";                        self->cursor++;
+Coverage_array[1977] = "sequence.in.c 597";                    }
+Coverage_array[1978] = "sequence.in.c 598";                    if (self->cycle) {
+Coverage_array[1979] = "sequence.in.c 599";                        if (self->sequenceLength <= Sequence_minSequenceLength) {
+Coverage_array[1980] = "sequence.in.c 600";                           self->sequenceLength = Sequence_minSequenceLength;
+Coverage_array[1981] = "sequence.in.c 601";                        }
+Coverage_array[1982] = "sequence.in.c 602";                        self->startTime += self->sequenceLength;
+Coverage_array[1983] = "sequence.in.c 603";                        self->cursor     = 0;
+Coverage_array[1984] = "sequence.in.c 604";                    } else {
+Coverage_array[1985] = "sequence.in.c 605";                        return;
+Coverage_array[1986] = "sequence.in.c 606";                    }
+Coverage_array[1987] = "sequence.in.c 607";                }
+Coverage_array[1988] = "sequence.in.c 608";            }
 
                                                        COVER static inline Ticks NoteSequence_nextEvent(NoteSequence *self) {
-Coverage_array[1991] = "sequence.in.c 613";                bool maxOff = self->nextOffEvent == Ticks_maxTime;
-Coverage_array[1992] = "sequence.in.c 614";                bool maxOn  = self->nextOnEvent  == Ticks_maxTime;
-Coverage_array[1993] = "sequence.in.c 615";                if (maxOff && maxOn) {
-Coverage_array[1994] = "sequence.in.c 616";                    return -1;
-Coverage_array[1995] = "sequence.in.c 617";                } else if (maxOff) {
-Coverage_array[1996] = "sequence.in.c 618";                    return self->nextOnEvent;
-Coverage_array[1997] = "sequence.in.c 619";                } else if (maxOn) {
-Coverage_array[1998] = "sequence.in.c 620";                    return self->nextOffEvent;
-Coverage_array[1999] = "sequence.in.c 621";                } else {
-Coverage_array[2000] = "sequence.in.c 622";                    return self->nextOffEvent < self->nextOnEvent ? self->nextOffEvent : self->nextOnEvent;
-Coverage_array[2001] = "sequence.in.c 623";                }
-Coverage_array[2002] = "sequence.in.c 624";            }
+Coverage_array[1989] = "sequence.in.c 611";                bool maxOff = self->nextOffEvent == Ticks_maxTime;
+Coverage_array[1990] = "sequence.in.c 612";                bool maxOn  = self->nextOnEvent  == Ticks_maxTime;
+Coverage_array[1991] = "sequence.in.c 613";                if (maxOff && maxOn) {
+Coverage_array[1992] = "sequence.in.c 614";                    return -1;
+Coverage_array[1993] = "sequence.in.c 615";                } else if (maxOff) {
+Coverage_array[1994] = "sequence.in.c 616";                    return self->nextOnEvent;
+Coverage_array[1995] = "sequence.in.c 617";                } else if (maxOn) {
+Coverage_array[1996] = "sequence.in.c 618";                    return self->nextOffEvent;
+Coverage_array[1997] = "sequence.in.c 619";                } else {
+Coverage_array[1998] = "sequence.in.c 620";                    return self->nextOffEvent < self->nextOnEvent ? self->nextOffEvent : self->nextOnEvent;
+Coverage_array[1999] = "sequence.in.c 621";                }
+Coverage_array[2000] = "sequence.in.c 622";            }
 
 //
 // time and seqTime are related by
@@ -10679,274 +10723,274 @@ Coverage_array[2002] = "sequence.in.c 624";            }
 
                                                        APIF void NoteSequence_start(NoteSequence *self, Ticks clockStart, Ticks current, TimedPq *queue, RecordBuffer *recordBuffer, Error *err) 
                                                        {
-Coverage_array[2003] = "sequence.in.c 640";                int nevents = NoteEventAr_len(&self->events);
-Coverage_array[2004] = "sequence.in.c 641";                if (nevents <= 0) {
-Coverage_array[2005] = "sequence.in.c 642";                    return;
-Coverage_array[2006] = "sequence.in.c 643";                }
-Coverage_array[2007] = "sequence.in.c 644";            
-Coverage_array[2008] = "sequence.in.c 645";                self->startTime    = self->cycle ? clockStart : current;
-Coverage_array[2009] = "sequence.in.c 646";                self->cursor       = 0;
-Coverage_array[2010] = "sequence.in.c 647";                self->inEndgroup   = false;
-Coverage_array[2011] = "sequence.in.c 648";                Ticks nextEvent    = 0;
-Coverage_array[2012] = "sequence.in.c 649";                if (self->cycle) {
-Coverage_array[2013] = "sequence.in.c 650";                    if (self->sequenceLength <= Sequence_minSequenceLength) {
-Coverage_array[2014] = "sequence.in.c 651";                        self->sequenceLength = Sequence_minSequenceLength;
-Coverage_array[2015] = "sequence.in.c 652";                    }
-Coverage_array[2016] = "sequence.in.c 653";                    while (current - self->startTime > self->sequenceLength) {
-Coverage_array[2017] = "sequence.in.c 654";                        self->startTime += self->sequenceLength;
-Coverage_array[2018] = "sequence.in.c 655";                    }
-Coverage_array[2019] = "sequence.in.c 656";            
-Coverage_array[2020] = "sequence.in.c 657";                    NoteEventAr_foreach(it, &self->events) {
-Coverage_array[2021] = "sequence.in.c 658";                        if (it.var->stime + self->startTime >= current) {
-Coverage_array[2022] = "sequence.in.c 659";                            nextEvent = it.var->stime + self->startTime;
-Coverage_array[2023] = "sequence.in.c 660";                            break;
-Coverage_array[2024] = "sequence.in.c 661";                        }
-Coverage_array[2025] = "sequence.in.c 662";                        self->cursor++;
-Coverage_array[2026] = "sequence.in.c 663";                    }
-Coverage_array[2027] = "sequence.in.c 664";                    if (self->cursor >= nevents) {
-Coverage_array[2028] = "sequence.in.c 665";                        Error_format0(err, "INTERNAL ERROR: cursor found to be >= nevents");
-Coverage_array[2029] = "sequence.in.c 666";                        return;
-Coverage_array[2030] = "sequence.in.c 667";                    }
-Coverage_array[2031] = "sequence.in.c 668";                } else {
-Coverage_array[2032] = "sequence.in.c 669";                    NoteEventAr_foreach(it, &self->events) {
-Coverage_array[2033] = "sequence.in.c 670";                        nextEvent = it.var->stime + self->startTime;
-Coverage_array[2034] = "sequence.in.c 671";                        break;
-Coverage_array[2035] = "sequence.in.c 672";                    }
-Coverage_array[2036] = "sequence.in.c 673";                }
-Coverage_array[2037] = "sequence.in.c 674";                self->recordingSeq = NULL;
-Coverage_array[2038] = "sequence.in.c 675";                if (recordBuffer != NULL) {
-Coverage_array[2039] = "sequence.in.c 676";                    NoteSequence *other = NoteSequence_castFromSequence(NoteSequence_compactNew(self, self->startTime));
-Coverage_array[2040] = "sequence.in.c 677";                    self->recordingSeq  = other; 
-Coverage_array[2041] = "sequence.in.c 678";                    RecordBuffer_push(recordBuffer, NoteSequence_castToSequence(other));
-Coverage_array[2042] = "sequence.in.c 679";                }
-Coverage_array[2043] = "sequence.in.c 680";                TimedPq_enqueue(queue, nextEvent, NoteSequence_castToSequence(self));
-Coverage_array[2044] = "sequence.in.c 681";            }
+Coverage_array[2001] = "sequence.in.c 638";                int nevents = NoteEventAr_len(&self->events);
+Coverage_array[2002] = "sequence.in.c 639";                if (nevents <= 0) {
+Coverage_array[2003] = "sequence.in.c 640";                    return;
+Coverage_array[2004] = "sequence.in.c 641";                }
+Coverage_array[2005] = "sequence.in.c 642";            
+Coverage_array[2006] = "sequence.in.c 643";                self->startTime    = self->cycle ? clockStart : current;
+Coverage_array[2007] = "sequence.in.c 644";                self->cursor       = 0;
+Coverage_array[2008] = "sequence.in.c 645";                self->inEndgroup   = false;
+Coverage_array[2009] = "sequence.in.c 646";                Ticks nextEvent    = 0;
+Coverage_array[2010] = "sequence.in.c 647";                if (self->cycle) {
+Coverage_array[2011] = "sequence.in.c 648";                    if (self->sequenceLength <= Sequence_minSequenceLength) {
+Coverage_array[2012] = "sequence.in.c 649";                        self->sequenceLength = Sequence_minSequenceLength;
+Coverage_array[2013] = "sequence.in.c 650";                    }
+Coverage_array[2014] = "sequence.in.c 651";                    while (current - self->startTime > self->sequenceLength) {
+Coverage_array[2015] = "sequence.in.c 652";                        self->startTime += self->sequenceLength;
+Coverage_array[2016] = "sequence.in.c 653";                    }
+Coverage_array[2017] = "sequence.in.c 654";            
+Coverage_array[2018] = "sequence.in.c 655";                    NoteEventAr_foreach(it, &self->events) {
+Coverage_array[2019] = "sequence.in.c 656";                        if (it.var->stime + self->startTime >= current) {
+Coverage_array[2020] = "sequence.in.c 657";                            nextEvent = it.var->stime + self->startTime;
+Coverage_array[2021] = "sequence.in.c 658";                            break;
+Coverage_array[2022] = "sequence.in.c 659";                        }
+Coverage_array[2023] = "sequence.in.c 660";                        self->cursor++;
+Coverage_array[2024] = "sequence.in.c 661";                    }
+Coverage_array[2025] = "sequence.in.c 662";                    if (self->cursor >= nevents) {
+Coverage_array[2026] = "sequence.in.c 663";                        Error_format0(err, "INTERNAL ERROR: cursor found to be >= nevents");
+Coverage_array[2027] = "sequence.in.c 664";                        return;
+Coverage_array[2028] = "sequence.in.c 665";                    }
+Coverage_array[2029] = "sequence.in.c 666";                } else {
+Coverage_array[2030] = "sequence.in.c 667";                    NoteEventAr_foreach(it, &self->events) {
+Coverage_array[2031] = "sequence.in.c 668";                        nextEvent = it.var->stime + self->startTime;
+Coverage_array[2032] = "sequence.in.c 669";                        break;
+Coverage_array[2033] = "sequence.in.c 670";                    }
+Coverage_array[2034] = "sequence.in.c 671";                }
+Coverage_array[2035] = "sequence.in.c 672";                self->recordingSeq = NULL;
+Coverage_array[2036] = "sequence.in.c 673";                if (recordBuffer != NULL) {
+Coverage_array[2037] = "sequence.in.c 674";                    NoteSequence *other = NoteSequence_castFromSequence(NoteSequence_compactNew(self, self->startTime));
+Coverage_array[2038] = "sequence.in.c 675";                    self->recordingSeq  = other; 
+Coverage_array[2039] = "sequence.in.c 676";                    RecordBuffer_push(recordBuffer, NoteSequence_castToSequence(other));
+Coverage_array[2040] = "sequence.in.c 677";                }
+Coverage_array[2041] = "sequence.in.c 678";                TimedPq_enqueue(queue, nextEvent, NoteSequence_castToSequence(self));
+Coverage_array[2042] = "sequence.in.c 679";            }
 
                                                        APIF void NoteSequence_stop(NoteSequence *self, Ticks current, Error *err) {
-Coverage_array[2045] = "sequence.in.c 684";                self->cursor       = NoteEventAr_len(&self->events);
-Coverage_array[2046] = "sequence.in.c 685";                self->version++;
-Coverage_array[2047] = "sequence.in.c 686";            
-Coverage_array[2048] = "sequence.in.c 687";                if (self->recordingSeq != NULL) {
-Coverage_array[2049] = "sequence.in.c 688";                    // In the recording sequence Adjust the duration of all the pending note-offs
-Coverage_array[2050] = "sequence.in.c 689";                    TimedOffAr_foreach(offIt, &self->offs) {
-Coverage_array[2051] = "sequence.in.c 690";                        NoteEventAr_rforeach(noteIt, &self->recordingSeq->events) {
-Coverage_array[2052] = "sequence.in.c 691";                            if (noteIt.var->pitch == offIt.var->pitch) {
-Coverage_array[2053] = "sequence.in.c 692";                                noteIt.var->duration = current - noteIt.var->stime;
-Coverage_array[2054] = "sequence.in.c 693";                                break;
-Coverage_array[2055] = "sequence.in.c 694";                            }
-Coverage_array[2056] = "sequence.in.c 695";                        }
-Coverage_array[2057] = "sequence.in.c 696";                    } 
-Coverage_array[2058] = "sequence.in.c 697";                    self->recordingSeq = NULL;
-Coverage_array[2059] = "sequence.in.c 698";                }
-Coverage_array[2060] = "sequence.in.c 699";                
-Coverage_array[2061] = "sequence.in.c 700";                NoteSequence_playNoteOffs(self, Ticks_maxTime, err);
-Coverage_array[2062] = "sequence.in.c 701";            }
+Coverage_array[2043] = "sequence.in.c 682";                self->cursor       = NoteEventAr_len(&self->events);
+Coverage_array[2044] = "sequence.in.c 683";                self->version++;
+Coverage_array[2045] = "sequence.in.c 684";            
+Coverage_array[2046] = "sequence.in.c 685";                if (self->recordingSeq != NULL) {
+Coverage_array[2047] = "sequence.in.c 686";                    // In the recording sequence Adjust the duration of all the pending note-offs
+Coverage_array[2048] = "sequence.in.c 687";                    TimedOffAr_foreach(offIt, &self->offs) {
+Coverage_array[2049] = "sequence.in.c 688";                        NoteEventAr_rforeach(noteIt, &self->recordingSeq->events) {
+Coverage_array[2050] = "sequence.in.c 689";                            if (noteIt.var->pitch == offIt.var->pitch) {
+Coverage_array[2051] = "sequence.in.c 690";                                noteIt.var->duration = current - noteIt.var->stime;
+Coverage_array[2052] = "sequence.in.c 691";                                break;
+Coverage_array[2053] = "sequence.in.c 692";                            }
+Coverage_array[2054] = "sequence.in.c 693";                        }
+Coverage_array[2055] = "sequence.in.c 694";                    } 
+Coverage_array[2056] = "sequence.in.c 695";                    self->recordingSeq = NULL;
+Coverage_array[2057] = "sequence.in.c 696";                }
+Coverage_array[2058] = "sequence.in.c 697";                
+Coverage_array[2059] = "sequence.in.c 698";                NoteSequence_playNoteOffs(self, Ticks_maxTime, err);
+Coverage_array[2060] = "sequence.in.c 699";            }
 
                                                        APIF void NoteSequence_drive(NoteSequence *self, Ticks current, TimedPq *queue, Error *err) 
                                                        {
-Coverage_array[2063] = "sequence.in.c 705";                NoteSequence_playNoteOffs(self, current, err);
-Coverage_array[2064] = "sequence.in.c 706";                NoteSequence_playEvents(self, current, err);
-Coverage_array[2065] = "sequence.in.c 707";                Ticks nextEvent = NoteSequence_nextEvent(self);
-Coverage_array[2066] = "sequence.in.c 708";                if (nextEvent >= 0) {
-Coverage_array[2067] = "sequence.in.c 709";                    TimedPq_enqueue(queue, nextEvent, NoteSequence_castToSequence(self));
-Coverage_array[2068] = "sequence.in.c 710";                }
-Coverage_array[2069] = "sequence.in.c 711";            }
+Coverage_array[2061] = "sequence.in.c 703";                NoteSequence_playNoteOffs(self, current, err);
+Coverage_array[2062] = "sequence.in.c 704";                NoteSequence_playEvents(self, current, err);
+Coverage_array[2063] = "sequence.in.c 705";                Ticks nextEvent = NoteSequence_nextEvent(self);
+Coverage_array[2064] = "sequence.in.c 706";                if (nextEvent >= 0) {
+Coverage_array[2065] = "sequence.in.c 707";                    TimedPq_enqueue(queue, nextEvent, NoteSequence_castToSequence(self));
+Coverage_array[2066] = "sequence.in.c 708";                }
+Coverage_array[2067] = "sequence.in.c 709";            }
 
-                                                       APIF void NoteSequence_padNoteOff(NoteSequence *self, int padIndex, Ticks current, Error *err) 
+                                                       APIF void NoteSequence_padNoteOff(NoteSequence *self, Ticks current, Error *err) 
                                                        {
-Coverage_array[2070] = "sequence.in.c 715";                if (self->inEndgroup && !self->cycle) {
-Coverage_array[2071] = "sequence.in.c 716";                    NoteSequence_stop(self, current, err);
-Coverage_array[2072] = "sequence.in.c 717";                }
-Coverage_array[2073] = "sequence.in.c 718";            }
+Coverage_array[2068] = "sequence.in.c 713";                if (self->inEndgroup && !self->cycle) {
+Coverage_array[2069] = "sequence.in.c 714";                    NoteSequence_stop(self, current, err);
+Coverage_array[2070] = "sequence.in.c 715";                }
+Coverage_array[2071] = "sequence.in.c 716";            }
 
                                                        APIF void NoteSequence_makeConsistent(NoteSequence *self, Error *err)
                                                        {
-Coverage_array[2074] = "sequence.in.c 722";                if (NoteEventAr_len(&self->events) < 1) {
-Coverage_array[2075] = "sequence.in.c 723";                    Error_format0(err, "Called makeConsistent on empty sequence");
-Coverage_array[2076] = "sequence.in.c 724";                    return;
-Coverage_array[2077] = "sequence.in.c 725";                }
+Coverage_array[2072] = "sequence.in.c 720";                if (NoteEventAr_len(&self->events) < 1) {
+Coverage_array[2073] = "sequence.in.c 721";                    Error_format0(err, "Called makeConsistent on empty sequence");
+Coverage_array[2074] = "sequence.in.c 722";                    return;
+Coverage_array[2075] = "sequence.in.c 723";                }
+Coverage_array[2076] = "sequence.in.c 724";            
+Coverage_array[2077] = "sequence.in.c 725";                NoteEventAr_sort(&self->events);
 Coverage_array[2078] = "sequence.in.c 726";            
-Coverage_array[2079] = "sequence.in.c 727";                NoteEventAr_sort(&self->events);
-Coverage_array[2080] = "sequence.in.c 728";            
-Coverage_array[2081] = "sequence.in.c 729";                NoteEvent last = NoteEventAr_get(&self->events, NoteEventAr_last(&self->events), err);
-Coverage_array[2082] = "sequence.in.c 730";                Error_returnVoidOnError(err);
-Coverage_array[2083] = "sequence.in.c 731";            
-Coverage_array[2084] = "sequence.in.c 732";                if (last.duration != NoteSequence_cycleDuration) {
-Coverage_array[2085] = "sequence.in.c 733";                    Error_format0(err, "Called makeConsistent without proper cycle marker");
-Coverage_array[2086] = "sequence.in.c 734";                    return;
-Coverage_array[2087] = "sequence.in.c 735";                }
-Coverage_array[2088] = "sequence.in.c 736";            
-Coverage_array[2089] = "sequence.in.c 737";                if (last.stime != self->sequenceLength) {
-Coverage_array[2090] = "sequence.in.c 738";                    Error_format0(err, "Called cycle marker and sequenceLength are inconsistent");
-Coverage_array[2091] = "sequence.in.c 739";                    return;
-Coverage_array[2092] = "sequence.in.c 740";                }
-Coverage_array[2093] = "sequence.in.c 741";            
-Coverage_array[2094] = "sequence.in.c 742";                int timeNextNoteStart[128] = {0};
-Coverage_array[2095] = "sequence.in.c 743";                for (int i = 0; i < 128; i++) {
-Coverage_array[2096] = "sequence.in.c 744";                    timeNextNoteStart[i] = INT_MAX;
-Coverage_array[2097] = "sequence.in.c 745";                }
-Coverage_array[2098] = "sequence.in.c 746";                NoteEventAr_rforeach(it, &self->events) {
-Coverage_array[2099] = "sequence.in.c 747";                    if (it.var->stime + it.var->duration > timeNextNoteStart[it.var->pitch]) {
-Coverage_array[2100] = "sequence.in.c 748";                        it.var->duration = timeNextNoteStart[it.var->pitch] - it.var->stime;
-Coverage_array[2101] = "sequence.in.c 749";                        if (it.var->duration <= 0) {
-Coverage_array[2102] = "sequence.in.c 750";                            // This is the case when the same note is played at the same time. Notice we
-Coverage_array[2103] = "sequence.in.c 751";                            NoteEventArRIt_remove(&it);
-Coverage_array[2104] = "sequence.in.c 752";                            continue;        
-Coverage_array[2105] = "sequence.in.c 753";                        }
-Coverage_array[2106] = "sequence.in.c 754";                    }
-Coverage_array[2107] = "sequence.in.c 755";                    timeNextNoteStart[it.var->pitch] = it.var->stime;
-Coverage_array[2108] = "sequence.in.c 756";                }
-Coverage_array[2109] = "sequence.in.c 757";                return;
-Coverage_array[2110] = "sequence.in.c 758";            }
+Coverage_array[2079] = "sequence.in.c 727";                NoteEvent last = NoteEventAr_get(&self->events, NoteEventAr_last(&self->events), err);
+Coverage_array[2080] = "sequence.in.c 728";                Error_returnVoidOnError(err);
+Coverage_array[2081] = "sequence.in.c 729";            
+Coverage_array[2082] = "sequence.in.c 730";                if (last.duration != NoteSequence_cycleDuration) {
+Coverage_array[2083] = "sequence.in.c 731";                    Error_format0(err, "Called makeConsistent without proper cycle marker");
+Coverage_array[2084] = "sequence.in.c 732";                    return;
+Coverage_array[2085] = "sequence.in.c 733";                }
+Coverage_array[2086] = "sequence.in.c 734";            
+Coverage_array[2087] = "sequence.in.c 735";                if (last.stime != self->sequenceLength) {
+Coverage_array[2088] = "sequence.in.c 736";                    Error_format0(err, "Called cycle marker and sequenceLength are inconsistent");
+Coverage_array[2089] = "sequence.in.c 737";                    return;
+Coverage_array[2090] = "sequence.in.c 738";                }
+Coverage_array[2091] = "sequence.in.c 739";            
+Coverage_array[2092] = "sequence.in.c 740";                int timeNextNoteStart[128] = {0};
+Coverage_array[2093] = "sequence.in.c 741";                for (int i = 0; i < 128; i++) {
+Coverage_array[2094] = "sequence.in.c 742";                    timeNextNoteStart[i] = INT_MAX;
+Coverage_array[2095] = "sequence.in.c 743";                }
+Coverage_array[2096] = "sequence.in.c 744";                NoteEventAr_rforeach(it, &self->events) {
+Coverage_array[2097] = "sequence.in.c 745";                    if (it.var->stime + it.var->duration > timeNextNoteStart[it.var->pitch]) {
+Coverage_array[2098] = "sequence.in.c 746";                        it.var->duration = timeNextNoteStart[it.var->pitch] - it.var->stime;
+Coverage_array[2099] = "sequence.in.c 747";                        if (it.var->duration <= 0) {
+Coverage_array[2100] = "sequence.in.c 748";                            // This is the case when the same note is played at the same time. Notice we
+Coverage_array[2101] = "sequence.in.c 749";                            NoteEventArRIt_remove(&it);
+Coverage_array[2102] = "sequence.in.c 750";                            continue;        
+Coverage_array[2103] = "sequence.in.c 751";                        }
+Coverage_array[2104] = "sequence.in.c 752";                    }
+Coverage_array[2105] = "sequence.in.c 753";                    timeNextNoteStart[it.var->pitch] = it.var->stime;
+Coverage_array[2106] = "sequence.in.c 754";                }
+Coverage_array[2107] = "sequence.in.c 755";                return;
+Coverage_array[2108] = "sequence.in.c 756";            }
 
                                                        APIF Sequence *NoteSequence_compactNew(NoteSequence *self, Ticks recordStart)
                                                        {
-Coverage_array[2111] = "sequence.in.c 762";                NoteSequence *other    = NoteSequence_new();
-Coverage_array[2112] = "sequence.in.c 763";                // WHen we create a compact sequence, we always set it's startTime to the recordStart which is <= than all the startTimes in the RecordBuffer
-Coverage_array[2113] = "sequence.in.c 764";                other->startTime       = recordStart;
-Coverage_array[2114] = "sequence.in.c 765";                other->outletSpecifier = self->outletSpecifier;
-Coverage_array[2115] = "sequence.in.c 766";                other->outlet          = self->outlet;
-Coverage_array[2116] = "sequence.in.c 767";                return NoteSequence_castToSequence(other);
-Coverage_array[2117] = "sequence.in.c 768";            }
+Coverage_array[2109] = "sequence.in.c 760";                NoteSequence *other    = NoteSequence_new();
+Coverage_array[2110] = "sequence.in.c 761";                // WHen we create a compact sequence, we always set it's startTime to the recordStart which is <= than all the startTimes in the RecordBuffer
+Coverage_array[2111] = "sequence.in.c 762";                other->startTime       = recordStart;
+Coverage_array[2112] = "sequence.in.c 763";                other->outletSpecifier = self->outletSpecifier;
+Coverage_array[2113] = "sequence.in.c 764";                other->outlet          = self->outlet;
+Coverage_array[2114] = "sequence.in.c 765";                return NoteSequence_castToSequence(other);
+Coverage_array[2115] = "sequence.in.c 766";            }
 
                                                        APIF void NoteSequence_compactConcat(NoteSequence *self, Sequence *otherSeq, Error *err)
                                                        {
-Coverage_array[2118] = "sequence.in.c 772";                NoteSequence *other = NoteSequence_castFromSequence(otherSeq);
-Coverage_array[2119] = "sequence.in.c 773";                if (other == NULL) {
-Coverage_array[2120] = "sequence.in.c 774";                    Error_format(err, "NoteSequence_compactConcat was passed a sequence of type %s", Interface_toString(Interface_itype(otherSeq)));
-Coverage_array[2121] = "sequence.in.c 775";                    return;
-Coverage_array[2122] = "sequence.in.c 776";                }
-Coverage_array[2123] = "sequence.in.c 777";                NoteEventAr_foreach(it, &other->events) {
-Coverage_array[2124] = "sequence.in.c 778";                    NoteEvent e = *it.var;
-Coverage_array[2125] = "sequence.in.c 779";                    if (NoteSequence_isMarkerValue(e.duration)) {
-Coverage_array[2126] = "sequence.in.c 780";                        continue;
-Coverage_array[2127] = "sequence.in.c 781";                    }
-Coverage_array[2128] = "sequence.in.c 782";                    // Rememver in RecordBuffer_compact we're gauranteed that self->startTime < other->startTime
-Coverage_array[2129] = "sequence.in.c 783";                    e.stime += (other->startTime - self->startTime);
-Coverage_array[2130] = "sequence.in.c 784";                    NoteEventAr_push(&self->events, e); 
-Coverage_array[2131] = "sequence.in.c 785";                }
-Coverage_array[2132] = "sequence.in.c 786";            }
+Coverage_array[2116] = "sequence.in.c 770";                NoteSequence *other = NoteSequence_castFromSequence(otherSeq);
+Coverage_array[2117] = "sequence.in.c 771";                if (other == NULL) {
+Coverage_array[2118] = "sequence.in.c 772";                    Error_format(err, "NoteSequence_compactConcat was passed a sequence of type %s", Interface_toString(Interface_itype(otherSeq)));
+Coverage_array[2119] = "sequence.in.c 773";                    return;
+Coverage_array[2120] = "sequence.in.c 774";                }
+Coverage_array[2121] = "sequence.in.c 775";                NoteEventAr_foreach(it, &other->events) {
+Coverage_array[2122] = "sequence.in.c 776";                    NoteEvent e = *it.var;
+Coverage_array[2123] = "sequence.in.c 777";                    if (NoteSequence_isMarkerValue(e.duration)) {
+Coverage_array[2124] = "sequence.in.c 778";                        continue;
+Coverage_array[2125] = "sequence.in.c 779";                    }
+Coverage_array[2126] = "sequence.in.c 780";                    // Rememver in RecordBuffer_compact we're gauranteed that self->startTime < other->startTime
+Coverage_array[2127] = "sequence.in.c 781";                    e.stime += (other->startTime - self->startTime);
+Coverage_array[2128] = "sequence.in.c 782";                    NoteEventAr_push(&self->events, e); 
+Coverage_array[2129] = "sequence.in.c 783";                }
+Coverage_array[2130] = "sequence.in.c 784";            }
 
                                                        APIF void NoteSequence_compactSortEvents(NoteSequence *self)
                                                        {
-Coverage_array[2133] = "sequence.in.c 790";                NoteEventAr_sort(&self->events);
-Coverage_array[2134] = "sequence.in.c 791";            }
+Coverage_array[2131] = "sequence.in.c 788";                NoteEventAr_sort(&self->events);
+Coverage_array[2132] = "sequence.in.c 789";            }
 
 // Return the time that endgroup should be inserted, or -1 if no endgroup applies.
 // Note we return absolute time.
                                                        APIF Ticks NoteSequence_computeEndgroupTime(NoteSequence *self)
                                                        {
-Coverage_array[2135] = "sequence.in.c 797";                NoteEventAr_sort(&self->events);
-Coverage_array[2136] = "sequence.in.c 798";            
-Coverage_array[2137] = "sequence.in.c 799";                // Endgroup is the 
-Coverage_array[2138] = "sequence.in.c 800";                Ticks endgroupTime = -1;
-Coverage_array[2139] = "sequence.in.c 801";                NoteEventAr_rforeach(it, &self->events) {
-Coverage_array[2140] = "sequence.in.c 802";                    if (NoteSequence_isMarkerValue(it.var->duration)) {
-Coverage_array[2141] = "sequence.in.c 803";                        continue;
-Coverage_array[2142] = "sequence.in.c 804";                    }
-Coverage_array[2143] = "sequence.in.c 805";                    endgroupTime = self->startTime + it.var->stime;
-Coverage_array[2144] = "sequence.in.c 806";                    break;
-Coverage_array[2145] = "sequence.in.c 807";                }
-Coverage_array[2146] = "sequence.in.c 808";                return endgroupTime;
-Coverage_array[2147] = "sequence.in.c 809";            }
+Coverage_array[2133] = "sequence.in.c 795";                NoteEventAr_sort(&self->events);
+Coverage_array[2134] = "sequence.in.c 796";            
+Coverage_array[2135] = "sequence.in.c 797";                // Endgroup is the 
+Coverage_array[2136] = "sequence.in.c 798";                Ticks endgroupTime = -1;
+Coverage_array[2137] = "sequence.in.c 799";                NoteEventAr_rforeach(it, &self->events) {
+Coverage_array[2138] = "sequence.in.c 800";                    if (NoteSequence_isMarkerValue(it.var->duration)) {
+Coverage_array[2139] = "sequence.in.c 801";                        continue;
+Coverage_array[2140] = "sequence.in.c 802";                    }
+Coverage_array[2141] = "sequence.in.c 803";                    endgroupTime = self->startTime + it.var->stime;
+Coverage_array[2142] = "sequence.in.c 804";                    break;
+Coverage_array[2143] = "sequence.in.c 805";                }
+Coverage_array[2144] = "sequence.in.c 806";                return endgroupTime;
+Coverage_array[2145] = "sequence.in.c 807";            }
 
                                                        APIF Ticks NoteSequence_compactComputeSequenceLength(NoteSequence *self)
                                                        {
-Coverage_array[2148] = "sequence.in.c 813";                Ticks lastTime = Sequence_minSequenceLength;
-Coverage_array[2149] = "sequence.in.c 814";                NoteEventAr_rforeach(it, &self->events) {
-Coverage_array[2150] = "sequence.in.c 815";                    if (NoteSequence_isMarkerValue(it.var->duration)) {
-Coverage_array[2151] = "sequence.in.c 816";                        continue;
-Coverage_array[2152] = "sequence.in.c 817";                    }
-Coverage_array[2153] = "sequence.in.c 818";                    Ticks end = it.var->stime + it.var->duration;
-Coverage_array[2154] = "sequence.in.c 819";                    if (end > lastTime) {
-Coverage_array[2155] = "sequence.in.c 820";                        lastTime = end;
-Coverage_array[2156] = "sequence.in.c 821";                    }
-Coverage_array[2157] = "sequence.in.c 822";                }
-Coverage_array[2158] = "sequence.in.c 823";            
-Coverage_array[2159] = "sequence.in.c 824";                MusicalContext_declareDefault(musicalContext);
-Coverage_array[2160] = "sequence.in.c 825";                Ticks mlen   = musicalContext.quarterNotesPerMeasure*musicalContext.ticksPerQuarterNote;
-Coverage_array[2161] = "sequence.in.c 826";                Ticks seqLen = (lastTime/mlen)*mlen + (lastTime % mlen == 0 ? 0 : mlen);
-Coverage_array[2162] = "sequence.in.c 827";                if (seqLen < Sequence_minSequenceLength) {
-Coverage_array[2163] = "sequence.in.c 828";                    seqLen = Sequence_minSequenceLength;
-Coverage_array[2164] = "sequence.in.c 829";                }
-Coverage_array[2165] = "sequence.in.c 830";                return seqLen;
-Coverage_array[2166] = "sequence.in.c 831";            }
+Coverage_array[2146] = "sequence.in.c 811";                Ticks lastTime = Sequence_minSequenceLength;
+Coverage_array[2147] = "sequence.in.c 812";                NoteEventAr_rforeach(it, &self->events) {
+Coverage_array[2148] = "sequence.in.c 813";                    if (NoteSequence_isMarkerValue(it.var->duration)) {
+Coverage_array[2149] = "sequence.in.c 814";                        continue;
+Coverage_array[2150] = "sequence.in.c 815";                    }
+Coverage_array[2151] = "sequence.in.c 816";                    Ticks end = it.var->stime + it.var->duration;
+Coverage_array[2152] = "sequence.in.c 817";                    if (end > lastTime) {
+Coverage_array[2153] = "sequence.in.c 818";                        lastTime = end;
+Coverage_array[2154] = "sequence.in.c 819";                    }
+Coverage_array[2155] = "sequence.in.c 820";                }
+Coverage_array[2156] = "sequence.in.c 821";            
+Coverage_array[2157] = "sequence.in.c 822";                MusicalContext_declareDefault(musicalContext);
+Coverage_array[2158] = "sequence.in.c 823";                Ticks mlen   = musicalContext.quarterNotesPerMeasure*musicalContext.ticksPerQuarterNote;
+Coverage_array[2159] = "sequence.in.c 824";                Ticks seqLen = (lastTime/mlen)*mlen + (lastTime % mlen == 0 ? 0 : mlen);
+Coverage_array[2160] = "sequence.in.c 825";                if (seqLen < Sequence_minSequenceLength) {
+Coverage_array[2161] = "sequence.in.c 826";                    seqLen = Sequence_minSequenceLength;
+Coverage_array[2162] = "sequence.in.c 827";                }
+Coverage_array[2163] = "sequence.in.c 828";                return seqLen;
+Coverage_array[2164] = "sequence.in.c 829";            }
 
                                                        APIF void NoteSequence_compactFinish(NoteSequence *self, Ticks endgroupTime, Ticks sequenceLength, Error *err)
                                                        {
-Coverage_array[2167] = "sequence.in.c 835";                if (endgroupTime >= 0) {
-Coverage_array[2168] = "sequence.in.c 836";                    int index = NoteEventAr_len(&self->events) > 0 ? 0 : -1;
-Coverage_array[2169] = "sequence.in.c 837";                    NoteEventAr_rforeach(it, &self->events) {
-Coverage_array[2170] = "sequence.in.c 838";                        if (NoteSequence_isMarkerValue(it.var->duration)) {
-Coverage_array[2171] = "sequence.in.c 839";                            continue;
-Coverage_array[2172] = "sequence.in.c 840";                        }
-Coverage_array[2173] = "sequence.in.c 841";                        if (self->startTime + it.var->stime < endgroupTime) {
-Coverage_array[2174] = "sequence.in.c 842";                            index = it.index + 1;
-Coverage_array[2175] = "sequence.in.c 843";                            break;
-Coverage_array[2176] = "sequence.in.c 844";                        }
-Coverage_array[2177] = "sequence.in.c 845";                    }
-Coverage_array[2178] = "sequence.in.c 846";                    if (index >= 0) {
-Coverage_array[2179] = "sequence.in.c 847";                        Error_declare(err);
-Coverage_array[2180] = "sequence.in.c 848";                        NoteEvent newEv = {.stime = endgroupTime, .duration = NoteSequence_endgDuration, .pitch = 0, .velocity = 0};
-Coverage_array[2181] = "sequence.in.c 849";                        NoteEventAr_insert(&self->events, index, newEv, err);
-Coverage_array[2182] = "sequence.in.c 850";                        Error_maypost(err);
-Coverage_array[2183] = "sequence.in.c 851";                    }
-Coverage_array[2184] = "sequence.in.c 852";                }
-Coverage_array[2185] = "sequence.in.c 853";            
-Coverage_array[2186] = "sequence.in.c 854";            
-Coverage_array[2187] = "sequence.in.c 855";                self->sequenceLength = sequenceLength;
-Coverage_array[2188] = "sequence.in.c 856";                NoteEvent newEv = {.stime = sequenceLength, .duration = NoteSequence_endgDuration, .pitch = 0, .velocity = 0};
-Coverage_array[2189] = "sequence.in.c 857";                NoteEventAr_push(&self->events, newEv);
-Coverage_array[2190] = "sequence.in.c 858";            
-Coverage_array[2191] = "sequence.in.c 859";                NoteSequence_makeConsistent(self, err);
-Coverage_array[2192] = "sequence.in.c 860";                return;
-Coverage_array[2193] = "sequence.in.c 861";            }
+Coverage_array[2165] = "sequence.in.c 833";                if (endgroupTime >= 0) {
+Coverage_array[2166] = "sequence.in.c 834";                    int index = NoteEventAr_len(&self->events) > 0 ? 0 : -1;
+Coverage_array[2167] = "sequence.in.c 835";                    NoteEventAr_rforeach(it, &self->events) {
+Coverage_array[2168] = "sequence.in.c 836";                        if (NoteSequence_isMarkerValue(it.var->duration)) {
+Coverage_array[2169] = "sequence.in.c 837";                            continue;
+Coverage_array[2170] = "sequence.in.c 838";                        }
+Coverage_array[2171] = "sequence.in.c 839";                        if (self->startTime + it.var->stime < endgroupTime) {
+Coverage_array[2172] = "sequence.in.c 840";                            index = it.index + 1;
+Coverage_array[2173] = "sequence.in.c 841";                            break;
+Coverage_array[2174] = "sequence.in.c 842";                        }
+Coverage_array[2175] = "sequence.in.c 843";                    }
+Coverage_array[2176] = "sequence.in.c 844";                    if (index >= 0) {
+Coverage_array[2177] = "sequence.in.c 845";                        Error_declare(err);
+Coverage_array[2178] = "sequence.in.c 846";                        NoteEvent newEv = {.stime = endgroupTime, .duration = NoteSequence_endgDuration, .pitch = 0, .velocity = 0};
+Coverage_array[2179] = "sequence.in.c 847";                        NoteEventAr_insert(&self->events, index, newEv, err);
+Coverage_array[2180] = "sequence.in.c 848";                        Error_maypost(err);
+Coverage_array[2181] = "sequence.in.c 849";                    }
+Coverage_array[2182] = "sequence.in.c 850";                }
+Coverage_array[2183] = "sequence.in.c 851";            
+Coverage_array[2184] = "sequence.in.c 852";            
+Coverage_array[2185] = "sequence.in.c 853";                self->sequenceLength = sequenceLength;
+Coverage_array[2186] = "sequence.in.c 854";                NoteEvent newEv = {.stime = sequenceLength, .duration = NoteSequence_endgDuration, .pitch = 0, .velocity = 0};
+Coverage_array[2187] = "sequence.in.c 855";                NoteEventAr_push(&self->events, newEv);
+Coverage_array[2188] = "sequence.in.c 856";            
+Coverage_array[2189] = "sequence.in.c 857";                NoteSequence_makeConsistent(self, err);
+Coverage_array[2190] = "sequence.in.c 858";                return;
+Coverage_array[2191] = "sequence.in.c 859";            }
 
-#line 883 "src/sequence.in.c"
+#line 881 "src/sequence.in.c"
 
                                                        APIF int FloatEvent_cmp(FloatEvent *left, FloatEvent *right)
                                                        {
-Coverage_array[2194] = "sequence.in.c 886";                if (left->stime < right->stime) {
-Coverage_array[2195] = "sequence.in.c 887";                    return -1;
-Coverage_array[2196] = "sequence.in.c 888";                } else if (left->stime > right->stime) {
-Coverage_array[2197] = "sequence.in.c 889";                    return 1;
-Coverage_array[2198] = "sequence.in.c 890";                }
-Coverage_array[2199] = "sequence.in.c 891";                return 0;
-Coverage_array[2200] = "sequence.in.c 892";            }
+Coverage_array[2192] = "sequence.in.c 884";                if (left->stime < right->stime) {
+Coverage_array[2193] = "sequence.in.c 885";                    return -1;
+Coverage_array[2194] = "sequence.in.c 886";                } else if (left->stime > right->stime) {
+Coverage_array[2195] = "sequence.in.c 887";                    return 1;
+Coverage_array[2196] = "sequence.in.c 888";                }
+Coverage_array[2197] = "sequence.in.c 889";                return 0;
+Coverage_array[2198] = "sequence.in.c 890";            }
 
-#line 947 "src/sequence.in.c"
+#line 945 "src/sequence.in.c"
 
                                                        APIF FloatSequence *FloatSequence_newCc(Symbol *track, int cc, PortFind *portFind) 
                                                        {
-Coverage_array[2201] = "sequence.in.c 950";                FloatSequence *self   = FloatSequence_new();
-Coverage_array[2202] = "sequence.in.c 951";                self->outletSpecifier = OutletSpecifier_makeCC(track, cc);
-Coverage_array[2203] = "sequence.in.c 952";                self->outlet          = PortFind_createOutlet(portFind, &self->outletSpecifier);
-Coverage_array[2204] = "sequence.in.c 953";                return self;
-Coverage_array[2205] = "sequence.in.c 954";            }
+Coverage_array[2199] = "sequence.in.c 948";                FloatSequence *self   = FloatSequence_new();
+Coverage_array[2200] = "sequence.in.c 949";                self->outletSpecifier = OutletSpecifier_makeCC(track, cc);
+Coverage_array[2201] = "sequence.in.c 950";                self->outlet          = PortFind_createOutlet(portFind, &self->outletSpecifier);
+Coverage_array[2202] = "sequence.in.c 951";                return self;
+Coverage_array[2203] = "sequence.in.c 952";            }
 
                                                        APIF FloatSequence *FloatSequence_newBend(Symbol *track, PortFind *portFind) 
                                                        {
-Coverage_array[2206] = "sequence.in.c 958";                FloatSequence *self   = FloatSequence_new();
-Coverage_array[2207] = "sequence.in.c 959";                self->outletSpecifier = OutletSpecifier_makeBend(track);
-Coverage_array[2208] = "sequence.in.c 960";                self->outlet          = PortFind_createOutlet(portFind, &self->outletSpecifier);
-Coverage_array[2209] = "sequence.in.c 961";                return self;
-Coverage_array[2210] = "sequence.in.c 962";            }
+Coverage_array[2204] = "sequence.in.c 956";                FloatSequence *self   = FloatSequence_new();
+Coverage_array[2205] = "sequence.in.c 957";                self->outletSpecifier = OutletSpecifier_makeBend(track);
+Coverage_array[2206] = "sequence.in.c 958";                self->outlet          = PortFind_createOutlet(portFind, &self->outletSpecifier);
+Coverage_array[2207] = "sequence.in.c 959";                return self;
+Coverage_array[2208] = "sequence.in.c 960";            }
 
                                                        APIF FloatSequence *FloatSequence_newFromEvents(Symbol *track, int ccOrNegForBend, PortFind *portFind, int argc, FloatEvent *argv) 
                                                        {
-Coverage_array[2211] = "sequence.in.c 966";                FloatSequence *self = NULL;
-Coverage_array[2212] = "sequence.in.c 967";                if (ccOrNegForBend >= 0) {
-Coverage_array[2213] = "sequence.in.c 968";                    self = FloatSequence_newCc(track, ccOrNegForBend, portFind);
-Coverage_array[2214] = "sequence.in.c 969";                } else {
-Coverage_array[2215] = "sequence.in.c 970";                    self = FloatSequence_newBend(track, portFind);
-Coverage_array[2216] = "sequence.in.c 971";                }
-Coverage_array[2217] = "sequence.in.c 972";                FloatEventAr_truncate(&self->events);
-Coverage_array[2218] = "sequence.in.c 973";                for (int i = 0; i < argc; i++) {
-Coverage_array[2219] = "sequence.in.c 974";                    FloatEventAr_push(&self->events, argv[i]);
-Coverage_array[2220] = "sequence.in.c 975";                }
-Coverage_array[2221] = "sequence.in.c 976";                FloatSequence_makeConsistent(self);
-Coverage_array[2222] = "sequence.in.c 977";                return self;
-Coverage_array[2223] = "sequence.in.c 978";            }
+Coverage_array[2209] = "sequence.in.c 964";                FloatSequence *self = NULL;
+Coverage_array[2210] = "sequence.in.c 965";                if (ccOrNegForBend >= 0) {
+Coverage_array[2211] = "sequence.in.c 966";                    self = FloatSequence_newCc(track, ccOrNegForBend, portFind);
+Coverage_array[2212] = "sequence.in.c 967";                } else {
+Coverage_array[2213] = "sequence.in.c 968";                    self = FloatSequence_newBend(track, portFind);
+Coverage_array[2214] = "sequence.in.c 969";                }
+Coverage_array[2215] = "sequence.in.c 970";                FloatEventAr_truncate(&self->events);
+Coverage_array[2216] = "sequence.in.c 971";                for (int i = 0; i < argc; i++) {
+Coverage_array[2217] = "sequence.in.c 972";                    FloatEventAr_push(&self->events, argv[i]);
+Coverage_array[2218] = "sequence.in.c 973";                }
+Coverage_array[2219] = "sequence.in.c 974";                FloatSequence_makeConsistent(self);
+Coverage_array[2220] = "sequence.in.c 975";                return self;
+Coverage_array[2221] = "sequence.in.c 976";            }
 
 
 double FloatSequence_endgMarker  = -1.0e40;
@@ -10954,195 +10998,195 @@ double FloatSequence_cycleMarker = -1.0e41;
 #define FloatSequence_isMarkerValue(v) (v < -1.0e10)
 
                                                        APIF void FloatSequence_start(FloatSequence *self, Ticks clockStart, Ticks current, TimedPq *queue, RecordBuffer *recordBuffer, Error *err) {
-Coverage_array[2224] = "sequence.in.c 986";                int nevents = FloatEventAr_len(&self->events);
-Coverage_array[2225] = "sequence.in.c 987";                if (nevents <= 0) {
-Coverage_array[2226] = "sequence.in.c 988";                    return;
-Coverage_array[2227] = "sequence.in.c 989";                }
-Coverage_array[2228] = "sequence.in.c 990";            
-Coverage_array[2229] = "sequence.in.c 991";                self->startTime    = self->cycle ? clockStart : current;
-Coverage_array[2230] = "sequence.in.c 992";                self->cursor       = 0;
-Coverage_array[2231] = "sequence.in.c 993";                self->inEndgroup   = false;
-Coverage_array[2232] = "sequence.in.c 994";                Ticks nextEvent    = 0;
-Coverage_array[2233] = "sequence.in.c 995";                if (self->cycle) {
-Coverage_array[2234] = "sequence.in.c 996";                    if (self->sequenceLength <= Sequence_minSequenceLength) {
-Coverage_array[2235] = "sequence.in.c 997";                        self->sequenceLength = Sequence_minSequenceLength;
-Coverage_array[2236] = "sequence.in.c 998";                    }
-Coverage_array[2237] = "sequence.in.c 999";                    while (current-self->startTime > self->sequenceLength) {
-Coverage_array[2238] = "sequence.in.c 1000";                       self->startTime += self->sequenceLength;
-Coverage_array[2239] = "sequence.in.c 1001";                   }
-Coverage_array[2240] = "sequence.in.c 1002";           
-Coverage_array[2241] = "sequence.in.c 1003";                   FloatEventAr_foreach(it, &self->events) {
-Coverage_array[2242] = "sequence.in.c 1004";                       if (it.var->stime + self->startTime > current) {
-Coverage_array[2243] = "sequence.in.c 1005";                           nextEvent = it.var->stime + self->startTime;
-Coverage_array[2244] = "sequence.in.c 1006";                           break;
-Coverage_array[2245] = "sequence.in.c 1007";                       }
-Coverage_array[2246] = "sequence.in.c 1008";                       self->cursor++;
-Coverage_array[2247] = "sequence.in.c 1009";                   }
-Coverage_array[2248] = "sequence.in.c 1010";                   if (self->cursor >= nevents) {
-Coverage_array[2249] = "sequence.in.c 1011";                       self->startTime += self->sequenceLength;
-Coverage_array[2250] = "sequence.in.c 1012";                       nextEvent        = self->startTime;
-Coverage_array[2251] = "sequence.in.c 1013";                       self->cursor     = 0;
-Coverage_array[2252] = "sequence.in.c 1014";                   }
-Coverage_array[2253] = "sequence.in.c 1015";               } else {
-Coverage_array[2254] = "sequence.in.c 1016";                   FloatEventAr_foreach(it, &self->events) {
-Coverage_array[2255] = "sequence.in.c 1017";                       nextEvent = it.var->stime + self->startTime;
-Coverage_array[2256] = "sequence.in.c 1018";                       break;
-Coverage_array[2257] = "sequence.in.c 1019";                   }
-Coverage_array[2258] = "sequence.in.c 1020";               }
-Coverage_array[2259] = "sequence.in.c 1021";           
-Coverage_array[2260] = "sequence.in.c 1022";               self->recordingSeq = NULL;
-Coverage_array[2261] = "sequence.in.c 1023";               if (recordBuffer != NULL) {
-Coverage_array[2262] = "sequence.in.c 1024";                   FloatSequence *other = FloatSequence_castFromSequence(FloatSequence_compactNew(self, self->startTime));        
-Coverage_array[2263] = "sequence.in.c 1025";                   self->recordingSeq  = other;    
-Coverage_array[2264] = "sequence.in.c 1026";                   RecordBuffer_push(recordBuffer, FloatSequence_castToSequence(other));
-Coverage_array[2265] = "sequence.in.c 1027";               }
-Coverage_array[2266] = "sequence.in.c 1028";           
-Coverage_array[2267] = "sequence.in.c 1029";               TimedPq_enqueue(queue, nextEvent, FloatSequence_castToSequence(self));
-Coverage_array[2268] = "sequence.in.c 1030";           }
+Coverage_array[2222] = "sequence.in.c 984";                int nevents = FloatEventAr_len(&self->events);
+Coverage_array[2223] = "sequence.in.c 985";                if (nevents <= 0) {
+Coverage_array[2224] = "sequence.in.c 986";                    return;
+Coverage_array[2225] = "sequence.in.c 987";                }
+Coverage_array[2226] = "sequence.in.c 988";            
+Coverage_array[2227] = "sequence.in.c 989";                self->startTime    = self->cycle ? clockStart : current;
+Coverage_array[2228] = "sequence.in.c 990";                self->cursor       = 0;
+Coverage_array[2229] = "sequence.in.c 991";                self->inEndgroup   = false;
+Coverage_array[2230] = "sequence.in.c 992";                Ticks nextEvent    = 0;
+Coverage_array[2231] = "sequence.in.c 993";                if (self->cycle) {
+Coverage_array[2232] = "sequence.in.c 994";                    if (self->sequenceLength <= Sequence_minSequenceLength) {
+Coverage_array[2233] = "sequence.in.c 995";                        self->sequenceLength = Sequence_minSequenceLength;
+Coverage_array[2234] = "sequence.in.c 996";                    }
+Coverage_array[2235] = "sequence.in.c 997";                    while (current-self->startTime > self->sequenceLength) {
+Coverage_array[2236] = "sequence.in.c 998";                        self->startTime += self->sequenceLength;
+Coverage_array[2237] = "sequence.in.c 999";                    }
+Coverage_array[2238] = "sequence.in.c 1000";           
+Coverage_array[2239] = "sequence.in.c 1001";                   FloatEventAr_foreach(it, &self->events) {
+Coverage_array[2240] = "sequence.in.c 1002";                       if (it.var->stime + self->startTime > current) {
+Coverage_array[2241] = "sequence.in.c 1003";                           nextEvent = it.var->stime + self->startTime;
+Coverage_array[2242] = "sequence.in.c 1004";                           break;
+Coverage_array[2243] = "sequence.in.c 1005";                       }
+Coverage_array[2244] = "sequence.in.c 1006";                       self->cursor++;
+Coverage_array[2245] = "sequence.in.c 1007";                   }
+Coverage_array[2246] = "sequence.in.c 1008";                   if (self->cursor >= nevents) {
+Coverage_array[2247] = "sequence.in.c 1009";                       self->startTime += self->sequenceLength;
+Coverage_array[2248] = "sequence.in.c 1010";                       nextEvent        = self->startTime;
+Coverage_array[2249] = "sequence.in.c 1011";                       self->cursor     = 0;
+Coverage_array[2250] = "sequence.in.c 1012";                   }
+Coverage_array[2251] = "sequence.in.c 1013";               } else {
+Coverage_array[2252] = "sequence.in.c 1014";                   FloatEventAr_foreach(it, &self->events) {
+Coverage_array[2253] = "sequence.in.c 1015";                       nextEvent = it.var->stime + self->startTime;
+Coverage_array[2254] = "sequence.in.c 1016";                       break;
+Coverage_array[2255] = "sequence.in.c 1017";                   }
+Coverage_array[2256] = "sequence.in.c 1018";               }
+Coverage_array[2257] = "sequence.in.c 1019";           
+Coverage_array[2258] = "sequence.in.c 1020";               self->recordingSeq = NULL;
+Coverage_array[2259] = "sequence.in.c 1021";               if (recordBuffer != NULL) {
+Coverage_array[2260] = "sequence.in.c 1022";                   FloatSequence *other = FloatSequence_castFromSequence(FloatSequence_compactNew(self, self->startTime));        
+Coverage_array[2261] = "sequence.in.c 1023";                   self->recordingSeq  = other;    
+Coverage_array[2262] = "sequence.in.c 1024";                   RecordBuffer_push(recordBuffer, FloatSequence_castToSequence(other));
+Coverage_array[2263] = "sequence.in.c 1025";               }
+Coverage_array[2264] = "sequence.in.c 1026";           
+Coverage_array[2265] = "sequence.in.c 1027";               TimedPq_enqueue(queue, nextEvent, FloatSequence_castToSequence(self));
+Coverage_array[2266] = "sequence.in.c 1028";           }
 
                                                        APIF void FloatSequence_drive(FloatSequence *self, Ticks current, TimedPq *queue, Error *err) {
-Coverage_array[2269] = "sequence.in.c 1033";               Ticks nextEvent = -1;
-Coverage_array[2270] = "sequence.in.c 1034";               for (;;) {
-Coverage_array[2271] = "sequence.in.c 1035";                   FloatEventAr_foreachOffset(it, &self->events, self->cursor) {
-Coverage_array[2272] = "sequence.in.c 1036";                       FloatEvent *fe = it.var;
-Coverage_array[2273] = "sequence.in.c 1037";                       if (fe->stime + self->startTime > current) {
-Coverage_array[2274] = "sequence.in.c 1038";                           nextEvent = fe->stime + self->startTime;
-Coverage_array[2275] = "sequence.in.c 1039";                           goto DONE;
-Coverage_array[2276] = "sequence.in.c 1040";                       }
-Coverage_array[2277] = "sequence.in.c 1041";                       if (fe->value == FloatSequence_endgMarker) {
-Coverage_array[2278] = "sequence.in.c 1042";                           self->inEndgroup = true;
-Coverage_array[2279] = "sequence.in.c 1043";                       } else if (fe->value == FloatSequence_cycleMarker) {
-Coverage_array[2280] = "sequence.in.c 1044";                           // Do nothing
-Coverage_array[2281] = "sequence.in.c 1045";                       } else {
-Coverage_array[2282] = "sequence.in.c 1046";                           Outlet_sendFloat(self->outlet, fe->value, err);
-Coverage_array[2283] = "sequence.in.c 1047";                       }
-Coverage_array[2284] = "sequence.in.c 1048";           
-Coverage_array[2285] = "sequence.in.c 1049";                       if (self->recordingSeq != NULL && !FloatSequence_isMarkerValue(fe->value)) {
-Coverage_array[2286] = "sequence.in.c 1050";                           FloatEvent e = *fe;
-Coverage_array[2287] = "sequence.in.c 1051";                           e.stime      = self->recordingSeq->startTime + fe->stime;
-Coverage_array[2288] = "sequence.in.c 1052";                           FloatEventAr_push(&self->recordingSeq->events, e);
-Coverage_array[2289] = "sequence.in.c 1053";                       }
-Coverage_array[2290] = "sequence.in.c 1054";                       self->cursor++;
-Coverage_array[2291] = "sequence.in.c 1055";                   }
-Coverage_array[2292] = "sequence.in.c 1056";                   if (self->cycle) {
-Coverage_array[2293] = "sequence.in.c 1057";                       if (self->sequenceLength <= Sequence_minSequenceLength) {
-Coverage_array[2294] = "sequence.in.c 1058";                           self->sequenceLength = Sequence_minSequenceLength;
-Coverage_array[2295] = "sequence.in.c 1059";                       }
-Coverage_array[2296] = "sequence.in.c 1060";                       self->startTime += self->sequenceLength;
-Coverage_array[2297] = "sequence.in.c 1061";                       self->cursor     = 0;
-Coverage_array[2298] = "sequence.in.c 1062";                   } else {
-Coverage_array[2299] = "sequence.in.c 1063";                       goto DONE;
-Coverage_array[2300] = "sequence.in.c 1064";                   }
-Coverage_array[2301] = "sequence.in.c 1065";               }
-Coverage_array[2302] = "sequence.in.c 1066";              DONE:
-Coverage_array[2303] = "sequence.in.c 1067";               if (nextEvent >= 0) {
-Coverage_array[2304] = "sequence.in.c 1068";                   TimedPq_enqueue(queue, nextEvent, FloatSequence_castToSequence(self));
-Coverage_array[2305] = "sequence.in.c 1069";               }
-Coverage_array[2306] = "sequence.in.c 1070";           }
+Coverage_array[2267] = "sequence.in.c 1031";               Ticks nextEvent = -1;
+Coverage_array[2268] = "sequence.in.c 1032";               for (;;) {
+Coverage_array[2269] = "sequence.in.c 1033";                   FloatEventAr_foreachOffset(it, &self->events, self->cursor) {
+Coverage_array[2270] = "sequence.in.c 1034";                       FloatEvent *fe = it.var;
+Coverage_array[2271] = "sequence.in.c 1035";                       if (fe->stime + self->startTime > current) {
+Coverage_array[2272] = "sequence.in.c 1036";                           nextEvent = fe->stime + self->startTime;
+Coverage_array[2273] = "sequence.in.c 1037";                           goto DONE;
+Coverage_array[2274] = "sequence.in.c 1038";                       }
+Coverage_array[2275] = "sequence.in.c 1039";                       if (fe->value == FloatSequence_endgMarker) {
+Coverage_array[2276] = "sequence.in.c 1040";                           self->inEndgroup = true;
+Coverage_array[2277] = "sequence.in.c 1041";                       } else if (fe->value == FloatSequence_cycleMarker) {
+Coverage_array[2278] = "sequence.in.c 1042";                           // Do nothing
+Coverage_array[2279] = "sequence.in.c 1043";                       } else {
+Coverage_array[2280] = "sequence.in.c 1044";                           Outlet_sendFloat(self->outlet, fe->value, err);
+Coverage_array[2281] = "sequence.in.c 1045";                       }
+Coverage_array[2282] = "sequence.in.c 1046";           
+Coverage_array[2283] = "sequence.in.c 1047";                       if (self->recordingSeq != NULL && !FloatSequence_isMarkerValue(fe->value)) {
+Coverage_array[2284] = "sequence.in.c 1048";                           FloatEvent e = *fe;
+Coverage_array[2285] = "sequence.in.c 1049";                           e.stime      = self->recordingSeq->startTime + fe->stime;
+Coverage_array[2286] = "sequence.in.c 1050";                           FloatEventAr_push(&self->recordingSeq->events, e);
+Coverage_array[2287] = "sequence.in.c 1051";                       }
+Coverage_array[2288] = "sequence.in.c 1052";                       self->cursor++;
+Coverage_array[2289] = "sequence.in.c 1053";                   }
+Coverage_array[2290] = "sequence.in.c 1054";                   if (self->cycle) {
+Coverage_array[2291] = "sequence.in.c 1055";                       if (self->sequenceLength <= Sequence_minSequenceLength) {
+Coverage_array[2292] = "sequence.in.c 1056";                           self->sequenceLength = Sequence_minSequenceLength;
+Coverage_array[2293] = "sequence.in.c 1057";                       }
+Coverage_array[2294] = "sequence.in.c 1058";                       self->startTime += self->sequenceLength;
+Coverage_array[2295] = "sequence.in.c 1059";                       self->cursor     = 0;
+Coverage_array[2296] = "sequence.in.c 1060";                   } else {
+Coverage_array[2297] = "sequence.in.c 1061";                       goto DONE;
+Coverage_array[2298] = "sequence.in.c 1062";                   }
+Coverage_array[2299] = "sequence.in.c 1063";               }
+Coverage_array[2300] = "sequence.in.c 1064";              DONE:
+Coverage_array[2301] = "sequence.in.c 1065";               if (nextEvent >= 0) {
+Coverage_array[2302] = "sequence.in.c 1066";                   TimedPq_enqueue(queue, nextEvent, FloatSequence_castToSequence(self));
+Coverage_array[2303] = "sequence.in.c 1067";               }
+Coverage_array[2304] = "sequence.in.c 1068";           }
 
                                                        APIF void FloatSequence_stop(FloatSequence *self, Ticks current, Error *err) {
-Coverage_array[2307] = "sequence.in.c 1073";               self->cursor       = FloatEventAr_len(&self->events);
-Coverage_array[2308] = "sequence.in.c 1074";               self->version++;
-Coverage_array[2309] = "sequence.in.c 1075";               self->recordingSeq = NULL;
-Coverage_array[2310] = "sequence.in.c 1076";               Outlet_sendFloat(self->outlet, self->restoreValue, err);
-Coverage_array[2311] = "sequence.in.c 1077";           }
+Coverage_array[2305] = "sequence.in.c 1071";               self->cursor       = FloatEventAr_len(&self->events);
+Coverage_array[2306] = "sequence.in.c 1072";               self->version++;
+Coverage_array[2307] = "sequence.in.c 1073";               self->recordingSeq = NULL;
+Coverage_array[2308] = "sequence.in.c 1074";               Outlet_sendFloat(self->outlet, self->restoreValue, err);
+Coverage_array[2309] = "sequence.in.c 1075";           }
 
-                                                       APIF void FloatSequence_padNoteOff(FloatSequence *self, int padIndex, Ticks current, Error *err) {
-Coverage_array[2312] = "sequence.in.c 1080";               if (self->inEndgroup && !self->cycle) {
-Coverage_array[2313] = "sequence.in.c 1081";                   FloatSequence_stop(self, current, err);
-Coverage_array[2314] = "sequence.in.c 1082";               }
-Coverage_array[2315] = "sequence.in.c 1083";           }
+                                                       APIF void FloatSequence_padNoteOff(FloatSequence *self, Ticks current, Error *err) {
+Coverage_array[2310] = "sequence.in.c 1078";               if (self->inEndgroup && !self->cycle) {
+Coverage_array[2311] = "sequence.in.c 1079";                   FloatSequence_stop(self, current, err);
+Coverage_array[2312] = "sequence.in.c 1080";               }
+Coverage_array[2313] = "sequence.in.c 1081";           }
 
                                                        APIF void FloatSequence_makeConsistent(FloatSequence *self)
                                                        {
-Coverage_array[2316] = "sequence.in.c 1087";               FloatEventAr_sort(&self->events);
-Coverage_array[2317] = "sequence.in.c 1088";               double seen = -1;
-Coverage_array[2318] = "sequence.in.c 1089";               FloatEventAr_rforeach(it, &self->events) {
-Coverage_array[2319] = "sequence.in.c 1090";                   if (seen == it.var->stime) {
-Coverage_array[2320] = "sequence.in.c 1091";                       FloatEventArRIt_remove(&it);
-Coverage_array[2321] = "sequence.in.c 1092";                   }
-Coverage_array[2322] = "sequence.in.c 1093";                   seen = it.var->stime;
-Coverage_array[2323] = "sequence.in.c 1094";               }
-Coverage_array[2324] = "sequence.in.c 1095";           }
+Coverage_array[2314] = "sequence.in.c 1085";               FloatEventAr_sort(&self->events);
+Coverage_array[2315] = "sequence.in.c 1086";               double seen = -1;
+Coverage_array[2316] = "sequence.in.c 1087";               FloatEventAr_rforeach(it, &self->events) {
+Coverage_array[2317] = "sequence.in.c 1088";                   if (seen == it.var->stime) {
+Coverage_array[2318] = "sequence.in.c 1089";                       FloatEventArRIt_remove(&it);
+Coverage_array[2319] = "sequence.in.c 1090";                   }
+Coverage_array[2320] = "sequence.in.c 1091";                   seen = it.var->stime;
+Coverage_array[2321] = "sequence.in.c 1092";               }
+Coverage_array[2322] = "sequence.in.c 1093";           }
 
                                                        APIF Sequence *FloatSequence_compactNew(FloatSequence *self, Ticks recordStart)
                                                        {
-Coverage_array[2325] = "sequence.in.c 1099";               FloatSequence *other   = FloatSequence_new();
-Coverage_array[2326] = "sequence.in.c 1100";               other->startTime       = recordStart;
-Coverage_array[2327] = "sequence.in.c 1101";               other->outletSpecifier = self->outletSpecifier;
-Coverage_array[2328] = "sequence.in.c 1102";               other->outlet          = self->outlet;
-Coverage_array[2329] = "sequence.in.c 1103";               return FloatSequence_castToSequence(other);
-Coverage_array[2330] = "sequence.in.c 1104";           }
+Coverage_array[2323] = "sequence.in.c 1097";               FloatSequence *other   = FloatSequence_new();
+Coverage_array[2324] = "sequence.in.c 1098";               other->startTime       = recordStart;
+Coverage_array[2325] = "sequence.in.c 1099";               other->outletSpecifier = self->outletSpecifier;
+Coverage_array[2326] = "sequence.in.c 1100";               other->outlet          = self->outlet;
+Coverage_array[2327] = "sequence.in.c 1101";               return FloatSequence_castToSequence(other);
+Coverage_array[2328] = "sequence.in.c 1102";           }
 
                                                        APIF void FloatSequence_compactConcat(FloatSequence *self, Sequence *otherSeq, Error *err)
                                                        {
-Coverage_array[2331] = "sequence.in.c 1108";               FloatSequence *other = FloatSequence_castFromSequence(otherSeq);
-Coverage_array[2332] = "sequence.in.c 1109";               if (other == NULL) {
-Coverage_array[2333] = "sequence.in.c 1110";                   Error_format(err, "FloatSequence_compactConcat was passed a sequence of type %s", Interface_toString(Interface_itype(otherSeq)));
-Coverage_array[2334] = "sequence.in.c 1111";                   return;
-Coverage_array[2335] = "sequence.in.c 1112";               }
-Coverage_array[2336] = "sequence.in.c 1113";               FloatEventAr_foreach(it, &other->events) {
-Coverage_array[2337] = "sequence.in.c 1114";                   FloatEvent e = *it.var;
-Coverage_array[2338] = "sequence.in.c 1115";                   if (FloatSequence_isMarkerValue(e.value)) {
-Coverage_array[2339] = "sequence.in.c 1116";                       continue;
-Coverage_array[2340] = "sequence.in.c 1117";                   }
-Coverage_array[2341] = "sequence.in.c 1118";                   // Remember that self->startTime == recordStart
-Coverage_array[2342] = "sequence.in.c 1119";                   e.stime += (other->startTime - self->startTime);
-Coverage_array[2343] = "sequence.in.c 1120";                   FloatEventAr_push(&self->events, e); 
-Coverage_array[2344] = "sequence.in.c 1121";               }
-Coverage_array[2345] = "sequence.in.c 1122";               return;
-Coverage_array[2346] = "sequence.in.c 1123";           }
+Coverage_array[2329] = "sequence.in.c 1106";               FloatSequence *other = FloatSequence_castFromSequence(otherSeq);
+Coverage_array[2330] = "sequence.in.c 1107";               if (other == NULL) {
+Coverage_array[2331] = "sequence.in.c 1108";                   Error_format(err, "FloatSequence_compactConcat was passed a sequence of type %s", Interface_toString(Interface_itype(otherSeq)));
+Coverage_array[2332] = "sequence.in.c 1109";                   return;
+Coverage_array[2333] = "sequence.in.c 1110";               }
+Coverage_array[2334] = "sequence.in.c 1111";               FloatEventAr_foreach(it, &other->events) {
+Coverage_array[2335] = "sequence.in.c 1112";                   FloatEvent e = *it.var;
+Coverage_array[2336] = "sequence.in.c 1113";                   if (FloatSequence_isMarkerValue(e.value)) {
+Coverage_array[2337] = "sequence.in.c 1114";                       continue;
+Coverage_array[2338] = "sequence.in.c 1115";                   }
+Coverage_array[2339] = "sequence.in.c 1116";                   // Remember that self->startTime == recordStart
+Coverage_array[2340] = "sequence.in.c 1117";                   e.stime += (other->startTime - self->startTime);
+Coverage_array[2341] = "sequence.in.c 1118";                   FloatEventAr_push(&self->events, e); 
+Coverage_array[2342] = "sequence.in.c 1119";               }
+Coverage_array[2343] = "sequence.in.c 1120";               return;
+Coverage_array[2344] = "sequence.in.c 1121";           }
 
                                                        APIF void FloatSequence_compactSortEvents(FloatSequence *self)
                                                        {
-Coverage_array[2347] = "sequence.in.c 1127";               FloatEventAr_sort(&self->events);
-Coverage_array[2348] = "sequence.in.c 1128";           }
+Coverage_array[2345] = "sequence.in.c 1125";               FloatEventAr_sort(&self->events);
+Coverage_array[2346] = "sequence.in.c 1126";           }
 
                                                        APIF Ticks FloatSequence_compactComputeSequenceLength(FloatSequence *self)
                                                        {
-Coverage_array[2349] = "sequence.in.c 1132";               Ticks lastTime = -1;
-Coverage_array[2350] = "sequence.in.c 1133";               FloatEventAr_rforeach(it, &self->events) {
-Coverage_array[2351] = "sequence.in.c 1134";                   lastTime = it.var->stime;
-Coverage_array[2352] = "sequence.in.c 1135";                   break;
-Coverage_array[2353] = "sequence.in.c 1136";               }
-Coverage_array[2354] = "sequence.in.c 1137";           
-Coverage_array[2355] = "sequence.in.c 1138";               MusicalContext_declareDefault(musicalContext);
-Coverage_array[2356] = "sequence.in.c 1139";               Ticks mlen   = musicalContext.quarterNotesPerMeasure*musicalContext.ticksPerQuarterNote;
-Coverage_array[2357] = "sequence.in.c 1140";               Ticks seqLen = (lastTime/mlen)*mlen + (lastTime % mlen == 0 ? 0 : mlen);
-Coverage_array[2358] = "sequence.in.c 1141";               if (seqLen < Sequence_minSequenceLength) {
-Coverage_array[2359] = "sequence.in.c 1142";                   seqLen = Sequence_minSequenceLength;
-Coverage_array[2360] = "sequence.in.c 1143";               }
-Coverage_array[2361] = "sequence.in.c 1144";               return seqLen;
-Coverage_array[2362] = "sequence.in.c 1145";           }
+Coverage_array[2347] = "sequence.in.c 1130";               Ticks lastTime = -1;
+Coverage_array[2348] = "sequence.in.c 1131";               FloatEventAr_rforeach(it, &self->events) {
+Coverage_array[2349] = "sequence.in.c 1132";                   lastTime = it.var->stime;
+Coverage_array[2350] = "sequence.in.c 1133";                   break;
+Coverage_array[2351] = "sequence.in.c 1134";               }
+Coverage_array[2352] = "sequence.in.c 1135";           
+Coverage_array[2353] = "sequence.in.c 1136";               MusicalContext_declareDefault(musicalContext);
+Coverage_array[2354] = "sequence.in.c 1137";               Ticks mlen   = musicalContext.quarterNotesPerMeasure*musicalContext.ticksPerQuarterNote;
+Coverage_array[2355] = "sequence.in.c 1138";               Ticks seqLen = (lastTime/mlen)*mlen + (lastTime % mlen == 0 ? 0 : mlen);
+Coverage_array[2356] = "sequence.in.c 1139";               if (seqLen < Sequence_minSequenceLength) {
+Coverage_array[2357] = "sequence.in.c 1140";                   seqLen = Sequence_minSequenceLength;
+Coverage_array[2358] = "sequence.in.c 1141";               }
+Coverage_array[2359] = "sequence.in.c 1142";               return seqLen;
+Coverage_array[2360] = "sequence.in.c 1143";           }
 
                                                        APIF void FloatSequence_compactFinish(FloatSequence *self, Ticks endgroupTime, Ticks sequenceLength, Error *err)
                                                        {
-Coverage_array[2363] = "sequence.in.c 1149";               if (endgroupTime >= 0) {
-Coverage_array[2364] = "sequence.in.c 1150";                   int index = FloatEventAr_len(&self->events) > 0 ? 0 : -1;
-Coverage_array[2365] = "sequence.in.c 1151";                   FloatEventAr_rforeach(it, &self->events) {
-Coverage_array[2366] = "sequence.in.c 1152";                       if (FloatSequence_isMarkerValue(it.var->value)) {
-Coverage_array[2367] = "sequence.in.c 1153";                           continue;
-Coverage_array[2368] = "sequence.in.c 1154";                       }
-Coverage_array[2369] = "sequence.in.c 1155";                       if (self->startTime + it.var->stime < endgroupTime) {
-Coverage_array[2370] = "sequence.in.c 1156";                           index = it.index + 1;
-Coverage_array[2371] = "sequence.in.c 1157";                           break;
-Coverage_array[2372] = "sequence.in.c 1158";                       }
-Coverage_array[2373] = "sequence.in.c 1159";                   }
-Coverage_array[2374] = "sequence.in.c 1160";                   if (index >= 0) {
-Coverage_array[2375] = "sequence.in.c 1161";                       FloatEvent newEv = {.stime = endgroupTime, .value = FloatSequence_endgMarker};
-Coverage_array[2376] = "sequence.in.c 1162";                       FloatEventAr_insert(&self->events, index, newEv, err);
-Coverage_array[2377] = "sequence.in.c 1163";                       Error_returnVoidOnError(err);
-Coverage_array[2378] = "sequence.in.c 1164";                   }
-Coverage_array[2379] = "sequence.in.c 1165";               }
-Coverage_array[2380] = "sequence.in.c 1166";           
-Coverage_array[2381] = "sequence.in.c 1167";               self->sequenceLength = sequenceLength;
-Coverage_array[2382] = "sequence.in.c 1168";               FloatEvent newEv = {.stime = sequenceLength, .value = FloatSequence_cycleMarker};
-Coverage_array[2383] = "sequence.in.c 1169";               FloatEventAr_push(&self->events, newEv);
-Coverage_array[2384] = "sequence.in.c 1170";               FloatSequence_makeConsistent(self);
-Coverage_array[2385] = "sequence.in.c 1171";               return;
-Coverage_array[2386] = "sequence.in.c 1172";           }
+Coverage_array[2361] = "sequence.in.c 1147";               if (endgroupTime >= 0) {
+Coverage_array[2362] = "sequence.in.c 1148";                   int index = FloatEventAr_len(&self->events) > 0 ? 0 : -1;
+Coverage_array[2363] = "sequence.in.c 1149";                   FloatEventAr_rforeach(it, &self->events) {
+Coverage_array[2364] = "sequence.in.c 1150";                       if (FloatSequence_isMarkerValue(it.var->value)) {
+Coverage_array[2365] = "sequence.in.c 1151";                           continue;
+Coverage_array[2366] = "sequence.in.c 1152";                       }
+Coverage_array[2367] = "sequence.in.c 1153";                       if (self->startTime + it.var->stime < endgroupTime) {
+Coverage_array[2368] = "sequence.in.c 1154";                           index = it.index + 1;
+Coverage_array[2369] = "sequence.in.c 1155";                           break;
+Coverage_array[2370] = "sequence.in.c 1156";                       }
+Coverage_array[2371] = "sequence.in.c 1157";                   }
+Coverage_array[2372] = "sequence.in.c 1158";                   if (index >= 0) {
+Coverage_array[2373] = "sequence.in.c 1159";                       FloatEvent newEv = {.stime = endgroupTime, .value = FloatSequence_endgMarker};
+Coverage_array[2374] = "sequence.in.c 1160";                       FloatEventAr_insert(&self->events, index, newEv, err);
+Coverage_array[2375] = "sequence.in.c 1161";                       Error_returnVoidOnError(err);
+Coverage_array[2376] = "sequence.in.c 1162";                   }
+Coverage_array[2377] = "sequence.in.c 1163";               }
+Coverage_array[2378] = "sequence.in.c 1164";           
+Coverage_array[2379] = "sequence.in.c 1165";               self->sequenceLength = sequenceLength;
+Coverage_array[2380] = "sequence.in.c 1166";               FloatEvent newEv = {.stime = sequenceLength, .value = FloatSequence_cycleMarker};
+Coverage_array[2381] = "sequence.in.c 1167";               FloatEventAr_push(&self->events, newEv);
+Coverage_array[2382] = "sequence.in.c 1168";               FloatSequence_makeConsistent(self);
+Coverage_array[2383] = "sequence.in.c 1169";               return;
+Coverage_array[2384] = "sequence.in.c 1170";           }
 
-#line 1287 "src/sequence.in.c"
+#line 1285 "src/sequence.in.c"
 
 // APIF void SequenceAr_truncateNoClear(SequenceAr *self) {
 //     SequenceAr_foreach(it, self) {
@@ -11153,145 +11197,151 @@ Coverage_array[2386] = "sequence.in.c 1172";           }
 
                                                        APIF void Sequence_freePpErrless(Sequence **s)
                                                        {
-Coverage_array[2387] = "sequence.in.c 1297";               Error_declare(err);
-Coverage_array[2388] = "sequence.in.c 1298";               Sequence_free(*s, err);
-Coverage_array[2389] = "sequence.in.c 1299";               Error_maypost(err);
-Coverage_array[2390] = "sequence.in.c 1300";           }
+Coverage_array[2385] = "sequence.in.c 1295";               Error_declare(err);
+Coverage_array[2386] = "sequence.in.c 1296";               Sequence_free(*s, err);
+Coverage_array[2387] = "sequence.in.c 1297";               Error_maypost(err);
+Coverage_array[2388] = "sequence.in.c 1298";           }
 
 // Sort into unique OutletSpecifiers, and sort by startTime within the same OutletSpecifier.
                                                        APIF int Sequence_cmp(Sequence *leftSeq, Sequence *rightSeq) {
-Coverage_array[2391] = "sequence.in.c 1304";               OutletSpecifier *left  = &leftSeq->outletSpecifier;
-Coverage_array[2392] = "sequence.in.c 1305";               OutletSpecifier *right = &rightSeq->outletSpecifier;
-Coverage_array[2393] = "sequence.in.c 1306";               int q = Symbol_cmp(OutletSpecifier_track(left), OutletSpecifier_track(right));
-Coverage_array[2394] = "sequence.in.c 1307";               if (q) {
-Coverage_array[2395] = "sequence.in.c 1308";                   return q;
-Coverage_array[2396] = "sequence.in.c 1309";               }
-Coverage_array[2397] = "sequence.in.c 1310";           
-Coverage_array[2398] = "sequence.in.c 1311";               // Want to sort NoteSequence to the front of the array. We could do this by looking for *note in parameter name, but I like this better.
-Coverage_array[2399] = "sequence.in.c 1312";               bool noteLeft  = Interface_itype(leftSeq)  == NoteSequence_itype;
-Coverage_array[2400] = "sequence.in.c 1313";               bool noteRight = Interface_itype(rightSeq) == NoteSequence_itype;
-Coverage_array[2401] = "sequence.in.c 1314";               if (noteLeft && !noteRight) {
-Coverage_array[2402] = "sequence.in.c 1315";                   return -1;
-Coverage_array[2403] = "sequence.in.c 1316";               } else if (!noteLeft && noteRight) {
-Coverage_array[2404] = "sequence.in.c 1317";                   return 1;
-Coverage_array[2405] = "sequence.in.c 1318";               }
-Coverage_array[2406] = "sequence.in.c 1319";               
-Coverage_array[2407] = "sequence.in.c 1320";           
-Coverage_array[2408] = "sequence.in.c 1321";               int leftPi  = OutletSpecifier_pluginIndex(left);
-Coverage_array[2409] = "sequence.in.c 1322";               int rightPi = OutletSpecifier_pluginIndex(right);
-Coverage_array[2410] = "sequence.in.c 1323";               if (leftPi < rightPi) {
-Coverage_array[2411] = "sequence.in.c 1324";                   return -1;
-Coverage_array[2412] = "sequence.in.c 1325";               } else if (leftPi > rightPi) {
-Coverage_array[2413] = "sequence.in.c 1326";                   return 1;
-Coverage_array[2414] = "sequence.in.c 1327";               }
-Coverage_array[2415] = "sequence.in.c 1328";           
-Coverage_array[2416] = "sequence.in.c 1329";               q = Symbol_cmp(OutletSpecifier_parameter(left), OutletSpecifier_parameter(right));
-Coverage_array[2417] = "sequence.in.c 1330";               if (q) {
-Coverage_array[2418] = "sequence.in.c 1331";                   return q;
-Coverage_array[2419] = "sequence.in.c 1332";               }    
-Coverage_array[2420] = "sequence.in.c 1333";           
-Coverage_array[2421] = "sequence.in.c 1334";               leftPi  = OutletSpecifier_paramIndex(left);
-Coverage_array[2422] = "sequence.in.c 1335";               rightPi = OutletSpecifier_paramIndex(right);
-Coverage_array[2423] = "sequence.in.c 1336";               if (leftPi < rightPi) {
-Coverage_array[2424] = "sequence.in.c 1337";                   return -1;
-Coverage_array[2425] = "sequence.in.c 1338";               } else if (leftPi > rightPi) {
-Coverage_array[2426] = "sequence.in.c 1339";                   return 1;
-Coverage_array[2427] = "sequence.in.c 1340";               }    
-Coverage_array[2428] = "sequence.in.c 1341";           
-Coverage_array[2429] = "sequence.in.c 1342";               if (leftSeq->startTime < rightSeq->startTime) {
-Coverage_array[2430] = "sequence.in.c 1343";                   return -1;
-Coverage_array[2431] = "sequence.in.c 1344";               } else if (leftSeq->startTime > rightSeq->startTime) {
-Coverage_array[2432] = "sequence.in.c 1345";                   return 1;
-Coverage_array[2433] = "sequence.in.c 1346";               }
-Coverage_array[2434] = "sequence.in.c 1347";           
-Coverage_array[2435] = "sequence.in.c 1348";               return 0;
-Coverage_array[2436] = "sequence.in.c 1349";           }
+Coverage_array[2389] = "sequence.in.c 1302";               OutletSpecifier *left  = &leftSeq->outletSpecifier;
+Coverage_array[2390] = "sequence.in.c 1303";               OutletSpecifier *right = &rightSeq->outletSpecifier;
+Coverage_array[2391] = "sequence.in.c 1304";               int q = Symbol_cmp(OutletSpecifier_track(left), OutletSpecifier_track(right));
+Coverage_array[2392] = "sequence.in.c 1305";               if (q) {
+Coverage_array[2393] = "sequence.in.c 1306";                   return q;
+Coverage_array[2394] = "sequence.in.c 1307";               }
+Coverage_array[2395] = "sequence.in.c 1308";           
+Coverage_array[2396] = "sequence.in.c 1309";               // Want to sort NoteSequence to the front of the array. We could do this by looking for *note in parameter name, but I like this better.
+Coverage_array[2397] = "sequence.in.c 1310";               bool noteLeft  = Interface_itype(leftSeq)  == NoteSequence_itype;
+Coverage_array[2398] = "sequence.in.c 1311";               bool noteRight = Interface_itype(rightSeq) == NoteSequence_itype;
+Coverage_array[2399] = "sequence.in.c 1312";               if (noteLeft && !noteRight) {
+Coverage_array[2400] = "sequence.in.c 1313";                   return -1;
+Coverage_array[2401] = "sequence.in.c 1314";               } else if (!noteLeft && noteRight) {
+Coverage_array[2402] = "sequence.in.c 1315";                   return 1;
+Coverage_array[2403] = "sequence.in.c 1316";               }
+Coverage_array[2404] = "sequence.in.c 1317";               
+Coverage_array[2405] = "sequence.in.c 1318";           
+Coverage_array[2406] = "sequence.in.c 1319";               int leftPi  = OutletSpecifier_pluginIndex(left);
+Coverage_array[2407] = "sequence.in.c 1320";               int rightPi = OutletSpecifier_pluginIndex(right);
+Coverage_array[2408] = "sequence.in.c 1321";               if (leftPi < rightPi) {
+Coverage_array[2409] = "sequence.in.c 1322";                   return -1;
+Coverage_array[2410] = "sequence.in.c 1323";               } else if (leftPi > rightPi) {
+Coverage_array[2411] = "sequence.in.c 1324";                   return 1;
+Coverage_array[2412] = "sequence.in.c 1325";               }
+Coverage_array[2413] = "sequence.in.c 1326";           
+Coverage_array[2414] = "sequence.in.c 1327";               q = Symbol_cmp(OutletSpecifier_parameter(left), OutletSpecifier_parameter(right));
+Coverage_array[2415] = "sequence.in.c 1328";               if (q) {
+Coverage_array[2416] = "sequence.in.c 1329";                   return q;
+Coverage_array[2417] = "sequence.in.c 1330";               }    
+Coverage_array[2418] = "sequence.in.c 1331";           
+Coverage_array[2419] = "sequence.in.c 1332";               leftPi  = OutletSpecifier_paramIndex(left);
+Coverage_array[2420] = "sequence.in.c 1333";               rightPi = OutletSpecifier_paramIndex(right);
+Coverage_array[2421] = "sequence.in.c 1334";               if (leftPi < rightPi) {
+Coverage_array[2422] = "sequence.in.c 1335";                   return -1;
+Coverage_array[2423] = "sequence.in.c 1336";               } else if (leftPi > rightPi) {
+Coverage_array[2424] = "sequence.in.c 1337";                   return 1;
+Coverage_array[2425] = "sequence.in.c 1338";               }    
+Coverage_array[2426] = "sequence.in.c 1339";           
+Coverage_array[2427] = "sequence.in.c 1340";               if (leftSeq->startTime < rightSeq->startTime) {
+Coverage_array[2428] = "sequence.in.c 1341";                   return -1;
+Coverage_array[2429] = "sequence.in.c 1342";               } else if (leftSeq->startTime > rightSeq->startTime) {
+Coverage_array[2430] = "sequence.in.c 1343";                   return 1;
+Coverage_array[2431] = "sequence.in.c 1344";               }
+Coverage_array[2432] = "sequence.in.c 1345";           
+Coverage_array[2433] = "sequence.in.c 1346";               return 0;
+Coverage_array[2434] = "sequence.in.c 1347";           }
 
                                                        APIF int Sequence_cmpPointer(Sequence *leftSeq, Sequence *rightSeq) {
-Coverage_array[2437] = "sequence.in.c 1352";               if (leftSeq < rightSeq) {
-Coverage_array[2438] = "sequence.in.c 1353";                   return -1;
-Coverage_array[2439] = "sequence.in.c 1354";               }  else if (leftSeq > rightSeq) {
-Coverage_array[2440] = "sequence.in.c 1355";                   return 1;
-Coverage_array[2441] = "sequence.in.c 1356";               }
-Coverage_array[2442] = "sequence.in.c 1357";           
-Coverage_array[2443] = "sequence.in.c 1358";               return 0;
-Coverage_array[2444] = "sequence.in.c 1359";           }
+Coverage_array[2435] = "sequence.in.c 1350";               if (leftSeq < rightSeq) {
+Coverage_array[2436] = "sequence.in.c 1351";                   return -1;
+Coverage_array[2437] = "sequence.in.c 1352";               }  else if (leftSeq > rightSeq) {
+Coverage_array[2438] = "sequence.in.c 1353";                   return 1;
+Coverage_array[2439] = "sequence.in.c 1354";               }
+Coverage_array[2440] = "sequence.in.c 1355";           
+Coverage_array[2441] = "sequence.in.c 1356";               return 0;
+Coverage_array[2442] = "sequence.in.c 1357";           }
 
                                                        APIF int Sequence_cmpPp(Sequence **left, Sequence **right) {
-Coverage_array[2445] = "sequence.in.c 1362";               return Sequence_cmp(*left, *right);
-Coverage_array[2446] = "sequence.in.c 1363";           }
+Coverage_array[2443] = "sequence.in.c 1360";               return Sequence_cmp(*left, *right);
+Coverage_array[2444] = "sequence.in.c 1361";           }
 
                                                        APIF int Sequence_cmpPointerPp(Sequence **left, Sequence **right)
                                                        {
-Coverage_array[2447] = "sequence.in.c 1367";               return Sequence_cmpPointer(*left, *right);
-Coverage_array[2448] = "sequence.in.c 1368";           }
+Coverage_array[2445] = "sequence.in.c 1365";               return Sequence_cmpPointer(*left, *right);
+Coverage_array[2446] = "sequence.in.c 1366";           }
 
                                                        APIF void Sequence_incVersion(Sequence *seq) {
-Coverage_array[2449] = "sequence.in.c 1371";               seq->version++;
-Coverage_array[2450] = "sequence.in.c 1372";           }
+Coverage_array[2447] = "sequence.in.c 1369";               seq->version++;
+Coverage_array[2448] = "sequence.in.c 1370";           }
 
-#line 1394 "src/sequence.in.c"
+#line 1396 "src/sequence.in.c"
+                                                       APIF RecordBuffer *RecordBuffer_newStart(Ticks recordStart)
+                                                       {
+Coverage_array[2449] = "sequence.in.c 1398";               RecordBuffer *self = RecordBuffer_new();
+Coverage_array[2450] = "sequence.in.c 1399";               self->recordStart = recordStart;
+Coverage_array[2451] = "sequence.in.c 1400";               return self;
+Coverage_array[2452] = "sequence.in.c 1401";           }
 
                                                        APIF void RecordBuffer_push(RecordBuffer *self, Sequence *sequence)
                                                        {
-Coverage_array[2451] = "sequence.in.c 1397";               SequenceAr_push(&self->sequences, sequence);
-Coverage_array[2452] = "sequence.in.c 1398";           }
+Coverage_array[2453] = "sequence.in.c 1405";               SequenceAr_push(&self->sequences, sequence);
+Coverage_array[2454] = "sequence.in.c 1406";           }
 
                                                        APIF void RecordBuffer_compact(RecordBuffer *self, SequenceAr *output, Error *err)
                                                        {
-Coverage_array[2453] = "sequence.in.c 1402";               SequenceAr_sort(&self->sequences);
-Coverage_array[2454] = "sequence.in.c 1403";               SequenceAr_truncate(output);
-Coverage_array[2455] = "sequence.in.c 1404";           
-Coverage_array[2456] = "sequence.in.c 1405";               // Compact all the sequences we can
-Coverage_array[2457] = "sequence.in.c 1406";               Sequence *current = NULL;
-Coverage_array[2458] = "sequence.in.c 1407";               SequenceAr_foreach(it, &self->sequences) {
-Coverage_array[2459] = "sequence.in.c 1408";                   if (current == NULL || Sequence_cmp(*it.var, current) != 0) {
-Coverage_array[2460] = "sequence.in.c 1409";                       current = Sequence_compactNew(*it.var, self->recordStart, err);
-Coverage_array[2461] = "sequence.in.c 1410";                       Error_gotoLabelOnError(err, END);
-Coverage_array[2462] = "sequence.in.c 1411";                       SequenceAr_push(output, current);
-Coverage_array[2463] = "sequence.in.c 1412";                   } 
-Coverage_array[2464] = "sequence.in.c 1413";                   Sequence_compactConcat(current, *it.var, err);
-Coverage_array[2465] = "sequence.in.c 1414";                   Error_gotoLabelOnError(err, END); 
-Coverage_array[2466] = "sequence.in.c 1415";               }
-Coverage_array[2467] = "sequence.in.c 1416";           
-Coverage_array[2468] = "sequence.in.c 1417";               Ticks sequenceLength = -1;
-Coverage_array[2469] = "sequence.in.c 1418";               SequenceAr_foreach(it, output) {
-Coverage_array[2470] = "sequence.in.c 1419";                   Sequence *s = *it.var;
-Coverage_array[2471] = "sequence.in.c 1420";                   Sequence_compactSortEvents(s, err);
-Coverage_array[2472] = "sequence.in.c 1421";                   Error_gotoLabelOnError(err, END); 
-Coverage_array[2473] = "sequence.in.c 1422";                   Ticks len = Sequence_compactComputeSequenceLength(s, err);
-Coverage_array[2474] = "sequence.in.c 1423";                   Error_gotoLabelOnError(err, END);
-Coverage_array[2475] = "sequence.in.c 1424";                   if (len > sequenceLength) {
-Coverage_array[2476] = "sequence.in.c 1425";                       len = sequenceLength;
-Coverage_array[2477] = "sequence.in.c 1426";                   }
-Coverage_array[2478] = "sequence.in.c 1427";               }
-Coverage_array[2479] = "sequence.in.c 1428";           
-Coverage_array[2480] = "sequence.in.c 1429";               // We assign the endgroup for a collection of sequences by looking at the first and only noteSequence for a given track. If no noteSequence
-Coverage_array[2481] = "sequence.in.c 1430";               // exists for this track, endgroup is unassigned.
-Coverage_array[2482] = "sequence.in.c 1431";               Ticks currentEndgroupTime = -1;
-Coverage_array[2483] = "sequence.in.c 1432";               Symbol *track = NULL;
-Coverage_array[2484] = "sequence.in.c 1433";               SequenceAr_foreach(it, output) {
-Coverage_array[2485] = "sequence.in.c 1434";                   Sequence *s = *it.var;
-Coverage_array[2486] = "sequence.in.c 1435";           
-Coverage_array[2487] = "sequence.in.c 1436";                   if (track != s->outletSpecifier.track) {
-Coverage_array[2488] = "sequence.in.c 1437";                       track = s->outletSpecifier.track;
-Coverage_array[2489] = "sequence.in.c 1438";                       NoteSequence *ns = NoteSequence_castFromSequence(s);
-Coverage_array[2490] = "sequence.in.c 1439";                       if (ns == NULL) {
-Coverage_array[2491] = "sequence.in.c 1440";                           currentEndgroupTime = -1;
-Coverage_array[2492] = "sequence.in.c 1441";                       } else {
-Coverage_array[2493] = "sequence.in.c 1442";                           currentEndgroupTime = NoteSequence_computeEndgroupTime(ns);
-Coverage_array[2494] = "sequence.in.c 1443";                       }
-Coverage_array[2495] = "sequence.in.c 1444";                   }
-Coverage_array[2496] = "sequence.in.c 1445";                   Sequence_compactFinish(s, currentEndgroupTime, sequenceLength, err);
-Coverage_array[2497] = "sequence.in.c 1446";                   Error_gotoLabelOnError(err, END);
-Coverage_array[2498] = "sequence.in.c 1447";               }
-Coverage_array[2499] = "sequence.in.c 1448";           
-Coverage_array[2500] = "sequence.in.c 1449";             END:
-Coverage_array[2501] = "sequence.in.c 1450";               if (Error_iserror(err)) {
-Coverage_array[2502] = "sequence.in.c 1451";                   SequenceAr_truncate(output);
-Coverage_array[2503] = "sequence.in.c 1452";               }
-Coverage_array[2504] = "sequence.in.c 1453";               return;
-Coverage_array[2505] = "sequence.in.c 1454";           }
+Coverage_array[2455] = "sequence.in.c 1410";               SequenceAr_sort(&self->sequences);
+Coverage_array[2456] = "sequence.in.c 1411";               SequenceAr_truncate(output);
+Coverage_array[2457] = "sequence.in.c 1412";           
+Coverage_array[2458] = "sequence.in.c 1413";               // Compact all the sequences we can
+Coverage_array[2459] = "sequence.in.c 1414";               Sequence *current = NULL;
+Coverage_array[2460] = "sequence.in.c 1415";               SequenceAr_foreach(it, &self->sequences) {
+Coverage_array[2461] = "sequence.in.c 1416";                   if (current == NULL || Sequence_cmp(*it.var, current) != 0) {
+Coverage_array[2462] = "sequence.in.c 1417";                       current = Sequence_compactNew(*it.var, self->recordStart, err);
+Coverage_array[2463] = "sequence.in.c 1418";                       Error_gotoLabelOnError(err, END);
+Coverage_array[2464] = "sequence.in.c 1419";                       SequenceAr_push(output, current);
+Coverage_array[2465] = "sequence.in.c 1420";                   } 
+Coverage_array[2466] = "sequence.in.c 1421";                   Sequence_compactConcat(current, *it.var, err);
+Coverage_array[2467] = "sequence.in.c 1422";                   Error_gotoLabelOnError(err, END); 
+Coverage_array[2468] = "sequence.in.c 1423";               }
+Coverage_array[2469] = "sequence.in.c 1424";           
+Coverage_array[2470] = "sequence.in.c 1425";               Ticks sequenceLength = -1;
+Coverage_array[2471] = "sequence.in.c 1426";               SequenceAr_foreach(it, output) {
+Coverage_array[2472] = "sequence.in.c 1427";                   Sequence *s = *it.var;
+Coverage_array[2473] = "sequence.in.c 1428";                   Sequence_compactSortEvents(s, err);
+Coverage_array[2474] = "sequence.in.c 1429";                   Error_gotoLabelOnError(err, END); 
+Coverage_array[2475] = "sequence.in.c 1430";                   Ticks len = Sequence_compactComputeSequenceLength(s, err);
+Coverage_array[2476] = "sequence.in.c 1431";                   Error_gotoLabelOnError(err, END);
+Coverage_array[2477] = "sequence.in.c 1432";                   if (len > sequenceLength) {
+Coverage_array[2478] = "sequence.in.c 1433";                       len = sequenceLength;
+Coverage_array[2479] = "sequence.in.c 1434";                   }
+Coverage_array[2480] = "sequence.in.c 1435";               }
+Coverage_array[2481] = "sequence.in.c 1436";           
+Coverage_array[2482] = "sequence.in.c 1437";               // We assign the endgroup for a collection of sequences by looking at the first and only noteSequence for a given track. If no noteSequence
+Coverage_array[2483] = "sequence.in.c 1438";               // exists for this track, endgroup is unassigned.
+Coverage_array[2484] = "sequence.in.c 1439";               Ticks currentEndgroupTime = -1;
+Coverage_array[2485] = "sequence.in.c 1440";               Symbol *track = NULL;
+Coverage_array[2486] = "sequence.in.c 1441";               SequenceAr_foreach(it, output) {
+Coverage_array[2487] = "sequence.in.c 1442";                   Sequence *s = *it.var;
+Coverage_array[2488] = "sequence.in.c 1443";           
+Coverage_array[2489] = "sequence.in.c 1444";                   if (track != s->outletSpecifier.track) {
+Coverage_array[2490] = "sequence.in.c 1445";                       track = s->outletSpecifier.track;
+Coverage_array[2491] = "sequence.in.c 1446";                       NoteSequence *ns = NoteSequence_castFromSequence(s);
+Coverage_array[2492] = "sequence.in.c 1447";                       if (ns == NULL) {
+Coverage_array[2493] = "sequence.in.c 1448";                           currentEndgroupTime = -1;
+Coverage_array[2494] = "sequence.in.c 1449";                       } else {
+Coverage_array[2495] = "sequence.in.c 1450";                           currentEndgroupTime = NoteSequence_computeEndgroupTime(ns);
+Coverage_array[2496] = "sequence.in.c 1451";                       }
+Coverage_array[2497] = "sequence.in.c 1452";                   }
+Coverage_array[2498] = "sequence.in.c 1453";                   Sequence_compactFinish(s, currentEndgroupTime, sequenceLength, err);
+Coverage_array[2499] = "sequence.in.c 1454";                   Error_gotoLabelOnError(err, END);
+Coverage_array[2500] = "sequence.in.c 1455";               }
+Coverage_array[2501] = "sequence.in.c 1456";           
+Coverage_array[2502] = "sequence.in.c 1457";             END:
+Coverage_array[2503] = "sequence.in.c 1458";               if (Error_iserror(err)) {
+Coverage_array[2504] = "sequence.in.c 1459";                   SequenceAr_truncate(output);
+Coverage_array[2505] = "sequence.in.c 1460";               }
+Coverage_array[2506] = "sequence.in.c 1461";               return;
+Coverage_array[2507] = "sequence.in.c 1462";           }
 
 
 enum {
@@ -11311,306 +11361,306 @@ typedef struct MidiEvent_t {
 
                                                        COVER MidiEvent Midi_getNextEvent(FILE *pipe, Error *err)
                                                        {
-Coverage_array[2506] = "sequence.in.c 1474";               static String *buffer       = NULL;
-Coverage_array[2507] = "sequence.in.c 1475";               static StringPtAr *arBuffer = NULL;
-Coverage_array[2508] = "sequence.in.c 1476";               if (buffer == NULL) {
-Coverage_array[2509] = "sequence.in.c 1477";                   buffer   = String_empty();
-Coverage_array[2510] = "sequence.in.c 1478";                   arBuffer = StringPtAr_new(0);
-Coverage_array[2511] = "sequence.in.c 1479";               }
-Coverage_array[2512] = "sequence.in.c 1480";               
-Coverage_array[2513] = "sequence.in.c 1481";               MidiEvent event = {0}, zero = {0};
-Coverage_array[2514] = "sequence.in.c 1482";               for (;;) {
-Coverage_array[2515] = "sequence.in.c 1483";                   event      = zero;
-Coverage_array[2516] = "sequence.in.c 1484";                   event.type = Midi_eofEventType;
-Coverage_array[2517] = "sequence.in.c 1485";                   if (!String_readline(&buffer, pipe, err)) {
-Coverage_array[2518] = "sequence.in.c 1486";                       return event;
-Coverage_array[2519] = "sequence.in.c 1487";                   }
-Coverage_array[2520] = "sequence.in.c 1488";           
-Coverage_array[2521] = "sequence.in.c 1489";                   String_split(buffer, ",", arBuffer);
-Coverage_array[2522] = "sequence.in.c 1490";                   StringPtAr_foreach(it, arBuffer) {
-Coverage_array[2523] = "sequence.in.c 1491";                       String_trim(it.var);
-Coverage_array[2524] = "sequence.in.c 1492";                   }
-Coverage_array[2525] = "sequence.in.c 1493";           
-Coverage_array[2526] = "sequence.in.c 1494";                   if (StringPtAr_len(arBuffer) < 3) {
-Coverage_array[2527] = "sequence.in.c 1495";                       Error_format0(err, "Not enough fields in midicsv file");
-Coverage_array[2528] = "sequence.in.c 1496";                       return event;
-Coverage_array[2529] = "sequence.in.c 1497";                   }
-Coverage_array[2530] = "sequence.in.c 1498";           
-Coverage_array[2531] = "sequence.in.c 1499";                   String *timeString = StringPtAr_get(arBuffer, 1, err);
-Coverage_array[2532] = "sequence.in.c 1500";                   Error_returnValueOnError(err, event);
-Coverage_array[2533] = "sequence.in.c 1501";                   event.time = String_toInteger(timeString, err);
-Coverage_array[2534] = "sequence.in.c 1502";                   Error_returnValueOnError(err, event);
-Coverage_array[2535] = "sequence.in.c 1503";           
-Coverage_array[2536] = "sequence.in.c 1504";                   String *type = StringPtAr_get(arBuffer, 2, err);
-Coverage_array[2537] = "sequence.in.c 1505";                   Error_returnValueOnError(err, event);
-Coverage_array[2538] = "sequence.in.c 1506";           
-Coverage_array[2539] = "sequence.in.c 1507";                   if (String_cequal(type, "Note_off_c") || String_cequal(type, "Note_on_c")) {
-Coverage_array[2540] = "sequence.in.c 1508";                       event.type = Midi_noteEventType;
-Coverage_array[2541] = "sequence.in.c 1509";                       if (StringPtAr_len(arBuffer) < 6) {
-Coverage_array[2542] = "sequence.in.c 1510";                           Error_format0(err, "Bad Note_off/on_c");
-Coverage_array[2543] = "sequence.in.c 1511";                           return event;
-Coverage_array[2544] = "sequence.in.c 1512";                       }
-Coverage_array[2545] = "sequence.in.c 1513";                   } else if (String_cequal(type, "Pitch_bend_c")) {
-Coverage_array[2546] = "sequence.in.c 1514";                       event.type = Midi_bendEventType;
-Coverage_array[2547] = "sequence.in.c 1515";                       if (StringPtAr_len(arBuffer) < 5) {
-Coverage_array[2548] = "sequence.in.c 1516";                           Error_format0(err, "Bad Pitch_bend_c");
-Coverage_array[2549] = "sequence.in.c 1517";                           return event;
-Coverage_array[2550] = "sequence.in.c 1518";                       }
-Coverage_array[2551] = "sequence.in.c 1519";                   } else if (String_cequal(type, "Control_c")) {
-Coverage_array[2552] = "sequence.in.c 1520";                       event.type = Midi_ccEventType;
-Coverage_array[2553] = "sequence.in.c 1521";                       if (StringPtAr_len(arBuffer) < 6) {
-Coverage_array[2554] = "sequence.in.c 1522";                           Error_format0(err, "Bad Control_c");
-Coverage_array[2555] = "sequence.in.c 1523";                           return event;
-Coverage_array[2556] = "sequence.in.c 1524";                       }
-Coverage_array[2557] = "sequence.in.c 1525";                   } else if (String_cequal(type, "Header")) {
-Coverage_array[2558] = "sequence.in.c 1526";                       if (StringPtAr_len(arBuffer) < 6) {
-Coverage_array[2559] = "sequence.in.c 1527";                           Error_format0(err, "Bad Control_c");
-Coverage_array[2560] = "sequence.in.c 1528";                           return event;
-Coverage_array[2561] = "sequence.in.c 1529";                       }
-Coverage_array[2562] = "sequence.in.c 1530";                   } else {
-Coverage_array[2563] = "sequence.in.c 1531";                       continue;
-Coverage_array[2564] = "sequence.in.c 1532";                   }
-Coverage_array[2565] = "sequence.in.c 1533";           
-Coverage_array[2566] = "sequence.in.c 1534";                   break;
-Coverage_array[2567] = "sequence.in.c 1535";               }
-Coverage_array[2568] = "sequence.in.c 1536";               
-Coverage_array[2569] = "sequence.in.c 1537";               String *arg1 = StringPtAr_get(arBuffer, 4, err);
-Coverage_array[2570] = "sequence.in.c 1538";               Error_returnValueOnError(err, event);
-Coverage_array[2571] = "sequence.in.c 1539";               event.arg1 = String_toInteger(arg1, err); 
-Coverage_array[2572] = "sequence.in.c 1540";               
-Coverage_array[2573] = "sequence.in.c 1541";               if (event.type != Midi_bendEventType) {
-Coverage_array[2574] = "sequence.in.c 1542";                   String *arg2 = StringPtAr_get(arBuffer, 5, err);
-Coverage_array[2575] = "sequence.in.c 1543";                   Error_returnValueOnError(err, event);
-Coverage_array[2576] = "sequence.in.c 1544";                   event.arg2 = String_toInteger(arg2, err); 
-Coverage_array[2577] = "sequence.in.c 1545";               }
-Coverage_array[2578] = "sequence.in.c 1546";           
-Coverage_array[2579] = "sequence.in.c 1547";               return event;
-Coverage_array[2580] = "sequence.in.c 1548";           }
+Coverage_array[2508] = "sequence.in.c 1482";               static String *buffer       = NULL;
+Coverage_array[2509] = "sequence.in.c 1483";               static StringPtAr *arBuffer = NULL;
+Coverage_array[2510] = "sequence.in.c 1484";               if (buffer == NULL) {
+Coverage_array[2511] = "sequence.in.c 1485";                   buffer   = String_empty();
+Coverage_array[2512] = "sequence.in.c 1486";                   arBuffer = StringPtAr_new(0);
+Coverage_array[2513] = "sequence.in.c 1487";               }
+Coverage_array[2514] = "sequence.in.c 1488";               
+Coverage_array[2515] = "sequence.in.c 1489";               MidiEvent event = {0}, zero = {0};
+Coverage_array[2516] = "sequence.in.c 1490";               for (;;) {
+Coverage_array[2517] = "sequence.in.c 1491";                   event      = zero;
+Coverage_array[2518] = "sequence.in.c 1492";                   event.type = Midi_eofEventType;
+Coverage_array[2519] = "sequence.in.c 1493";                   if (!String_readline(&buffer, pipe, err)) {
+Coverage_array[2520] = "sequence.in.c 1494";                       return event;
+Coverage_array[2521] = "sequence.in.c 1495";                   }
+Coverage_array[2522] = "sequence.in.c 1496";           
+Coverage_array[2523] = "sequence.in.c 1497";                   String_split(buffer, ",", arBuffer);
+Coverage_array[2524] = "sequence.in.c 1498";                   StringPtAr_foreach(it, arBuffer) {
+Coverage_array[2525] = "sequence.in.c 1499";                       String_trim(it.var);
+Coverage_array[2526] = "sequence.in.c 1500";                   }
+Coverage_array[2527] = "sequence.in.c 1501";           
+Coverage_array[2528] = "sequence.in.c 1502";                   if (StringPtAr_len(arBuffer) < 3) {
+Coverage_array[2529] = "sequence.in.c 1503";                       Error_format0(err, "Not enough fields in midicsv file");
+Coverage_array[2530] = "sequence.in.c 1504";                       return event;
+Coverage_array[2531] = "sequence.in.c 1505";                   }
+Coverage_array[2532] = "sequence.in.c 1506";           
+Coverage_array[2533] = "sequence.in.c 1507";                   String *timeString = StringPtAr_get(arBuffer, 1, err);
+Coverage_array[2534] = "sequence.in.c 1508";                   Error_returnValueOnError(err, event);
+Coverage_array[2535] = "sequence.in.c 1509";                   event.time = String_toInteger(timeString, err);
+Coverage_array[2536] = "sequence.in.c 1510";                   Error_returnValueOnError(err, event);
+Coverage_array[2537] = "sequence.in.c 1511";           
+Coverage_array[2538] = "sequence.in.c 1512";                   String *type = StringPtAr_get(arBuffer, 2, err);
+Coverage_array[2539] = "sequence.in.c 1513";                   Error_returnValueOnError(err, event);
+Coverage_array[2540] = "sequence.in.c 1514";           
+Coverage_array[2541] = "sequence.in.c 1515";                   if (String_cequal(type, "Note_off_c") || String_cequal(type, "Note_on_c")) {
+Coverage_array[2542] = "sequence.in.c 1516";                       event.type = Midi_noteEventType;
+Coverage_array[2543] = "sequence.in.c 1517";                       if (StringPtAr_len(arBuffer) < 6) {
+Coverage_array[2544] = "sequence.in.c 1518";                           Error_format0(err, "Bad Note_off/on_c");
+Coverage_array[2545] = "sequence.in.c 1519";                           return event;
+Coverage_array[2546] = "sequence.in.c 1520";                       }
+Coverage_array[2547] = "sequence.in.c 1521";                   } else if (String_cequal(type, "Pitch_bend_c")) {
+Coverage_array[2548] = "sequence.in.c 1522";                       event.type = Midi_bendEventType;
+Coverage_array[2549] = "sequence.in.c 1523";                       if (StringPtAr_len(arBuffer) < 5) {
+Coverage_array[2550] = "sequence.in.c 1524";                           Error_format0(err, "Bad Pitch_bend_c");
+Coverage_array[2551] = "sequence.in.c 1525";                           return event;
+Coverage_array[2552] = "sequence.in.c 1526";                       }
+Coverage_array[2553] = "sequence.in.c 1527";                   } else if (String_cequal(type, "Control_c")) {
+Coverage_array[2554] = "sequence.in.c 1528";                       event.type = Midi_ccEventType;
+Coverage_array[2555] = "sequence.in.c 1529";                       if (StringPtAr_len(arBuffer) < 6) {
+Coverage_array[2556] = "sequence.in.c 1530";                           Error_format0(err, "Bad Control_c");
+Coverage_array[2557] = "sequence.in.c 1531";                           return event;
+Coverage_array[2558] = "sequence.in.c 1532";                       }
+Coverage_array[2559] = "sequence.in.c 1533";                   } else if (String_cequal(type, "Header")) {
+Coverage_array[2560] = "sequence.in.c 1534";                       if (StringPtAr_len(arBuffer) < 6) {
+Coverage_array[2561] = "sequence.in.c 1535";                           Error_format0(err, "Bad Control_c");
+Coverage_array[2562] = "sequence.in.c 1536";                           return event;
+Coverage_array[2563] = "sequence.in.c 1537";                       }
+Coverage_array[2564] = "sequence.in.c 1538";                   } else {
+Coverage_array[2565] = "sequence.in.c 1539";                       continue;
+Coverage_array[2566] = "sequence.in.c 1540";                   }
+Coverage_array[2567] = "sequence.in.c 1541";           
+Coverage_array[2568] = "sequence.in.c 1542";                   break;
+Coverage_array[2569] = "sequence.in.c 1543";               }
+Coverage_array[2570] = "sequence.in.c 1544";               
+Coverage_array[2571] = "sequence.in.c 1545";               String *arg1 = StringPtAr_get(arBuffer, 4, err);
+Coverage_array[2572] = "sequence.in.c 1546";               Error_returnValueOnError(err, event);
+Coverage_array[2573] = "sequence.in.c 1547";               event.arg1 = String_toInteger(arg1, err); 
+Coverage_array[2574] = "sequence.in.c 1548";               
+Coverage_array[2575] = "sequence.in.c 1549";               if (event.type != Midi_bendEventType) {
+Coverage_array[2576] = "sequence.in.c 1550";                   String *arg2 = StringPtAr_get(arBuffer, 5, err);
+Coverage_array[2577] = "sequence.in.c 1551";                   Error_returnValueOnError(err, event);
+Coverage_array[2578] = "sequence.in.c 1552";                   event.arg2 = String_toInteger(arg2, err); 
+Coverage_array[2579] = "sequence.in.c 1553";               }
+Coverage_array[2580] = "sequence.in.c 1554";           
+Coverage_array[2581] = "sequence.in.c 1555";               return event;
+Coverage_array[2582] = "sequence.in.c 1556";           }
 
                                                        APIF void Midi_fromfile(const char *midiFilePath, SequenceAr *output, Symbol *defaultTrack, PortFind *portFind, Error *err)
                                                        {
-Coverage_array[2581] = "sequence.in.c 1552";               static String *midiCsvExecPath = NULL;
-Coverage_array[2582] = "sequence.in.c 1553";               if (midiCsvExecPath == NULL) {
-Coverage_array[2583] = "sequence.in.c 1554";                   midiCsvExecPath = String_fmt("%s/packages/midicsv-1.1/midicsv", CSEQ_HOME);
-Coverage_array[2584] = "sequence.in.c 1555";               }
-Coverage_array[2585] = "sequence.in.c 1556";           
-Coverage_array[2586] = "sequence.in.c 1557";               String *buffer = String_fmt("'%s' '%s'", midiCsvExecPath, midiFilePath);    
-Coverage_array[2587] = "sequence.in.c 1558";               FILE *pipe = popen(buffer, "r");
-Coverage_array[2588] = "sequence.in.c 1559";               if (pipe == NULL) {
-Coverage_array[2589] = "sequence.in.c 1560";                   Error_format(err, "Failed to create pipe for command `%s`", midiCsvExecPath);
-Coverage_array[2590] = "sequence.in.c 1561";                   return;
-Coverage_array[2591] = "sequence.in.c 1562";               }
-Coverage_array[2592] = "sequence.in.c 1563";           
-Coverage_array[2593] = "sequence.in.c 1564";               //
-Coverage_array[2594] = "sequence.in.c 1565";               // Loop and collect events. Write them into each sequence type
-Coverage_array[2595] = "sequence.in.c 1566";               //
-Coverage_array[2596] = "sequence.in.c 1567";               MusicalContext_declareDefault(musicalContext);
-Coverage_array[2597] = "sequence.in.c 1568";               float tickFactor = 1.0;
-Coverage_array[2598] = "sequence.in.c 1569";               NoteSequence *noteSeq   = NULL;
-Coverage_array[2599] = "sequence.in.c 1570";               FloatSequence *bendSeq   = NULL;
-Coverage_array[2600] = "sequence.in.c 1571";               FloatSequence *ccSeqs[128] = {NULL};
-Coverage_array[2601] = "sequence.in.c 1572";               for (;;) {
-Coverage_array[2602] = "sequence.in.c 1573";                   MidiEvent ev = Midi_getNextEvent(pipe, err);
-Coverage_array[2603] = "sequence.in.c 1574";                   Error_returnVoidOnError(err);
-Coverage_array[2604] = "sequence.in.c 1575";           
-Coverage_array[2605] = "sequence.in.c 1576";                   if (ev.type == Midi_eofEventType) {
-Coverage_array[2606] = "sequence.in.c 1577";                       break;
-Coverage_array[2607] = "sequence.in.c 1578";                   }
-Coverage_array[2608] = "sequence.in.c 1579";           
-Coverage_array[2609] = "sequence.in.c 1580";                   switch (ev.type) {
+Coverage_array[2583] = "sequence.in.c 1560";               static String *midiCsvExecPath = NULL;
+Coverage_array[2584] = "sequence.in.c 1561";               if (midiCsvExecPath == NULL) {
+Coverage_array[2585] = "sequence.in.c 1562";                   midiCsvExecPath = String_fmt("%s/packages/midicsv-1.1/midicsv", CSEQ_HOME);
+Coverage_array[2586] = "sequence.in.c 1563";               }
+Coverage_array[2587] = "sequence.in.c 1564";           
+Coverage_array[2588] = "sequence.in.c 1565";               String *buffer = String_fmt("'%s' '%s'", midiCsvExecPath, midiFilePath);    
+Coverage_array[2589] = "sequence.in.c 1566";               FILE *pipe = popen(buffer, "r");
+Coverage_array[2590] = "sequence.in.c 1567";               if (pipe == NULL) {
+Coverage_array[2591] = "sequence.in.c 1568";                   Error_format(err, "Failed to create pipe for command `%s`", midiCsvExecPath);
+Coverage_array[2592] = "sequence.in.c 1569";                   return;
+Coverage_array[2593] = "sequence.in.c 1570";               }
+Coverage_array[2594] = "sequence.in.c 1571";           
+Coverage_array[2595] = "sequence.in.c 1572";               //
+Coverage_array[2596] = "sequence.in.c 1573";               // Loop and collect events. Write them into each sequence type
+Coverage_array[2597] = "sequence.in.c 1574";               //
+Coverage_array[2598] = "sequence.in.c 1575";               MusicalContext_declareDefault(musicalContext);
+Coverage_array[2599] = "sequence.in.c 1576";               float tickFactor = 1.0;
+Coverage_array[2600] = "sequence.in.c 1577";               NoteSequence *noteSeq   = NULL;
+Coverage_array[2601] = "sequence.in.c 1578";               FloatSequence *bendSeq   = NULL;
+Coverage_array[2602] = "sequence.in.c 1579";               FloatSequence *ccSeqs[128] = {NULL};
+Coverage_array[2603] = "sequence.in.c 1580";               for (;;) {
+Coverage_array[2604] = "sequence.in.c 1581";                   MidiEvent ev = Midi_getNextEvent(pipe, err);
+Coverage_array[2605] = "sequence.in.c 1582";                   Error_returnVoidOnError(err);
+Coverage_array[2606] = "sequence.in.c 1583";           
+Coverage_array[2607] = "sequence.in.c 1584";                   if (ev.type == Midi_eofEventType) {
+Coverage_array[2608] = "sequence.in.c 1585";                       break;
+Coverage_array[2609] = "sequence.in.c 1586";                   }
+Coverage_array[2610] = "sequence.in.c 1587";           
+Coverage_array[2611] = "sequence.in.c 1588";                   switch (ev.type) {
                                                                    case Midi_noteEventType: {
-Coverage_array[2610] = "sequence.in.c 1582";                           if (noteSeq == NULL) {
-Coverage_array[2611] = "sequence.in.c 1583";                               noteSeq = NoteSequence_newTrack(defaultTrack, portFind);
-Coverage_array[2612] = "sequence.in.c 1584";                           }
-Coverage_array[2613] = "sequence.in.c 1585";                           if (ev.arg2 == 0) {
-Coverage_array[2614] = "sequence.in.c 1586";                               bool found = false;
-Coverage_array[2615] = "sequence.in.c 1587";                               NoteEventAr_rforeach(it, &noteSeq->events) {
-Coverage_array[2616] = "sequence.in.c 1588";                                   if (it.var->pitch == ev.arg1) {
-Coverage_array[2617] = "sequence.in.c 1589";                                       if (it.var->duration != NoteSequence_noteOffDuration) {
-Coverage_array[2618] = "sequence.in.c 1590";                                           Error_format(err, "Found unpaired note-off at %lld", ev.time);
-Coverage_array[2619] = "sequence.in.c 1591";                                           goto END;
-Coverage_array[2620] = "sequence.in.c 1592";                                       }
-Coverage_array[2621] = "sequence.in.c 1593";                                       it.var->duration = ev.time-it.var->stime;
-Coverage_array[2622] = "sequence.in.c 1594";                                       found            = true;
-Coverage_array[2623] = "sequence.in.c 1595";                                       break;
-Coverage_array[2624] = "sequence.in.c 1596";                                   }
-Coverage_array[2625] = "sequence.in.c 1597";                               }
-Coverage_array[2626] = "sequence.in.c 1598";                               if (!found) {
-Coverage_array[2627] = "sequence.in.c 1599";                                   Error_format(err, "Failed to find paired note-on for note-off at %lld", ev.time);
-Coverage_array[2628] = "sequence.in.c 1600";                                   goto END;
-Coverage_array[2629] = "sequence.in.c 1601";                               }
-Coverage_array[2630] = "sequence.in.c 1602";                           } else {
-Coverage_array[2631] = "sequence.in.c 1603";                               NoteEvent newEv = {.pitch = ev.arg1, .velocity = ev.arg2, .stime = ev.time, .duration = NoteSequence_noteOffDuration};
-Coverage_array[2632] = "sequence.in.c 1604";                               NoteEventAr_push(&noteSeq->events, newEv);
-Coverage_array[2633] = "sequence.in.c 1605";                           }
-Coverage_array[2634] = "sequence.in.c 1606";                           break;
-Coverage_array[2635] = "sequence.in.c 1607";                       }
+Coverage_array[2612] = "sequence.in.c 1590";                           if (noteSeq == NULL) {
+Coverage_array[2613] = "sequence.in.c 1591";                               noteSeq = NoteSequence_newTrack(defaultTrack, portFind);
+Coverage_array[2614] = "sequence.in.c 1592";                           }
+Coverage_array[2615] = "sequence.in.c 1593";                           if (ev.arg2 == 0) {
+Coverage_array[2616] = "sequence.in.c 1594";                               bool found = false;
+Coverage_array[2617] = "sequence.in.c 1595";                               NoteEventAr_rforeach(it, &noteSeq->events) {
+Coverage_array[2618] = "sequence.in.c 1596";                                   if (it.var->pitch == ev.arg1) {
+Coverage_array[2619] = "sequence.in.c 1597";                                       if (it.var->duration != NoteSequence_noteOffDuration) {
+Coverage_array[2620] = "sequence.in.c 1598";                                           Error_format(err, "Found unpaired note-off at %lld", ev.time);
+Coverage_array[2621] = "sequence.in.c 1599";                                           goto END;
+Coverage_array[2622] = "sequence.in.c 1600";                                       }
+Coverage_array[2623] = "sequence.in.c 1601";                                       it.var->duration = ev.time-it.var->stime;
+Coverage_array[2624] = "sequence.in.c 1602";                                       found            = true;
+Coverage_array[2625] = "sequence.in.c 1603";                                       break;
+Coverage_array[2626] = "sequence.in.c 1604";                                   }
+Coverage_array[2627] = "sequence.in.c 1605";                               }
+Coverage_array[2628] = "sequence.in.c 1606";                               if (!found) {
+Coverage_array[2629] = "sequence.in.c 1607";                                   Error_format(err, "Failed to find paired note-on for note-off at %lld", ev.time);
+Coverage_array[2630] = "sequence.in.c 1608";                                   goto END;
+Coverage_array[2631] = "sequence.in.c 1609";                               }
+Coverage_array[2632] = "sequence.in.c 1610";                           } else {
+Coverage_array[2633] = "sequence.in.c 1611";                               NoteEvent newEv = {.pitch = ev.arg1, .velocity = ev.arg2, .stime = ev.time, .duration = NoteSequence_noteOffDuration};
+Coverage_array[2634] = "sequence.in.c 1612";                               NoteEventAr_push(&noteSeq->events, newEv);
+Coverage_array[2635] = "sequence.in.c 1613";                           }
+Coverage_array[2636] = "sequence.in.c 1614";                           break;
+Coverage_array[2637] = "sequence.in.c 1615";                       }
                                                                    case Midi_bendEventType: {
-Coverage_array[2636] = "sequence.in.c 1609";                           if (bendSeq == NULL) {
-Coverage_array[2637] = "sequence.in.c 1610";                               bendSeq = FloatSequence_newBend(defaultTrack, portFind);
-Coverage_array[2638] = "sequence.in.c 1611";                           }
-Coverage_array[2639] = "sequence.in.c 1612";                           FloatEvent newEv = {.stime = ev.time, .value = (double)ev.arg1};
-Coverage_array[2640] = "sequence.in.c 1613";                           FloatEventAr_push(&bendSeq->events, newEv);
-Coverage_array[2641] = "sequence.in.c 1614";                           break;
-Coverage_array[2642] = "sequence.in.c 1615";                       }
+Coverage_array[2638] = "sequence.in.c 1617";                           if (bendSeq == NULL) {
+Coverage_array[2639] = "sequence.in.c 1618";                               bendSeq = FloatSequence_newBend(defaultTrack, portFind);
+Coverage_array[2640] = "sequence.in.c 1619";                           }
+Coverage_array[2641] = "sequence.in.c 1620";                           FloatEvent newEv = {.stime = ev.time, .value = (double)ev.arg1};
+Coverage_array[2642] = "sequence.in.c 1621";                           FloatEventAr_push(&bendSeq->events, newEv);
+Coverage_array[2643] = "sequence.in.c 1622";                           break;
+Coverage_array[2644] = "sequence.in.c 1623";                       }
                                                                    case Midi_ccEventType: {
-Coverage_array[2643] = "sequence.in.c 1617";                           if (ccSeqs[ev.arg1] == NULL) {
-Coverage_array[2644] = "sequence.in.c 1618";                               ccSeqs[ev.arg1] = FloatSequence_newCc(defaultTrack, ev.arg1, portFind);
-Coverage_array[2645] = "sequence.in.c 1619";                           }
-Coverage_array[2646] = "sequence.in.c 1620";                           FloatEvent newEv = {.stime = ev.time, .value = (double)ev.arg2};
-Coverage_array[2647] = "sequence.in.c 1621";                           FloatEventAr_push(&(ccSeqs[ev.arg1])->events, newEv);
-Coverage_array[2648] = "sequence.in.c 1622";                           break;
-Coverage_array[2649] = "sequence.in.c 1623";                       }
+Coverage_array[2645] = "sequence.in.c 1625";                           if (ccSeqs[ev.arg1] == NULL) {
+Coverage_array[2646] = "sequence.in.c 1626";                               ccSeqs[ev.arg1] = FloatSequence_newCc(defaultTrack, ev.arg1, portFind);
+Coverage_array[2647] = "sequence.in.c 1627";                           }
+Coverage_array[2648] = "sequence.in.c 1628";                           FloatEvent newEv = {.stime = ev.time, .value = (double)ev.arg2};
+Coverage_array[2649] = "sequence.in.c 1629";                           FloatEventAr_push(&(ccSeqs[ev.arg1])->events, newEv);
+Coverage_array[2650] = "sequence.in.c 1630";                           break;
+Coverage_array[2651] = "sequence.in.c 1631";                       }
                                                                    case Midi_headerEventType: {
-Coverage_array[2650] = "sequence.in.c 1625";                           long ppqn = ev.arg2;
-Coverage_array[2651] = "sequence.in.c 1626";                           tickFactor = (float)(musicalContext.ticksPerQuarterNote)/(float)(ppqn);
-Coverage_array[2652] = "sequence.in.c 1627";                           break;    
-Coverage_array[2653] = "sequence.in.c 1628";                       }
-Coverage_array[2654] = "sequence.in.c 1629";                   }
-Coverage_array[2655] = "sequence.in.c 1630";               }
-Coverage_array[2656] = "sequence.in.c 1631";           
-Coverage_array[2657] = "sequence.in.c 1632";           
-Coverage_array[2658] = "sequence.in.c 1633";               //
-Coverage_array[2659] = "sequence.in.c 1634";               // Try and compute endgroup
-Coverage_array[2660] = "sequence.in.c 1635";               //
-Coverage_array[2661] = "sequence.in.c 1636";               Ticks endgroupTime = -1;
-Coverage_array[2662] = "sequence.in.c 1637";               if (noteSeq != NULL) {
-Coverage_array[2663] = "sequence.in.c 1638";                   endgroupTime = NoteSequence_computeEndgroupTime(noteSeq);  
-Coverage_array[2664] = "sequence.in.c 1639";               }
-Coverage_array[2665] = "sequence.in.c 1640";           
-Coverage_array[2666] = "sequence.in.c 1641";               //
-Coverage_array[2667] = "sequence.in.c 1642";               // Compute length
-Coverage_array[2668] = "sequence.in.c 1643";               //
-Coverage_array[2669] = "sequence.in.c 1644";               Ticks sequenceLength = -1;
-Coverage_array[2670] = "sequence.in.c 1645";               if (noteSeq != NULL) {
-Coverage_array[2671] = "sequence.in.c 1646";                   sequenceLength = NoteSequence_compactComputeSequenceLength(noteSeq);
-Coverage_array[2672] = "sequence.in.c 1647";               }
-Coverage_array[2673] = "sequence.in.c 1648";               if (bendSeq != NULL) {
-Coverage_array[2674] = "sequence.in.c 1649";                   Ticks len = FloatSequence_compactComputeSequenceLength(bendSeq);
-Coverage_array[2675] = "sequence.in.c 1650";                   if (sequenceLength < len) {
-Coverage_array[2676] = "sequence.in.c 1651";                       sequenceLength = len;
-Coverage_array[2677] = "sequence.in.c 1652";                   }
-Coverage_array[2678] = "sequence.in.c 1653";               }
-Coverage_array[2679] = "sequence.in.c 1654";               for (int i = 0; i < 128; i++) {
-Coverage_array[2680] = "sequence.in.c 1655";                   if (ccSeqs[i] != NULL) {
-Coverage_array[2681] = "sequence.in.c 1656";                       Ticks len = FloatSequence_compactComputeSequenceLength(ccSeqs[i]);
-Coverage_array[2682] = "sequence.in.c 1657";                       if (sequenceLength < len) {
-Coverage_array[2683] = "sequence.in.c 1658";                           sequenceLength = len;
-Coverage_array[2684] = "sequence.in.c 1659";                       }       
-Coverage_array[2685] = "sequence.in.c 1660";                   }
-Coverage_array[2686] = "sequence.in.c 1661";               }
-Coverage_array[2687] = "sequence.in.c 1662";           
-Coverage_array[2688] = "sequence.in.c 1663";               //
-Coverage_array[2689] = "sequence.in.c 1664";               // Finish sequences off
-Coverage_array[2690] = "sequence.in.c 1665";               //
-Coverage_array[2691] = "sequence.in.c 1666";               if (noteSeq != NULL) {
-Coverage_array[2692] = "sequence.in.c 1667";                   NoteSequence_compactFinish(noteSeq, endgroupTime, sequenceLength, err);
-Coverage_array[2693] = "sequence.in.c 1668";                   Error_gotoLabelOnError(err, END);
-Coverage_array[2694] = "sequence.in.c 1669";               }
-Coverage_array[2695] = "sequence.in.c 1670";               if (bendSeq != NULL) {
-Coverage_array[2696] = "sequence.in.c 1671";                   FloatSequence_compactFinish(bendSeq, endgroupTime, sequenceLength, err);
-Coverage_array[2697] = "sequence.in.c 1672";                   Error_gotoLabelOnError(err, END);
-Coverage_array[2698] = "sequence.in.c 1673";               }
-Coverage_array[2699] = "sequence.in.c 1674";               for (int i = 0; i < 128; i++) {
-Coverage_array[2700] = "sequence.in.c 1675";                   if (ccSeqs[i] != NULL) {
-Coverage_array[2701] = "sequence.in.c 1676";                       FloatSequence_compactFinish(ccSeqs[i], endgroupTime, sequenceLength, err);
-Coverage_array[2702] = "sequence.in.c 1677";                       Error_gotoLabelOnError(err, END);
-Coverage_array[2703] = "sequence.in.c 1678";                   }
-Coverage_array[2704] = "sequence.in.c 1679";               }
-Coverage_array[2705] = "sequence.in.c 1680";           
-Coverage_array[2706] = "sequence.in.c 1681";             END:
-Coverage_array[2707] = "sequence.in.c 1682";               if (pipe != NULL) {
-Coverage_array[2708] = "sequence.in.c 1683";                   pclose(pipe);
-Coverage_array[2709] = "sequence.in.c 1684";               }
-Coverage_array[2710] = "sequence.in.c 1685";               if (Error_iserror(err)) {
-Coverage_array[2711] = "sequence.in.c 1686";                   if (noteSeq != NULL) {
-Coverage_array[2712] = "sequence.in.c 1687";                       NoteSequence_free(noteSeq);
-Coverage_array[2713] = "sequence.in.c 1688";                   }
-Coverage_array[2714] = "sequence.in.c 1689";                   if (bendSeq != NULL) {
-Coverage_array[2715] = "sequence.in.c 1690";                       FloatSequence_free(bendSeq);
-Coverage_array[2716] = "sequence.in.c 1691";                   }
-Coverage_array[2717] = "sequence.in.c 1692";                   for (int i = 0; i < 128; i++) {
-Coverage_array[2718] = "sequence.in.c 1693";                       if (ccSeqs[i] != NULL) {
-Coverage_array[2719] = "sequence.in.c 1694";                           FloatSequence_free(ccSeqs[i]);
-Coverage_array[2720] = "sequence.in.c 1695";                       }
-Coverage_array[2721] = "sequence.in.c 1696";                   }
-Coverage_array[2722] = "sequence.in.c 1697";                   return;
-Coverage_array[2723] = "sequence.in.c 1698";               }
-Coverage_array[2724] = "sequence.in.c 1699";           
-Coverage_array[2725] = "sequence.in.c 1700";               //
-Coverage_array[2726] = "sequence.in.c 1701";               // Populate output array
-Coverage_array[2727] = "sequence.in.c 1702";               //
-Coverage_array[2728] = "sequence.in.c 1703";               SequenceAr_truncate(output);
-Coverage_array[2729] = "sequence.in.c 1704";               if (noteSeq != NULL) {
-Coverage_array[2730] = "sequence.in.c 1705";                   SequenceAr_push(output, NoteSequence_castToSequence(noteSeq));
-Coverage_array[2731] = "sequence.in.c 1706";               }
-Coverage_array[2732] = "sequence.in.c 1707";               if (bendSeq != NULL) {
-Coverage_array[2733] = "sequence.in.c 1708";                   SequenceAr_push(output, FloatSequence_castToSequence(bendSeq));
-Coverage_array[2734] = "sequence.in.c 1709";               }
-Coverage_array[2735] = "sequence.in.c 1710";               for (int i = 0; i < 128; i++) {
-Coverage_array[2736] = "sequence.in.c 1711";                   if (ccSeqs[i] != NULL) {
-Coverage_array[2737] = "sequence.in.c 1712";                       SequenceAr_push(output, FloatSequence_castToSequence(ccSeqs[i]));
-Coverage_array[2738] = "sequence.in.c 1713";                   }
-Coverage_array[2739] = "sequence.in.c 1714";               }
-Coverage_array[2740] = "sequence.in.c 1715";               SequenceAr_sort(output);
-Coverage_array[2741] = "sequence.in.c 1716";           }
+Coverage_array[2652] = "sequence.in.c 1633";                           long ppqn = ev.arg2;
+Coverage_array[2653] = "sequence.in.c 1634";                           tickFactor = (float)(musicalContext.ticksPerQuarterNote)/(float)(ppqn);
+Coverage_array[2654] = "sequence.in.c 1635";                           break;    
+Coverage_array[2655] = "sequence.in.c 1636";                       }
+Coverage_array[2656] = "sequence.in.c 1637";                   }
+Coverage_array[2657] = "sequence.in.c 1638";               }
+Coverage_array[2658] = "sequence.in.c 1639";           
+Coverage_array[2659] = "sequence.in.c 1640";           
+Coverage_array[2660] = "sequence.in.c 1641";               //
+Coverage_array[2661] = "sequence.in.c 1642";               // Try and compute endgroup
+Coverage_array[2662] = "sequence.in.c 1643";               //
+Coverage_array[2663] = "sequence.in.c 1644";               Ticks endgroupTime = -1;
+Coverage_array[2664] = "sequence.in.c 1645";               if (noteSeq != NULL) {
+Coverage_array[2665] = "sequence.in.c 1646";                   endgroupTime = NoteSequence_computeEndgroupTime(noteSeq);  
+Coverage_array[2666] = "sequence.in.c 1647";               }
+Coverage_array[2667] = "sequence.in.c 1648";           
+Coverage_array[2668] = "sequence.in.c 1649";               //
+Coverage_array[2669] = "sequence.in.c 1650";               // Compute length
+Coverage_array[2670] = "sequence.in.c 1651";               //
+Coverage_array[2671] = "sequence.in.c 1652";               Ticks sequenceLength = -1;
+Coverage_array[2672] = "sequence.in.c 1653";               if (noteSeq != NULL) {
+Coverage_array[2673] = "sequence.in.c 1654";                   sequenceLength = NoteSequence_compactComputeSequenceLength(noteSeq);
+Coverage_array[2674] = "sequence.in.c 1655";               }
+Coverage_array[2675] = "sequence.in.c 1656";               if (bendSeq != NULL) {
+Coverage_array[2676] = "sequence.in.c 1657";                   Ticks len = FloatSequence_compactComputeSequenceLength(bendSeq);
+Coverage_array[2677] = "sequence.in.c 1658";                   if (sequenceLength < len) {
+Coverage_array[2678] = "sequence.in.c 1659";                       sequenceLength = len;
+Coverage_array[2679] = "sequence.in.c 1660";                   }
+Coverage_array[2680] = "sequence.in.c 1661";               }
+Coverage_array[2681] = "sequence.in.c 1662";               for (int i = 0; i < 128; i++) {
+Coverage_array[2682] = "sequence.in.c 1663";                   if (ccSeqs[i] != NULL) {
+Coverage_array[2683] = "sequence.in.c 1664";                       Ticks len = FloatSequence_compactComputeSequenceLength(ccSeqs[i]);
+Coverage_array[2684] = "sequence.in.c 1665";                       if (sequenceLength < len) {
+Coverage_array[2685] = "sequence.in.c 1666";                           sequenceLength = len;
+Coverage_array[2686] = "sequence.in.c 1667";                       }       
+Coverage_array[2687] = "sequence.in.c 1668";                   }
+Coverage_array[2688] = "sequence.in.c 1669";               }
+Coverage_array[2689] = "sequence.in.c 1670";           
+Coverage_array[2690] = "sequence.in.c 1671";               //
+Coverage_array[2691] = "sequence.in.c 1672";               // Finish sequences off
+Coverage_array[2692] = "sequence.in.c 1673";               //
+Coverage_array[2693] = "sequence.in.c 1674";               if (noteSeq != NULL) {
+Coverage_array[2694] = "sequence.in.c 1675";                   NoteSequence_compactFinish(noteSeq, endgroupTime, sequenceLength, err);
+Coverage_array[2695] = "sequence.in.c 1676";                   Error_gotoLabelOnError(err, END);
+Coverage_array[2696] = "sequence.in.c 1677";               }
+Coverage_array[2697] = "sequence.in.c 1678";               if (bendSeq != NULL) {
+Coverage_array[2698] = "sequence.in.c 1679";                   FloatSequence_compactFinish(bendSeq, endgroupTime, sequenceLength, err);
+Coverage_array[2699] = "sequence.in.c 1680";                   Error_gotoLabelOnError(err, END);
+Coverage_array[2700] = "sequence.in.c 1681";               }
+Coverage_array[2701] = "sequence.in.c 1682";               for (int i = 0; i < 128; i++) {
+Coverage_array[2702] = "sequence.in.c 1683";                   if (ccSeqs[i] != NULL) {
+Coverage_array[2703] = "sequence.in.c 1684";                       FloatSequence_compactFinish(ccSeqs[i], endgroupTime, sequenceLength, err);
+Coverage_array[2704] = "sequence.in.c 1685";                       Error_gotoLabelOnError(err, END);
+Coverage_array[2705] = "sequence.in.c 1686";                   }
+Coverage_array[2706] = "sequence.in.c 1687";               }
+Coverage_array[2707] = "sequence.in.c 1688";           
+Coverage_array[2708] = "sequence.in.c 1689";             END:
+Coverage_array[2709] = "sequence.in.c 1690";               if (pipe != NULL) {
+Coverage_array[2710] = "sequence.in.c 1691";                   pclose(pipe);
+Coverage_array[2711] = "sequence.in.c 1692";               }
+Coverage_array[2712] = "sequence.in.c 1693";               if (Error_iserror(err)) {
+Coverage_array[2713] = "sequence.in.c 1694";                   if (noteSeq != NULL) {
+Coverage_array[2714] = "sequence.in.c 1695";                       NoteSequence_free(noteSeq);
+Coverage_array[2715] = "sequence.in.c 1696";                   }
+Coverage_array[2716] = "sequence.in.c 1697";                   if (bendSeq != NULL) {
+Coverage_array[2717] = "sequence.in.c 1698";                       FloatSequence_free(bendSeq);
+Coverage_array[2718] = "sequence.in.c 1699";                   }
+Coverage_array[2719] = "sequence.in.c 1700";                   for (int i = 0; i < 128; i++) {
+Coverage_array[2720] = "sequence.in.c 1701";                       if (ccSeqs[i] != NULL) {
+Coverage_array[2721] = "sequence.in.c 1702";                           FloatSequence_free(ccSeqs[i]);
+Coverage_array[2722] = "sequence.in.c 1703";                       }
+Coverage_array[2723] = "sequence.in.c 1704";                   }
+Coverage_array[2724] = "sequence.in.c 1705";                   return;
+Coverage_array[2725] = "sequence.in.c 1706";               }
+Coverage_array[2726] = "sequence.in.c 1707";           
+Coverage_array[2727] = "sequence.in.c 1708";               //
+Coverage_array[2728] = "sequence.in.c 1709";               // Populate output array
+Coverage_array[2729] = "sequence.in.c 1710";               //
+Coverage_array[2730] = "sequence.in.c 1711";               SequenceAr_truncate(output);
+Coverage_array[2731] = "sequence.in.c 1712";               if (noteSeq != NULL) {
+Coverage_array[2732] = "sequence.in.c 1713";                   SequenceAr_push(output, NoteSequence_castToSequence(noteSeq));
+Coverage_array[2733] = "sequence.in.c 1714";               }
+Coverage_array[2734] = "sequence.in.c 1715";               if (bendSeq != NULL) {
+Coverage_array[2735] = "sequence.in.c 1716";                   SequenceAr_push(output, FloatSequence_castToSequence(bendSeq));
+Coverage_array[2736] = "sequence.in.c 1717";               }
+Coverage_array[2737] = "sequence.in.c 1718";               for (int i = 0; i < 128; i++) {
+Coverage_array[2738] = "sequence.in.c 1719";                   if (ccSeqs[i] != NULL) {
+Coverage_array[2739] = "sequence.in.c 1720";                       SequenceAr_push(output, FloatSequence_castToSequence(ccSeqs[i]));
+Coverage_array[2740] = "sequence.in.c 1721";                   }
+Coverage_array[2741] = "sequence.in.c 1722";               }
+Coverage_array[2742] = "sequence.in.c 1723";               SequenceAr_sort(output);
+Coverage_array[2743] = "sequence.in.c 1724";           }
 
 //
 //
 //
 /*
                                                        APIF void Frontend_recievedPadHit(Hub *hub, long pitchIn, long velocityIn){
-Coverage_array[2742] = "sequence.in.c 1723";               Error_declare(err);
-Coverage_array[2743] = "sequence.in.c 1724";               int padIndex = Hub_padIndexFromInNote(hub, pitchIn);
-Coverage_array[2744] = "sequence.in.c 1725";               if (padIndex >= PadAr_len(PadList_pads(Hub_padList(hub)))) {
-Coverage_array[2745] = "sequence.in.c 1726";                   post("Bad padIndex %d", padIndex);
-Coverage_array[2746] = "sequence.in.c 1727";                   return;
-Coverage_array[2747] = "sequence.in.c 1728";               }
-Coverage_array[2748] = "sequence.in.c 1729";           
-Coverage_array[2749] = "sequence.in.c 1730";               if (velocityIn == 0) {
-Coverage_array[2750] = "sequence.in.c 1731";                   Pad *pad = PadList_pad(Hub_padList(x), padIndex, err);
-Coverage_array[2751] = "sequence.in.c 1732";                   if (Error_maypost(err)) {
-Coverage_array[2752] = "sequence.in.c 1733";                       return;
-Coverage_array[2753] = "sequence.in.c 1734";                   }
-Coverage_array[2754] = "sequence.in.c 1735";                   Pad_setNoteReleasePending(pad, false);
-Coverage_array[2755] = "sequence.in.c 1736";                   SequenceAr_foreach(it, Pad_sequenceList(pad)) {
-Coverage_array[2756] = "sequence.in.c 1737";                   Sequence_padNoteOff(it.var);
-Coverage_array[2757] = "sequence.in.c 1738";               }
-Coverage_array[2758] = "sequence.in.c 1739";               return;
-Coverage_array[2759] = "sequence.in.c 1740";               }
-Coverage_array[2760] = "sequence.in.c 1741";           
-Coverage_array[2761] = "sequence.in.c 1742";               if (Hub_grabNextTappedPad(hub)) {
-Coverage_array[2762] = "sequence.in.c 1743";                 Hub_setGrabNextTappedPad(hub, false); 
-Coverage_array[2763] = "sequence.in.c 1744";                 Hub_changeSelectedPad(hub, padIndex, err);
-Coverage_array[2764] = "sequence.in.c 1745";                 Error_maypost(err);
-Coverage_array[2765] = "sequence.in.c 1746";               }
-Coverage_array[2766] = "sequence.in.c 1747";           
-Coverage_array[2767] = "sequence.in.c 1748";           
-Coverage_array[2768] = "sequence.in.c 1749";               Ticks now = Ticks_now();
-Coverage_array[2769] = "sequence.in.c 1750";               Ticks clockStart = Pad_useMasterClock(pad) ? Hub_masterClock(hub) : now;
-Coverage_array[2770] = "sequence.in.c 1751";               SequenceAr_foreach(it, Pad_sequenceList(pad)) {
-Coverage_array[2771] = "sequence.in.c 1752";                  SequenceAr_binInsertSeqPt(Hub_runningSequences(hub), it.var);
-Coverage_array[2772] = "sequence.in.c 1753";                  Sequence_start(it.var, clockStart, now, Hub_queue(hub), Hub_recordBuffer(hub));
-Coverage_array[2773] = "sequence.in.c 1754";               }
-Coverage_array[2774] = "sequence.in.c 1755";           
-Coverage_array[2775] = "sequence.in.c 1756";               Error_clear(err);
-Coverage_array[2776] = "sequence.in.c 1757";           }
+Coverage_array[2744] = "sequence.in.c 1731";               Error_declare(err);
+Coverage_array[2745] = "sequence.in.c 1732";               int padIndex = Hub_padIndexFromInNote(hub, pitchIn);
+Coverage_array[2746] = "sequence.in.c 1733";               if (padIndex >= PadAr_len(PadList_pads(Hub_padList(hub)))) {
+Coverage_array[2747] = "sequence.in.c 1734";                   post("Bad padIndex %d", padIndex);
+Coverage_array[2748] = "sequence.in.c 1735";                   return;
+Coverage_array[2749] = "sequence.in.c 1736";               }
+Coverage_array[2750] = "sequence.in.c 1737";           
+Coverage_array[2751] = "sequence.in.c 1738";               if (velocityIn == 0) {
+Coverage_array[2752] = "sequence.in.c 1739";                   Pad *pad = PadList_pad(Hub_padList(x), padIndex, err);
+Coverage_array[2753] = "sequence.in.c 1740";                   if (Error_maypost(err)) {
+Coverage_array[2754] = "sequence.in.c 1741";                       return;
+Coverage_array[2755] = "sequence.in.c 1742";                   }
+Coverage_array[2756] = "sequence.in.c 1743";                   Pad_setNoteReleasePending(pad, false);
+Coverage_array[2757] = "sequence.in.c 1744";                   SequenceAr_foreach(it, Pad_sequenceList(pad)) {
+Coverage_array[2758] = "sequence.in.c 1745";                   Sequence_padNoteOff(it.var);
+Coverage_array[2759] = "sequence.in.c 1746";               }
+Coverage_array[2760] = "sequence.in.c 1747";               return;
+Coverage_array[2761] = "sequence.in.c 1748";               }
+Coverage_array[2762] = "sequence.in.c 1749";           
+Coverage_array[2763] = "sequence.in.c 1750";               if (Hub_grabNextTappedPad(hub)) {
+Coverage_array[2764] = "sequence.in.c 1751";                 Hub_setGrabNextTappedPad(hub, false); 
+Coverage_array[2765] = "sequence.in.c 1752";                 Hub_changeSelectedPad(hub, padIndex, err);
+Coverage_array[2766] = "sequence.in.c 1753";                 Error_maypost(err);
+Coverage_array[2767] = "sequence.in.c 1754";               }
+Coverage_array[2768] = "sequence.in.c 1755";           
+Coverage_array[2769] = "sequence.in.c 1756";           
+Coverage_array[2770] = "sequence.in.c 1757";               Ticks now = Ticks_now();
+Coverage_array[2771] = "sequence.in.c 1758";               Ticks clockStart = Pad_useMasterClock(pad) ? Hub_masterClock(hub) : now;
+Coverage_array[2772] = "sequence.in.c 1759";               SequenceAr_foreach(it, Pad_sequenceList(pad)) {
+Coverage_array[2773] = "sequence.in.c 1760";                  SequenceAr_binInsertSeqPt(Hub_runningSequences(hub), it.var);
+Coverage_array[2774] = "sequence.in.c 1761";                  Sequence_start(it.var, clockStart, now, Hub_queue(hub), Hub_recordBuffer(hub));
+Coverage_array[2775] = "sequence.in.c 1762";               }
+Coverage_array[2776] = "sequence.in.c 1763";           
+Coverage_array[2777] = "sequence.in.c 1764";               Error_clear(err);
+Coverage_array[2778] = "sequence.in.c 1765";           }
 
                                                        APIF void Frontend_drive(Hub *hub) {
-Coverage_array[2777] = "sequence.in.c 1760";               Ticks now = Ticks_now();
-Coverage_array[2778] = "sequence.in.c 1761";               TimedPq *queue = Hub_queue(hub);
-Coverage_array[2779] = "sequence.in.c 1762";               Sequence *seq = TimedPq_dequeue(queue);
-Coverage_array[2780] = "sequence.in.c 1763";               while (seq != NULL) {
-Coverage_array[2781] = "sequence.in.c 1764";                   Sequence_drive(seq, now, queue);
-Coverage_array[2782] = "sequence.in.c 1765";                   seq = TimedPq_dequeue(queue);
-Coverage_array[2783] = "sequence.in.c 1766";               }
-Coverage_array[2784] = "sequence.in.c 1767";           }
+Coverage_array[2779] = "sequence.in.c 1768";               Ticks now = Ticks_now();
+Coverage_array[2780] = "sequence.in.c 1769";               TimedPq *queue = Hub_queue(hub);
+Coverage_array[2781] = "sequence.in.c 1770";               Sequence *seq = TimedPq_dequeue(queue);
+Coverage_array[2782] = "sequence.in.c 1771";               while (seq != NULL) {
+Coverage_array[2783] = "sequence.in.c 1772";                   Sequence_drive(seq, now, queue);
+Coverage_array[2784] = "sequence.in.c 1773";                   seq = TimedPq_dequeue(queue);
+Coverage_array[2785] = "sequence.in.c 1774";               }
+Coverage_array[2786] = "sequence.in.c 1775";           }
 
                                                        APIF void Frontend_stop(Hub *hub) {
-Coverage_array[2785] = "sequence.in.c 1770";               SequenceAr_foreach(it, Hub_runningSequences(hub)) {
-Coverage_array[2786] = "sequence.in.c 1771";                   Sequence_stop(it.var);
-Coverage_array[2787] = "sequence.in.c 1772";               }
-Coverage_array[2788] = "sequence.in.c 1773";           }
+Coverage_array[2787] = "sequence.in.c 1778";               SequenceAr_foreach(it, Hub_runningSequences(hub)) {
+Coverage_array[2788] = "sequence.in.c 1779";                   Sequence_stop(it.var);
+Coverage_array[2789] = "sequence.in.c 1780";               }
+Coverage_array[2790] = "sequence.in.c 1781";           }
 */
 #line 1 "test/for_tarray.in.c"
 #line 24 "test/for_tarray.in.c"
@@ -11623,36 +11673,36 @@ Foo recorded[maxNumRecorded] = {0};
 
                                                        APIF void Foo_recorder(Foo *self)
                                                        {
-Coverage_array[2789] = "for_tarray.in.c 39";               if (numRecorded < maxNumRecorded) {
-Coverage_array[2790] = "for_tarray.in.c 40";                   recorded[numRecorded++] = *self;
-Coverage_array[2791] = "for_tarray.in.c 41";               }
-Coverage_array[2792] = "for_tarray.in.c 42";           }
+Coverage_array[2791] = "for_tarray.in.c 39";               if (numRecorded < maxNumRecorded) {
+Coverage_array[2792] = "for_tarray.in.c 40";                   recorded[numRecorded++] = *self;
+Coverage_array[2793] = "for_tarray.in.c 41";               }
+Coverage_array[2794] = "for_tarray.in.c 42";           }
 
                                                        APIF int Foo_cmp(Foo *left, Foo *right) 
                                                        {
-Coverage_array[2793] = "for_tarray.in.c 46";               if (left->i < right->i) {
-Coverage_array[2794] = "for_tarray.in.c 47";                   return -1;
-Coverage_array[2795] = "for_tarray.in.c 48";               } else if (left->i > right->i) {
-Coverage_array[2796] = "for_tarray.in.c 49";                   return 1;
-Coverage_array[2797] = "for_tarray.in.c 50";               }
-Coverage_array[2798] = "for_tarray.in.c 51";               return 0;
-Coverage_array[2799] = "for_tarray.in.c 52";           }
+Coverage_array[2795] = "for_tarray.in.c 46";               if (left->i < right->i) {
+Coverage_array[2796] = "for_tarray.in.c 47";                   return -1;
+Coverage_array[2797] = "for_tarray.in.c 48";               } else if (left->i > right->i) {
+Coverage_array[2798] = "for_tarray.in.c 49";                   return 1;
+Coverage_array[2799] = "for_tarray.in.c 50";               }
+Coverage_array[2800] = "for_tarray.in.c 51";               return 0;
+Coverage_array[2801] = "for_tarray.in.c 52";           }
 
                                                        APIF int Foo_cmpBoth(Foo *left, Foo *right) 
                                                        {
-Coverage_array[2800] = "for_tarray.in.c 56";               int q = Foo_cmp(left, right);
-Coverage_array[2801] = "for_tarray.in.c 57";               if (q) {
-Coverage_array[2802] = "for_tarray.in.c 58";                   return q;
-Coverage_array[2803] = "for_tarray.in.c 59";               }
-Coverage_array[2804] = "for_tarray.in.c 60";           
-Coverage_array[2805] = "for_tarray.in.c 61";               if (left->d < right->d) {
-Coverage_array[2806] = "for_tarray.in.c 62";                   return -1;
-Coverage_array[2807] = "for_tarray.in.c 63";               } else if (left->d > right->d) {
-Coverage_array[2808] = "for_tarray.in.c 64";                   return 1;
-Coverage_array[2809] = "for_tarray.in.c 65";               }
-Coverage_array[2810] = "for_tarray.in.c 66";           
-Coverage_array[2811] = "for_tarray.in.c 67";               return 0;
-Coverage_array[2812] = "for_tarray.in.c 68";           }
+Coverage_array[2802] = "for_tarray.in.c 56";               int q = Foo_cmp(left, right);
+Coverage_array[2803] = "for_tarray.in.c 57";               if (q) {
+Coverage_array[2804] = "for_tarray.in.c 58";                   return q;
+Coverage_array[2805] = "for_tarray.in.c 59";               }
+Coverage_array[2806] = "for_tarray.in.c 60";           
+Coverage_array[2807] = "for_tarray.in.c 61";               if (left->d < right->d) {
+Coverage_array[2808] = "for_tarray.in.c 62";                   return -1;
+Coverage_array[2809] = "for_tarray.in.c 63";               } else if (left->d > right->d) {
+Coverage_array[2810] = "for_tarray.in.c 64";                   return 1;
+Coverage_array[2811] = "for_tarray.in.c 65";               }
+Coverage_array[2812] = "for_tarray.in.c 66";           
+Coverage_array[2813] = "for_tarray.in.c 67";               return 0;
+Coverage_array[2814] = "for_tarray.in.c 68";           }
 
 
 NOCOVER void Foo_zeroRecord() {
@@ -11667,267 +11717,271 @@ NOCOVER void Foo_zeroRecord() {
 
                                                        APIF Port *Port_newTrackId(Symbol *track, Symbol *id)
                                                        {
-Coverage_array[2813] = "for_tsequence.in.c 5";             Port *self = Mem_calloc(sizeof(Port));
-Coverage_array[2814] = "for_tsequence.in.c 6";             self->obj.utilityPointer = AtomArAr_new(0);
-Coverage_array[2815] = "for_tsequence.in.c 7";             self->track              = track;
-Coverage_array[2816] = "for_tsequence.in.c 8";             self->id                 = id;
-Coverage_array[2817] = "for_tsequence.in.c 9";             return self;
-Coverage_array[2818] = "for_tsequence.in.c 10";        }
+Coverage_array[2815] = "for_tsequence.in.c 5";             Port *self = Mem_calloc(sizeof(Port));
+Coverage_array[2816] = "for_tsequence.in.c 6";             self->obj.utilityPointer = AtomArAr_new(0);
+Coverage_array[2817] = "for_tsequence.in.c 7";             self->track              = track;
+Coverage_array[2818] = "for_tsequence.in.c 8";             self->id                 = id;
+Coverage_array[2819] = "for_tsequence.in.c 9";             return self;
+Coverage_array[2820] = "for_tsequence.in.c 10";        }
 
                                                        APIF void Port_free(Port *self)
                                                        {
-Coverage_array[2819] = "for_tsequence.in.c 14";            if (self->obj.utilityPointer != NULL) {
-Coverage_array[2820] = "for_tsequence.in.c 15";                AtomArAr_free(self->obj.utilityPointer);
-Coverage_array[2821] = "for_tsequence.in.c 16";            }
-Coverage_array[2822] = "for_tsequence.in.c 17";            Mem_free(self);
-Coverage_array[2823] = "for_tsequence.in.c 18";        }
+Coverage_array[2821] = "for_tsequence.in.c 14";            if (self->obj.utilityPointer != NULL) {
+Coverage_array[2822] = "for_tsequence.in.c 15";                AtomArAr_free(self->obj.utilityPointer);
+Coverage_array[2823] = "for_tsequence.in.c 16";            }
+Coverage_array[2824] = "for_tsequence.in.c 17";            Mem_free(self);
+Coverage_array[2825] = "for_tsequence.in.c 18";        }
 
                                                        APIF PortFind *PortFind_newFromTable(int argc, PortFindCell *cells)
                                                        {
-Coverage_array[2824] = "for_tsequence.in.c 22";            PortFind *self = PortFind_new();
-Coverage_array[2825] = "for_tsequence.in.c 23";            for (int i = 0; i < argc; i++) {
-Coverage_array[2826] = "for_tsequence.in.c 24";                PortFindCellAr_push(&self->objects, cells[i]);       
-Coverage_array[2827] = "for_tsequence.in.c 25";            }
-Coverage_array[2828] = "for_tsequence.in.c 26";            return self;
-Coverage_array[2829] = "for_tsequence.in.c 27";        }
+Coverage_array[2826] = "for_tsequence.in.c 22";            PortFind *self = PortFind_new();
+Coverage_array[2827] = "for_tsequence.in.c 23";            for (int i = 0; i < argc; i++) {
+Coverage_array[2828] = "for_tsequence.in.c 24";                PortFindCellAr_push(&self->objects, cells[i]);       
+Coverage_array[2829] = "for_tsequence.in.c 25";            }
+Coverage_array[2830] = "for_tsequence.in.c 26";            return self;
+Coverage_array[2831] = "for_tsequence.in.c 27";        }
 
                                                        APIF PortFind *PortFind_createStandardSpoof(void)
                                                        {
-Coverage_array[2830] = "for_tsequence.in.c 31";            const int ncells = 3;
-Coverage_array[2831] = "for_tsequence.in.c 32";            Coverage_off;
+Coverage_array[2832] = "for_tsequence.in.c 31";            const int ncells = 3;
+Coverage_array[2833] = "for_tsequence.in.c 32";            Coverage_off;
                                                            PortFindCell cells[ncells] = {
                                                                {.reciever = Port_newTrackId(Symbol_gen("piano"),  Symbol_gen("idPiano")),  .varname = Symbol_gen("unknown")},
                                                                {.reciever = Port_newTrackId(Symbol_gen("guitar"), Symbol_gen("idGuitar")), .varname = Symbol_gen("unknown")},
                                                                {.reciever = Port_newTrackId(Symbol_gen("drums"),  Symbol_gen("idDrums")),  .varname = Symbol_gen("unknown")},
                                                            };
                                                            Coverage_on;
-Coverage_array[2832] = "for_tsequence.in.c 39";            return PortFind_newFromTable(ncells, cells);
-Coverage_array[2833] = "for_tsequence.in.c 40";        }
+Coverage_array[2834] = "for_tsequence.in.c 39";            return PortFind_newFromTable(ncells, cells);
+Coverage_array[2835] = "for_tsequence.in.c 40";        }
 
                                                        APIF void PortFind_userClear(PortFind *self)
                                                        {
-Coverage_array[2834] = "for_tsequence.in.c 44";            PortFindCellAr_foreach(it, &self->objects) {
-Coverage_array[2835] = "for_tsequence.in.c 45";                Port_free(it.var->reciever);
-Coverage_array[2836] = "for_tsequence.in.c 46";            }
-Coverage_array[2837] = "for_tsequence.in.c 47";        }
+Coverage_array[2836] = "for_tsequence.in.c 44";            PortFindCellAr_foreach(it, &self->objects) {
+Coverage_array[2837] = "for_tsequence.in.c 45";                Port_free(it.var->reciever);
+Coverage_array[2838] = "for_tsequence.in.c 46";            }
+Coverage_array[2839] = "for_tsequence.in.c 47";        }
 
 NoteEventAr *NoteOutlet_dbSent = NULL;
 
                                                        APIF void NoteOutlet_dbRewindSent() 
                                                        {
-Coverage_array[2838] = "for_tsequence.in.c 53";            if (NoteOutlet_dbSent != NULL) {
-Coverage_array[2839] = "for_tsequence.in.c 54";                NoteEventAr_truncate(NoteOutlet_dbSent);    
-Coverage_array[2840] = "for_tsequence.in.c 55";            }
-Coverage_array[2841] = "for_tsequence.in.c 56";        }
+Coverage_array[2840] = "for_tsequence.in.c 53";            if (NoteOutlet_dbSent != NULL) {
+Coverage_array[2841] = "for_tsequence.in.c 54";                NoteEventAr_truncate(NoteOutlet_dbSent);    
+Coverage_array[2842] = "for_tsequence.in.c 55";            }
+Coverage_array[2843] = "for_tsequence.in.c 56";        }
 
                                                        APIF void NoteOutlet_dbRecordEvent(int pitch, int velocity) 
                                                        {
-Coverage_array[2842] = "for_tsequence.in.c 60";               if (NoteOutlet_dbSent == NULL) {
-Coverage_array[2843] = "for_tsequence.in.c 61";                NoteOutlet_dbSent = NoteEventAr_new(0);
-Coverage_array[2844] = "for_tsequence.in.c 62";            }
-Coverage_array[2845] = "for_tsequence.in.c 63";            NoteEvent e = {.pitch = pitch, .velocity = velocity, .stime = Ticks_dbCurrent, .duration = 0};
-Coverage_array[2846] = "for_tsequence.in.c 64";            NoteEventAr_push(NoteOutlet_dbSent, e);
-Coverage_array[2847] = "for_tsequence.in.c 65";        }
+Coverage_array[2844] = "for_tsequence.in.c 60";               if (NoteOutlet_dbSent == NULL) {
+Coverage_array[2845] = "for_tsequence.in.c 61";                NoteOutlet_dbSent = NoteEventAr_new(0);
+Coverage_array[2846] = "for_tsequence.in.c 62";            }
+Coverage_array[2847] = "for_tsequence.in.c 63";            NoteEvent e = {.pitch = pitch, .velocity = velocity, .stime = Ticks_dbCurrent, .duration = 0};
+Coverage_array[2848] = "for_tsequence.in.c 64";            NoteEventAr_push(NoteOutlet_dbSent, e);
+Coverage_array[2849] = "for_tsequence.in.c 65";        }
                                                        APIF void NoteOutlet_dbGetResults(NoteEventAr *arr)
                                                        {
-Coverage_array[2848] = "for_tsequence.in.c 68";            if (NoteOutlet_dbSent == NULL) {
-Coverage_array[2849] = "for_tsequence.in.c 69";                return;
-Coverage_array[2850] = "for_tsequence.in.c 70";            }
-Coverage_array[2851] = "for_tsequence.in.c 71";            NoteEventAr_truncate(arr);
-Coverage_array[2852] = "for_tsequence.in.c 72";        
-Coverage_array[2853] = "for_tsequence.in.c 73";            Ticks offTime[128] = {0};
-Coverage_array[2854] = "for_tsequence.in.c 74";            NoteEventAr_rforeach(it, NoteOutlet_dbSent) {
-Coverage_array[2855] = "for_tsequence.in.c 75";                if (it.var->velocity == 0) {
-Coverage_array[2856] = "for_tsequence.in.c 76";                    offTime[it.var->pitch] = it.var->stime;
-Coverage_array[2857] = "for_tsequence.in.c 77";                } else {
-Coverage_array[2858] = "for_tsequence.in.c 78";                    NoteEvent e = *it.var;
-Coverage_array[2859] = "for_tsequence.in.c 79";                    if (offTime[e.pitch] == 0) {
-Coverage_array[2860] = "for_tsequence.in.c 80";                        // This is the case when we have a note-on without a closing note-off. For better or worse
-Coverage_array[2861] = "for_tsequence.in.c 81";                        // I handle this case by ignoring all notes that don't have a note off.
-Coverage_array[2862] = "for_tsequence.in.c 82";                        continue;
-Coverage_array[2863] = "for_tsequence.in.c 83";                    }
-Coverage_array[2864] = "for_tsequence.in.c 84";                    e.duration  = offTime[e.pitch] - e.stime;
-Coverage_array[2865] = "for_tsequence.in.c 85";                    NoteEventAr_push(arr, e);
-Coverage_array[2866] = "for_tsequence.in.c 86";                }
-Coverage_array[2867] = "for_tsequence.in.c 87";            }
-Coverage_array[2868] = "for_tsequence.in.c 88";            // reverse arr
-Coverage_array[2869] = "for_tsequence.in.c 89";            int N = NoteEventAr_len(arr);
-Coverage_array[2870] = "for_tsequence.in.c 90";            NoteEvent *d = arr->data;
-Coverage_array[2871] = "for_tsequence.in.c 91";            for (int i = 0; i < N/2; i++) {
-Coverage_array[2872] = "for_tsequence.in.c 92";                NoteEvent h = d[i];
-Coverage_array[2873] = "for_tsequence.in.c 93";                d[i] = d[N-i-1];
-Coverage_array[2874] = "for_tsequence.in.c 94";                d[N-i-1] = h;
-Coverage_array[2875] = "for_tsequence.in.c 95";            }
-Coverage_array[2876] = "for_tsequence.in.c 96";            NoteOutlet_dbRewindSent();
-Coverage_array[2877] = "for_tsequence.in.c 97";        }
+Coverage_array[2850] = "for_tsequence.in.c 68";            if (NoteOutlet_dbSent == NULL) {
+Coverage_array[2851] = "for_tsequence.in.c 69";                return;
+Coverage_array[2852] = "for_tsequence.in.c 70";            }
+Coverage_array[2853] = "for_tsequence.in.c 71";            NoteEventAr_truncate(arr);
+Coverage_array[2854] = "for_tsequence.in.c 72";        
+Coverage_array[2855] = "for_tsequence.in.c 73";            Ticks offTime[128] = {0};
+Coverage_array[2856] = "for_tsequence.in.c 74";            NoteEventAr_rforeach(it, NoteOutlet_dbSent) {
+Coverage_array[2857] = "for_tsequence.in.c 75";                if (it.var->velocity == 0) {
+Coverage_array[2858] = "for_tsequence.in.c 76";                    offTime[it.var->pitch] = it.var->stime;
+Coverage_array[2859] = "for_tsequence.in.c 77";                } else {
+Coverage_array[2860] = "for_tsequence.in.c 78";                    NoteEvent e = *it.var;
+Coverage_array[2861] = "for_tsequence.in.c 79";                    if (offTime[e.pitch] == 0) {
+Coverage_array[2862] = "for_tsequence.in.c 80";                        // This is the case when we have a note-on without a closing note-off. For better or worse
+Coverage_array[2863] = "for_tsequence.in.c 81";                        // I handle this case by ignoring all notes that don't have a note off.
+Coverage_array[2864] = "for_tsequence.in.c 82";                        continue;
+Coverage_array[2865] = "for_tsequence.in.c 83";                    }
+Coverage_array[2866] = "for_tsequence.in.c 84";                    e.duration  = offTime[e.pitch] - e.stime;
+Coverage_array[2867] = "for_tsequence.in.c 85";                    NoteEventAr_push(arr, e);
+Coverage_array[2868] = "for_tsequence.in.c 86";                }
+Coverage_array[2869] = "for_tsequence.in.c 87";            }
+Coverage_array[2870] = "for_tsequence.in.c 88";            // reverse arr
+Coverage_array[2871] = "for_tsequence.in.c 89";            int N = NoteEventAr_len(arr);
+Coverage_array[2872] = "for_tsequence.in.c 90";            NoteEvent *d = arr->data;
+Coverage_array[2873] = "for_tsequence.in.c 91";            for (int i = 0; i < N/2; i++) {
+Coverage_array[2874] = "for_tsequence.in.c 92";                NoteEvent h = d[i];
+Coverage_array[2875] = "for_tsequence.in.c 93";                d[i] = d[N-i-1];
+Coverage_array[2876] = "for_tsequence.in.c 94";                d[N-i-1] = h;
+Coverage_array[2877] = "for_tsequence.in.c 95";            }
+Coverage_array[2878] = "for_tsequence.in.c 96";            NoteOutlet_dbRewindSent();
+Coverage_array[2879] = "for_tsequence.in.c 97";        }
 
                                                        APIF void NoteOutlet_dbReportNoteOffs(NoteEventAr *arr)
                                                        {
-Coverage_array[2878] = "for_tsequence.in.c 101";           if (NoteOutlet_dbSent == NULL) {
-Coverage_array[2879] = "for_tsequence.in.c 102";               return;
-Coverage_array[2880] = "for_tsequence.in.c 103";           }
-Coverage_array[2881] = "for_tsequence.in.c 104";           NoteEventAr_truncate(arr);
-Coverage_array[2882] = "for_tsequence.in.c 105";       
-Coverage_array[2883] = "for_tsequence.in.c 106";           NoteEventAr_foreach(it, NoteOutlet_dbSent) {
-Coverage_array[2884] = "for_tsequence.in.c 107";               if (it.var->velocity == 0) {
-Coverage_array[2885] = "for_tsequence.in.c 108";                   NoteEvent e = *it.var;
-Coverage_array[2886] = "for_tsequence.in.c 109";                   NoteEventAr_push(arr, e);
-Coverage_array[2887] = "for_tsequence.in.c 110";               }
-Coverage_array[2888] = "for_tsequence.in.c 111";           }
-Coverage_array[2889] = "for_tsequence.in.c 112";           // reverse arr
-Coverage_array[2890] = "for_tsequence.in.c 113";           int N = NoteEventAr_len(arr);
-Coverage_array[2891] = "for_tsequence.in.c 114";           NoteEvent *d = arr->data;
-Coverage_array[2892] = "for_tsequence.in.c 115";           for (int i = 0; i < N/2; i++) {
-Coverage_array[2893] = "for_tsequence.in.c 116";               NoteEvent h = d[i];
-Coverage_array[2894] = "for_tsequence.in.c 117";               d[i] = d[N-i-1];
-Coverage_array[2895] = "for_tsequence.in.c 118";               d[N-i-1] = h;
-Coverage_array[2896] = "for_tsequence.in.c 119";           }
-Coverage_array[2897] = "for_tsequence.in.c 120";           NoteOutlet_dbRewindSent();
-Coverage_array[2898] = "for_tsequence.in.c 121";       }
+Coverage_array[2880] = "for_tsequence.in.c 101";           if (NoteOutlet_dbSent == NULL) {
+Coverage_array[2881] = "for_tsequence.in.c 102";               return;
+Coverage_array[2882] = "for_tsequence.in.c 103";           }
+Coverage_array[2883] = "for_tsequence.in.c 104";           NoteEventAr_truncate(arr);
+Coverage_array[2884] = "for_tsequence.in.c 105";       
+Coverage_array[2885] = "for_tsequence.in.c 106";           NoteEventAr_foreach(it, NoteOutlet_dbSent) {
+Coverage_array[2886] = "for_tsequence.in.c 107";               if (it.var->velocity == 0) {
+Coverage_array[2887] = "for_tsequence.in.c 108";                   NoteEvent e = *it.var;
+Coverage_array[2888] = "for_tsequence.in.c 109";                   NoteEventAr_push(arr, e);
+Coverage_array[2889] = "for_tsequence.in.c 110";               }
+Coverage_array[2890] = "for_tsequence.in.c 111";           }
+Coverage_array[2891] = "for_tsequence.in.c 112";           // reverse arr
+Coverage_array[2892] = "for_tsequence.in.c 113";           int N = NoteEventAr_len(arr);
+Coverage_array[2893] = "for_tsequence.in.c 114";           NoteEvent *d = arr->data;
+Coverage_array[2894] = "for_tsequence.in.c 115";           for (int i = 0; i < N/2; i++) {
+Coverage_array[2895] = "for_tsequence.in.c 116";               NoteEvent h = d[i];
+Coverage_array[2896] = "for_tsequence.in.c 117";               d[i] = d[N-i-1];
+Coverage_array[2897] = "for_tsequence.in.c 118";               d[N-i-1] = h;
+Coverage_array[2898] = "for_tsequence.in.c 119";           }
+Coverage_array[2899] = "for_tsequence.in.c 120";           NoteOutlet_dbRewindSent();
+Coverage_array[2900] = "for_tsequence.in.c 121";       }
 
+Coverage_off;
+#define VERB(i, m) do {\
+	if (verbose) {\
+		printf("%s [%d]: %s\n", __func__, i, m);\
+	}\
+	return false;\
+} while (0)
+Coverage_on;
 
-#line 144 "test/for_tsequence.in.c"
+                                                       APIF bool NoteSequence_tableNotesEqual(NoteSequence *self, int argc, NoteEvent *argv, bool verbose)
+                                                       {
+Coverage_array[2901] = "for_tsequence.in.c 134";           if (argc != NoteEventAr_len(&self->events)) {
+Coverage_array[2902] = "for_tsequence.in.c 135";               VERB(-1, "unequal events length");
+Coverage_array[2903] = "for_tsequence.in.c 136";           }
+Coverage_array[2904] = "for_tsequence.in.c 137";           int i = 0;
+Coverage_array[2905] = "for_tsequence.in.c 138";           NoteEventAr_foreach(it, &self->events) {
+Coverage_array[2906] = "for_tsequence.in.c 139";               if (NoteSequence_isMarkerValue(it.var->duration) || NoteSequence_isMarkerValue(argv[i].duration)) {
+Coverage_array[2907] = "for_tsequence.in.c 140";                   if (it.var->duration != argv[i].duration) {
+Coverage_array[2908] = "for_tsequence.in.c 141";                       VERB(i, "marker element mismatch");
+Coverage_array[2909] = "for_tsequence.in.c 142";                       return false;            
+Coverage_array[2910] = "for_tsequence.in.c 143";                   }
+Coverage_array[2911] = "for_tsequence.in.c 144";               } else {
+Coverage_array[2912] = "for_tsequence.in.c 145";                      if (it.var->pitch != argv[i].pitch) {
+Coverage_array[2913] = "for_tsequence.in.c 146";                          VERB(i, "pitch mismatch");
+Coverage_array[2914] = "for_tsequence.in.c 147";                      }
+Coverage_array[2915] = "for_tsequence.in.c 148";                      if (it.var->velocity != argv[i].velocity) {
+Coverage_array[2916] = "for_tsequence.in.c 149";                          VERB(i, "velocity mismatch");
+Coverage_array[2917] = "for_tsequence.in.c 150";                      }
+Coverage_array[2918] = "for_tsequence.in.c 151";                      if (it.var->stime != argv[i].stime) {
+Coverage_array[2919] = "for_tsequence.in.c 152";                          VERB(i, "stime mismatch");
+Coverage_array[2920] = "for_tsequence.in.c 153";                      }
+Coverage_array[2921] = "for_tsequence.in.c 154";                      if (it.var->duration != argv[i].duration) {
+Coverage_array[2922] = "for_tsequence.in.c 155";                          VERB(i, "duration mismatch");
+Coverage_array[2923] = "for_tsequence.in.c 156";                      }
+Coverage_array[2924] = "for_tsequence.in.c 157";               }
+Coverage_array[2925] = "for_tsequence.in.c 158";               i++;
+Coverage_array[2926] = "for_tsequence.in.c 159";           }
+Coverage_array[2927] = "for_tsequence.in.c 160";           return true;
+Coverage_array[2928] = "for_tsequence.in.c 161";       }
+
+#undef VERB
+
+#line 185 "test/for_tsequence.in.c"
 
                                                        APIF int SequenceDriveDirective_cmp(SequenceDriveDirective *left, SequenceDriveDirective *right)
                                                        {
-Coverage_array[2899] = "for_tsequence.in.c 147";           if (left->time < right->time) {
-Coverage_array[2900] = "for_tsequence.in.c 148";               return -1;
-Coverage_array[2901] = "for_tsequence.in.c 149";           } else if (left->time > right->time) {
-Coverage_array[2902] = "for_tsequence.in.c 150";               return 1;
-Coverage_array[2903] = "for_tsequence.in.c 151";           }
-Coverage_array[2904] = "for_tsequence.in.c 152";           return 0;
-Coverage_array[2905] = "for_tsequence.in.c 153";       }
+Coverage_array[2929] = "for_tsequence.in.c 188";           if (left->time < right->time) {
+Coverage_array[2930] = "for_tsequence.in.c 189";               return -1;
+Coverage_array[2931] = "for_tsequence.in.c 190";           } else if (left->time > right->time) {
+Coverage_array[2932] = "for_tsequence.in.c 191";               return 1;
+Coverage_array[2933] = "for_tsequence.in.c 192";           }
+Coverage_array[2934] = "for_tsequence.in.c 193";           return 0;
+Coverage_array[2935] = "for_tsequence.in.c 194";       }
 
-#line 168 "test/for_tsequence.in.c"
+#line 209 "test/for_tsequence.in.c"
 
-#define SequenceDrive_stop 1
-#define SequenceDrive_padNoteOff 2
+#define SequenceDrive_play        9
+#define SequenceDrive_stop       10
+#define SequenceDrive_padNoteOff 11
 
+                                                       APIF SequenceDrive *SequenceDrive_newBuild(int argc, SequenceDriveDirective *argv, RecordBuffer *recordBuffer)
+                                                       {
+Coverage_array[2936] = "for_tsequence.in.c 216";           SequenceDrive *self = SequenceDrive_new();
+Coverage_array[2937] = "for_tsequence.in.c 217";           self->maxIterations = 1000;
+Coverage_array[2938] = "for_tsequence.in.c 218";           self->timeStop      = Ticks_maxTime;
+Coverage_array[2939] = "for_tsequence.in.c 219";           self->timeDelta     = 480/8; // 32nd note resolution
+Coverage_array[2940] = "for_tsequence.in.c 220";           for (int i = 0; i < argc; i++) {
+Coverage_array[2941] = "for_tsequence.in.c 221";               SequenceDriveDirectivePq_push(&self->directives, argv[i]);
+Coverage_array[2942] = "for_tsequence.in.c 222";           }
+Coverage_array[2943] = "for_tsequence.in.c 223";           SequenceDriveDirectivePq_pqSort(&self->directives);    
+Coverage_array[2944] = "for_tsequence.in.c 224";           if (recordBuffer != NULL) {
+Coverage_array[2945] = "for_tsequence.in.c 225";               self->recordBuffer = recordBuffer;
+Coverage_array[2946] = "for_tsequence.in.c 226";           }
+Coverage_array[2947] = "for_tsequence.in.c 227";           return self;
+Coverage_array[2948] = "for_tsequence.in.c 228";       }
 
                                                        APIF void SequenceDrive_toCompletion(SequenceDrive *self, Error *err)
                                                        {
-Coverage_array[2906] = "for_tsequence.in.c 175";       
-Coverage_array[2907] = "for_tsequence.in.c 176";           SequenceDriveDirectivePq_pqSort(&self->directives);
-Coverage_array[2908] = "for_tsequence.in.c 177";           if (self->maxIterations <= 0) {
-Coverage_array[2909] = "for_tsequence.in.c 178";               self->maxIterations = 1000;
-Coverage_array[2910] = "for_tsequence.in.c 179";           }
-Coverage_array[2911] = "for_tsequence.in.c 180";           if (self->timeStop <= 0) {
-Coverage_array[2912] = "for_tsequence.in.c 181";               self->timeStop = Ticks_maxTime;
-Coverage_array[2913] = "for_tsequence.in.c 182";           }
-Coverage_array[2914] = "for_tsequence.in.c 183";           if (self->timeDelta <= 0) {
-Coverage_array[2915] = "for_tsequence.in.c 184";               self->timeDelta = 480/8; // 32nd note resolution
-Coverage_array[2916] = "for_tsequence.in.c 185";           } 
-Coverage_array[2917] = "for_tsequence.in.c 186";       
-Coverage_array[2918] = "for_tsequence.in.c 187";           Ticks now     = 0;
-Coverage_array[2919] = "for_tsequence.in.c 188";           int iteration = 0;
-Coverage_array[2920] = "for_tsequence.in.c 189";           for (;;) {
-Coverage_array[2921] = "for_tsequence.in.c 190";       
-Coverage_array[2922] = "for_tsequence.in.c 191";               // Grab directives
-Coverage_array[2923] = "for_tsequence.in.c 192";               SequenceDriveDirective *peeked = SequenceDriveDirectivePq_pqPeek(&self->directives);
-Coverage_array[2924] = "for_tsequence.in.c 193";               while (peeked != NULL) {
-Coverage_array[2925] = "for_tsequence.in.c 194";                   if (SequenceDriveDirective_time(peeked) > now) {
-Coverage_array[2926] = "for_tsequence.in.c 195";                       break;
-Coverage_array[2927] = "for_tsequence.in.c 196";                   } 
-Coverage_array[2928] = "for_tsequence.in.c 197";       
-Coverage_array[2929] = "for_tsequence.in.c 198";                   SequenceDriveDirective timed = {0};
-Coverage_array[2930] = "for_tsequence.in.c 199";                   SequenceDriveDirectivePq_pqPop(&self->directives, &timed);
-Coverage_array[2931] = "for_tsequence.in.c 200";                   int directive = SequenceDriveDirective_directive(&timed);
-Coverage_array[2932] = "for_tsequence.in.c 201";                   if (directive == SequenceDrive_stop) {
-Coverage_array[2933] = "for_tsequence.in.c 202";                       SequenceAr *seqAr = SequenceDriveDirective_sequences(&timed);
-Coverage_array[2934] = "for_tsequence.in.c 203";                       SequenceAr_foreach(it, seqAr) {
-Coverage_array[2935] = "for_tsequence.in.c 204";                           Sequence_stop(*it.var, timed.time, err);
-Coverage_array[2936] = "for_tsequence.in.c 205";                           Error_returnVoidOnError(err);
-Coverage_array[2937] = "for_tsequence.in.c 206";                       }
-Coverage_array[2938] = "for_tsequence.in.c 207";                   } else if (directive == SequenceDrive_padNoteOff) {
-Coverage_array[2939] = "for_tsequence.in.c 208";                       SequenceAr *seqAr = SequenceDriveDirective_sequences(&timed);
-Coverage_array[2940] = "for_tsequence.in.c 209";                       SequenceAr_foreach(it, seqAr) {
-Coverage_array[2941] = "for_tsequence.in.c 210";                           Sequence_padNoteOff(*it.var, 0, now, err);
-Coverage_array[2942] = "for_tsequence.in.c 211";                           Error_returnVoidOnError(err);
-Coverage_array[2943] = "for_tsequence.in.c 212";                       }
-Coverage_array[2944] = "for_tsequence.in.c 213";                   } else {
-Coverage_array[2945] = "for_tsequence.in.c 214";                       Error_format(err, "Unknown directive %d\n", directive);
-Coverage_array[2946] = "for_tsequence.in.c 215";                   }
-Coverage_array[2947] = "for_tsequence.in.c 216";         
-Coverage_array[2948] = "for_tsequence.in.c 217";                   peeked = SequenceDriveDirectivePq_pqPeek(&self->directives);
-Coverage_array[2949] = "for_tsequence.in.c 218";               }
-Coverage_array[2950] = "for_tsequence.in.c 219";       
-Coverage_array[2951] = "for_tsequence.in.c 220";               // Drive 
-Coverage_array[2952] = "for_tsequence.in.c 221";               for (;;) {
-Coverage_array[2953] = "for_tsequence.in.c 222";                   Sequence *seq = TimedPq_dequeue(self->queue, now);
-Coverage_array[2954] = "for_tsequence.in.c 223";                   if (seq == NULL) {
-Coverage_array[2955] = "for_tsequence.in.c 224";                       break;
-Coverage_array[2956] = "for_tsequence.in.c 225";                   }
-Coverage_array[2957] = "for_tsequence.in.c 226";                   Sequence_drive(seq, now, self->queue, err);
-Coverage_array[2958] = "for_tsequence.in.c 227";                   Error_returnVoidOnError(err);
-Coverage_array[2959] = "for_tsequence.in.c 228";               }
-Coverage_array[2960] = "for_tsequence.in.c 229";       
-Coverage_array[2961] = "for_tsequence.in.c 230";               // Time book keeping
-Coverage_array[2962] = "for_tsequence.in.c 231";               if (iteration > self->maxIterations) {
-Coverage_array[2963] = "for_tsequence.in.c 232";                   Error_format(err, "Exceeded maxIterations (%d)", iteration);
-Coverage_array[2964] = "for_tsequence.in.c 233";                   return;
-Coverage_array[2965] = "for_tsequence.in.c 234";               }
-Coverage_array[2966] = "for_tsequence.in.c 235";               now += self->timeDelta;
-Coverage_array[2967] = "for_tsequence.in.c 236";               if (now > self->timeStop) {
-Coverage_array[2968] = "for_tsequence.in.c 237";                   return;
-Coverage_array[2969] = "for_tsequence.in.c 238";               }
-Coverage_array[2970] = "for_tsequence.in.c 239";       
-Coverage_array[2971] = "for_tsequence.in.c 240";               if (TimedPq_len(self->queue) == 0 && SequenceDriveDirectivePq_len(&self->directives) == 0) {
-Coverage_array[2972] = "for_tsequence.in.c 241";                   return;
-Coverage_array[2973] = "for_tsequence.in.c 242";               }
-Coverage_array[2974] = "for_tsequence.in.c 243";           }
-Coverage_array[2975] = "for_tsequence.in.c 244";       }
+Coverage_array[2949] = "for_tsequence.in.c 232";           Ticks now     = 0;
+Coverage_array[2950] = "for_tsequence.in.c 233";           int iteration = 0;
+Coverage_array[2951] = "for_tsequence.in.c 234";           for (;;) {
+Coverage_array[2952] = "for_tsequence.in.c 235";       
+Coverage_array[2953] = "for_tsequence.in.c 236";               // Grab directives
+Coverage_array[2954] = "for_tsequence.in.c 237";               SequenceDriveDirective *peeked = SequenceDriveDirectivePq_pqPeek(&self->directives);
+Coverage_array[2955] = "for_tsequence.in.c 238";               while (peeked != NULL) {
+Coverage_array[2956] = "for_tsequence.in.c 239";                   if (SequenceDriveDirective_time(peeked) > now) {
+Coverage_array[2957] = "for_tsequence.in.c 240";                       break;
+Coverage_array[2958] = "for_tsequence.in.c 241";                   } 
+Coverage_array[2959] = "for_tsequence.in.c 242";       
+Coverage_array[2960] = "for_tsequence.in.c 243";                   SequenceDriveDirective timed = {0};
+Coverage_array[2961] = "for_tsequence.in.c 244";                   SequenceDriveDirectivePq_pqPop(&self->directives, &timed);
+Coverage_array[2962] = "for_tsequence.in.c 245";       
+Coverage_array[2963] = "for_tsequence.in.c 246";                   int directive     = SequenceDriveDirective_directive(&timed);
+Coverage_array[2964] = "for_tsequence.in.c 247";                   SequenceAr *seqAr = SequenceDriveDirective_sequences(&timed);
+Coverage_array[2965] = "for_tsequence.in.c 248";                   if (directive == SequenceDrive_play) {
+Coverage_array[2966] = "for_tsequence.in.c 249";                       SequenceAr_foreach(it, seqAr) {
+Coverage_array[2967] = "for_tsequence.in.c 250";                           // NOTE: this start call implies that the master clock starts at time 0
+Coverage_array[2968] = "for_tsequence.in.c 251";                           Sequence_start(*it.var, 0, timed.time, self->queue, self->recordBuffer, err);
+Coverage_array[2969] = "for_tsequence.in.c 252";                           Error_returnVoidOnError(err);
+Coverage_array[2970] = "for_tsequence.in.c 253";                       }
+Coverage_array[2971] = "for_tsequence.in.c 254";                   } else if (directive == SequenceDrive_stop) {
+Coverage_array[2972] = "for_tsequence.in.c 255";                       SequenceAr_foreach(it, seqAr) {
+Coverage_array[2973] = "for_tsequence.in.c 256";                           Sequence_stop(*it.var, timed.time, err);
+Coverage_array[2974] = "for_tsequence.in.c 257";                           Error_returnVoidOnError(err);
+Coverage_array[2975] = "for_tsequence.in.c 258";                       }
+Coverage_array[2976] = "for_tsequence.in.c 259";                   } else if (directive == SequenceDrive_padNoteOff) {
+Coverage_array[2977] = "for_tsequence.in.c 260";                       SequenceAr_foreach(it, seqAr) {
+Coverage_array[2978] = "for_tsequence.in.c 261";                           Sequence_padNoteOff(*it.var, now, err);
+Coverage_array[2979] = "for_tsequence.in.c 262";                           Error_returnVoidOnError(err);
+Coverage_array[2980] = "for_tsequence.in.c 263";                       }
+Coverage_array[2981] = "for_tsequence.in.c 264";                   } else {
+Coverage_array[2982] = "for_tsequence.in.c 265";                       Error_format(err, "Unknown directive %d\n", directive);
+Coverage_array[2983] = "for_tsequence.in.c 266";                   }
+Coverage_array[2984] = "for_tsequence.in.c 267";         
+Coverage_array[2985] = "for_tsequence.in.c 268";                   peeked = SequenceDriveDirectivePq_pqPeek(&self->directives);
+Coverage_array[2986] = "for_tsequence.in.c 269";               }
+Coverage_array[2987] = "for_tsequence.in.c 270";       
+Coverage_array[2988] = "for_tsequence.in.c 271";               // Drive 
+Coverage_array[2989] = "for_tsequence.in.c 272";               for (;;) {
+Coverage_array[2990] = "for_tsequence.in.c 273";                   Sequence *seq = TimedPq_dequeue(self->queue, now);
+Coverage_array[2991] = "for_tsequence.in.c 274";                   if (seq == NULL) {
+Coverage_array[2992] = "for_tsequence.in.c 275";                       break;
+Coverage_array[2993] = "for_tsequence.in.c 276";                   }
+Coverage_array[2994] = "for_tsequence.in.c 277";                   Sequence_drive(seq, now, self->queue, err);
+Coverage_array[2995] = "for_tsequence.in.c 278";                   Error_returnVoidOnError(err);
+Coverage_array[2996] = "for_tsequence.in.c 279";               }
+Coverage_array[2997] = "for_tsequence.in.c 280";       
+Coverage_array[2998] = "for_tsequence.in.c 281";               // Time book keeping
+Coverage_array[2999] = "for_tsequence.in.c 282";               if (iteration > self->maxIterations) {
+Coverage_array[3000] = "for_tsequence.in.c 283";                   Error_format(err, "Exceeded maxIterations (%d)", iteration);
+Coverage_array[3001] = "for_tsequence.in.c 284";                   return;
+Coverage_array[3002] = "for_tsequence.in.c 285";               }
+Coverage_array[3003] = "for_tsequence.in.c 286";               now += self->timeDelta;
+Coverage_array[3004] = "for_tsequence.in.c 287";               if (now > self->timeStop) {
+Coverage_array[3005] = "for_tsequence.in.c 288";                   return;
+Coverage_array[3006] = "for_tsequence.in.c 289";               }
+Coverage_array[3007] = "for_tsequence.in.c 290";       
+Coverage_array[3008] = "for_tsequence.in.c 291";               if (TimedPq_len(self->queue) == 0 && SequenceDriveDirectivePq_len(&self->directives) == 0) {
+Coverage_array[3009] = "for_tsequence.in.c 292";                   return;
+Coverage_array[3010] = "for_tsequence.in.c 293";               }
+Coverage_array[3011] = "for_tsequence.in.c 294";           }
+Coverage_array[3012] = "for_tsequence.in.c 295";       }
 
-#line 261 "test/for_tsequence.in.c"
-
-                                                       APIF void Resource_listDirectory(Resource *self, String *path, Error *err)
-                                                       {
-Coverage_array[2976] = "for_tsequence.in.c 264";           const char *paths[2] = {path, NULL};
-Coverage_array[2977] = "for_tsequence.in.c 265";           // FTS *tree = fts_open((char *const *)paths, FTS_PHYSICAL | FTS_NOCHDIR | FTS_NOSTAT, NULL);
-Coverage_array[2978] = "for_tsequence.in.c 266";           FTS *tree = fts_open((char *const *)paths, FTS_PHYSICAL | FTS_NOCHDIR, NULL);
-Coverage_array[2979] = "for_tsequence.in.c 267";           if(tree == NULL) {
-Coverage_array[2980] = "for_tsequence.in.c 268";               Error_format0(err, "Failed fts_open");
-Coverage_array[2981] = "for_tsequence.in.c 269";               return;
-Coverage_array[2982] = "for_tsequence.in.c 270";           }
-Coverage_array[2983] = "for_tsequence.in.c 271";       
-Coverage_array[2984] = "for_tsequence.in.c 272";           for (;;) {
-Coverage_array[2985] = "for_tsequence.in.c 273";               FTSENT *ent = fts_read(tree); // get next entry (could be file or directory).
-Coverage_array[2986] = "for_tsequence.in.c 274";               if(ent == NULL) {
-Coverage_array[2987] = "for_tsequence.in.c 275";                   if(errno == 0) {
-Coverage_array[2988] = "for_tsequence.in.c 276";                       break; // No more items, bail out of while loop
-Coverage_array[2989] = "for_tsequence.in.c 277";                   }
-Coverage_array[2990] = "for_tsequence.in.c 278";                   
-Coverage_array[2991] = "for_tsequence.in.c 279";                   Error_format0(err, "Failed fts_read");
-Coverage_array[2992] = "for_tsequence.in.c 280";                   return;
-Coverage_array[2993] = "for_tsequence.in.c 281";               }
-Coverage_array[2994] = "for_tsequence.in.c 282";                   
-Coverage_array[2995] = "for_tsequence.in.c 283";                if (ent->fts_info == FTS_F) {
-Coverage_array[2996] = "for_tsequence.in.c 284";                    printf("FILE: %s '%s'\n", ent->fts_path, ent->fts_name);
-Coverage_array[2997] = "for_tsequence.in.c 285";                } else if (ent->fts_info == FTS_DP) {
-Coverage_array[2998] = "for_tsequence.in.c 286";                    printf("DP:   %s\n", ent->fts_path);
-Coverage_array[2999] = "for_tsequence.in.c 287";                    
-Coverage_array[3000] = "for_tsequence.in.c 288";                } else if (ent->fts_info == FTS_DC) {
-Coverage_array[3001] = "for_tsequence.in.c 289";                   Error_format0(err, "Unexpected directory cycle in fts call chain");
-Coverage_array[3002] = "for_tsequence.in.c 290";                   goto END;
-Coverage_array[3003] = "for_tsequence.in.c 291";               }
-Coverage_array[3004] = "for_tsequence.in.c 292";           }
-Coverage_array[3005] = "for_tsequence.in.c 293";        
-Coverage_array[3006] = "for_tsequence.in.c 294";           /* fts_read() sets errno = 0 unless it has error. */
-Coverage_array[3007] = "for_tsequence.in.c 295";           if (errno != 0) {
-Coverage_array[3008] = "for_tsequence.in.c 296";               Error_format0(err, "Failed fts_read");
-Coverage_array[3009] = "for_tsequence.in.c 297";               goto END;
-Coverage_array[3010] = "for_tsequence.in.c 298";           }
-Coverage_array[3011] = "for_tsequence.in.c 299";        
-Coverage_array[3012] = "for_tsequence.in.c 300";         END:
-Coverage_array[3013] = "for_tsequence.in.c 301";           if(fts_close(tree) == -1) {
-Coverage_array[3014] = "for_tsequence.in.c 302";               if (!Error_iserror(err)) {
-Coverage_array[3015] = "for_tsequence.in.c 303";                   Error_format0(err, "Failed fts_close");
-Coverage_array[3016] = "for_tsequence.in.c 304";               }
-Coverage_array[3017] = "for_tsequence.in.c 305";           }
-Coverage_array[3018] = "for_tsequence.in.c 306";       }
 #line 1 "**coverage**" 
 void Coverage_initialize()
 {
-    Coverage_array = Mem_calloc(sizeof(const char *) * 3019);    
+    Coverage_array = Mem_calloc(sizeof(const char *) * 3013);    
 }
 
 void Coverage_finalize(const char *file)
@@ -11940,8 +11994,8 @@ void Coverage_finalize(const char *file)
         Error_maypost(err);
         exit(1);
     }
-    fprintf(out, "*totalSize %d\n", 3019);
-    for (int i = 0; i < 3019; i++) {
+    fprintf(out, "*totalSize %d\n", 3013);
+    for (int i = 0; i < 3013; i++) {
         if (Coverage_array[i] != NULL) {
             fprintf(out, "%s\n", Coverage_array[i]);
         }

@@ -265,7 +265,7 @@ Unit_declare(testNoteSequenceStopAndEndgroup)
 		noteSequence->inEndgroup = true;
 	
 		
-		NoteSequence_padNoteOff(noteSequence, 0, Ticks_maxTime, err);
+		NoteSequence_padNoteOff(noteSequence, Ticks_maxTime, err);
 		chk(TimedOffAr_len(&noteSequence->offs) == 0);
 
 		NoteEventAr *res = NoteEventAr_new(0);
@@ -343,19 +343,78 @@ Unit_declare(testNoteSequenceStopAndEndgroup)
 		NoteSequence_free(noteSequence);
 		PortFind_free(portFind);
 	}
-
-	Error_declare(err);
-	String *t = String_fmt("%s", "/Users/pete/noconflict");
-	// COVER void Resource_listDirectory(Resource *self, String *path, Error *err)
-	Resource r = {0};
-	Resource_listDirectory(&r, t, err);
-	Error_maypost(err);
 }
 
+Unit_declare(testNoteSequenceRecord) 
+{
+	{
+		// Test basic record
+		Error_declare(err);
+		PortFind *portFind         = PortFind_createStandardSpoof();
+		RecordBuffer *recordBuffer = RecordBuffer_newStart(0);
+
+		const int nfullNotes = 5;
+		NoteEvent fullNotes[nfullNotes] = {
+			{.pitch = 60, .velocity = 100, .stime = 0,     .duration = 100},
+			{.pitch = 61, .velocity = 101, .stime = 200,   .duration = 100},
+			{.pitch = 0,  .velocity = 0,   .stime = 400,   .duration = NoteSequence_endgDuration},
+			{.pitch = 62, .velocity = 102, .stime = 400,   .duration = 100},
+			{.pitch = 0,  .velocity = 0,   .stime = 400,   .duration = NoteSequence_cycleDuration}
+		};
+	
+		const int nnotes = 3;
+		NoteEvent notes[nnotes] = {
+			{.pitch = 60, .velocity = 100, .stime = 0,     .duration = 100},
+			{.pitch = 61, .velocity = 101, .stime = 200,   .duration = 100},
+			{.pitch = 62, .velocity = 102, .stime = 400,   .duration = 100},
+		};
+
+		const int ndirectives = 2;
+		SequenceDriveDirective directives[ndirectives] = {
+			{.time = 0,   .directive = SequenceDrive_play, .sequences = NULL},
+			{.time = 400, .directive = SequenceDrive_play, .sequences = NULL}
+		};
+
+		NoteSequence *seq1 = NoteSequence_newFromEvents(Symbol_gen("piano"), portFind, nfullNotes, fullNotes, err);
+		fatal(!Error_iserror(err));
+		NoteSequence *seq2 = NoteSequence_newFromEvents(Symbol_gen("piano"), portFind, nfullNotes, fullNotes, err);
+		fatal(!Error_iserror(err));
+
+		SequenceAr *seqAr1 = SequenceAr_new(0);
+		SequenceAr *seqAr2 = SequenceAr_new(0);
+		SequenceAr_push(seqAr1, NoteSequence_castToSequence(seq1));
+		SequenceAr_push(seqAr2, NoteSequence_castToSequence(seq2));
+		directives[0].sequences = seqAr1;
+		directives[1].sequences = seqAr2;
+		
+		SequenceDrive *seqDrive = SequenceDrive_newBuild(ndirectives, directives, recordBuffer);
+		SequenceDrive_toCompletion(seqDrive, err);
+		fatal(!Error_iserror(err));
+		fatal(SequenceAr_len(RecordBuffer_sequences(recordBuffer)) == 2);
+		NoteSequence *out1 = NoteSequence_castFromSequence(SequenceAr_at(RecordBuffer_sequences(recordBuffer), 0));
+		NoteSequence *out2 = NoteSequence_castFromSequence(SequenceAr_at(RecordBuffer_sequences(recordBuffer), 1));
+		fatal(out1 != NULL);
+		fatal(out2 != NULL);
+	
+		//APIF bool NoteSequence_tableNotesEqual(NoteSequence *self, int argc, NoteEvent *argv, bool verbose)
+		chk(NoteSequence_tableNotesEqual(out1, nnotes, notes, false));
+		chk(NoteSequence_tableNotesEqual(out2, nnotes, notes, false));
+		chk(out1->startTime == 0);
+		chk(out2->startTime == 400);
+
+		SequenceAr_free(seqAr1);
+		SequenceAr_free(seqAr2);
+		SequenceDrive_free(seqDrive);
+		RecordBuffer_free(recordBuffer);
+		PortFind_free(portFind);
+
+	}
+}
 
 int main(int argc, char *argv[]) {
 	Unit_initialize(argc, argv);
 	Unit_test(testNoteSequenceStartAndDrive);
 	Unit_test(testNoteSequenceStopAndEndgroup);
+	Unit_test(testNoteSequenceRecord);
 	Unit_finalize();
 }

@@ -120,6 +120,47 @@ APIF void NoteOutlet_dbReportNoteOffs(NoteEventAr *arr)
 	NoteOutlet_dbRewindSent();
 }
 
+Coverage_off;
+#define VERB(i, m) do {\
+	if (verbose) {\
+		printf("%s [%d]: %s\n", __func__, i, m);\
+	}\
+	return false;\
+} while (0)
+Coverage_on;
+
+APIF bool NoteSequence_tableNotesEqual(NoteSequence *self, int argc, NoteEvent *argv, bool verbose)
+{
+	if (argc != NoteEventAr_len(&self->events)) {
+		VERB(-1, "unequal events length");
+	}
+	int i = 0;
+	NoteEventAr_foreach(it, &self->events) {
+		if (NoteSequence_isMarkerValue(it.var->duration) || NoteSequence_isMarkerValue(argv[i].duration)) {
+			if (it.var->duration != argv[i].duration) {
+				VERB(i, "marker element mismatch");
+				return false;			
+			}
+		} else {
+       		if (it.var->pitch != argv[i].pitch) {
+       			VERB(i, "pitch mismatch");
+       		}
+       		if (it.var->velocity != argv[i].velocity) {
+       			VERB(i, "velocity mismatch");
+       		}
+       		if (it.var->stime != argv[i].stime) {
+       			VERB(i, "stime mismatch");
+       		}
+       		if (it.var->duration != argv[i].duration) {
+       			VERB(i, "duration mismatch");
+       		}
+		}
+		i++;
+	}
+	return true;
+}
+
+#undef VERB
 
 @type
 {
@@ -160,30 +201,34 @@ APIF int SequenceDriveDirective_cmp(SequenceDriveDirective *left, SequenceDriveD
 		{"name": "queue",             "type": "TimedPq *"},
 		{"name": "timeStop",          "type": "Ticks"},
 		{"name": "timeDelta",         "type": "Ticks"},
-		{"name": "maxIterations",     "type": "int"}
-		
+		{"name": "maxIterations",     "type": "int"},
+		{"name": "recordBuffer",      "type": "RecordBuffer *", "lifecycle": "unmanaged"}
 	]
 }
 @end
 
-#define SequenceDrive_stop 1
-#define SequenceDrive_padNoteOff 2
+#define SequenceDrive_play        9
+#define SequenceDrive_stop       10
+#define SequenceDrive_padNoteOff 11
 
+APIF SequenceDrive *SequenceDrive_newBuild(int argc, SequenceDriveDirective *argv, RecordBuffer *recordBuffer)
+{
+	SequenceDrive *self = SequenceDrive_new();
+	self->maxIterations = 1000;
+	self->timeStop      = Ticks_maxTime;
+	self->timeDelta     = 480/8; // 32nd note resolution
+	for (int i = 0; i < argc; i++) {
+		SequenceDriveDirectivePq_push(&self->directives, argv[i]);
+	}
+	SequenceDriveDirectivePq_pqSort(&self->directives);	
+	if (recordBuffer != NULL) {
+		self->recordBuffer = recordBuffer;
+	}
+	return self;
+}
 
 APIF void SequenceDrive_toCompletion(SequenceDrive *self, Error *err)
 {
-
-	SequenceDriveDirectivePq_pqSort(&self->directives);
-	if (self->maxIterations <= 0) {
-		self->maxIterations = 1000;
-	}
-	if (self->timeStop <= 0) {
-		self->timeStop = Ticks_maxTime;
-	}
-	if (self->timeDelta <= 0) {
-		self->timeDelta = 480/8; // 32nd note resolution
-	} 
-
 	Ticks now     = 0;
 	int iteration = 0;
 	for (;;) {
@@ -197,17 +242,23 @@ APIF void SequenceDrive_toCompletion(SequenceDrive *self, Error *err)
 
 	        SequenceDriveDirective timed = {0};
 	        SequenceDriveDirectivePq_pqPop(&self->directives, &timed);
-	        int directive = SequenceDriveDirective_directive(&timed);
-	        if (directive == SequenceDrive_stop) {
-	        	SequenceAr *seqAr = SequenceDriveDirective_sequences(&timed);
+
+	        int directive     = SequenceDriveDirective_directive(&timed);
+	        SequenceAr *seqAr = SequenceDriveDirective_sequences(&timed);
+	        if (directive == SequenceDrive_play) {
+	        	SequenceAr_foreach(it, seqAr) {
+	        		// NOTE: this start call implies that the master clock starts at time 0
+	        		Sequence_start(*it.var, 0, timed.time, self->queue, self->recordBuffer, err);
+	        		Error_returnVoidOnError(err);
+	        	}
+	        } else if (directive == SequenceDrive_stop) {
 	        	SequenceAr_foreach(it, seqAr) {
 	        		Sequence_stop(*it.var, timed.time, err);
 	        		Error_returnVoidOnError(err);
 	        	}
 	        } else if (directive == SequenceDrive_padNoteOff) {
-	        	SequenceAr *seqAr = SequenceDriveDirective_sequences(&timed);
 	        	SequenceAr_foreach(it, seqAr) {
-	        		Sequence_padNoteOff(*it.var, 0, now, err);
+	        		Sequence_padNoteOff(*it.var, now, err);
 	        		Error_returnVoidOnError(err);
 	        	}
 	        } else {
