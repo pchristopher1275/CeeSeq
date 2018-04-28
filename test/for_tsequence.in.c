@@ -134,6 +134,7 @@ APIF bool NoteSequence_tableNotesEqual(NoteSequence *self, int argc, NoteEvent *
 	if (argc != NoteEventAr_len(&self->events)) {
 		VERB(-1, "unequal events length");
 	}
+
 	int i = 0;
 	NoteEventAr_foreach(it, &self->events) {
 		if (NoteSequence_isMarkerValue(it.var->duration) || NoteSequence_isMarkerValue(argv[i].duration)) {
@@ -152,6 +153,7 @@ APIF bool NoteSequence_tableNotesEqual(NoteSequence *self, int argc, NoteEvent *
        			VERB(i, "stime mismatch");
        		}
        		if (it.var->duration != argv[i].duration) {
+       			printf(">>>> %lld %lld\n", it.var->duration, argv[i].duration);
        			VERB(i, "duration mismatch");
        		}
 		}

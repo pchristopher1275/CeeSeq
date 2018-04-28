@@ -258,6 +258,11 @@ APIF void VstOutlet_sendFloat(VstOutlet *self, double value)
 }
 @end
 
+COVER void OutletSpecifier_dbPrint(OutletSpecifier *self)
+{
+    printf("OutletSpecifier %s %d %s %d\n", Symbol_cstr(self->track), self->pluginIndex, Symbol_cstr(self->parameter), self->paramIndex);
+}
+
 COVER OutletSpecifier OutletSpecifier_makeCC(Symbol *track, int cc) {
     OutletSpecifier selfValue = {0}, *self = &selfValue;
     OutletSpecifier_init(self);
@@ -687,7 +692,11 @@ APIF void NoteSequence_stop(NoteSequence *self, Ticks current, Error *err) {
         TimedOffAr_foreach(offIt, &self->offs) {
             NoteEventAr_rforeach(noteIt, &self->recordingSeq->events) {
                 if (noteIt.var->pitch == offIt.var->pitch) {
-                    noteIt.var->duration = current - noteIt.var->stime;
+                    noteIt.var->duration = current - (self->startTime + noteIt.var->stime);
+                    if (noteIt.var->duration <= 0) {
+                        // Silently ignore this condition
+                        NoteEventArRIt_remove(&noteIt);
+                    }
                     break;
                 }
             }
@@ -792,8 +801,6 @@ APIF void NoteSequence_compactSortEvents(NoteSequence *self)
 // Note we return absolute time.
 APIF Ticks NoteSequence_computeEndgroupTime(NoteSequence *self)
 {
-    NoteEventAr_sort(&self->events);
-
     // Endgroup is the 
     Ticks endgroupTime = -1;
     NoteEventAr_rforeach(it, &self->events) {
@@ -825,6 +832,7 @@ APIF Ticks NoteSequence_compactComputeSequenceLength(NoteSequence *self)
     if (seqLen < Sequence_minSequenceLength) {
         seqLen = Sequence_minSequenceLength;
     }
+
     return seqLen;
 }
 
@@ -842,18 +850,16 @@ APIF void NoteSequence_compactFinish(NoteSequence *self, Ticks endgroupTime, Tic
             }
         }
         if (index >= 0) {
-            Error_declare(err);
             NoteEvent newEv = {.stime = endgroupTime, .duration = NoteSequence_endgDuration, .pitch = 0, .velocity = 0};
             NoteEventAr_insert(&self->events, index, newEv, err);
-            Error_maypost(err);
+            Error_returnVoidOnError(err);
         }
     }
 
 
     self->sequenceLength = sequenceLength;
-    NoteEvent newEv = {.stime = sequenceLength, .duration = NoteSequence_endgDuration, .pitch = 0, .velocity = 0};
+    NoteEvent newEv = {.stime = sequenceLength, .duration = NoteSequence_cycleDuration, .pitch = 0, .velocity = 0};
     NoteEventAr_push(&self->events, newEv);
-
     NoteSequence_makeConsistent(self, err);
     return;
 }
@@ -1298,7 +1304,8 @@ APIF void Sequence_freePpErrless(Sequence **s)
 }
 
 // Sort into unique OutletSpecifiers, and sort by startTime within the same OutletSpecifier.
-APIF int Sequence_cmp(Sequence *leftSeq, Sequence *rightSeq) {
+APIF int Sequence_cmp(Sequence *leftSeq, Sequence *rightSeq) 
+{
     OutletSpecifier *left  = &leftSeq->outletSpecifier;
     OutletSpecifier *right = &rightSeq->outletSpecifier;
     int q = Symbol_cmp(OutletSpecifier_track(left), OutletSpecifier_track(right));
@@ -1315,7 +1322,6 @@ APIF int Sequence_cmp(Sequence *leftSeq, Sequence *rightSeq) {
         return 1;
     }
     
-
     int leftPi  = OutletSpecifier_pluginIndex(left);
     int rightPi = OutletSpecifier_pluginIndex(right);
     if (leftPi < rightPi) {
@@ -1336,12 +1342,6 @@ APIF int Sequence_cmp(Sequence *leftSeq, Sequence *rightSeq) {
     } else if (leftPi > rightPi) {
         return 1;
     }    
-
-    if (leftSeq->startTime < rightSeq->startTime) {
-        return -1;
-    } else if (leftSeq->startTime > rightSeq->startTime) {
-        return 1;
-    }
 
     return 0;
 }
@@ -1430,7 +1430,7 @@ APIF void RecordBuffer_compact(RecordBuffer *self, SequenceAr *output, Error *er
         Ticks len = Sequence_compactComputeSequenceLength(s, err);
         Error_gotoLabelOnError(err, END);
         if (len > sequenceLength) {
-            len = sequenceLength;
+            sequenceLength = len;
         }
     }
 

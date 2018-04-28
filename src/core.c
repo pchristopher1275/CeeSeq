@@ -223,16 +223,62 @@ APIF void DBLog_printSDS(const char *file, int line, String *message)
 //
 // E R R O R    C L A S S
 //
+typedef struct ErrorBacktraceCell_t {
+    int line;
+    const char *function;
+    const char *file;
+} ErrorBacktraceCell;
+
+typedef struct ErrorBacktrace_t {
+    int len;
+    int cap;
+    ErrorBacktraceCell *cells;
+} ErrorBacktrace;
+
+APIF ErrorBacktrace *ErrorBacktrace_new()
+{
+    ErrorBacktrace *self = Mem_calloc(sizeof(ErrorBacktrace));
+    self->cap   = 1000;
+    self->cells = Mem_calloc(sizeof(ErrorBacktraceCell) * self->cap);
+    return self;
+}
+
+APIF void ErrorBacktrace_free(ErrorBacktrace *self)
+{
+    if (self != NULL) {
+        Mem_free(self->cells);
+        Mem_free(self);
+    }
+}
+
+#define Error_returnVoidOnError(err)           if (Error_iserrorMaybeBacktrace(err)) return
+#define Error_returnZeroOnError(err)           if (Error_iserrorMaybeBacktrace(err)) return 0
+#define Error_returnNullOnError(err)           if (Error_iserrorMaybeBacktrace(err)) return NULL
+#define Error_gotoLabelOnError(err, label)     if (Error_iserrorMaybeBacktrace(err)) goto label
+#define Error_returnValueOnError(err, value)   if (Error_iserrorMaybeBacktrace(err)) return value
+#define Error_declare(name) Error _##name = {0}; Error *name = &_##name
+
+#ifdef TEST_BUILD
+#define Error_iserrorMaybeBacktrace(err) Error_iserrorWithBacktrace(err, __LINE__, __func__, __FILE__)
+#else
+#define Error_iserrorMaybeBacktrace(err) Error_iserror(err)
+#define Error_post(first, ...) post(first, __VA_ARGS__) 
+#endif
+
+
+
 typedef struct Error_t
 {
     bool iserror;
     String *message;
+#   ifdef TEST_BUILD
+    ErrorBacktrace *backtrace;
+#   endif
 } Error;
 
-#ifndef TEST_BUILD
-#define Error_post(first, ...) dblog(first, __VA_ARGS__) 
-#else
-
+// 
+// Error_post
+#ifdef TEST_BUILD
 static inline void Error_postImpl(String *s)
 {
     printf("ERROR: %s\n", s);
@@ -246,9 +292,6 @@ static inline void Error_postImpl(String *s)
 } while (0)
 
 #endif
-
-
-#define Error_declare(name) Error _##name = {false, NULL}; Error *name = &_##name
 
 APIF static inline bool Error_iserror(Error *err)
 {
@@ -264,22 +307,43 @@ APIF const char *Error_message(Error *err)
     return NULL;
 }
 
-
 APIF void Error_clear(Error *err)
 {
     if (err->message != NULL) {
         String_free(err->message);
+#       ifdef  TEST_BUILD
+        ErrorBacktrace_free(err->backtrace);
+#       endif
     }
     err->message = NULL;
     err->iserror = false;
 }
 
+NOCOVER bool Error_iserrorWithBacktrace(Error *err, int line, const char *function, const char *file) {
+    if (Error_iserror(err)) {
+#       ifdef TEST_BUILD
+        ErrorBacktrace *bt = err->backtrace;
+        if (bt->len < bt->cap) {
+            bt->cells[bt->len].line     = line;
+            bt->cells[bt->len].function = function;
+            bt->cells[bt->len].file     = file;
+            bt->len++;
+        }
+#       endif
+        return true;
+    }
+    return false;
+}
 
 APIF void Error_formatFileLine(Error *dst, const char *function, const char *file, int line, String *message)
 {
     Error_clear(dst);
     dst->message = String_fmt("[%s:%s:%d] %s", function, DBLog_stripBaseName(file), line, message);
     dst->iserror = true;
+#   ifdef TEST_BUILD
+    dst->backtrace = ErrorBacktrace_new();
+    Error_iserrorWithBacktrace(dst, line, function, file);
+#   endif
     String_free(message);
 }
 
@@ -288,6 +352,23 @@ APIF void Error_formatFileLine(Error *dst, const char *function, const char *fil
 #define Error_format0(dst, format)     Error_formatFileLine(dst, __func__, __FILE__, __LINE__, String_fmt(format))
 
 
+
+APIF void Error_printBacktrace(Error *err)
+{
+#   ifdef TEST_BUILD
+    if (err->backtrace != NULL) {
+        printf("ERROR BACKTRACE:\n");
+        printf("    %20s %10s %20s\n", "file", "line", "function");
+        for (int i = 0; i < err->backtrace->len; i++) {
+            ErrorBacktraceCell cell = err->backtrace->cells[i];
+            printf("    %20s %10d %20s\n", cell.file, cell.line, cell.function);
+        }
+    } else {
+        printf("NO BACKTRACE TO PRINT\n");
+    }
+#   endif
+    return;
+}
 
 APIF const char *Error_maxErrToString(Error_maxErrorInteger maxErr)
 {
@@ -324,12 +405,6 @@ APIF int Error_maypost(Error *err)
     Error_clear(err);
     return iserror;
 }
-
-#define Error_returnVoidOnError(err)           if (Error_iserror(err)) return
-#define Error_returnZeroOnError(err)           if (Error_iserror(err)) return 0
-#define Error_returnNullOnError(err)           if (Error_iserror(err)) return NULL
-#define Error_gotoLabelOnError(err, label)     if (Error_iserror(err)) goto label
-#define Error_returnValueOnError(err, value)   if (Error_iserror(err)) return value
 
 //
 // More    S T R I N G
