@@ -56,6 +56,7 @@ void testNoteSequenceStartFixture(Ticks clockStart, Ticks current, Ticks expStar
 	NoteSequence_free(noteSequence);
 	PortFind_free(portFind);
 }
+
 void testNoteSequenceDriveFixture(Ticks clockStart, Ticks current, int noteCursor, int realNoteCount, bool useCycle, Ticks noteDuration, Ticks timeStop, Ticks tdeltaStart)
 {
 	Error_declare(err);
@@ -127,6 +128,234 @@ void testNoteSequenceDriveFixture(Ticks clockStart, Ticks current, int noteCurso
 	NoteSequence_free(noteSequence);
 	PortFind_free(portFind);	
 }
+/*
+Unit_declare(testNoteSequenceStart) {
+	Unit_case(0) {
+		// Outlet initialization
+		PortFind *portFind = PortFind_createStandardSpoof();
+		NoteSequence *noteSequence = NoteSequence_newTrack(Symbol_gen("piano"), portFind);
+		Outlet *ol = noteSequence->outlet;
+		NoteOutlet *nol = NoteOutlet_castFromOutlet(ol);
+		fatal(nol != NULL);
+		chk(nol->port->track == Symbol_gen("piano"));
+		NoteSequence_free(noteSequence);
+		PortFind_free(portFind);
+	}
+
+	Unit_case(0) {
+		// Start one-shot
+		Error_declare(err);
+		Ticks noteDuration = 480;
+		NoteSequenceFixture *fix = NoteSequenceFixture_newBuild1(Symbol_gen("piano"), noteDuration, err);
+		fatal(!Error_iserror(err));
+
+		Ticks clockStart = 100;
+		Ticks current    = 100;
+		NoteSequence_start(fix->seq1, clockStart, current, fix->queue, NULL, err);
+		fatal(!Error_iserror(err));
+		
+		chk(fix->seq1->startTime == current);
+		chk(fix->seq1->cursor    == 0);
+		chk(TimedPq_len(fix->queue) == 1);
+		chk(TimedPq_at(fix->queue, 0).time == 300);
+		chk(TimedPq_at(fix->queue, 0).sequence->itype == NoteSequence_itype);
+		NoteSequenceFixture_free(fix);
+	}
+
+	Unit_case(0) {
+		// Start a master-clock
+		Error_declare(err);
+		Ticks noteDuration = 480;
+		NoteSequenceFixture *fix = NoteSequenceFixture_newBuild1(Symbol_gen("piano"), noteDuration, err);
+		fatal(!Error_iserror(err));
+		NoteSequence_setCycle(fix->seq1, true);
+
+		Ticks clockStart = 0;
+		Ticks current    = 220;
+		NoteSequence_start(fix->seq1, clockStart, current, fix->queue, NULL, err);
+		fatal(!Error_iserror(err));
+		chk(fix->seq1->startTime == 0);
+		chk(fix->seq1->cursor    == 1);
+		chk(TimedPq_len(fix->queue) == 1);
+		chk(TimedPq_at(fix->queue, 0).time == 241);
+		chk(TimedPq_at(fix->queue, 0).sequence->itype == NoteSequence_itype);
+		
+		NoteSequenceFixture_free(fix);
+	}
+
+	Unit_case(0) {
+		// Start a master-clock where start time is after sequence end
+		Error_declare(err);
+		Ticks noteDuration = 480;
+		NoteSequenceFixture *fix = NoteSequenceFixture_newBuild1(Symbol_gen("piano"), noteDuration, err);
+		fatal(!Error_iserror(err));
+		NoteSequence_setCycle(fix->seq1, true);
+
+		Ticks clockStart = 0;
+		Ticks current    = 242+480+1;
+		NoteSequence_start(fix->seq1, clockStart, current, fix->queue, NULL, err);
+		fatal(!Error_iserror(err));
+		chk(fix->seq1->startTime == 242+480);
+		chk(fix->seq1->sequenceLength == 242+480);
+		chk(fix->seq1->cursor    == 0);
+		chk(TimedPq_len(fix->queue) == 1);
+		chk(TimedPq_at(fix->queue, 0).time == 242+480+200);
+		chk(TimedPq_at(fix->queue, 0).sequence->itype == NoteSequence_itype);
+		
+		NoteSequenceFixture_free(fix);
+	}
+
+	Unit_case(0) {
+		// Start a one-shot short duration
+		Error_declare(err);
+		Ticks noteDuration = 480/16;
+		NoteSequenceFixture *fix = NoteSequenceFixture_newBuild1(Symbol_gen("piano"), noteDuration, err);
+		fatal(!Error_iserror(err));
+
+		Ticks clockStart = 100;
+		Ticks current    = 100;
+		NoteSequence_start(fix->seq1, clockStart, current, fix->queue, NULL, err);
+		fatal(!Error_iserror(err));
+		chk(fix->seq1->startTime == 100);
+		chk(fix->seq1->cursor    == 0);
+		chk(TimedPq_len(fix->queue) == 1);
+		chk(TimedPq_at(fix->queue, 0).time == 300);
+		chk(TimedPq_at(fix->queue, 0).sequence->itype == NoteSequence_itype);
+	
+		NoteSequenceFixture_free(fix);
+	}
+
+	Unit_case(0) {
+		// Start a master-clock short duration
+		Error_declare(err);
+		Ticks noteDuration = 480/16;
+		NoteSequenceFixture *fix = NoteSequenceFixture_newBuild1(Symbol_gen("piano"), noteDuration, err);
+		fatal(!Error_iserror(err));
+		NoteSequence_setCycle(fix->seq1, true);
+
+		Ticks clockStart = 0;
+		Ticks current    = 241;
+		NoteSequence_start(fix->seq1, clockStart, current, fix->queue, NULL, err);
+		fatal(!Error_iserror(err));
+		chk(fix->seq1->startTime == 0);
+		chk(fix->seq1->cursor    == 1);
+		chk(TimedPq_len(fix->queue) == 1);
+		chk(TimedPq_at(fix->queue, 0).time == 241);
+		chk(TimedPq_at(fix->queue, 0).sequence->itype == NoteSequence_itype);
+	
+		NoteSequenceFixture_free(fix);
+	}
+}
+*/
+/*
+Unit_declare(testNoteSequenceDrive) {
+	Unit_case(1) { 
+		// drive on-shot
+		Error_declare(err);
+		Ticks noteDuration = 250;
+		NoteSequenceFixture *fix = NoteSequenceFixture_newBuild2(Symbol_gen("piano"), noteDuration, err);
+		fatal(!Error_iserror(err));
+	
+		NoteSequenceFixture_driveToCompletion2(fix, 0, 0, err);
+		fatal(!Error_iserror(err));
+
+		const int nnotes = 3;
+		NoteEvent notes[nnotes] = {
+			{.pitch = 60, .velocity = 100, .stime = 200,     .duration = noteDuration},
+			{.pitch = 61, .velocity = 101, .stime = 300,     .duration = noteDuration},
+			{.pitch = 62, .velocity = 102, .stime = 400,     .duration = noteDuration},
+		};
+	
+		fatal(NoteEventAr_len(fix->results) == nnotes);
+		NoteEventAr_foreach(it, fix->results) {
+			if (NoteSequence_isMarkerValue(notes[it.index].duration) || NoteSequence_isMarkerValue(it.var->duration)) {
+				chk(notes[it.index].duration == it.var->duration);
+				continue;
+			}
+
+			chk(it.var->pitch == notes[it.index].pitch);
+			chk(it.var->velocity == notes[it.index].velocity);
+			chk(it.var->stime == notes[it.index].stime);
+			chk(it.var->duration == notes[it.index].duration);
+		}
+	}
+
+	Unit_case(0) { 
+		// drive on-shot short duration
+		Error_declare(err);
+		Ticks noteDuration = 50;
+		NoteSequenceFixture *fix = NoteSequenceFixture_newBuild2(Symbol_gen("piano"), noteDuration, err);
+		fatal(!Error_iserror(err));
+	
+		NoteSequenceFixture_driveToCompletion2(fix, 0, 0, err);
+		fatal(!Error_iserror(err));
+
+		const int nnotes = 3;
+		NoteEvent notes[nnotes] = {
+			{.pitch = 60, .velocity = 100, .stime = 200,     .duration = noteDuration},
+			{.pitch = 61, .velocity = 101, .stime = 300,     .duration = noteDuration},
+			{.pitch = 62, .velocity = 102, .stime = 400,     .duration = noteDuration},
+		};
+	
+		fatal(NoteEventAr_len(fix->results) == nnotes);
+		NoteEventAr_foreach(it, fix->results) {
+			if (NoteSequence_isMarkerValue(notes[it.index].duration) || NoteSequence_isMarkerValue(it.var->duration)) {
+				chk(notes[it.index].duration == it.var->duration);
+				continue;
+			}
+
+			chk(it.var->pitch == notes[it.index].pitch);
+			chk(it.var->velocity == notes[it.index].velocity);
+			chk(it.var->stime == notes[it.index].stime);
+			chk(it.var->duration == notes[it.index].duration);
+		}	
+	}
+
+	Unit_case(1) { 
+		// drive master clock
+		printf("TOP\n");
+		Error_declare(err);
+		Ticks noteDuration = 250;
+		NoteSequenceFixture *fix = NoteSequenceFixture_newBuild2(Symbol_gen("piano"), noteDuration, err);
+		fatal(!Error_iserror(err));
+	
+		NoteSequenceFixture_driveToCompletion2(fix, 0, 350, err);
+		fatal(!Error_iserror(err));
+
+		const int nnotes = 4;
+		NoteEvent notes[nnotes] = {
+			{.pitch = 62, .velocity = 102, .stime = 400,     .duration = noteDuration},
+			{.pitch = 60, .velocity = 100, .stime = 600,     .duration = noteDuration},
+			{.pitch = 61, .velocity = 101, .stime = 700,     .duration = noteDuration},
+			{.pitch = 62, .velocity = 102, .stime = 800,     .duration = noteDuration},
+		};
+	
+		NoteEventAr_foreach(it, fix->results) {
+			printf("%15d %15d %15d %15lld %15lld\n", it.index, it.var->pitch, it.var->velocity, it.var->stime, it.var->duration);
+		}
+
+		fatal(NoteEventAr_len(fix->results) == nnotes);
+		NoteEventAr_foreach(it, fix->results) {
+			if (NoteSequence_isMarkerValue(notes[it.index].duration) || NoteSequence_isMarkerValue(it.var->duration)) {
+				chk(notes[it.index].duration == it.var->duration);
+				continue;
+			}
+
+			chk(it.var->pitch == notes[it.index].pitch);
+			chk(it.var->velocity == notes[it.index].velocity);
+			chk(it.var->stime == notes[it.index].stime);
+			chk(it.var->duration == notes[it.index].duration);
+		}
+		printf("YES\n");
+		// Unit_call(testNoteSequenceDriveFixture(0, 350, 3, 4, true, 250, 1200, 0));	
+	}
+
+	Unit_case(0) { 
+		// drive master clock start later
+		// Unit_call(testNoteSequenceDriveFixture(0, 600, 0, 3, true, 250, 1200, 400));	
+	}	
+}
+*/
 
 Unit_declare(testNoteSequenceStartAndDrive) {
 	Unit_case(0) {
@@ -399,7 +628,7 @@ Unit_declare(testNoteSequenceRecord)
 		fatal(out1 != NULL);
 		fatal(out2 != NULL);
 	
-		chk(NoteSequence_tableNotesEqual(out1, nnotes, notes, false));
+		chk(NoteSequence_tableNotesEqual(out1, nnotes, notes, true));
 		chk(NoteSequence_tableNotesEqual(out2, nnotes, notes, false));
 		chk(out1->startTime == 0);
 		chk(out2->startTime == 400);
@@ -539,11 +768,42 @@ Unit_declare(testNoteSequenceRecord)
 		chk(NoteSequence_tableNotesEqual(outputNSeq, nfullNotes, fullNotes, false));
 	}
 }
+Unit_declare(testFloatSequence) 
+{
+	// {
+	// 	// Test start one-shot
+	// 	Error_declare(err);
+	// 	PortFind *portFind = PortFind_createStandardSpoof();
+	// 	TimedPq *timedPq = TimedPq_new(0);
+	// 	RecordBuffer *recordBuffer = RecordBuffer_newStart(0);
+	// 	const int nevents  = 1;
+	// 	FloatEvent events[nevents] = {
+	// 		{.stime = 100, .value = 0},
+	// 		{.stime = 200, .value = 60},
+	// 		{.stime = 300, .value = 127}
+	// 	};
 
+	// 	int cc = 10;
+	// 	FloatSequence *seq1 = FloatSequence_newFromEvents(Symbol_gen("piano"), cc, portFind, nevents, events);
+	// 	FloatSequence_start(seq1, 50, 50, timedPq, recordBuffer, err);
+	// 	chk(seq1->cursor == 0);
+	// 	chk(seq1->recordingSeq != NULL);
+	// 	chk(SequenceAr_len(&recordBuffer->sequences) == 1);
+	// 	fatal(TimedPq_len(timedPq) == 1);
+	// 	chk(TimedPq_at(timedPq, 0).time == 100);
+
+	// 	PortFind_free(portFind);
+	// 	TimedPq_free(timedPq);
+	// 	RecordBuffer_free(recordBuffer);
+	// }
+} 
 int main(int argc, char *argv[]) {
 	Unit_initialize(argc, argv);
+	// Unit_test(testNoteSequenceStart);
+	// Unit_test(testNoteSequenceDrive);
 	Unit_test(testNoteSequenceStartAndDrive);
 	Unit_test(testNoteSequenceStopAndEndgroup);
 	Unit_test(testNoteSequenceRecord);
+	Unit_test(testFloatSequence);
 	Unit_finalize();
 }

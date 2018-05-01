@@ -153,7 +153,6 @@ APIF bool NoteSequence_tableNotesEqual(NoteSequence *self, int argc, NoteEvent *
        			VERB(i, "stime mismatch");
        		}
        		if (it.var->duration != argv[i].duration) {
-       			printf(">>>> %lld %lld\n", it.var->duration, argv[i].duration);
        			VERB(i, "duration mismatch");
        		}
 		}
@@ -170,7 +169,7 @@ APIF bool NoteSequence_tableNotesEqual(NoteSequence *self, int argc, NoteEvent *
 	"fields": [
 		{"name": "time",      "type": "Ticks"},
 		{"name": "directive", "type": "int"},
-		{"name": "sequences", "type": "SequenceAr *"}
+		{"name": "sequences", "type": "SequenceAr *", "lifecycle": "unmanaged"}
 	],
   	"containers": [
         {
@@ -234,7 +233,8 @@ APIF void SequenceDrive_toCompletion(SequenceDrive *self, Error *err)
 	Ticks now     = 0;
 	int iteration = 0;
 	for (;;) {
-
+		Ticks_dbSetNow(now);
+		
 		// Grab directives
 		SequenceDriveDirective *peeked = SequenceDriveDirectivePq_pqPeek(&self->directives);
 	    while (peeked != NULL) {
@@ -294,5 +294,101 @@ APIF void SequenceDrive_toCompletion(SequenceDrive *self, Error *err)
 	    	return;
 	    }
 	}
+}
+
+@type
+{
+	"typeName": "NoteSequenceFixture",
+	"fields": [
+		{"name": "portFind", "type": "PortFind *",     "lifecycle": "unmanaged"},
+		{"name": "queue",    "type": "TimedPq *"},
+
+		// This sequence is held and cleared in seqAr
+		{"name": "seq1",     "type": "NoteSequence *", "lifecycle": "unmanaged"},
+		{"name": "seqAr",    "type": "SequenceAr *"},
+		{"name": "results",  "type": "NoteEventAr *"}
+	]
+}
+@end
+
+APIF NoteSequenceFixture *NoteSequenceFixture_newBuild1(Symbol *track, Ticks noteDuration, Error *err)
+{
+	NoteSequenceFixture *self = NoteSequenceFixture_new();
+	self->portFind = PortFind_createStandardSpoof();
+	const int nnotes = 5;
+	Coverage_off;
+	NoteEvent notes[nnotes] = {
+		{.pitch = 60, .velocity = 100, .stime = 200,              .duration = noteDuration},
+		{.pitch = 61, .velocity = 101, .stime = 241,              .duration = noteDuration},
+		{.pitch = 0,  .velocity = 0,   .stime = 242,              .duration = NoteSequence_endgDuration},
+		{.pitch = 62, .velocity = 102, .stime = 242,              .duration = noteDuration},
+		{.pitch = 0,  .velocity = 0,   .stime = 242+noteDuration, .duration = NoteSequence_cycleDuration},
+	};
+	Coverage_on;
+	// NoteSequenceFixture *fix = NoteSequenceFixture_newBuild(Symbol_gen("piano"), nnotes, notes, 0, NULL, 0 NULL);
+	self->seq1 = NoteSequence_newFromEvents(track, self->portFind, nnotes, notes, err);
+	if (Error_iserror(err)) {
+		NoteSequenceFixture_free(self);
+		return NULL;
+	}
+	SequenceAr_push(self->seqAr, NoteSequence_castToSequence(self->seq1));
+	return self;
+}
+
+
+APIF NoteSequenceFixture *NoteSequenceFixture_newBuild2(Symbol *track, Ticks noteDuration, Error *err)
+{
+	NoteSequenceFixture *self = NoteSequenceFixture_new();
+	self->portFind = PortFind_createStandardSpoof();
+	Coverage_off;
+	const int nnotes = 5;
+	NoteEvent notes[nnotes] = {
+		{.pitch = 60, .velocity = 100, .stime = 200,                 .duration = noteDuration},
+		{.pitch = 61, .velocity = 101, .stime = 300,                 .duration = noteDuration},
+		{.pitch = 0,  .velocity = 0,   .stime = 400,                 .duration = NoteSequence_endgDuration},
+		{.pitch = 62, .velocity = 102, .stime = 400,                 .duration = noteDuration},
+		{.pitch = 0,  .velocity = 0,   .stime = 400 + noteDuration,  .duration = NoteSequence_cycleDuration},
+	};
+	Coverage_on;
+	
+	self->seq1 = NoteSequence_newFromEvents(track, self->portFind, nnotes, notes, err);
+	if (Error_iserror(err)) {
+		NoteSequenceFixture_free(self);
+		return NULL;
+	}
+	SequenceAr_push(self->seqAr, NoteSequence_castToSequence(self->seq1));
+	return self;
+}
+
+APIF void NoteSequenceFixture_collectResults(NoteSequenceFixture *self)
+{
+	NoteOutlet_dbGetResults(self->results);
+}
+
+APIF void NoteSequenceFixture_driveToCompletion2(NoteSequenceFixture *self, Ticks clockStart, Ticks current, Error *err)
+{
+	const int ndirectives = 1;
+	Coverage_off;
+	SequenceDriveDirective directives[ndirectives] = {
+		{.time = 0, .directive = SequenceDrive_play, .sequences = self->seqAr},
+	};
+	Coverage_on;
+	if (clockStart != current) {
+		NoteSequence_setCycle(self->seq1, true);
+	}
+
+	// NoteSequence_start(self->seq1, clockStart, current, self->queue, NULL, err);
+	SequenceDrive *seqDrive = SequenceDrive_newBuild(ndirectives, directives, NULL);
+	SequenceDrive_setTimeDelta(seqDrive, 25);
+	SequenceDrive_setTimeStop(seqDrive, 1050);
+	SequenceDrive_toCompletion(seqDrive, err);
+	SequenceDrive_free(seqDrive);
+	Error_returnVoidOnError(err);
+	NoteSequenceFixture_collectResults(self);
+}
+
+APIF void NoteSequenceFixture_userClear(NoteSequenceFixture *self)
+{
+	PortFind_free(self->portFind);
 }
 

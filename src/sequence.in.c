@@ -680,7 +680,9 @@ APIF void NoteSequence_start(NoteSequence *self, Ticks clockStart, Ticks current
         self->recordingSeq  = other; 
         RecordBuffer_push(recordBuffer, NoteSequence_castToSequence(other));
     }
-    TimedPq_enqueue(queue, nextEvent, NoteSequence_castToSequence(self));
+    if (nextEvent != 0) {
+        TimedPq_enqueue(queue, nextEvent, NoteSequence_castToSequence(self));
+    }
 }
 
 APIF void NoteSequence_stop(NoteSequence *self, Ticks current, Error *err) {
@@ -1128,7 +1130,7 @@ APIF void FloatSequence_compactConcat(FloatSequence *self, Sequence *otherSeq, E
 
 APIF void FloatSequence_compactSortEvents(FloatSequence *self)
 {
-    FloatEventAr_sort(&self->events);
+    FloatSequence_makeConsistent(self);
 }
 
 APIF Ticks FloatSequence_compactComputeSequenceLength(FloatSequence *self)
