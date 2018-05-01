@@ -8,7 +8,7 @@
 		"containers": [
      		{
      			"type": "array",
-				"typeName": "FooArr", 
+				"typeName": "FooAr", 
 				"elemName": "Foo", 
 				"clearer": "Foo_recorder", 
 			 	"binarySearch": [
@@ -25,7 +25,7 @@
 @container 
 	{	
 		"type": "array",
-		"typeName": "IntArr", 
+		"typeName": "IntAr", 
 		"elemName": "int"   
 	}
 @end

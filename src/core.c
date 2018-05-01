@@ -21,13 +21,28 @@
 // 
 // T e s t i n g   M e m o r y  F u n c t i o n s
 //
-
+const int Mem_nallocsValue = 0;
 #define Mem_realloc(ptr, size) realloc(ptr, size)
-#define Mem_malloc(size)       malloc(size)
-#define Mem_calloc(size)       calloc(size, 1)
-#define Mem_free(ptr)          free(ptr)
+static inline void *Mem_malloc(size_t size)
+{
+    Mem_nallocsValue++;
+    return malloc(size);
+}
+static inline void Mem_calloc(size_t size)
+{   
+    Mem_nallocsValue++;
+    return calloc(size, 1);
+}
+static inline void Mem_free(void *p)
+{
+    Mem_nallocsValue--;
+    free(p);
+}
 
-
+static inline int Mem_nallocs()
+{
+    return Mem_nallocsValue;
+}
 #else
 
 //
@@ -37,6 +52,7 @@
 #define Mem_calloc(size)       (void*)sysmem_newptrclear(size)
 #define Mem_realloc(ptr, size) (void*)sysmem_resizeptr((ptr), (size))
 #define Mem_free(ptr)          sysmem_freeptr(ptr)
+#define Mem_nallocs() 0
 #endif 
 
 //
