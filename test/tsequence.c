@@ -797,6 +797,113 @@ Unit_declare(testFloatSequence)
 	// 	RecordBuffer_free(recordBuffer);
 	// }
 } 
+
+Unit_declare(testPqQueue) 
+{
+	{
+		// enqueue and dequeue
+		TimedPq *queue = TimedPq_new(0);
+		NoteSequence *seq = NoteSequence_new();
+		for (int i = 0; i < 3; i++) {
+			// Enqueue the same sequence 3 times.
+			TimedPq_enqueue(queue, 100+i, NoteSequence_castToSequence(seq));
+		}	
+		chk(TimedPq_len(queue) == 3);
+		for (int t = 0; t < 2; t++) {
+			int count = 0;
+			for (;;) {
+				Sequence *s = TimedPq_dequeue(queue, 200*t);
+				if (s == NULL) {
+					break;
+				}
+				chk((void*)s == (void*)seq);
+				count++;
+			}
+			if (t == 0) {
+				// Nothing comes out when t == 0
+				chk(count == 0);
+				chk(TimedPq_len(queue) == 3);
+			} else {
+				// All 3 elements pop off for t == 1
+				chk(count == 1);
+				chk(TimedPq_len(queue) == 0);
+			}
+		}
+		TimedPq_free(queue);
+	}
+
+	{
+		// enqueue and dequeue many
+		TimedPq *queue = TimedPq_new(0);
+		SequenceAr *seqAr = SequenceAr_new(0);
+		SequenceAr *got   = SequenceAr_new(0);
+		got->clearer      = NULL;
+		for (int i = 0; i < 10; i++) {
+			NoteSequence *seq = NoteSequence_new();
+			SequenceAr_push(seqAr, NoteSequence_castToSequence(seq));
+			TimedPq_enqueue(queue, 100+i, NoteSequence_castToSequence(seq));
+		}	
+		SequenceAr_sortPointer(seqAr);
+
+		chk(TimedPq_len(queue) == 10);
+		int count = 0;
+		for (;;) {
+			Sequence *s = TimedPq_dequeue(queue, 2000);
+			if (s == NULL) {
+				break;
+			}
+			
+			Sequence **p = SequenceAr_binSearchPointer(seqAr, s);
+			fatal(p != NULL);
+			fatal(*p != NULL);
+			count++;
+			SequenceAr_binInsertPointer(got, *p);
+		}
+		chk(TimedPq_len(queue) == 0);
+		chk(count == 10);
+		chk(SequenceAr_len(got) == 10);
+		TimedPq_free(queue);
+		SequenceAr_free(seqAr);
+		SequenceAr_free(got);
+	}
+}
+
+
+Unit_declare(testPqQueueEnqueue) 
+{
+	{
+		// enqueue and dequeue
+		TimedPq *queue = TimedPq_new(0);
+		NoteSequence *seq = NoteSequence_new();
+		for (int i = 0; i < 3; i++) {
+			// Enqueue the same sequence 3 times.
+			TimedPq_enqueue(queue, 100+i, NoteSequence_castToSequence(seq));
+		}	
+		chk(TimedPq_len(queue) == 3);
+		for (int t = 0; t < 2; t++) {
+			int count = 0;
+			for (;;) {
+				Sequence *s = TimedPq_dequeue(queue, 200*t);
+				if (s == NULL) {
+					break;
+				}
+				chk((void*)s == (void*)seq);
+				count++;
+			}
+			if (t == 0) {
+				// Nothing comes out when t == 0
+				chk(count == 0);
+				chk(TimedPq_len(queue) == 3);
+			} else {
+				// All 3 elements pop off for t == 1
+				chk(count == 1);
+				chk(TimedPq_len(queue) == 0);
+			}
+		}
+		TimedPq_free(queue);
+	}
+}
+
 int main(int argc, char *argv[]) {
 	Unit_initialize(argc, argv);
 	// Unit_test(testNoteSequenceStart);

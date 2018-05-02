@@ -242,11 +242,22 @@ APIF void Port_sendInteger(Port *self, int outlet, long value, Error *err)
 {       
    "type": "array",
    "typeName": "IntAr", 
-   "elemName": "int"   
+   "elemName": "int",
+   "binarySearch": [
+        {"compare": "Int_cmp"}
+    ]  
 }
 @end
 
-
+APIF int Int_cmp(int left, int right)
+{
+    if (*left < *right) {
+        return -1;
+    } else if (*left > *right) {
+        return 1;
+    }
+    return 0;
+}
 
 @type
 {  
