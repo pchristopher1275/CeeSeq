@@ -58,6 +58,7 @@ Unit_declare(testBasic) {
 		chk(Bar_refCount(s) == 1);
 		Bar_decRef(s);
 	}
+
 	{
 		// incRef increments ref count	
 		Bar *s = Bar_new();
@@ -66,6 +67,7 @@ Unit_declare(testBasic) {
 		Bar_decRef(s);
 		Bar_decRef(s);
 	}
+
 	{
 		// decRef decrements ref count	
 		Bar *s = Bar_new();
@@ -74,6 +76,7 @@ Unit_declare(testBasic) {
 		chk(Bar_refCount(s) == 1);
 		Bar_decRef(s);
 	}
+	
 	{
 		// decRef deletes object at zero count
 		Bar *s = Bar_new();
@@ -83,13 +86,12 @@ Unit_declare(testBasic) {
 	}
 }
 
-Unit_declare(testTransativity) {
+Unit_declare(testGetterSetter) {
 	{
 		// Setter sets refcount
 		Bar2 *s2 = Bar2_new();
 		Bar *s = Bar_new();
 		Bar2_setR(s);
-
 		chk(Bar_refCount(s) == 2);
 		Bar_decRef(s);
 		Bar2_decRef(s2);
@@ -101,11 +103,11 @@ Unit_declare(testTransativity) {
 		Bar2_setR(s);
 		Bar2_decRef(s2);
 		chk(Bar_refCount(s) == 1);
-		Bar_decRef(s2);
+		Bar_decRef(s);
 	}
 
 	{
-		// getter does not incrment ref count
+		// getter does not inc ref count
 		Bar2 *s2 = Bar2_new();
 		Bar *s = Bar_new();
 		Bar2_setR(s);
@@ -121,59 +123,149 @@ Unit_declare(testArray) {
 		// Array has refcount
 		BarAr *sar = BarAr_new();
 		chk(BarAr_refCount(sar) == 1);
-		Bar_decRef(sar);
+		BarAr_decRef(sar);
 	}
+
 	{
 		// Push incs count
-		BarAr *sar = BarAr_new();
-		Bar *s = Bar_new();
-		BarAr_push(sar, s);
-		chk(BarAr_refCount(s) == 2);
-		BarAr_decRef(sar);
-		Bar_decRef(s);
+		BarAr *ba = BarAr_new();
+		Bar *b = Bar_new();
+		BarAr_push(ba, b);
+		chk(Bar_refCount(b) == 2);
+		BarAr_decRef(ba);
+		Bar_decRef(b);
 	}
+
 	{
 		// Get DOES NOT inc count
 		Error_declare(err);
-		BarAr *sar = BarAr_new();
-		Bar *s = Bar_new();
-		BarAr_push(sar, s);
-		s = BarAr_get(sar, 0, err);
+		BarAr *ba = BarAr_new();
+		Bar *b = Bar_new();
+		BarAr_push(ba, b);
+
+		b = BarAr_get(ba, 0, err);
 		fatal(!Error_iserror(err));
-		chk(Bar_refCount(s) == 2);
-		s = BarAr_get(sar, 0, err);
+		chk(Bar_refCount(b) == 2);
+		b = BarAr_get(sar, 0, err);
 		fatal(!Error_iserror(err));
-		chk(Bar_refCount(s) == 2);
+		chk(Bar_refCount(b) == 2);
 		BarAr_decRef(sar);
 		Bar_decRef(s);
 	}
+
 	{
 		// Set incs and decs refcount
 		Error_declare(err);
-		BarAr *sar = BarAr_new();
-		Bar *sA = Bar_new();
-		Bar *sB = Bar_new();
-		BarAr_push(sar, sA);
-		BarAr_set(sar, 0, sB, err);
+		BarAr *ba = BarAr_new();
+		Bar *b1 = Bar_new();
+		Bar *b2 = Bar_new();
+		BarAr_push(sar, b1);
+
+		BarAr_set(sar, 0, b2, err);
 		fatal(!Error_iserror(err));
-		chk(Bar_refCount(sA) == 1);
-		chk(Bar_refCount(sB) == 2);
-		BarAr_decRef(sar);
-		Bar_decRef(sA);
-		Bar_decRef(sB);
+		chk(Bar_refCount(b1) == 1);
+		chk(Bar_refCount(b2) == 2);
+		BarAr_decRef(ba);
+		Bar_decRef(b1);
+		Bar_decRef(b2);
 	}
 
 	{
 		// Pop decs refcount
 		Error_declare(err);
-		BarAr *sar = BarAr_new();
-		Bar *s = Bar_new();
-		BarAr_push(sar, s);
-		s = BarAr_pop(sar, err);
+		BarAr *ba = BarAr_new();
+		Bar *b = Bar_new();
+		BarAr_push(ba, b);
+		b = BarAr_pop(ba, err);
 		fatal(!Error_iserror(err));
-		chk(Bar_refCount(s) == 1);
-		BarAr_decRef(sar);
-		Bar_decRef(s);
+		chk(Bar_refCount(b) == 1);
+		BarAr_decRef(ba);
+		Bar_decRef(b);
+	}
+
+	{
+		// insert incs refcount
+		Error_declare(err);
+		BarAr *ba = BarAr_new();
+		Bar *b = Bar_new();
+		BarAr_insert(ba, 0, b, err);
+		fatal(!Error_iserror(err));
+		chk(Bar_refCount(b) == 2);
+		BarAr_decRef(ba);
+		Bar_decRef(b);
+	}
+
+	{
+		// remove decs refcount
+		Error_declare(err);
+		BarAr *ba = BarAr_new();
+		Bar *b = Bar_new();
+		BarAr_push(ba, b);
+		BarAr_remove(ba, 0, err);
+		fatal(!Error_iserror(err));
+		chk(Bar_refCount(b) == 1);
+		BarAr_decRef(ba);
+		Bar_decRef(b);
+	}
+
+	{
+		// pqPush incs refcount
+		Error_declare(err);
+		BarAr *ba = BarAr_new();
+		Bar *b = Bar_new();
+		BarAr_pqPush(ba, b);
+		chk(Bar_refCount(b) == 2);
+		BarAr_decRef(ba);
+		Bar_decRef(b);
+	}
+
+	{
+		// pqPop decs refcount
+		Error_declare(err);
+		BarAr *ba = BarAr_new();
+		Bar *b = Bar_new();
+		BarAr_pqPush(ba, b);
+		b = BarAr_pqPop(ba, err);
+		fatal(!Error_iserror(err));
+		chk(Bar_refCount(b) == 1);
+		BarAr_decRef(ba);
+		Bar_decRef(b);
+	}
+
+	{
+		// pqPeek doesn't change refcount
+		Error_declare(err);
+		BarAr *ba = BarAr_new();
+		Bar *b = Bar_new();
+		BarAr_pqPush(ba, b);
+		bool q = false;
+		chk(Bar_refCount(BarAr_pqPeek(ba, &q)) == 1);
+		chk(Bar_refCount(BarAr_pqPeek(ba, &q)) == 1);
+		BarAr_decRef(ba);
+		Bar_decRef(b);
+	}
+
+	{
+		// binInsert incs refcount
+		Error_declare(err);
+		BarAr *ba = BarAr_new();
+		Bar *b = Bar_new();
+		BarAr_binInsert(ba, b);
+		chk(Bar_refCount(b) == 2);
+		BarAr_decRef(ba);
+		Bar_decRef(b);
+	}
+
+	{
+		// binRemove incs refcount
+		Error_declare(err);
+		BarAr *ba = BarAr_new();
+		Bar *b = Bar_new();
+		BarAr_push(ba, b);
+		BarAr_binRemove(ba, b);
+		chk(Bar_refCount(b) == 1);
+		BarAr_decRef(ba);
+		Bar_decRef(b);
 	}
 }
 

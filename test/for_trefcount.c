@@ -7,10 +7,27 @@
 		{"name": "s", "type": "String *"}
 	],
 	"containers": [
-		{"type": "array", "typeName": "BarAr", "elemName": "Bar *"},
+		{
+			"type": "array", 
+			"typeName": "BarAr", 
+			"elemName": "Bar *",
+			"binarySearch": [
+				{"compare": "Bar_cmp"} 
+			]
+		},
     ]
 }
 @end
+
+APIF int Bar_cmp(Bar *left, Bar *right)
+{
+	if (left->i < right->i) {
+		return -1;
+	} else if (left->i > right->i) {
+		return 1;
+	}
+	return 0;
+}
 
 @type
 {
