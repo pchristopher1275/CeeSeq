@@ -128,10 +128,10 @@ Unit_declare(testGetSetPushPop) {
 	}
 
 	{
-		// pop gets correct element
+		// popVal gets correct element
 		IntAr *ia = IntAr_new10();
 		for (int i = 0; i < 10; i++) {
-			int i2 = IntAr_pop(ia, err);
+			int i2 = IntAr_popVal(ia, err);
 			fatal(!Error_iserror(err));
 			chk(i == i2);
 		}
@@ -139,9 +139,29 @@ Unit_declare(testGetSetPushPop) {
 	}
 
 	{
+		// popVal errors for no element
+		IntAr *ia = IntAr_new();
+		int i2 = IntAr_popVal(ia, err);
+		chk(Error_iserror(err));
+		Error_clear(err);
+		IntAr_decRef(ia);
+	}
+
+	{
+		// pop gets correct element
+		IntAr *ia = IntAr_new10();
+		for (int i = 0; i < 10; i++) {
+			IntAr_pop(ia, err);
+			fatal(!Error_iserror(err));
+			chk(IntAr_len(ia) == 9 - i);
+		}
+		IntAr_decRef(ia);
+	}
+
+	{
 		// pop errors for no element
 		IntAr *ia = IntAr_new();
-		int i2 = IntAr_pop(ia, err);
+		IntAr_pop(ia, err);
 		chk(Error_iserror(err));
 		Error_clear(err);
 		IntAr_decRef(ia);
@@ -231,6 +251,19 @@ Unit_declare(testForeach) {
 	}
 
 	{
+		// foreach can remove
+		IntAr *ia = IntAr_new10();
+		int i = 0;
+		IntAr_foreach(it, ia) {
+			if (it.index % 2 == 0) {
+				it.remove = true;
+			}
+		}
+		chk(IntAr_len(ia) == 5);
+		IntAr_decRef(ia);
+	}
+
+	{
 		// rforeach works correctly
 		IntAr *ia = IntAr_new10();
 		int i = 9;
@@ -238,6 +271,19 @@ Unit_declare(testForeach) {
 			chk(*it.var == i);
 			i--;
 		}
+		IntAr_decRef(ia);
+	}
+
+	{
+		// rforeach can remove
+		IntAr *ia = IntAr_new10();
+		int i = 0;
+		IntAr_rforeach(it, ia) {
+			if (it.index % 2 == 0) {
+				it.remove = true;
+			}
+		}
+		chk(IntAr_len(ia) == 5);
 		IntAr_decRef(ia);
 	}
 
@@ -261,8 +307,6 @@ Unit_declare(testForeach) {
 		}
 		FooAr_decRef(fa);
 	}
-
-
 }
 
 Unit_declare(testSort) {
@@ -379,11 +423,11 @@ Unit_declare(testBinInsert) {
 		IntAr_binInsert(ia, 10);
 		IntAr_binInsert(ia, 2);
 		IntAr_binInsert(ia, 5);
-		chk(IntAr_pop(ia, err) == 2);
+		chk(IntAr_popVal(ia, err) == 2);
 		fatal(!Error_iserror(err));
-		chk(IntAr_pop(ia, err) == 5);
+		chk(IntAr_popVal(ia, err) == 5);
 		fatal(!Error_iserror(err));
-		chk(IntAr_pop(ia, err) == 10);
+		chk(IntAr_popVal(ia, err) == 10);
 		fatal(!Error_iserror(err));
 		IntAr_decRef(ia);
 	}
@@ -395,7 +439,7 @@ Unit_declare(testBinInsert) {
 		IntAr_binInsert(ia, 10);
 		IntAr_binInsert(ia, 10);
 		chk(IntAr_len(ia) == 1);
-		chk(IntAr_pop(ia, err) == 10);
+		chk(IntAr_popVal(ia, err) == 10);
 		fatal(!Error_iserror(err));
 		IntAr_decRef(ia);
 	}
@@ -407,11 +451,15 @@ Unit_declare(testBinInsert) {
 		Foo *f2 = Foo_newBuild(2, 2.0);
 		FooAr_binInsert(fa, f1);
 		FooAr_binInsert(fa, f2);
-		chk(FooAr_pop(fa, err) == f2);
+		chk(FooAr_popVal(fa, err) == f2); // remember popVal does NOT decrement
 		fatal(!Error_iserror(err));
-		chk(FooAr_pop(fa, err) == f1);
+		chk(FooAr_popVal(fa, err) == f1);
 		fatal(!Error_iserror(err));
 		FooAr_decRef(fa);
+		Foo_decRef(f1); 
+		Foo_decRef(f1);
+		Foo_decRef(f2);
+		Foo_decRef(f2);
 	}
 
 	{
@@ -421,9 +469,10 @@ Unit_declare(testBinInsert) {
 		FooAr_binInsert(fa, f1);
 		FooAr_binInsert(fa, f1);
 		chk(FooAr_len(fa) == 1);
-		chk(FooAr_pop(fa, err) == f1);
+		chk(FooAr_popVal(fa, err) == f1);
 		fatal(!Error_iserror(err));
 		FooAr_decRef(fa);
+		Foo_decRef(f1);
 		Foo_decRef(f1);
 	}
 
@@ -509,18 +558,38 @@ Unit_declare(testPq)
 		IntAr *ia = IntAr_new();
 		IntAr_pqPush(ia, 10);
 		IntAr_pqPush(ia, 2);
-		int v = IntAr_pqPop(ia, err);
+
+		IntAr_pqPop(ia, err);
+		fatal(!Error_iserror(err));
+		chk(IntAr_len(ia) == 2);
+
+		IntAr_pqPop(ia, err);
+		fatal(!Error_iserror(err));
+		chk(IntAr_len(ia) == 1);
+
+		IntAr_pqPop(ia, err);
+		fatal(!Error_iserror(err));
+		chk(IntAr_len(ia) == 0);
+		IntAr_decRef(ia);
+	}
+
+	{
+		// pqPopVal works correctly
+		IntAr *ia = IntAr_new();
+		IntAr_pqPush(ia, 10);
+		IntAr_pqPush(ia, 2);
+		int v = IntAr_pqPopVal(ia, err);
 		fatal(!Error_iserror(err));
 		chk(v == 2);
-		v = IntAr_pqPop(ia, err);
+		v = IntAr_pqPopVal(ia, err);
 		fatal(!Error_iserror(err));
 		chk(v == 10);
 		IntAr_decRef(ia);
 	}
 	{
-		// pqPop errors correctly
+		// pqPopVal errors correctly
 		IntAr *ia = IntAr_new();
-		int v = IntAr_pqPop(ia, err);
+		int v = IntAr_pqPopVal(ia, err);
 		chk(Error_iserror(err));
 		Error_clear(err);
 		IntAr_decRef(ia);
@@ -532,13 +601,13 @@ Unit_declare(testPq)
 		IntAr_push(ia, 10);
 		IntAr_push(ia, 2);
 		IntAr_pqSort(ia);
-		int v = IntAr_pqPop(ia, err);
+		int v = IntAr_pqPopVal(ia, err);
 		fatal(!Error_iserror(err));
 		chk(v == 2);
-		v = IntAr_pqPop(ia, err);
+		v = IntAr_pqPopVal(ia, err);
 		fatal(!Error_iserror(err));
 		chk(v == 5);
-		v = IntAr_pqPop(ia, err);
+		v = IntAr_pqPopVal(ia, err);
 		fatal(!Error_iserror(err));
 		chk(v == 10);
 		IntAr_decRef(ia);
@@ -591,10 +660,12 @@ Unit_declare(testPq)
 		Foo *f2 = Foo_newBuild(2, 2.0);
 		FooAr_pqPush(fa, f1);
 		FooAr_pqPush(fa, f2);
-		Foo *v = FooAr_pqPop(fa, err);
+		Foo *v = FooAr_pqPopVal(fa, err);
+		Foo_decRef(v);
 		fatal(!Error_iserror(err));
 		chk(v == f2);
-		v = FooAr_pqPop(ia, err);
+		v = FooAr_pqPopVal(ia, err);
+		Foo_decRef(v);
 		fatal(!Error_iserror(err));
 		chk(v == f1);
 		FooAr_decRef(ia);
@@ -604,8 +675,9 @@ Unit_declare(testPq)
 	{
 		// pqPop errors correctly
 		FooAr *fa = FooAr_new();
-		Foo *v = FooAr_pqPop(fa, err);
+		Foo *v = FooAr_pqPopVal(fa, err);
 		chk(Error_iserror(err));
+		chk(v == NULL);
 		Error_clear(err);
 		FooAr_decRef(fa);
 	}
@@ -619,13 +691,16 @@ Unit_declare(testPq)
 		FooAr_push(fa, f2);
 		FooAr_push(fa, f3);
 		FooAr_pqSort(fa);
-		Foo *v = FooAr_pqPop(ia, err);
+		Foo *v = FooAr_pqPopVal(ia, err);
+		Foo_decRef(v);
 		fatal(!Error_iserror(err));
 		chk(v == f3);
-		v = FooAr_pqPop(ia, err);
+		v = FooAr_pqPopVal(ia, err);
+		Foo_decRef(v);
 		fatal(!Error_iserror(err));
 		chk(v == f1);
 		v = FooAr_pqPop(ia, err);
+		Foo_decRef(v);
 		fatal(!Error_iserror(err));
 		chk(v == f2);
 		FooAr_decRef(fa);

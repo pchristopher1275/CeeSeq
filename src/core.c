@@ -60,18 +60,29 @@ static inline int Mem_nallocs()
 //
 
 typedef struct StringBody_t {
+    int refCount;
     int len; // len DOES NOT include the null terminator
     char ch[0];
 } StringBody;
 
+// NOTE: Strings are immutable
 typedef const char String;
-void String_free(String *s);
+
+// This must be the size of the fields before ch
+#define String_preHeaderSize (2*sizeof(int))
 
 APIF StringBody *String_toStringBody(String *s)
 {
-    return (StringBody*)(s - sizeof(int));
+    return (StringBody*)(s - String_preHeaderSize);
 }
 
+APIF String *String_new()
+{
+    StringBody *body = (StringBody*)Mem_malloc(1+sizeof(int));
+    body->len = 0;
+    body->ch[0] = '\0';
+    return body->ch;
+}
 
 APIF String *String_fmt(const char *format, ...) 
 {
@@ -80,11 +91,27 @@ APIF String *String_fmt(const char *format, ...)
     size_t needed = vsnprintf(NULL, 0, format, ap);
     va_end(ap);
     StringBody *body = (StringBody*)Mem_malloc(needed+1+sizeof(int));
+    body->refCount   = 1;
     body->len        = needed;
     va_start(ap, format);
     vsnprintf(body->ch, needed+1, format, ap);
     va_end(ap);
     return body->ch;
+}
+
+APIF void String_incRef(String *)
+{
+    StringBody *body = String_toStringBody(s);
+    body->refCount++;
+}
+
+APIF void String_decRef(String *s) 
+{
+    StringBody *body = String_toStringBody(s);
+    body->refCount--;
+    if (body->refCount <= 0) {
+        Mem_free(body);
+    }
 }
 
 APIF int String_len(String *s) {
@@ -97,25 +124,9 @@ APIF bool String_isempty(String *s)
     return String_len(s) == 0;
 }
 
-APIF void String_freep(String **sp) 
-{
-    String_free(*sp);
-}
-
-APIF void String_free(String *s) 
-{
-    StringBody *body = String_toStringBody(s);
-    Mem_free(body);
-}
-
 APIF int String_cmp(String *self, String *other)
 {
     return strcmp(self, other);
-}
-
-APIF int String_cmpPp(String **self, String **other)
-{
-    return strcmp(*self, *other);
 }
 
 APIF int String_equal(String *self, String *other)
@@ -126,14 +137,6 @@ APIF int String_equal(String *self, String *other)
 APIF int String_cequal(String *self, const char *other)
 {
     return String_cmp(self, other) == 0;   
-}
-
-APIF String *String_empty()
-{
-    StringBody *body = (StringBody*)Mem_malloc(1+sizeof(int));
-    body->len = 0;
-    body->ch[0] = '\0';
-    return body->ch;
 }
 
 APIF void String_trim(String **sp)
@@ -182,6 +185,7 @@ char *basename(char *filename)
     char *p = strrchr(filename, '/');
     return p ? p + 1 : (char *)filename;
 }
+
 APIF String *Coverage_createCoverageFile(const char *filename)
 {
     String *str = String_fmt("%s", filename);
@@ -282,7 +286,7 @@ APIF void ErrorBacktrace_free(ErrorBacktrace *self)
 #endif
 
 
-
+// Logically Error is a value-type, not a reference type.
 typedef struct Error_t
 {
     bool iserror;
@@ -506,6 +510,18 @@ static inline const char *Symbol_cstr(Symbol *s) {
 #define Symbol_cstr(s) ((s)->s_name)
 #endif
 
+APIF Symbol *Symbol_new()
+{
+    return Symbol_gen("");
+}
+APIF void Symbol_incRef(Symbol *s)
+{
+}
+
+APIF void Symbol_decRef(Symbol *s)
+{
+}
+
 static inline int Symbol_cmp(Symbol *left, Symbol *right)
 {
     if (left < right) {
@@ -521,6 +537,7 @@ static inline int Symbol_cmp(Symbol *left, Symbol *right)
 //
 // A T O M
 //
+// NOTE: logically Atom is a value type
 #ifdef TEST_BUILD
 #define Atom_typeSymbol 1
 #define Atom_typeInteger 2

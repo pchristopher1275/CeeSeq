@@ -17,12 +17,21 @@
 
 Unit_declare(testCompileNames) {
 	{
-		// ALL pointers have new/incRef/decRef
-		Bar *s = Bar_new();
-		int count = Bar_refCount(s);
-		Bar_incRef(s);
-		Bar_decRef(s);
-		Bar_decRef(s);
+		// All references have new/incRef/decRef
+		Bar *b = Bar_new();
+		chk(Bar_refCount(b) == 1);
+		Bar_incRef(b);
+		Bar_decRef(b);
+		Bar_decRef(b);
+	}
+
+	{
+		// All references have clone
+		Bar *b = Bar_new();
+		Bar *c = Bar_clone(b);
+		chk(Bar_refCount(c) == 1);
+		Bar_incRef(b);
+		Bar_decRef(c);
 	}
 
 #   ifdef COMPILE_CHECK
@@ -76,7 +85,7 @@ Unit_declare(testBasic) {
 		chk(Bar_refCount(s) == 1);
 		Bar_decRef(s);
 	}
-	
+
 	{
 		// decRef deletes object at zero count
 		Bar *s = Bar_new();
@@ -171,12 +180,26 @@ Unit_declare(testArray) {
 	}
 
 	{
-		// Pop decs refcount
+		// popVal decs refcount
 		Error_declare(err);
 		BarAr *ba = BarAr_new();
 		Bar *b = Bar_new();
 		BarAr_push(ba, b);
-		b = BarAr_pop(ba, err);
+		b = BarAr_popVal(ba, err);
+		fatal(!Error_iserror(err));
+		chk(Bar_refCount(b) == 2);
+		BarAr_decRef(ba);
+		Bar_decRef(b);
+		Bar_decRef(b);
+	}
+
+	{
+		// pop decs refcount
+		Error_declare(err);
+		BarAr *ba = BarAr_new();
+		Bar *b = Bar_new();
+		BarAr_push(ba, b);
+		BarAr_pop(ba, err);
 		fatal(!Error_iserror(err));
 		chk(Bar_refCount(b) == 1);
 		BarAr_decRef(ba);
@@ -220,12 +243,26 @@ Unit_declare(testArray) {
 	}
 
 	{
+		// pqPopVal DOES NOT dec refcount
+		Error_declare(err);
+		BarAr *ba = BarAr_new();
+		Bar *b = Bar_new();
+		BarAr_pqPush(ba, b);
+		b = BarAr_pqPopVal(ba, err);
+		fatal(!Error_iserror(err));
+		chk(Bar_refCount(b) == 2);
+		BarAr_decRef(ba);
+		Bar_decRef(b);
+		Bar_decRef(b);
+	}
+
+	{
 		// pqPop decs refcount
 		Error_declare(err);
 		BarAr *ba = BarAr_new();
 		Bar *b = Bar_new();
 		BarAr_pqPush(ba, b);
-		b = BarAr_pqPop(ba, err);
+		BarAr_pqPop(ba, err);
 		fatal(!Error_iserror(err));
 		chk(Bar_refCount(b) == 1);
 		BarAr_decRef(ba);

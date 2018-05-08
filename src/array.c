@@ -2,7 +2,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-typedef void (*Array_clearElement)(char *);
+typedef void (*Array_refModifier)(char *);
+typedef int (*Array_compare)(const char *left, const char *right);
 
 Array *Array_new(int nelems, int elemSize, Array_clearElement clearer);
 void Array_init(Array *arr, int nelems, int elemSize, Array_clearElement clearer);
@@ -23,89 +24,69 @@ void Array_fit(Array *arr);
 // index of the subsequence. With this, the number of elements in the subsequence is end-start.
 
 #define Array_formatIndexError(err, m, n, o) Error_format((err), "Index out of range (%d, %d, %d)", (m), (n), (o))
+#define Array_len(arr) (arr)->len
+#define Array_at(arr, index, elemSize) ((arr)->data + (index)*(elemSize))
 
-Array *Array_new(int nelems, int elemSize, Array_clearElement clearer) {
-   Array *arr = (Array*)Mem_calloc(sizeof(Array));
-   Array_init(arr, nelems, elemSize, clearer);
-   return arr;
+Array *Array_new(int itype) {
+    Array *arr = (Array*)Mem_calloc(sizeof(Array));
+    arr->itype    = itype;
+    arr->refCount = 1;
+    arr->len      = 0;
+    arr->cap      = 0;
+    arr->data     = NULL;
+    return arr;
 }
 
-void Array_init(Array *arr, int nelems, int elemSize, Array_clearElement clearer) {
-   arr->elemSize = elemSize;
-   arr->len      = nelems > 0 ? nelems : 0;
-   arr->cap      = nelems > 0 ? nelems : 0;
-   arr->data     = NULL;
-   arr->clearer  = clearer;
-   if (nelems > 0) {
-      arr->data = (char*)Mem_calloc(nelems*elemSize); 
-   } 
+void Array_incRef(Array *arr)
+{
+    arr->refCount++;
 }
 
-void Array_clear(Array *arr) {
-   Array_truncate(arr);
-   if (arr->cap > 0) {
-      Mem_free(arr->data);
-   }
-   memset(arr, 0, sizeof(Array));
-}
-
-void Array_free(Array *arr) {
-   Array_clear(arr);
-   Mem_free(arr);
-}
-
-void Array_truncate(Array *arr) {
-   if (arr->clearer != NULL) {
-      char *start = arr->data;
-      char *end   = arr->data + arr->len*arr->elemSize;
-      for (char *p = start; p < end; p += arr->elemSize) {
-         arr->clearer(p);
-      }
-   }
-   memset(arr->data, 0, arr->len*arr->elemSize);
-   arr->len = 0;
-}
-
-void Array_changeLength(Array *arr, int newLength) {
-   if (newLength == arr->len) {
-      return;
-   } else if (newLength < arr->len) {
-      if (arr->clearer != NULL) {
-         char *start = arr->data + newLength*arr->elemSize;
-         char *end   = arr->data + arr->len*arr->elemSize;
-         for (char *p = start; p < end; p += arr->elemSize) {
-            arr->clearer(p);
-         }
-      }
-      memset(arr->data + newLength*arr->elemSize, 0, (arr->len-newLength)*arr->elemSize);
-      arr->len = newLength;
-      return;
-   } 
-
-   if (arr->cap < newLength) {
-      Array_mayGrow(arr, newLength-arr->len);
-   }
-   arr->len = newLength;
-}
-
-int Array_len(Array *arr) {
-   return arr->len;
-}
-
-void Array_mayGrow(Array *arr, int increment) {
-
-    if (arr->len + increment >= arr->cap) {
-        int requiredBytes = (arr->len + increment)*arr->elemSize;
-        int dblCurrBytes  = 2*arr->cap*arr->elemSize;
-        int szBytes       = dblCurrBytes >= requiredBytes ? dblCurrBytes : requiredBytes;
-        int oldCap        = arr->cap;
-        arr->cap          = szBytes/arr->elemSize;
-        arr->data         = (char*)Mem_realloc(arr->data, szBytes);
-        memset(arr->data + oldCap*arr->elemSize, 0, (arr->cap-oldCap)*arr->elemSize);
+void Array_decRef(Array *arr, Array_refModifier decRef, int elemSize)
+{
+    arr->refCount--;
+    if (arr->refCount <= 0) {
+        if (decRef) {
+            for (char *p = arr->data; p < arr->data + elemSize*arr->len; p += elemSize) {
+                char **d = (char**)p;
+                decRef(*d);
+            }
+        }
+        memset(arr->data, 0, arr->len*elemSize);
+        if (arr->cap > 0) {
+            Mem_free(arr->data);
+        }
+        memset(arr, 0, sizeof(Array));
+        Mem_free(arr); 
     }
 }
 
-#define Array_at(arr, index) ((arr)->data + index*(arr)->elemSize)
+void Array_truncate(Array *arr, int newLength, Array_refModifier decRef, int elemSize) {
+   if (newLength < arr->len) {
+        if (decRef) {
+            for (int i = newLength; i < Array_len(arr); i++) {
+                char *p  = Array_at(arr, i, elemSize);
+                char **d = (char**)p;
+                decRef(*d);
+            }
+        }
+        memset(arr->data + newLength*elemSize, 0, (arr->len-newLength)*elemSize);
+        arr->len = newLength;
+   }
+   return;
+}
+
+void Array_mayGrow(Array *arr, int increment, int elemSize) {
+    if (arr->len + increment >= arr->cap) {
+        int requiredBytes = (arr->len + increment)*elemSize;
+        int dblCurrBytes  = 2*arr->cap*elemSize;
+        int szBytes       = dblCurrBytes >= requiredBytes ? dblCurrBytes : requiredBytes;
+        int oldCap        = arr->cap;
+        arr->cap          = szBytes/elemSize;
+        arr->data         = (char*)Mem_realloc(arr->data, szBytes);
+        memset(arr->data + oldCap*elemSize, 0, (arr->cap-oldCap)*elemSize);
+    }
+}
 
 #define Array_getCheck(arr_in, index_in, failedReturn, err) do {\
    Array *_arr = (Array *)(arr_in);\
@@ -116,8 +97,8 @@ void Array_mayGrow(Array *arr, int increment) {
    }\
 } while (0)
 
-static inline char *Array_get(Array *arr, int index) {
-   return (arr->data + index*arr->elemSize);
+static inline char *Array_get(Array *arr, int index, int elemSize) {
+   return Array_at(arr, index, elemSize);
 }
 
 #define Array_setCheck(arr_in, index_in, err) do {\
@@ -129,12 +110,19 @@ static inline char *Array_get(Array *arr, int index) {
    }\
 } while (0)
 
-void Array_set(Array *arr, int index, char *newElem) {
-   char *p = arr->data + index*arr->elemSize;
-   if (arr->clearer != NULL) {
-      arr->clearer(p);
-   }
-   memmove(p, newElem, arr->elemSize);
+void Array_set(Array *arr, int index, char *newElem, Array_refModifier incRef, Array_refModifier decRef, int elemSize) {
+    char *p = Array_at(arr, index, elemSize);
+    char *toDec = decRef ? *((char**)p) : NULL; 
+    memmove(p, newElem, elemSize);
+
+    // We do the incRef first to handle the case when the new object is the same object as the old object.
+    if (incRef) {
+        char **d = (char**)p;
+        incRef(*d);
+    }
+    if (decRef) {
+        decRef(toDec);
+    }
 }
 
 
@@ -147,23 +135,33 @@ void Array_set(Array *arr, int index, char *newElem) {
    }\
 } while (0)
 
-void Array_popN(Array *arr, int N) {
-   char *end   = arr->data + arr->len*arr->elemSize;
-   arr->len   -= N;
-   char *start = arr->data + arr->len*arr->elemSize;
-   if (arr->clearer != NULL) {
-      for (char *p = start; p != end; p += arr->elemSize) {
-            arr->clearer(p);
-      }
-   }
-   memset(start, 0, (size_t)(end-start));
+void Array_popN(Array *arr, int N, char *output, Array_refModifier decRef, int elemSize) {
+    char *end   = Array_at(arr, arr->len, elemSize);
+    arr->len   -= N;
+    char *start = Array_at(arr, arr->len, elemSize);
+    if (decRef) {
+        for (char *p = start; p <= end; p += elemSize) {
+            char **d = (char**)p;
+            decRef(d);
+        }
+    }
+    if (output) {
+        memmove(output, start, (size_t)(end-start));
+    }
+    memset(start, 0, (size_t)(end-start));
 } 
 
-char *Array_pushN(Array *arr, int N) {
-   Array_mayGrow(arr, N);
-   char *pushed = arr->data + arr->len*arr->elemSize;
-   arr->len    += N;
-   return pushed;
+void Array_pushN(Array *arr, int N, char *input, Array_refModifier incRef, int elemSize) {
+    Array_mayGrow(arr, N);
+    char *pushed = Array_at(arr, arr->len, elemSize);
+    memmove(pushed, input, N*elemSize);
+    arr->len += N;
+    if (incRef) {
+        for (char *p = pushed; p < arr->data + elemSize*arr->len; p += elemSize) {
+            char **d = (char**)p;
+            incRef(*d);
+        }
+    }
 }
 
 #define Array_insertNCheck(arr_in, index_in, N_in, err) do {\
@@ -177,16 +175,22 @@ char *Array_pushN(Array *arr, int N) {
    }\
 } while (0)
 
-char *Array_insertN(Array *arr, int index, int N) {
-   Array_mayGrow(arr, N);
-   char *subStart  = arr->data + index*arr->elemSize;
-   char *subEnd    = arr->data + (index+N)*arr->elemSize;
-   char *arrayEnd  = arr->data + arr->len*arr->elemSize;
-   arr->len       += N;
-   
-   memmove(subEnd, subStart, (size_t)(arrayEnd-subStart));
-   memset(subStart, 0,      (size_t)(subEnd-subStart));
-   return subStart;
+char *Array_insertN(Array *arr, int index, int N, char *input, Array_refModifier incRef, int elemSize) {
+    Array_mayGrow(arr, N);
+    char *subStart  = Array_at(arr, index, elemSize);
+    char *subEnd    = Array_at(arr, index+N, elemSize);
+    char *arrayEnd  = Array_at(arr, arr->len, elemSize);
+    arr->len       += N;
+
+    memmove(subEnd, subStart, (size_t)(arrayEnd-subStart));
+    memmove(subStart, input, (size_t)(subEnd-subStart));
+    if (incRef) {
+        for (char *p = subStart; p < subEnd; p += elemSize) {
+            char **d = (char**)p;
+            incRef(*d);
+        }
+    }
+    return subStart;
 }
 
 #define Array_removeNCheck(arr_in, index_in, N_in, err) do {\
@@ -199,101 +203,88 @@ char *Array_insertN(Array *arr, int index, int N) {
    }\
 } while (0)
 
-void Array_removeN(Array *arr, int index, int N) {
-   char *removeStart = arr->data + index*arr->elemSize;
-   char *removeEnd   = arr->data + (index+N)*arr->elemSize;
-   char *clearStart  = arr->data + (arr->len-N)*arr->elemSize; 
-   char *clearEnd    = arr->data + arr->len*arr->elemSize;
+void Array_removeN(Array *arr, int index, int N, Array_refModifier decRef, int elemSize) {
+   char *removeStart = Array_at(arr, index, elemSize); 
+   char *removeEnd   = Array_at(arr, index+N, elemSize);
+   char *clearStart  = Array_at(arr, arr->len-N, elemSize);
+   char *clearEnd    = Array_at(arr, arr->len, elemSize);
    arr->len         -= N;
 
+   if (decRef) {
+        for (char *p = removeStart; p < removeEnd; p += elemSize) {
+            char **d = (char**)p;
+            decRef(*d);
+        }
+    }
 
-   if (arr->clearer != NULL) {
-      for (char *p = removeStart; p < removeEnd; p += arr->elemSize) {
-            arr->clearer(p);
-      }
-   }
-
-   memmove(removeStart,  removeEnd, (size_t)(clearEnd-removeEnd));
-   memset(clearStart,    0,         (size_t)(clearEnd-clearStart));
-   return;
+    memmove(removeStart,  removeEnd, (size_t)(clearEnd-removeEnd));
+    memset(clearStart,    0,         (size_t)(clearEnd-clearStart));
+    return;
 }
 
-void Array_fit(Array *arr) {
-   if (arr->len <= 0) {
-      if (arr->cap > 0) {
-         Mem_free(arr->data);
-      }
-      arr->data = NULL;
-      arr->len  = 0;
-      arr->cap  = 0;
-      return;
-   }
+void Array_fit(Array *arr, int elemSize) {
+    if (arr->len <= 0) {
+        if (arr->cap > 0) {
+            Mem_free(arr->data);
+        }
+        arr->data = NULL;
+        arr->len  = 0;
+        arr->cap  = 0;
+        return;
+    }
 
-   int szBytes = arr->len*arr->elemSize;
-   arr->data   = (char*)Mem_realloc(arr->data, szBytes);
-   arr->cap    = arr->len;
+    int szBytes = arr->len*elemSize;
+    arr->data   = (char*)Mem_realloc(arr->data, szBytes);
+    arr->cap    = arr->len;
 }
 
-int Array_elemSize(Array *arr){
-   return arr->elemSize;
-}
+bool ArrayFIt_next(ArrayFIt *iterator, Array_refModifier decRef, int elemSize) {
+    if (iterator->remove && iterator->index < Array_len(iterator->arr) && iterator->index >= 0) {
+        Array_removeN(iterator->arr, iterator->index, 1, decRef);
+        iterator->index--;
+        iterator->remove = false;
+    }
 
-bool ArrayFIt_next(ArrayFIt *iterator) {
-   if (iterator->index+1 < iterator->lBound || iterator->index+1 >= iterator->uBound) {
+    if (iterator->index+1 >= Array_len(iterator->arr) || iterator->index+1 < 0) {
       return false;
-   }
-   iterator->index++;
-   iterator->var = Array_get(iterator->arr, iterator->index);
-   return true;
+    }
+    
+    iterator->index++;
+    if (decRef) {
+        char **p      = (char**)Array_at(iterator->arr, iterator->index, elemSize);
+        iterator->var = *p;
+    } else {
+        iterator->var = Array_at(iterator->arr, iterator->index, elemSize);
+    }
+    return true;
 }
 
-bool ArrayRIt_next(ArrayRIt *iterator) {
-   if (iterator->index-1 < iterator->lBound || iterator->index-1 >= iterator->uBound) {
-      return false;
-   }
-   iterator->index--;
-   iterator->var  = Array_get(iterator->arr, iterator->index);
-   return true;
+bool ArrayRIt_next(ArrayRIt *iterator, Array_refModifier decRef, int elemSize) {
+    if (iterator->remove && iterator->index < Array_len(iterator->arr) && iterator->index >= 0) {
+        Array_removeN(iterator->arr, iterator->index, 1, decRef, elemSize);
+        iterator->remove = false;
+    }
+
+    if (iterator->index-1 >= Array_len(iterator->arr) || iterator->index-1 < 0) {
+        return false;
+    }
+
+    iterator->index--;
+    if (decRef) {
+        char **p      = (char**)Array_at(iterator->arr, iterator->index, elemSize);
+        iterator->var = *p;
+    } else {
+        iterator->var = Array_get(iterator->arr, iterator->index);
+    }
+
+    return true;
 }
-
-
-bool ArrayFIt_remove(ArrayFIt *iterator) {
-   if (iterator->index < iterator->lBound || iterator->index >= iterator->uBound) {
-      return false;
-   }   
-
-   int index = iterator->index;
-   iterator->index--;
-   iterator->var = NULL;
-   iterator->uBound--;
-   Array_removeN(iterator->arr, index, 1);
-   return true;
-}
-
-bool ArrayRIt_remove(ArrayRIt *iterator) {
-   if (iterator->index < iterator->lBound || iterator->index >= iterator->uBound) {
-      return false;
-   }   
-
-   iterator->var = NULL;
-   Array_removeN(iterator->arr, iterator->index, 1);
-   return true;
-}
-
-typedef int (*Array_compare)(const char *left, const char *right);
-
-typedef struct ArraySlice_t {
-   int len;
-   char *data;
-   int index;
-   char *var;
-} ArraySlice;
 
 // This code is based on bsearch pulled from the linux kernal
-int Array_binSearchWithInsertMulti(Array *arr, char *key, int *insert, Array_compare comparer, char **lowerBound, char **upperBound) {  
+int Array_binSearchWithInsertMulti(Array *arr, char *key, int *insert, Array_compare comparer, char **lowerBound, char **upperBound, int elemSize) {  
    char *base  = arr->data;
    size_t num  = arr->len;
-   size_t size = arr->elemSize;
+   size_t size = (size_t)elemSize;
    char *high  = NULL;
    char *pivot = NULL;
    // If there are no elements in the incomming array, and lowerBound != NULL, this makes sure that the insert index is set.
@@ -357,67 +348,54 @@ int Array_binSearchWithInsertMulti(Array *arr, char *key, int *insert, Array_com
 }
 
 
-void Array_sort(Array *arr, Array_compare comparer) {
-   qsort(arr->data, arr->len, arr->elemSize, (void*)comparer);
+void Array_sort(Array *arr, Array_compare comparer, int elemSize) {
+    qsort(arr->data, arr->len, elemSize, (void*)comparer);
 }
 
-void Array_binInsert(Array *arr, char *elem, Array_compare comparer, bool append) {
-   int insert = -1;
-   int index  = Array_binSearchWithInsertMulti(arr, elem, &insert, comparer, NULL, NULL);
-   if (index < 0) {
-      Error_declare(err);
-      char *d = Array_insertN(arr, insert, 1);
-      memmove(d, elem, arr->elemSize);
-      Error_clear(err);
+void Array_binInsert(Array *arr, char *elem, Array_compare comparer, Array_refModifier incRef, Array_refModifier decRef, int elemSize) {
+    int insert = -1;
+    int index  = Array_binSearchWithInsertMulti(arr, elem, &insert, comparer, NULL, NULL, elemSize);
+    if (index < 0) {
+      Array_insertN(arr, insert, 1, elem, incRef, elemSize);
       return;
-   }
+    }
 
-   char *target = NULL;
-   if (append) {
-      target = Array_insertN(arr, index+1, 1);
-   } else {
-      target = Array_get(arr, index); 
-      if (arr->clearer) {
-         arr->clearer(target);
-      }
-   }
-   memmove(target, elem, arr->elemSize);
-   return;
+    char *target = Array_at(arr, index, elemSize);
+    char *toDec = decRef ? *((char**)target) : NULL; 
+    memmove(target, elem, elemSize);
+    // incRef first to handle the case when the new and old object are the same reference.
+    if (incRef) {
+        char **d = (char**)target;
+        incRef(*d);
+    }
+    if (decRef) {
+        decRef(toDec);
+    }
+
+    return;
 }
 
-void Array_binRemove(Array *arr, char *elem, Array_compare comparer, bool all) {
+void Array_binRemove(Array *arr, char *elem, Array_compare comparer, Array_refModifier decRef, int elemSize) {
+    int insert = -1;
+    char *lower = NULL;
+    char *upper = NULL;
+    int index  = Array_binSearchWithInsertMulti(arr, elem, &insert, comparer, &lower, &upper, elemSize);
+    if (index < 0) {
+        return;
+    }
+    
+    Array_removeN(arr, index, 1, decRef, elemSize);
+}
+
+char *Array_binSearch(Array *arr, char *elem, Array_compare comparer, int elemSize) {
    int insert = -1;
    char *lower = NULL;
    char *upper = NULL;
-   int index  = Array_binSearchWithInsertMulti(arr, elem, &insert, comparer, &lower, &upper);
-   if (index < 0) {
-      return;
-   }
-   if (all) {
-      size_t N = (size_t)(upper-lower)/arr->elemSize;
-      size_t ind = (lower-arr->data)/arr->elemSize;
-      Array_removeN(arr, ind, N);
-   } else {
-      Array_removeN(arr, index, 1);
-   }
-}
-
-char *Array_binSearch(Array *arr, char *elem, Array_compare comparer, ArrayFIt *iterator) {
-   int insert = -1;
-   char *lower = NULL;
-   char *upper = NULL;
-   int index  = Array_binSearchWithInsertMulti(arr, elem, &insert, comparer, &lower, &upper);
+   int index  = Array_binSearchWithInsertMulti(arr, elem, &insert, comparer, &lower, &upper, elemSize);
    if (index < 0) {
       return NULL;
    }
-   if (iterator != NULL) {
-      iterator->arr    = arr;
-      iterator->lBound = (int)((lower - arr->data)/arr->elemSize);
-      iterator->uBound = (int)((upper - arr->data)/arr->elemSize);
-      iterator->index  = iterator->lBound-1;
-      iterator->var    = NULL;
-   }
-
+   
    return lower;
 }
 
@@ -425,11 +403,11 @@ char *Array_binSearch(Array *arr, char *elem, Array_compare comparer, ArrayFIt *
 // Priority queue. This code is ported from https://golang.org/src/container/heap/heap.go
 //
 
-#define PQ_LESS(i, j) ((comparer(arr->data + arr->elemSize*i, arr->data + arr->elemSize*j)) < 0)
+#define PQ_LESS(i, j) ((comparer(Array_at(arr->data, i, elemSize), Array_at(arr->data, j, elemSize)) < 0)
 #define PQ_SWAP(i, j) do {\
-    memmove(arr->data + arr->elemSize*arr->len, arr->data + arr->elemSize*i,        arr->elemSize);\
-    memmove(arr->data + arr->elemSize*i,        arr->data + arr->elemSize*j,        arr->elemSize);\
-    memmove(arr->data + arr->elemSize*j,        arr->data + arr->elemSize*arr->len, arr->elemSize);\
+    memmove(Array_at(arr, arr->len, elemSize), Array_at(arr, i, elemSize),        elemSize);\
+    memmove(Array_at(arr, i, elemSize),        Array_at(arr, j, elemSize),        elemSize);\
+    memmove(Array_at(arr, j, elemSize),        Array_at(arr, arr->len, elemSize), elemSize);\
 } while (0)
 
 
@@ -446,7 +424,7 @@ func up(h Interface, j int) {
 }
 */
 
-void Array_pqUp(Array *arr, int j, int (*comparer)(const char *, const char*)) 
+void Array_pqUp(Array *arr, int j, Array_compare comparer, int elemSize) 
 {
    Array_mayGrow(arr, 1); // use the first unused element of the array as the swap space
    for (;;) {
@@ -480,7 +458,7 @@ func down(h Interface, i0, n int) bool {
    return i > i0
 }
 */
-bool Array_pqDown(Array *arr, int i0, int n, int (*comparer)(const char *, const char *)) {
+bool Array_pqDown(Array *arr, int i0, int n, Array_compare comparer, int elemSize) {
     Array_mayGrow(arr, 1);
     int i = i0;
     for (;;) {
@@ -512,11 +490,11 @@ func Init(h Interface) {
 }
 */
 
-void Array_pqSort(Array *arr, int (*comparer)(const char *, const char*)) 
+void Array_pqSort(Array *arr, Array_compare comparer, int elemSize) 
 {
     int n = Array_len(arr);
     for (int i = n/2-1; i >= 0; i--) {
-        Array_pqDown(arr, i, n, comparer);
+        Array_pqDown(arr, i, n, comparer, elemSize);
     }
 }
 
@@ -527,11 +505,10 @@ func Push(h Interface, x interface{}) {
 }
 */
 
-void Array_pqPush(Array *arr, char *elem, int (*comparer)(const char *, const char*))
+void Array_pqPush(Array *arr, char *elem, Array_compare comparer, Array_refModifier incRef, int elemSize)
 {
-   char *dst = Array_pushN(arr, 1);
-   memmove(dst, elem, arr->elemSize);
-   Array_pqUp(arr, Array_len(arr)-1, comparer);
+    Array_pushN(arr, 1, elem, incRef, elemSize);
+    Array_pqUp(arr, Array_len(arr)-1, comparer, elemSize);
 }
 
 /*
@@ -543,21 +520,24 @@ func Pop(h Interface) interface{} {
 }
 */
 
-bool Array_pqPop(Array *arr, char *elem, int (*comparer)(const char *, const char*)) 
+bool Array_pqPop(Array *arr, char *elem, Array_compare comparer, Array_refModifier decRef, int elemSize) 
 {
     if (Array_len(arr) <= 0) {
         return false;
     }
 
     if (elem != NULL) {
-        memmove(elem, arr->data, arr->elemSize);
-    } else if (arr->clearer != NULL) {
-        arr->clearer(arr->data);
+        memmove(elem, arr->data, elemSize);
+    }
+    if (decRef) {
+        char **d = (char**)arr->data;
+        decRef(*d);
+        *d = NULL;
     }
 
     int n = Array_len(arr)-1;
     PQ_SWAP(0, n);
-    Array_pqDown(arr, 0, n, comparer);
+    Array_pqDown(arr, 0, n, comparer, elemSize);
     arr->len--;
     return true;    
 }

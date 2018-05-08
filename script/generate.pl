@@ -12,7 +12,14 @@ my $gNow                 = strftime("%m/%d/%Y %H:%M:%S", localtime);
 my $gUndefinedItype      = 10;
 my $gMasterSourceDir     = undef;
 my $gGenerateCoverage    = 0;
-
+my %gBuiltinTypes = (
+	int        => "Number",
+	long       => "Number",
+	Ticks      => "BigInt",
+	double     => "Number",
+	# "String"   => "String",
+	# "Symbol"   => "Symbol",
+);
 sub run {
     my ($cmd, %opts) = @_;
     print "$cmd\n" if $gVerbose;
@@ -71,10 +78,10 @@ ENDxxxxxxxxxx
 		symbol => '',
 		tmpl   => <<'ENDxxxxxxxxxx', 
 			@typedef struct ${TYPENAME}_t {
+			@   int itype;
+			@   int refCount;
 			@   int len;
 			@   int cap;
-			@   int elemSize;
-			@   void (*clearer)(${ELEMNAME_NS}*);
 			@   ${ELEMNAME}*data;
 			@} ${TYPENAME};
 ENDxxxxxxxxxx
@@ -87,8 +94,7 @@ ENDxxxxxxxxxx
 		tmpl   => <<'ENDxxxxxxxxxx', 
 			@typedef struct ${TYPENAME}FIt_t {
 			@   ${TYPENAME} *arr;
-			@   int lBound;
-			@   int uBound;
+			@   bool remove;
 			@
 			@   int index;
 			@   ${ELEMNAME}*var;
@@ -102,8 +108,7 @@ ENDxxxxxxxxxx
 		tmpl   => <<'ENDxxxxxxxxxx', 
 			@typedef struct ${TYPENAME}RIt_t {
 			@   ${TYPENAME} *arr;
-			@   int lBound;
-			@   int uBound;
+			@   bool remove;
 			@
 			@   int index;
 			@   ${ELEMNAME}*var;
@@ -115,43 +120,367 @@ ENDxxxxxxxxxx
 		key =>    'Array:new',
 		symbol => '',
 		tmpl   => <<'ENDxxxxxxxxxx', 
-			@static inline ${TYPENAME} *${TYPENAME}_new(int nelems) {
-			@	void (*clearer)(${ELEMNAME}*) = ${CLEARER};
-			@	return (${TYPENAME}*)Array_new(nelems, sizeof(${ELEMNAME_NS}), (Array_clearElement)clearer);
+			@${TYPENAME} *${TYPENAME}_new() {
+			@	return (${TYPENAME}*)Array_new(sizeof(${ELEMNAME_NS}), ${TYPENAME}_itype);
+			@}
+ENDxxxxxxxxxx
+	},
+	
+		{
+		key =>    'Array:incRef',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@void ${TYPENAME}_incRef(${TYPENAME} *arr) {
+			@   Array_incRef((Array*)arr);
 			@}
 ENDxxxxxxxxxx
 	},
 
 	{
-		key =>    'Array:init',
+		key =>    'Array:decRef',
 		symbol => '',
 		tmpl   => <<'ENDxxxxxxxxxx', 
-			@static inline void ${TYPENAME}_init(${TYPENAME} *arr, int nelems) {
-			@   void (*clearer)(${ELEMNAME}*) = ${CLEARER};
-			@	Array_init((Array*)arr, nelems, sizeof(${ELEMNAME_NS}), (Array_clearElement)clearer);
-			@}
-ENDxxxxxxxxxx
-	},
-
-
-	{
-		key =>    'Array:clear',
-		symbol => '',
-		tmpl   => <<'ENDxxxxxxxxxx', 
-			@static inline void ${TYPENAME}_clear(${TYPENAME} *arr) {
-			@	Array_clear((Array*)arr);
-			@	${TYPENAME} zero = {0};
-			@	*arr = zero;
+			@void ${TYPENAME}_decRef(${TYPENAME} *arr) {
+			@   Array_decRef((Array*)arr, ${ELEMDECREF});
 			@}
 ENDxxxxxxxxxx
 	},
 
 	{
-		key =>    'Array:free',
+		key =>    'Array:toJsonReference',
 		symbol => '',
 		tmpl   => <<'ENDxxxxxxxxxx', 
-			@static inline void ${TYPENAME}_free(${TYPENAME} *arr) {
-			@	Array_free((Array*)arr);
+			@JSON_Value *${TYPENAME}_toJson(${TYPENAME} *self, Error *err) {
+			@	JSON_Value *jval  = json_value_init_object();
+			@   JSON_Object *jobj = json_value_get_object(jval);
+			@   
+			@	if (json_object_set_string(jobj, "*type", "${TYPENAME}") != JSONSuccess) {
+			@		Error_format0(err, "toJson set *type on type ${TYPENAME}");
+			@		goto FAIL;
+			@ 	}
+			@
+			@	if (json_object_set_number(jobj, "len", self->len) != JSONSuccess) {
+			@		Error_format0(err, "toJson failed to set len on type ${TYPENAME}");
+			@		goto FAIL;
+			@ 	}
+			@   
+			@   JSON_Value *jarrValue = json_value_init_array();
+			@   JSON_Array *jarr      = json_value_get_array(jarrayValue);
+			@	${TYPENAME}_foreach(it, self) {
+			@		JSON_Value *v = ${ELEMNAME}_toJson(it.var, err);
+			@		if (Error_iserror(err)) {
+			@			json_value_free(jarrValue);
+			@			goto FAIL;
+			@		}
+			@		if (json_array_append_value(jarr, v) != JSONSuccess) {
+			@			Error_format0(err, "json_array_append_value failed during toJson for ${TYPENAME}");
+			@			json_value_free(jarrValue);
+			@			goto FAIL;
+			@		}
+			@ 	}
+			@	if (json_object_set_value(jobj, "data", jarrValue) != JSONSuccess) {
+			@		Error_format0(err, "toJson failed to set data on type ${TYPENAME}");
+			@		json_value_free(jarrValue);
+			@		goto FAIL;
+			@ 	}
+			@   return jval
+			@}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Array:fromJsonReference',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@${TYPENAME} *${TYPENAME}_fromJson(JSON_Value *jval, Error *err) {
+			@ 	JSON_Object *jobj = json_value_get_object(jval);
+			@   if (jobj == NULL) {
+			@		Error_format0(err, "${TYPENAME}_fromJson passed non-object");
+			@		return NULL;
+			@ 	}
+			@	{
+			@		const char *s = json_object_get_string(jobj, "*type");
+			@		if (s == NULL) {
+			@			Error_format0(err, "fromJson object does not contain *type on type ${TYPENAME}");
+			@			return NULL;
+			@		} else if (strcmp(s, "${TYPENAME}") != 0) {
+			@			Error_format0(err, "fromJson *type mismatch: found '%s' expected '${TYPENAME}'", s);
+			@			return NULL;
+			@		}
+			@		
+			@	}
+			@
+			@	${TYPENAME} *self = ${TYPENAME}_new();
+			@   if (!json_object_has_value_of_type(jobj, "len", JSONNumber) {
+			@		Error_format0(err, "fromJson object for ${FIELDNAME} does not contain a number len field on type ${TYPENAME}");
+			@		goto FAIL;
+			@   }
+			@   if (!json_object_has_value_of_type(jobj, "data", JSONArray) {
+			@		Error_format0(err, "fromJson object for ${FIELDNAME} does not contain a list for the data field on type ${TYPENAME}");
+			@		goto FAIL;
+			@   }
+			@
+			@	int len               = (int)json_object_get_number(jobj, "len");
+			@   JSON_Value *jarrValue = json_object_get_value(jobj, "data");
+			@   JSON_Array *jarr      = json_value_get_array(jarrValue);
+			@	size_t count          = json_array_get_count(jarr);
+			@	if (count != (size_t)len) {
+			@		Error_format0(err, "fromJson count/len mismatch for ${TYPENAME}");
+			@		goto FAIL;
+			@	}
+			@	for (int i = 0; i < len; i++) {
+			@		JSON_Value *jelem = json_array_get_value(jarr, i);
+			@		if (jelem == NULL) {
+			@			Error_format(err, "fromJson json_array_get_value failed at inded %d for ${TYPENAME}", i);
+			@			goto FAIL;
+			@		}
+			@  		${ELEMNAMENP} *elem = ${ELEMNAME}_fromJson(jelem, err);
+			@		if (Error_iserror(err)) {
+			@			goto FAIL;
+			@		}
+			@		${TYPENAME}_push(self, elem);
+			@ 	}
+			@   return self;
+			@
+			@	FAIL:
+			@	${TYPENAME}_decRef(self);
+			@}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Array:toJsonValueStart',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@JSON_Value *${TYPENAME}_toJson(${TYPENAME} *self, Error *err) {
+			@	JSON_Value *jval  = json_value_init_object();
+			@   JSON_Object *jobj = json_value_get_object(jval);
+			@   
+			@	if (json_object_set_string(jobj, "*type", "${TYPENAME}") != JSONSuccess) {
+			@		Error_format0(err, "toJson set *type on type ${TYPENAME}");
+			@		goto FAIL;
+			@ 	}
+			@
+			@	if (json_object_set_number(jobj, "len", self->len) != JSONSuccess) {
+			@		Error_format0(err, "toJson failed to set len on type ${TYPENAME}");
+			@		goto FAIL;
+			@ 	}
+			@   
+			@   JSON_Value *jarrValue = json_value_init_array();
+			@   JSON_Array *jarr      = json_value_get_array(jarrayValue);
+			@	${TYPENAME}_foreach(it, self) {
+ENDxxxxxxxxxx
+	},
+	{
+		key =>    'Array:toJsonValuePushNumber',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx',
+			@		if (json_array_append_value(jarr, it.var->${FIELDNAME}) != JSONSuccess) {
+			@			Error_format0(err, "json_array_append_value to push number on ${TYPENAME}");
+			@			json_value_free(jarrValue);
+			@			goto FAIL;
+			@		}
+			@ 	}
+ENDxxxxxxxxxx
+	},	
+	{
+		key =>    'Array:toJsonValuePushNumberSolo',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx',
+			@		if (json_array_append_value(jarr, *it.var) != JSONSuccess) {
+			@			Error_format0(err, "json_array_append_value to push number on ${TYPENAME}");
+			@			json_value_free(jarrValue);
+			@			goto FAIL;
+			@		}
+			@ 	}
+ENDxxxxxxxxxx
+	},			
+
+	{
+		key =>    'Array:toJsonValuePushBigInt',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx',
+			@		{
+			@			String *buffer = String_fmt("%lld", it.var->${FIELDNAME});
+			@			if (json_array_append_string(jarr, buffer) != JSONSuccess) {
+			@				Error_format0(err, "json_array_append_value to push big int on ${TYPENAME}");
+			@				json_value_free(jarrValue);
+			@				goto FAIL;
+			@			}
+			@			String_decRef(buffer);
+			@ 		}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Array:toJsonValuePushBigIntSolo',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx',
+			@		{
+			@			String *buffer = String_fmt("%lld", *it.var);
+			@			if (json_array_append_string(jarr, buffer) != JSONSuccess) {
+			@				Error_format0(err, "json_array_append_value to push big int on ${TYPENAME}");
+			@				json_value_free(jarrValue);
+			@				goto FAIL;
+			@			}
+			@			String_decRef(buffer);
+			@ 		}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Array:toJsonValueEnd',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx',
+			@	if (json_object_set_value(jobj, "data", jarrValue) != JSONSuccess) {
+			@		Error_format0(err, "toJson failed to set data on type ${TYPENAME}");
+			@		json_value_free(jarrValue);
+			@		goto FAIL;
+			@ 	}
+			@   return jval
+			@}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Array:fromJsonValueStart',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx',
+			@${TYPENAME} *${TYPENAME}_fromJson(JSON_Value *jval, Error *err) {
+			@ 	JSON_Object *jobj = json_value_get_object(jval);
+			@   if (jobj == NULL) {
+			@		Error_format0(err, "${TYPENAME}_fromJson passed non-object");
+			@		return NULL;
+			@ 	}
+			@	{
+			@		const char *s = json_object_get_string(jobj, "*type");
+			@		if (s == NULL) {
+			@			Error_format0(err, "fromJson object does not contain *type on type ${TYPENAME}");
+			@			return NULL;
+			@		} else if (strcmp(s, "${TYPENAME}") != 0) {
+			@			Error_format0(err, "fromJson *type mismatch: found '%s' expected '${TYPENAME}'", s);
+			@			return NULL;
+			@		}
+			@		
+			@	}
+			@
+			@	${TYPENAME} *self = ${TYPENAME}_new();
+			@   if (!json_object_has_value_of_type(jobj, "len", JSONNumber) {
+			@		Error_format0(err, "fromJson object for ${FIELDNAME} does not contain a number len field on type ${TYPENAME}");
+			@		goto FAIL;
+			@   }
+			@   if (!json_object_has_value_of_type(jobj, "data", JSONArray) {
+			@		Error_format0(err, "fromJson object for ${FIELDNAME} does not contain a list for the data field on type ${TYPENAME}");
+			@		goto FAIL;
+			@   }
+			@
+			@	int len               = (int)json_object_get_number(jobj, "len");
+			@   JSON_Value *jarrValue = json_object_get_value(jobj, "data");
+			@   JSON_Array *jarr      = json_value_get_array(jarrValue);
+			@	size_t count          = json_array_get_count(jarr);
+			@	if (count != (size_t)len) {
+			@		Error_format0(err, "fromJson count/len mismatch for ${TYPENAME}");
+			@		goto FAIL;
+			@	}
+			@	for (int i = 0; i < len; i++) {
+			@		${FIELDTYPE} cell = {0};
+ENDxxxxxxxxxx
+	},
+	{
+		key =>    'Array:fromJsonValuePopNumber',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx',
+			@		{
+			@			JSON_Value *v = json_array_get_value(jarr, i);
+			@           if (v == NULL || json_value_get_type(v) != JSONNumber) {
+			@				Error_format0(err, "Found non-number at index of %d on ${TYPENAME}");
+			@				goto FAIL;
+			@ 			}
+			@			cell.${SUBFIELDNAME} = (${SUBFIELDTYPE})json_value_get_number(v);
+			@ 		}
+ENDxxxxxxxxxx
+	},	
+
+	{
+		key =>    'Array:fromJsonValuePopNumberSolo',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx',
+			@		{
+			@			JSON_Value *v = json_array_get_value(jarr, i);
+			@           if (v == NULL || json_value_get_type(v) != JSONNumber) {
+			@				Error_format0(err, "Found non-number at index of %d on ${TYPENAME}");
+			@				goto FAIL;
+			@ 			}
+			@			${TYPENAME}_push(self, (${SUBFIELDTYPE})json_value_get_number(v));
+			@ 		}
+ENDxxxxxxxxxx
+	},			
+
+	{
+		key =>    'Array:fromJsonValuePopBigInt',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx',
+			@		{
+			@			JSON_Value *v = json_array_get_value(jarr, i);
+			@           if (v == NULL || json_value_get_type(v) != JSONString) {
+			@				Error_format(err, "Found non-string at index of %d on ${TYPENAME}", i);
+			@				goto FAIL;
+			@ 			}
+			@			const char *s = json_value_get_string(v);
+			@			if (sscanf(s, "%lld", &cell.${SUBFIELDNAME}) != 1) {
+			@				Error_format0(err, "fromJson array at index %d does not contain a bigint on type ${TYPENAME}", i);
+			@				goto FAIL;
+			@			}
+			@ 		}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Array:fromJsonValuePopBigIntSolo',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx',
+			@		{
+			@			JSON_Value *v = json_array_get_value(jarr, i);
+			@           if (v == NULL || json_value_get_type(v) != JSONString) {
+			@				Error_format(err, "Found non-string at index of %d on ${TYPENAME}", i);
+			@				goto FAIL;
+			@ 			}
+			@			const char *s = json_value_get_string(v);
+			@			long long ll = 0;
+			@			if (sscanf(s, "%lld", &ll) != 1) {
+			@				Error_format0(err, "fromJson array at index %d does not contain a bigint on type ${TYPENAME}", i);
+			@				goto FAIL;
+			@			}
+			@			${TYPENAME}_push(self, ll);
+			@ 		}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Array:fromJsonValueEnd',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx',
+			@ 		${TYPENAME}_push(self, cell);
+			@	}
+			@	return self;
+			@
+			@	FAIL:
+			@	${TYPENAME}_decRef(self);
+			@   return NULL;
+			@}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Array:fromJsonValueEndSolo',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx',
+			@	}
+			@	return self;
+			@
+			@	FAIL:
+			@	${TYPENAME}_decRef(self);
+			@   return NULL;
 			@}
 ENDxxxxxxxxxx
 	},
@@ -508,52 +837,6 @@ ENDxxxxxxxxxx
 ENDxxxxxxxxxx
 	},	
 
-# 	{
-# 		key =>    'Array:slice',
-# 		symbol => '',
-# 		tmpl   => <<'ENDxxxxxxxxxx', 
-# 			@typedef struct ${TYPENAME}Slice_t {
-# 			@	int len;
-# 			@	${ELEMNAME}*data;
-# 			@	int index;
-# 			@	${ELEMNAME}*var;
-# 			@} ${TYPENAME}Slice;
-# ENDxxxxxxxxxx
-# 	},
-
-# 	{
-# 		key =>    'Array:declareSlice',
-# 		symbol => '${TYPENAME}_declareSlice',
-# 		tmpl   => <<'ENDxxxxxxxxxx', 
-# 			@#define ${TYPENAME}_declareSlice(name) ${TYPENAME}Slice name = {0}			
-# ENDxxxxxxxxxx
-# 	},
-
-# 	{
-# 		key =>    'Array:sliceEmpty',
-# 		symbol => '${TYPENAME}_sliceEmpty',
-# 		tmpl   => <<'ENDxxxxxxxxxx', 
-# 			@#define ${TYPENAME}_sliceEmpty(slice) (slice.data == NULL)
-# ENDxxxxxxxxxx
-# 	},	
-
-# 	{
-# 		key =>    'Array:sliceForeach',
-# 		symbol => '${TYPENAME}_sliceForeach',
-# 		tmpl   => <<'ENDxxxxxxxxxx', 
-# 			@#define ${TYPENAME}_sliceForeach(slice) for (slice.index=0, slice.var=slice.data; slice.index < slice.len; slice.index++, slice.var++)
-# ENDxxxxxxxxxx
-# 	},	
-
-# 	{
-# 		key =>    'Array:rsliceForeach',
-# 		symbol => '${TYPENAME}_rsliceForeach',
-# 		tmpl   => <<'ENDxxxxxxxxxx', 
-# 			@#define ${TYPENAME}_rsliceForeach(slice) for (slice.index=slice.len-1, slice.var = slice.data + slice.index*sizeof(${ELEMNAME_NS}); \\
-# 			@								               slice.index >= 0; slice.index--, slice.var--)
-# ENDxxxxxxxxxx
-# 	},	
-
 	{
 		key =>    'Array:binInsert',
 		symbol => '${TYPENAME}_binInsert${TAG}',
@@ -886,52 +1169,47 @@ ENDxxxxxxxxxx
 ENDxxxxxxxxxx
 	},
 
+# 	{
+# 		key =>    'Lifecycle:new',
+# 		symbol => '',
+# 		tmpl   => <<'ENDxxxxxxxxxx', 
+# 			@${TYPENAME} *${TYPENAME}_new()
+# 			@{
+# 			@	${TYPENAME} *self = Mem_malloc(sizeof(${TYPENAME}));
+# 			@	${TYPENAME}_init(self);
+# 			@	return self;
+# 			@}
+# ENDxxxxxxxxxx
+# 	},
+
+# 	{
+# 		key =>    'Lifecycle:free',
+# 		symbol => '',
+# 		tmpl   => <<'ENDxxxxxxxxxx', 
+# 			@void ${TYPENAME}_free(${TYPENAME} *self)
+# 			@{
+# 			@   if (self != NULL) {
+# 			@		${TYPENAME}_clear(self);
+# 			@		Mem_free(self);
+# 			@   }
+# 			@}
+# ENDxxxxxxxxxx
+# 	},
+
 	{
-		key =>    'Lifecycle:new',
+		key =>    'Lifecycle:newStart',
 		symbol => '',
 		tmpl   => <<'ENDxxxxxxxxxx', 
 			@${TYPENAME} *${TYPENAME}_new()
 			@{
 			@	${TYPENAME} *self = Mem_malloc(sizeof(${TYPENAME}));
-			@	${TYPENAME}_init(self);
-			@	return self;
-			@}
+			@	self->itype       = ${TYPENAME}_itype;
+			@   self->refCount    = 1;
 ENDxxxxxxxxxx
 	},
 
 	{
-		key =>    'Lifecycle:free',
-		symbol => '',
-		tmpl   => <<'ENDxxxxxxxxxx', 
-			@void ${TYPENAME}_free(${TYPENAME} *self)
-			@{
-			@   if (self != NULL) {
-			@		${TYPENAME}_clear(self);
-			@		Mem_free(self);
-			@   }
-			@}
-ENDxxxxxxxxxx
-	},
-
-	{
-		key =>    'Lifecycle:initStart',
-		symbol => '',
-		tmpl   => <<'ENDxxxxxxxxxx', 
-			@void ${TYPENAME}_init(${TYPENAME} *self)
-			@{
-ENDxxxxxxxxxx
-	},
-
-	{
-		key =>    'Lifecycle:initITypeField',
-		symbol => '',
-		tmpl   => <<'ENDxxxxxxxxxx', 
-			@	self->itype = ${TYPENAME}_itype;
-ENDxxxxxxxxxx
-	},
-
-	{
-		key =>    'Lifecycle:initFieldValue',
+		key =>    'Lifecycle:newFieldValue',
 		symbol => '',
 		tmpl   => <<'ENDxxxxxxxxxx', 
 			@	self->${FIELDNAME} = 0;
@@ -939,7 +1217,7 @@ ENDxxxxxxxxxx
 	},
 
 	{
-		key =>    'Lifecycle:initFieldPointer',
+		key =>    'Lifecycle:newFieldPointer',
 		symbol => '',
 		tmpl   => <<'ENDxxxxxxxxxx', 
 			@	self->${FIELDNAME} = NULL;
@@ -947,15 +1225,7 @@ ENDxxxxxxxxxx
 	},
 
 	{
-		key =>    'Lifecycle:initFieldString',
-		symbol => '',
-		tmpl   => <<'ENDxxxxxxxxxx', 
-			@	self->${FIELDNAME} = String_empty();
-ENDxxxxxxxxxx
-	},
-
-	{
-		key =>    'Lifecycle:initFieldKnownPointer',
+		key =>    'Lifecycle:newFieldKnown',
 		symbol => '',
 		tmpl   => <<'ENDxxxxxxxxxx', 
 			@	self->${FIELDNAME} = ${FIELDTYPE}_new();
@@ -963,49 +1233,16 @@ ENDxxxxxxxxxx
 	},
 
 	{
-		key =>    'Lifecycle:initFieldKnownValue',
+		key =>    'Lifecycle:newEnd',
 		symbol => '',
 		tmpl   => <<'ENDxxxxxxxxxx', 
-			@	${FIELDTYPE}_init(&self->${FIELDNAME});			
-ENDxxxxxxxxxx
-	},
-
-	{
-		key =>    'Lifecycle:initFieldKnownArrayPointer',
-		symbol => '',
-		tmpl   => <<'ENDxxxxxxxxxx', 
-			@	self->${FIELDNAME} = ${FIELDTYPE}_new(0);
-ENDxxxxxxxxxx
-	},
-
-	{
-		key =>    'Lifecycle:initFieldKnownArrayValue',
-		symbol => '',
-		tmpl   => <<'ENDxxxxxxxxxx', 
-			@	${FIELDTYPE}_init(&self->${FIELDNAME}, 0);
-ENDxxxxxxxxxx
-	},
-
-	{
-		key =>    'Lifecycle:initEnd',
-		symbol => '',
-		tmpl   => <<'ENDxxxxxxxxxx', 
-			@	return;
+			@	return self;
 			@}
 ENDxxxxxxxxxx
 	},
 
 	{
-		key =>    'Lifecycle:clearStart',
-		symbol => '',
-		tmpl   => <<'ENDxxxxxxxxxx', 
-			@void ${TYPENAME}_clear(${TYPENAME} *self)
-			@{
-ENDxxxxxxxxxx
-	},
-
-	{
-		key =>    'Lifecycle:initUser',
+		key =>    'Lifecycle:userInit',
 		symbol => '',
 		tmpl   => <<'ENDxxxxxxxxxx', 
 			@	${TYPENAME}_userInit(self);
@@ -1013,7 +1250,7 @@ ENDxxxxxxxxxx
 	},
 
 	{
-		key =>    'Lifecycle:clearUser',
+		key =>    'Lifecycle:userClear',
 		symbol => '',
 		tmpl   => <<'ENDxxxxxxxxxx', 
 			@	${TYPENAME}_userClear(self);
@@ -1021,69 +1258,271 @@ ENDxxxxxxxxxx
 	},
 
 	{
-		key =>    'Lifecycle:clearFieldString',
-		symbol => '',
-		tmpl   => <<'ENDxxxxxxxxxx',
-			@	String_free(self->${FIELDNAME}); 		
-ENDxxxxxxxxxx
-	},
-
-	{
-		key =>    'Lifecycle:clearFieldKnownPointer',
-		symbol => '',
-		tmpl   => <<'ENDxxxxxxxxxx',
-			@	${FIELDTYPE}_free(self->${FIELDNAME});
-ENDxxxxxxxxxx
-	},
-
-	{
-		key =>    'Lifecycle:clearFieldKnownValue',
+		key =>    'Lifecycle:decRefStart',
 		symbol => '',
 		tmpl   => <<'ENDxxxxxxxxxx', 
-			@	${FIELDTYPE}_clear(&self->${FIELDNAME});
+			@void ${TYPENAME}_decRef(${TYPENAME} *self)
+			@{
+			@	 self->refCount--;
+			@    if (self->refCount <= 0) {
+ENDxxxxxxxxxx
+	},
+
+	
+
+	{
+		key =>    'Lifecycle:decRefFieldKnown',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx',
+			@		${FIELDTYPE}_decRef(self->${FIELDNAME}); 		
 ENDxxxxxxxxxx
 	},
 
 	{
-		key =>    'Lifecycle:clearEnd',
+		key =>    'Lifecycle:decRefEnd',
 		symbol => '',
 		tmpl   => <<'ENDxxxxxxxxxx', 
+			@	}
 			@	return;
 			@}
 ENDxxxxxxxxxx
 	},
 
 	{
-		key =>    'Lifecycle:newProto',
+		key =>    'Lifecycle:incRef',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@void ${TYPENAME}_incRef(${TYPENAME} *self)
+			@{
+			@	 self->refCount++;
+			@}
+ENDxxxxxxxxxx
+	},
+
+
+	{
+		key =>    'Lifecycle:toJsonStart',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@JSON_Value *${TYPENAME}_toJson(${TYPENAME} *self, Error *err) {
+			@	JSON_Value *jval  = json_value_init_object();
+			@   JSON_Object *jobj = json_value_get_object(jval);
+			@   
+			@	if (json_object_set_string(jobj, "*type", "${TYPENAME}") != JSONSuccess) {
+			@		Error_format0(err, "toJson failed to set_string (typename) on type ${TYPENAME}");
+			@		goto FAIL;
+			@ 	}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:toJsonNumber',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@	if (json_object_set_number(jobj, "${FIELDNAME}", self->${FIELDNAME}) != JSONSuccess) {
+			@		Error_format0(err, "toJson failed to set_number of ${FIELDNAME} on type ${TYPENAME}");
+			@		goto FAIL;
+			@ 	}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:toJsonBigInt',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx',
+			@   {
+			@		String *buffer = String_fmt("%lld", self->${FIELDNAME});
+			@		if (json_object_set_string(jobj, "${FIELDNAME}", buffer) != JSONSuccess) {
+			@       	String_decRef(buffer);
+			@			Error_format0(err, "toJson failed to set_string (big int) of ${FIELDNAME} on type ${TYPENAME}");
+			@			goto FAIL;
+			@ 		}
+			@		String_decRef(buffer);
+			@	}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:toJsonString',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@	if (json_object_set_string(jobj, "${FIELDNAME}", self->${FIELDNAME}) != JSONSuccess) {
+			@		Error_format0(err, "toJson failed to set_string (string) of ${FIELDNAME} on type ${TYPENAME}");
+			@		goto FAIL;
+			@ 	}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:toJsonSymbol',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@	if (json_object_set_string(jobj, "${FIELDNAME}", Symbol_cstr(self->${FIELDNAME})) != JSONSuccess) {
+			@		Error_format0(err, "toJson failed to set_string (symbol) of ${FIELDNAME} on type ${TYPENAME}");
+			@		goto FAIL;
+			@ 	}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:toJsonReference',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@	{	
+			@       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+			@		JSON_Value *target = ${FIELDTYPE}_toJson(self->${FIELDNAME}, err);
+			@       Error_gotoLabelOnError(err, FAIL);
+			@		if (json_object_set_value(jobj, "${FIELDNAME}", target) != JSONSuccess) {
+			@			json_value_free(target);
+			@			Error_format0(err, "toJson failed to set_value (reference) of ${FIELDNAME} on type ${TYPENAME}");
+			@			goto FAIL;
+			@ 		}
+			@	}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:toJsonEnd',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@	return jval;
+			@
+			@	FAIL:
+			@	json_value_free(jval);
+			@	return NULL;
+			@}
+ENDxxxxxxxxxx
+	},
+
+
+	## fromJsonStart
+	{
+		key =>    'Lifecycle:fromJsonStart',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@${TYPENAME} *${TYPENAME}_fromJson(JSON_Value *jval, Error *err) {
+			@ 	JSON_Object *jobj = json_value_get_object(jval);
+			@   if (jobj == NULL) {
+			@		Error_format0(err, "${TYPENAME}_fromJson passed non-object");
+			@		return NULL;
+			@ 	}
+			@	{
+			@		const char *s = json_object_get_string(jobj, "*type");
+			@		if (s == NULL) {
+			@			Error_format0(err, "fromJson object does not contain *type on type ${TYPENAME}");
+			@			return NULL;
+			@		} else if (strcmp(s, "${TYPENAME}") != 0) {
+			@			Error_format0(err, "fromJson *type mismatch: found '%s' expected '${TYPENAME}'", s);
+			@			return NULL;
+			@		}
+			@		
+			@	}
+			@
+			@	${TYPENAME} *self = ${TYPENAME}_new();
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:fromJsonReference',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@	{	
+			@		JSON_Value *target = json_object_get_value(jobj, "${FIELDNAME}");
+			@		if (target == NULL) {
+			@			Error_format0(err, "'${TYPENAME}' json object does not contain a json value for '${FIELDNAME}'");
+			@			goto FAIL;
+			@		}
+			@		self->${FIELDNAME} = ${TYPENAME}_fromJson(target, err);
+			@       Error_gotoLabelOnError(err, FAIL);
+			@	}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:fromJsonNumber',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@   if (!json_object_has_value_of_type(jobj, "${FIELDNAME}", JSONNumber) {
+			@		Error_format0(err, "fromJson object for ${FIELDNAME} does not contain a number on type ${TYPENAME}");
+			@		goto FAIL;
+			@   }
+			@	self->${FIELDNAME} = (${FIELDTYPE})json_object_get_number(jobj, "${FIELDNAME}");
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:fromJsonBigInt',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx',
+			@   {
+			@		const char *s = json_object_get_string(jobj, "${FIELDNAME}");
+			@		if (s == NULL) {
+			@			Error_format0(err, "fromJson object for ${FIELDNAME} does not contain a string (for bigint) on type ${TYPENAME}");
+			@			goto FAIL;
+			@		}
+			@		if (sscanf(s, "%lld", &self->${FIELDNAME}) != 1) {
+			@			Error_format0(err, "fromJson object for ${FIELDNAME} does not contain a bigint on type ${TYPENAME}");
+			@			goto FAIL;
+			@		}
+			@	}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:fromJsonString',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@   {
+			@		const char *s = json_object_get_string(jobj, "${FIELDNAME}");
+			@		if (s == NULL) {
+			@			Error_format0(err, "fromJson object for ${FIELDNAME} does not contain a string (for string) on type ${TYPENAME}");
+			@			goto FAIL;
+			@		}
+			@		self->${FIELDNAME} = String_fmt("%s", s);
+			@	}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:fromJsonSymbol',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@   {
+			@		const char *s = json_object_get_string(jobj, "${FIELDNAME}");
+			@		if (s == NULL) {
+			@			Error_format0(err, "fromJson object for ${FIELDNAME} does not contain a string (for symbol) on type ${TYPENAME}");
+			@			goto FAIL;
+			@		}
+			@		self->${FIELDNAME} = Symbol_gen(s);
+			@	}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:fromJsonEnd',
+		symbol => '',
+		tmpl   => <<'ENDxxxxxxxxxx', 
+			@	return self;
+			@
+			@	FAIL:
+			@   ${TYPENAME}_free(self);
+			@	return NULL;
+			@}
+ENDxxxxxxxxxx
+	},
+
+	{
+		key =>    'Lifecycle:allProto',
 		symbol => '',
 		tmpl   => <<'ENDxxxxxxxxxx', 
 			@${TYPENAME} *${TYPENAME}_new();
-ENDxxxxxxxxxx
-	},
-
-	{
-		key =>    'Lifecycle:initProto',
-		symbol => '',
-		tmpl   => <<'ENDxxxxxxxxxx', 
-			@void ${TYPENAME}_init(${TYPENAME} *self);
-ENDxxxxxxxxxx
-	},
-
-	{
-		key =>    'Lifecycle:clearProto',
-		symbol => '',
-		tmpl   => <<'ENDxxxxxxxxxx', 
-			@void ${TYPENAME}_clear(${TYPENAME} *self);
-ENDxxxxxxxxxx
-	},
-
-	{
-		key =>    'Lifecycle:freeProto',
-		symbol => '',
-		tmpl   => <<'ENDxxxxxxxxxx', 
 			@void ${TYPENAME}_free(${TYPENAME} *self);
+			@${TYPENAME} *${TYPENAME}_fromJson(JSON_Value *jvalue, Error *err);
+			@JSON_Value *${TYPENAME}_toJson(${TYPENAME} *self, Error *err);
 ENDxxxxxxxxxx
 	},
+
+
 
 	{
 		key =>    'Coverage:preamble',
@@ -1314,85 +1753,168 @@ sub ClassArtifact_emitArgDeclare {
 	ClassOrInterface_emitArgDeclare(@_);
 }
 
-sub ClassArtifact_emitLifecylePrototype {
+sub ClassArtifact_emitLifecyclePrototype {
 	my ($self, $out) = @_;
 	if (defined($self->{lifecycle}) && $self->{lifecycle} eq "manual") {
 		return;
 	}
-	Expand_emit($out, ["Lifecycle:newProto", "Lifecycle:initProto", "Lifecycle:clearProto", "Lifecycle:freeProto"], {TYPENAME=>$self->{typeName}});
+	Expand_emit($out, ["Lifecycle:allProto"], {TYPENAME=>$self->{typeName}});
 }
 
-sub ClassArtifact_emitLifecyle {
+sub ClassArtifact_emitLifecycle {
 	my ($self, $out, $api, $artifactMap) = @_;
 	if ($self->{lifecycle} eq "manual") {
 		return;
 	}
-	for my $t (qw/init clear/) {
+
+	my %builtinTypes = (
+		int        => "Number",
+		long       => "Number",
+		Ticks      => "BigInt",
+		double     => "Number",
+		"String"   => "String",
+		"Symbol"   => "Symbol",
+	);
+	for my $t (qw/new decRef toJson fromJson/) {
+		if ($t eq 'decRef') {
+			Expand_emit($out, ["Lifecycle:incRef"], {TYPENAME=>$self->{typeName}});		
+		}
+
 		Expand_emit($out, ["Lifecycle:${t}Start"], {TYPENAME=>$self->{typeName}});
-		if ($t eq 'clear' && Api_definedCall($api, $self->{typeName}, "userClear")) {
-			Expand_emit($out, ["Lifecycle:clearUser"], {TYPENAME=>$self->{typeName}});
+		if ($t eq 'decRef' && Api_definedCall($api, $self->{typeName}, "userClear")) {
+			Expand_emit($out, ["Lifecycle:userClear"], {TYPENAME=>$self->{typeName}});
 		} 
+
 		for my $field (@{$self->{fields}}) {
 			my $name        = $field->{name};
+			next if $name eq 'itype' || $name eq 'refCount';
+
 			my $type        = $field->{type};
-			my $isItype     = $name eq 'itype';
 			(my $typeName   = $type) =~ s/[\s\*]+//g;
-			my $isKnown     = $artifactMap->{$typeName} ? 1 : 0;
-			my $isArray     = $isKnown ? $artifactMap->{$typeName}{itype} eq 'Container' : 0;
-			my $isInterface = $isKnown ? $artifactMap->{$typeName}{itype} eq 'Interface' : 0;
-			my $isPointer   = ($type =~ /\*/);
 			my $isString    = $typeName eq 'String';
-			my $isUnmanaged = defined($field->{lifecycle}) && $field->{lifecycle} eq 'unmanaged' ? 1 : 0;
-			my $dict        = {FIELDTYPE=>$typeName, FIELDNAME=>$name, TYPENAME=>$self->{typeName}};
+			my $isSymbol    = $typeName eq 'Symbol';
+			my $isKnown     = $isString || $isSymbol || $artifactMap->{$typeName};
+
+			my $isInterface     = $isKnown ? $artifactMap->{$typeName}{itype} eq 'Interface' : 0;
+			my $isTypeReference = ($type =~ /\*/) && !$isInterface;	
+			my $noSerial        = defined($field->{lifecycle}) && $field->{lifecycle} eq 'noSerial' ? 1 : 0;
+			my $btype           = $builtinTypes{$typeName};
+			my $dict            = {FIELDTYPE=>$typeName, FIELDNAME=>$name, TYPENAME=>$self->{typeName}};
 			
-			if ($isItype) {
-				if ($t eq 'init') {
-					Expand_emit($out, ["Lifecycle:initITypeField"], $dict);
-				}
+			if ($noSerial && $t =~ /Json$/) {
+				next;
 			}
-			elsif ($isString) {
-				Expand_emit($out, ["Lifecycle:${t}FieldString"], $dict);
-			} elsif ($isKnown) {
-				if ($isUnmanaged || $isInterface) {
-					if ($isPointer) {
-						if ($t eq 'init') {
-							Expand_emit($out, ["Lifecycle:${t}FieldPointer"], $dict);
+			
+			if ($isKnown) {
+				if ($isInterface) {
+					if ($t eq 'new' || $t eq 'decRef') {
+						Expand_emit($out, ["Lifecycle:${t}FieldPointer"], $dict);
+					} elsif ($t eq 'decRef') {
+						Expand_emit($out, ["Lifecycle:decRefFieldKnown"], $dict);
+					} elsif ($t eq 'toJson' || $t eq 'fromJson') {
+						Expand_emit($out, ["Lifecycle:${t}Reference"], $dict);
+					}
+				} else { ## !isInterface
+					if ($t eq 'new' || $t eq 'decRef') {
+						Expand_emit($out, ["Lifecycle:${t}FieldKnown"], $dict);
+					} elsif ($t eq 'toJson' || $t eq 'fromJson') {
+						if ($isString) {
+							Expand_emit($out, ["Lifecycle:${t}String"], $dict);	
+						} elsif ($isSymbol) {
+							Expand_emit($out, ["Lifecycle:${t}Symbol"], $dict);	
+						} else {
+							Expand_emit($out, ["Lifecycle:${t}Reference"], $dict);		
 						}
-					} else {
-						if ($t eq 'init') {
-							Expand_emit($out, ["Lifecycle:${t}FieldValue"], $dict);
-						}
 					}
-				} elsif ($isPointer) {
-					if ($isArray && $t eq 'init') {
-						Expand_emit($out, ["Lifecycle:${t}FieldKnownArrayPointer"], $dict);
-					} else {
-						Expand_emit($out, ["Lifecycle:${t}FieldKnownPointer"], $dict);
-					}
-				} else {
-					if ($isArray && $t eq 'init') {
-						Expand_emit($out, ["Lifecycle:${t}FieldKnownArrayValue"], $dict);
-					} else {
-						Expand_emit($out, ["Lifecycle:${t}FieldKnownValue"], $dict);
-					}
-				}	
-			} elsif ($isPointer) {
-				if ($t eq 'init') {
-					Expand_emit($out, ["Lifecycle:${t}FieldPointer"], $dict);
-				}
+				} 
 			} else {
-				if ($t eq 'init') {
-					Expand_emit($out, ["Lifecycle:${t}FieldValue"], $dict);
+				if ($t eq 'new') {
+					Expand_emit($out, ["Lifecycle:newFieldValue"], $dict);
+				} elsif ($t eq 'toJson' || $t eq 'fromJson') {
+					die "Woops don't know how $t type $typeName" unless defined($btype);
+					Expand_emit($out, ["Lifecycle:${t}${btype}"], $dict);
 				}
 			}
 		}
+
 		if ($t eq 'init' && Api_definedCall($api, $self->{typeName}, "userInit")) {
-			Expand_emit($out, ["Lifecycle:initUser"], {TYPENAME=>$self->{typeName}});
+			Expand_emit($out, ["Lifecycle:userInit"], {TYPENAME=>$self->{typeName}});
 		} 
 		Expand_emit($out, ["Lifecycle:${t}End"], {TYPENAME=>$self->{typeName}});
 	}
-	Expand_emit($out, ["Lifecycle:new", "Lifecycle:free"], {TYPENAME=>$self->{typeName}});
 }
+
+# sub ClassArtifact_emitLifecycleOLD {
+# 	my ($self, $out, $api, $artifactMap) = @_;
+# 	if ($self->{lifecycle} eq "manual") {
+# 		return;
+# 	}
+# 	for my $t (qw/init clear/) {
+# 		Expand_emit($out, ["Lifecycle:${t}Start"], {TYPENAME=>$self->{typeName}});
+# 		if ($t eq 'clear' && Api_definedCall($api, $self->{typeName}, "userClear")) {
+# 			Expand_emit($out, ["Lifecycle:clearUser"], {TYPENAME=>$self->{typeName}});
+# 		} 
+# 		for my $field (@{$self->{fields}}) {
+# 			my $name        = $field->{name};
+# 			my $type        = $field->{type};
+# 			my $isItype     = $name eq 'itype';
+# 			(my $typeName   = $type) =~ s/[\s\*]+//g;
+# 			my $isKnown     = $artifactMap->{$typeName} ? 1 : 0;
+# 			my $isArray     = $isKnown ? $artifactMap->{$typeName}{itype} eq 'Container' : 0;
+# 			my $isInterface = $isKnown ? $artifactMap->{$typeName}{itype} eq 'Interface' : 0;
+# 			my $isPointer   = ($type =~ /\*/);
+# 			my $isString    = $typeName eq 'String';
+# 			my $isUnmanaged = defined($field->{lifecycle}) && $field->{lifecycle} eq 'unmanaged' ? 1 : 0;
+# 			my $dict        = {FIELDTYPE=>$typeName, FIELDNAME=>$name, TYPENAME=>$self->{typeName}};
+			
+# 			if ($isItype) {
+# 				if ($t eq 'init') {
+# 					Expand_emit($out, ["Lifecycle:initITypeField"], $dict);
+# 				}
+# 			}
+# 			elsif ($isString) {
+# 				Expand_emit($out, ["Lifecycle:${t}FieldString"], $dict);
+# 			} elsif ($isKnown) {
+# 				if ($isUnmanaged || $isInterface) {
+# 					if ($isPointer) {
+# 						if ($t eq 'init') {
+# 							Expand_emit($out, ["Lifecycle:${t}FieldPointer"], $dict);
+# 						}
+# 					} else {
+# 						if ($t eq 'init') {
+# 							Expand_emit($out, ["Lifecycle:${t}FieldValue"], $dict);
+# 						}
+# 					}
+# 				} elsif ($isPointer) {
+# 					if ($isArray && $t eq 'init') {
+# 						Expand_emit($out, ["Lifecycle:${t}FieldKnownArrayPointer"], $dict);
+# 					} else {
+# 						Expand_emit($out, ["Lifecycle:${t}FieldKnownPointer"], $dict);
+# 					}
+# 				} else {
+# 					if ($isArray && $t eq 'init') {
+# 						Expand_emit($out, ["Lifecycle:${t}FieldKnownArrayValue"], $dict);
+# 					} else {
+# 						Expand_emit($out, ["Lifecycle:${t}FieldKnownValue"], $dict);
+# 					}
+# 				}	
+# 			} elsif ($isPointer) {
+# 				if ($t eq 'init') {
+# 					Expand_emit($out, ["Lifecycle:${t}FieldPointer"], $dict);
+# 				}
+# 			} else {
+# 				if ($t eq 'init') {
+# 					Expand_emit($out, ["Lifecycle:${t}FieldValue"], $dict);
+# 				}
+# 			}
+# 		}
+# 		if ($t eq 'init' && Api_definedCall($api, $self->{typeName}, "userInit")) {
+# 			Expand_emit($out, ["Lifecycle:initUser"], {TYPENAME=>$self->{typeName}});
+# 		} 
+# 		Expand_emit($out, ["Lifecycle:${t}End"], {TYPENAME=>$self->{typeName}});
+# 	}
+# 	Expand_emit($out, ["Lifecycle:new", "Lifecycle:free"], {TYPENAME=>$self->{typeName}});
+# }
 
 
 sub ClassArtifact_emitInlines {
@@ -1571,22 +2093,8 @@ sub ContainerArtifact_emitStruct {
 		ELEMNAME    => $ELEMNAME, 
 		ELEMNAME_NS => $ELEMNAME_NS
 	};
-
-	# my $needsSlice = 0;
-	# my $binarySearch = $self->{binarySearch};
-	# if (defined($binarySearch)) {
-	# 	for my $b (@$binarySearch) {
-	# 		if ($b->{multi}) {
-	# 			$needsSlice = 1;
-	# 			last;
-	# 		}
-	# 	}
-	# }
 	
 	my @keys = ("Array:struct", 'ArrayFIt:struct', 'ArrayRIt:struct');
-	# if ($needsSlice) {
-	# 	push @keys, "Array:slice";
-	# }
 	Expand_emitNl($out, \@keys, $dict);
 	return
 }
@@ -1621,17 +2129,6 @@ sub ContainerArtifact_emitInlines {
 	}
 	my $binarySearch = $self->{binarySearch};
 
-	# my $needsSlice = 0;
-	# if (defined($binarySearch)) {
-	# 	my $needslice = 0;
-	# 	for my $b (@$binarySearch) {
-	# 		if ($b->{multi}) {
-	# 			$needsSlice = 1;
-	# 			last;
-	# 		}
-	# 	}
-	# }
-
 	my $dict = {
 		TYPENAME=>$TYPENAME, 
 		ELEMNAME_NS=>$ELEMNAME_NS, 
@@ -1655,9 +2152,6 @@ sub ContainerArtifact_emitInlines {
 	);
 
 	push @keys, ('Array:each', 'Array:reach');
-	# if ($needsSlice) {
-	# 	push @keys, "Array:declareSlice", "Array:sliceEmpty", "Array:sliceForeach", "Array:rsliceForeach";
-	# }	
 	
 	Expand_emitNl($out, \@keys, $dict);
 	if (defined($binarySearch)) {
@@ -1687,6 +2181,170 @@ sub ContainerArtifact_emitInlines {
 		}
 	}
 }
+
+sub ContainerArtifact_emitLifecyclePrototype {
+	my ($self, $out) = @_;
+	Expand_emit($out, ["Lifecycle:allProto"], {TYPENAME=>$self->{typeName}});
+}
+
+sub ContainerArtifact_emitLifecycleValueType {
+
+}
+sub ContainerArtifact_emitLifecycleReferenceType {
+
+}
+sub ContainerArtifact_emitLifecycle {
+	my ($self, $out, $api, $artifactMap) = @_;
+	my $TYPENAME    = $self->{typeName};
+	my $ELEMNAME_NS = $self->{elemName};
+	my $ELEMNAME    = "";
+	if ($ELEMNAME_NS !~ /\*$/) {
+		$ELEMNAME = "$ELEMNAME_NS ";
+	} else {
+		$ELEMNAME = $ELEMNAME_NS;
+	}
+	(my $ELEMNAME_NP = $elemName) =~ s/[\s\*]+//g;
+	my $isReference = $elemName =~ /\*/;
+	my $elem     = $artifactMap->{$ELEMNAME_NP};
+	my $builtin  = $gBuiltinTypes{$ELEMNAME_NP};
+	die "Can't hold pointer to value type" if $isReference && defined($elem) && defined($elem->{valueType});
+	die "Don't know how to handle element type $elemName" unless defined($elem) || defined($builtin);
+	my %dict = (
+		"TYPENAME"    => $typeName,
+		"ELEMNAME"    => $ELEMNAME,
+		"ELEMNAME_NP" => $ELEMNAME_NP,
+		"ELEMNAME_NS" => $ELEMNAME_NS,
+	);
+	if ($isReference) {
+		$dict{ELEMDECREF} = "${ELEMNAME_NP}_decRef";
+		$dict{ELEMINCREF} = "${ELEMNAME_NP}_incRef";
+		Expand_emit($out, ['Array:new', 'Array:incRef', 'Array:decRef', 'Array:toJsonReference', 'Array:fromJsonReference'], \%dict);
+		return;
+	}
+
+	## support value arrays
+	$dict{ELEMDECREF} = "NULL";
+	$dict{ELEMINCREF} = "NULL";
+	Expand_emit($out, ['Array:new', 'Array:incRef', 'Array:decRef'], \%dict);
+
+	if (!defined($elem) && defined($builtin)) {
+		## Solo value types
+		$dict{SUBFIELDTYPE} = $ELEMNAME_NP;
+		Expand_emit($out, ['Array:toJsonValueStart'], \%dict);
+		Expand_emit($out, ['Array:toJsonValuePush${builtin}Solo'], \%dict);
+		Expand_emit($out, ['Array:toJsonValueEndSolo'], \%dict);
+
+		Expand_emit($out, ['Array:fromJsonValueStart'], \%dict);
+		Expand_emit($out, ['Array:fromJsonValuePop${builtin}Solo'], \%dict);
+		Expand_emit($out, ['Array:fromJsonValueEndSolo'], \%dict);
+		return;
+	}
+
+	Expand_emit($out, ['Array:toJsonValueStart'], \%dict);
+	for my $field (@{$elem->{fields}}) {
+		$dict{SUBFIELDNAME} = $field->{name};
+		$dict{SUBFIELDTYPE} = $field->{type};
+		my $b = $gBuiltinTypes{$field->{type}};
+		die "Bad value type $ELEMNAME: continas non-builtin type" unless defined($b);
+		Expand_emit($out, ['Array:toJsonValuePush${b}'], \%dict);
+	}
+	Expand_emit($out, ['Array:toJsonValueEnd'], \%dict);
+
+	Expand_emit($out, ['Array:fromJsonValueStart'], \%dict);
+	for my $field (@{$elem->{fields}}) {
+		$dict{SUBFIELDNAME} = $field->{name};
+		$dict{SUBFIELDTYPE} = $field->{type};
+		my $b = $gBuiltinTypes{$field->{type}};
+		die "Bad value type $ELEMNAME: continas non-builtin type" unless defined($b);
+		Expand_emit($out, ['Array:fromJsonValuePush${b}'], \%dict);
+	}
+	Expand_emit($out, ['Array:fromJsonValueEnd'], \%dict);
+
+	## write
+
+
+# 	my ($self, $out, $api, $artifactMap) = @_;
+# 	if ($self->{lifecycle} eq "manual") {
+# 		return;
+# 	}
+
+# 	my %builtinTypes = (
+# 		int        => "Number",
+# 		long       => "Number",
+# 		Ticks      => "BigInt",
+# 		double     => "Number",
+# 		"String"   => "String",
+# 		"Symbol"   => "Symbol",
+# 	);
+# 	for my $t (qw/new decRef toJson fromJson/) {
+# 		if ($t eq 'decRef') {
+# 			Expand_emit($out, ["Lifecycle:incRef"], {TYPENAME=>$self->{typeName}});		
+# 		}
+
+# 		Expand_emit($out, ["Lifecycle:${t}Start"], {TYPENAME=>$self->{typeName}});
+# 		if ($t eq 'decRef' && Api_definedCall($api, $self->{typeName}, "userClear")) {
+# 			Expand_emit($out, ["Lifecycle:userClear"], {TYPENAME=>$self->{typeName}});
+# 		} 
+
+# 		for my $field (@{$self->{fields}}) {
+# 			my $name        = $field->{name};
+# 			next if $name eq 'itype' || $name eq 'refCount';
+
+# 			my $type        = $field->{type};
+# 			(my $typeName   = $type) =~ s/[\s\*]+//g;
+# 			my $isString    = $typeName eq 'String';
+# 			my $isSymbol    = $typeName eq 'Symbol';
+# 			my $isKnown     = $isString || $isSymbol || $artifactMap->{$typeName};
+
+# 			my $isInterface     = $isKnown ? $artifactMap->{$typeName}{itype} eq 'Interface' : 0;
+# 			my $isTypeReference = ($type =~ /\*/) && !$isInterface;	
+# 			my $noSerial        = defined($field->{lifecycle}) && $field->{lifecycle} eq 'noSerial' ? 1 : 0;
+# 			my $btype           = $builtinTypes{$typeName};
+# 			my $dict            = {FIELDTYPE=>$typeName, FIELDNAME=>$name, TYPENAME=>$self->{typeName}};
+			
+# 			if ($noSerial && $t =~ /Json$/) {
+# 				next;
+# 			}
+			
+# 			if ($isKnown) {
+# 				if ($isInterface) {
+# 					if ($t eq 'new' || $t eq 'decRef') {
+# 						Expand_emit($out, ["Lifecycle:${t}FieldPointer"], $dict);
+# 					} elsif ($t eq 'decRef') {
+# 						Expand_emit($out, ["Lifecycle:decRefFieldKnown"], $dict);
+# 					} elsif ($t eq 'toJson' || $t eq 'fromJson') {
+# 						Expand_emit($out, ["Lifecycle:${t}Reference"], $dict);
+# 					}
+# 				} else { ## !isInterface
+# 					if ($t eq 'new' || $t eq 'decRef') {
+# 						Expand_emit($out, ["Lifecycle:${t}FieldKnown"], $dict);
+# 					} elsif ($t eq 'toJson' || $t eq 'fromJson') {
+# 						if ($isString) {
+# 							Expand_emit($out, ["Lifecycle:${t}String"], $dict);	
+# 						} elsif ($isSymbol) {
+# 							Expand_emit($out, ["Lifecycle:${t}Symbol"], $dict);	
+# 						} else {
+# 							Expand_emit($out, ["Lifecycle:${t}Reference"], $dict);		
+# 						}
+# 					}
+# 				} 
+# 			} else {
+# 				if ($t eq 'new') {
+# 					Expand_emit($out, ["Lifecycle:newFieldValue"], $dict);
+# 				} elsif ($t eq 'toJson' || $t eq 'fromJson') {
+# 					die "Woops don't know how $t type $typeName" unless defined($btype);
+# 					Expand_emit($out, ["Lifecycle:${t}${btype}"], $dict);
+# 				}
+# 			}
+# 		}
+
+# 		if ($t eq 'init' && Api_definedCall($api, $self->{typeName}, "userInit")) {
+# 			Expand_emit($out, ["Lifecycle:userInit"], {TYPENAME=>$self->{typeName}});
+# 		} 
+# 		Expand_emit($out, ["Lifecycle:${t}End"], {TYPENAME=>$self->{typeName}});
+# 	}
+}
+
 
 sub Coverage_new {
 	my ($coverageActivated) = @_;
@@ -2202,14 +2860,14 @@ sub Artifact_emitInterfaceMethods {
 sub Artifact_emitLifecyclePrototype {
 	my ($artifact, $out, $api, $artifactMap) = @_;
 	if (ClassArtifact_isa($artifact)) {
-		ClassArtifact_emitLifecylePrototype($artifact, $out);
+		ClassArtifact_emitLifecyclePrototype($artifact, $out);
 	}
 }
 
 sub Artifact_emitLifecycle {
 	my ($artifact, $out, $api, $artifactMap) = @_;
 	if (ClassArtifact_isa($artifact)) {
-		ClassArtifact_emitLifecyle($artifact, $out, $api, $artifactMap);
+		ClassArtifact_emitLifecycle($artifact, $out, $api, $artifactMap);
 	}
 }
 
