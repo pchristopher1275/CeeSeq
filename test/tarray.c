@@ -16,13 +16,6 @@
 Unit_declare(testNewFree) {
 	{
 		// Array has new
-		IntAr *ia = IntAr_new();
-		chk(ia != NULL);
-		IntAr_decRef(ia);
-	}
-
-	{
-		// Array has new
 		FooAr *fa = FooAr_new();
 		chk(fa != NULL);
 		FooAr_decRef(fa);
@@ -32,41 +25,49 @@ Unit_declare(testNewFree) {
 Unit_declare(testLen) {
 	{
 		// Array starts with zero length
-		IntAr *ia = IntAr_new();
-		chk(IntAr_len(ia) == 0);
-		IntAr_decRef(ia);
+		FooAr *fa = FooAr_new();
+		chk(FooAr_len(fa) == 0);
+		FooAr_decRef(fa);
 	}
 	{
 		// Array keeps track of length on push
-		IntAr *ia = IntAr_new10();
-		chk(IntAr_len(ia) == 10);
-		IntAr_decRef(ia);
+		FooAr *fa = FooAr_new10();
+		chk(FooAr_len(fa) == 10);
+		FooAr_decRef(fa);
 	}
 	{
 		// Array keeps track of length on pop
 		Error_declare(err);
-		IntAr *ia = IntAr_new10();
-		int i = IntAr_pop(ia, err);
+		FooAr *fa = FooAr_new10();
+		FooAr_popDecRef(fa, err);
 		fatal(!Error_iserror(err));
-		chk(IntAr_len(ia) == 9);
-		IntAr_decRef(ia);
+		chk(FooAr_len(fa) == 9);
+		FooAr_decRef(fa);
 	}
 
 	{
-		// Truncate makes length 0
-		IntAr *ia = IntAr_new10();
-		IntAr_truncate(ia, 5);
-		chk(IntAr_len(arr) == 5);
-		IntAr_decRef(ia);
+		// Truncate changes length
+		FooAr *fa = FooAr_new10();
+		FooAr_truncate(fa, 5);
+		chk(FooAr_len(arr) == 5);
+		FooAr_decRef(fa);
+	}
+
+	{
+		// Truncate does not increase size
+		FooAr *fa = FooAr_new10();
+		FooAr_truncate(fa, 50);
+		chk(FooAr_len(arr) == 10);
+		FooAr_decRef(fa);
 	}
 
 	{
 		// Fit sets cap to length
-		IntAr *ia = IntAr_new10();
-		chk(IntAr_cap(ia) > 10);
-		IntAr_fit(ia);
-		chk(IntAr_cap(ia) == 10);
-		IntAr_decRef(ia);
+		FooAr *fa = FooAr_new10();
+		chk(FooAr_cap(fa) > 10);
+		FooAr_fit(fa);
+		chk(FooAr_cap(fa) == 10);
+		FooAr_decRef(fa);
 	}
 }
 
@@ -75,96 +76,96 @@ Unit_declare(testGetSetPushPop) {
 
 	{
 		// Get returns correct element
-		IntAr *ia = IntAr_new10();
-		int i = IntAr_get(ia, 5, err);
+		FooAr *fa = FooAr_new10();
+		Foo *f = FooAr_get(fa, 5, err);
 		fatal(!Error_iserror(err));
-		chk(i == 5);
-		IntAr_decRef(ia);
+		chk(f->i == 5);
+		FooAr_decRef(fa);
 	}
 
 	{
 		// Get gaurds < 0 index
-		IntAr *ia = IntAr_new10();
-		int i = IntAr_get(ia, -1, err);
+		FooAr *fa = FooAr_new10();
+		Foo *f = FooAr_get(fa, -1, err);
 		chk(Error_iserror(err));
 		Error_clear(err);
-		IntAr_decRef(ia);
+		FooAr_decRef(fa);
 	}
 
 	{
-		// Get gaurds > len 
-		IntAr *ia = IntAr_new10();
-		int i = IntAr_get(ia, 10, err);
+		// Get gaurds >= len 
+		FooAr *fa = FooAr_new10();
+		Foo *f = FooAr_get(fa, 10, err);
 		chk(Error_iserror(err));
 		Error_clear(err);
-		IntAr_decRef(ia);
+		FooAr_decRef(fa);
 	}
 
 	{
 		// Set works on correct element
-		IntAr *ia = IntAr_new10();
-		IntAr_set(ia, 5, 1005, err);
+		FooAr *fa = FooAr_new10();
+		FooAr_set(fa, 5, Foo_newBuild(1005, 10005), err);
 		fatal(!Error_iserror(err));
-		chk(IntAr_at(ia, 5) == 1005);
-		IntAr_decRef(ia);
+		chk(FooAr_at(fa, 5)->i == 1005);
+		FooAr_decRef(fa);
 	}
 
 	{
 		// Set guards negative index
-		IntAr *ia = IntAr_new10();
-		IntAr_set(ia, -1, 1005, err);
+		FooAr *fa = FooAr_new10();
+		FooAr_set(fa, -1, 1005, err);
 		chk(Error_iserror(err));
 		Error_clear(err);
-		IntAr_decRef(ia);
+		FooAr_decRef(fa);
 	}
 
 	{
 		// Set guards greater than length index
-		IntAr *ia = IntAr_new10();
-		IntAr_set(ia, 10, 1005, err);
+		FooAr *fa = FooAr_new10();
+		FooAr_set(fa, 10, 1005, err);
 		chk(Error_iserror(err));
 		Error_clear(err);
-		IntAr_decRef(ia);
-	}
-
-	{
-		// popVal gets correct element
-		IntAr *ia = IntAr_new10();
-		for (int i = 0; i < 10; i++) {
-			int i2 = IntAr_popVal(ia, err);
-			fatal(!Error_iserror(err));
-			chk(i == i2);
-		}
-		IntAr_decRef(ia);
-	}
-
-	{
-		// popVal errors for no element
-		IntAr *ia = IntAr_new();
-		int i2 = IntAr_popVal(ia, err);
-		chk(Error_iserror(err));
-		Error_clear(err);
-		IntAr_decRef(ia);
+		FooAr_decRef(fa);
 	}
 
 	{
 		// pop gets correct element
-		IntAr *ia = IntAr_new10();
+		FooAr *fa = FooAr_new10();
 		for (int i = 0; i < 10; i++) {
-			IntAr_pop(ia, err);
+			Foo *f = FooAr_pop(fa, err);
 			fatal(!Error_iserror(err));
-			chk(IntAr_len(ia) == 9 - i);
+			chk(f->i == i);
 		}
-		IntAr_decRef(ia);
+		FooAr_decRef(fa);
 	}
 
 	{
 		// pop errors for no element
-		IntAr *ia = IntAr_new();
-		IntAr_pop(ia, err);
+		FooAr *fa = FooAr_new();
+		Foo *f = FooAr_pop(fa, err);
 		chk(Error_iserror(err));
 		Error_clear(err);
-		IntAr_decRef(ia);
+		FooAr_decRef(fa);
+	}
+
+	{
+		// popDecRef gets correct element
+		FooAr *fa = FooAr_new10();
+		for (Foo *f = 0; i < 10; i++) {
+			FooAr_popDecRef(fa, err);
+			fatal(!Error_iserror(err));
+			chk(FooAr_len(fa) == 9 - i);
+		}
+		FooAr_decRef(fa);
+	}
+
+	{
+		// pop errors for no element
+		FooAr *fa = FooAr_new();
+		FooAr_pop(fa, err);
+		chk(Error_iserror(err));
+		Error_clear(err);
+		FooAr_decRef(fa);
 	}
 
 }
@@ -173,132 +174,98 @@ Unit_declare(testInsertRemove) {
 	Error_declare(err);
 	{
 		// Insert element correctly
-		IntAr *ia = IntAr_new10();
-		IntAr_insert(ia, 9, 1005, err);
-		fatal(!Error_iserror(ia));
-		fatal(IntAr_len(ia) == 11);
-		chk(IntAr_at(ia, 9) == 1005);
-		IntAr_decRef(ia);
+		FooAr *fa = FooAr_new10();
+		FooAr_insert(fa, 9, FooAr_newBuild(1005, 0), err);
+		fatal(!Error_iserror(fa));
+		fatal(FooAr_len(fa) == 11);
+		chk(FooAr_at(fa, 9)->i == 1005);
+		FooAr_decRef(fa);
 	}
 	{
 		// Insert guards negative index
-		IntAr *ia = IntAr_new10();
-		IntAr_insert(ia, -1, 1005, err);
+		FooAr *fa = FooAr_new10();
+		Foo *f = Foo_newBuild(0,0);
+		FooAr_insert(fa, -1, f, err);
 		chk(Error_iserror(err));
 		Error_clear(err);
-		IntAr_decRef(ia);
+		FooAr_decRef(fa);
+		Foo_decRef(f);
 	}
 	{
 		// Insert guards >= len index
-		IntAr *ia = IntAr_new10();
-		IntAr_insert(ia, 10, 1005, err);
+		FooAr *fa = FooAr_new10();
+		Foo *f = Foo_newBuild(0,0);
+		FooAr_insert(fa, 10, f, err);
 		chk(Error_iserror(err));
 		Error_clear(err);
-		IntAr_decRef(ia);
+		FooAr_decRef(fa);
+		Foo_decRef(f);
 	}
 	{
 		// Remove element correctly
-		IntAr *ia = IntAr_new10();
-		IntAr_remove(ia, 8, err);
-		fatal(!Error_iserror(ia));
-		fatal(IntAr_len(ia) == 9);
-		chk(IntAr_at(ia, 8) == 9);
-		IntAr_decRef(ia);	
+		FooAr *fa = FooAr_new10();
+		FooAr_remove(fa, 8, err);
+		fatal(!Error_iserror(fa));
+		fatal(FooAr_len(fa) == 9);
+		chk(FooAr_at(fa, 8) == 9);
+		FooAr_decRef(fa);	
 	}
 	{
 		// Remove guards negative index
-		IntAr *ia = IntAr_new10();
-		IntAr_remove(ia, -1, err);
+		FooAr *fa = FooAr_new10();
+		FooAr_remove(fa, -1, err);
 		chk(Error_iserror(err));
 		Error_clear(err);
-		IntAr_decRef(ia);
+		FooAr_decRef(fa);
 	}
 	{
 		// Remove guards >= len index
-		IntAr *ia = IntAr_new10();
-		IntAr_insert(ia, 10, err);
+		FooAr *fa = FooAr_new10();
+		FooAr_insert(fa, 10, err);
 		chk(Error_iserror(err));
 		Error_clear(err);
-		IntAr_decRef(ia);
+		FooAr_decRef(fa);
 	}	
 }
 
 Unit_declare(testForeach) {
 	{
-		// foreach on value types works: var is a pointer to the underlying data
-		IntAr *ia = IntAr_new10();
-		int i = 0;
-		IntAr_foreach(it, ia) {
-			chk(*it.var == i);
-			i++;
-			*it.var = -it.index;
-		}
-		IntAr_foreach(it, ia) {
-			chk(*it.var == -it.index);
-		}
-		IntAr_decRef(ia);
-	}
-
-	{
-		// foreachOffset works correctly
-		IntAr *ia = IntAr_new10();
-		int i = 4;
-		IntAr_foreachOffset(it, ia, i) {
-			chk(it.var == i);
-			i++;
-		}
-		IntAr_decRef(ia);
-	}
-
-	{
-		// foreach can remove
-		IntAr *ia = IntAr_new10();
-		int i = 0;
-		IntAr_foreach(it, ia) {
-			if (it.index % 2 == 0) {
-				it.remove = true;
-			}
-		}
-		chk(IntAr_len(ia) == 5);
-		IntAr_decRef(ia);
-	}
-
-	{
-		// rforeach works correctly
-		IntAr *ia = IntAr_new10();
-		int i = 9;
-		IntAr_rforeach(it, ia) {
-			chk(*it.var == i);
-			i--;
-		}
-		IntAr_decRef(ia);
-	}
-
-	{
-		// rforeach can remove
-		IntAr *ia = IntAr_new10();
-		int i = 0;
-		IntAr_rforeach(it, ia) {
-			if (it.index % 2 == 0) {
-				it.remove = true;
-			}
-		}
-		chk(IntAr_len(ia) == 5);
-		IntAr_decRef(ia);
-	}
-
-	{
-		// foreach works correctly with reference type: it.var is a reference
+		// foreach works
 		FooAr *fa = FooAr_new10();
+		int i = 0;
 		FooAr_foreach(it, fa) {
-			chk(it.var->i == it.index);
+			chk(*it.var->i == i);
+			i++;
 		}
-		
 		FooAr_decRef(fa);
 	}
 
 	{
-		// rforeach works correctly with reference type: it.var is a reference
+		// foreachOffset works correctly
+		FooAr *fa = FooAr_new10();
+		int i = 4;
+		FooAr_foreachOffset(it, fa, i) {
+			chk(it.var->i == i);
+			i++;
+		}
+		FooAr_decRef(fa);
+	}
+
+	{
+		// foreach can remove
+		FooAr *fa = FooAr_new10();
+		int i = 0;
+		FooAr_foreach(it, fa) {
+			if (it.index % 2 == 0) {
+				it.remove = true;
+			}
+		}
+		chk(FooAr_len(fa) == 5);
+		FooAr_decRef(fa);
+	}
+
+	{
+		// rforeach works correctly
 		FooAr *fa = FooAr_new10();
 		int i = 9;
 		FooAr_rforeach(it, fa) {
@@ -307,22 +274,21 @@ Unit_declare(testForeach) {
 		}
 		FooAr_decRef(fa);
 	}
+
+	{
+		// rforeach can remove
+		FooAr *fa = FooAr_new10();
+		FooAr_rforeach(it, fa) {
+			if (it.index % 2 == 0) {
+				it.remove = true;
+			}
+		}
+		chk(FooAr_len(fa) == 5);
+		FooAr_decRef(fa);
+	}
 }
 
 Unit_declare(testSort) {
-	{
-		// Sort value type
-		IntAr *ia = IntAr_new();
-		for (int i = 9; i >= 0; i--) {
-			IntAr_push(ia, i);
-		}
-		IntAr_sort(ia);
-		fatal(IntAr_len(ia) == 10);
-		for (int i = 0; i < 10; i++) {
-			chk(i == IntAr_at(ia, i));
-		}
-		IntAr_decRef(ia);
-	}
 	{
 		// Sort works for references
 		FooAr *fa = FooAr_new10();
@@ -350,35 +316,6 @@ Unit_declare(testSort) {
 Unit_declare(testBinSearch) {
 	Error_declare(err);
 	{
-		// binSearch for value types
-		IntAr *ia = IntAr_new10();
-		IntAr_sort(ia);
-		int v = IntAr_binSearch(ia, 5, err);
-		fatal(!Error_iserror(err));
-		chk(v == 5);
-		IntAr_decRef(ia);
-	}
-
-	{
-		// binSearch fails if key not present
-		IntAr *ia = IntAr_new10();
-		IntAr_sort(ia);
-		int v = IntAr_binSearch(ia, 10, err);
-		chk(Error_iserror(err));
-		Error_clear(err):
-		IntAr_decRef(ia);
-	}
-
-	{
-		// binContains works correctly
-		IntAr *ia = IntAr_new10();
-		IntAr_sort(ia);
-		chk(IntAr_binContains(ia, 5));
-		chk(!IntAr_binContains(ia, 10));
-		IntAr_decRef(ia);
-	}
-
-	{
 		// binSearch for reference types
 		FooAr *fa = FooAr_new10();
 		FooAr_sort(fa);
@@ -391,69 +328,43 @@ Unit_declare(testBinSearch) {
 	}
 
 	{
-		// binSearch for reference types: error correctly
+		// binSearch fails if key not present
 		FooAr *fa = FooAr_new10();
 		FooAr_sort(fa);
-		Foo *key = Foo_newBuild(10, 10.0);
-		Foo *foo = FooAr_binSearch(fa, key, err);
-		chk(foo == NULL);
+		Foo *key = Foo_newBuild(10, 10);
+		Foo *f = FooAr_binSearch(fa, 10, err);
 		chk(Error_iserror(err));
-		Error_clear(err);
+		Error_clear(err):
 		FooAr_decRef(fa);
-		Foo_decRef(fa);
+		Foo_decRef(key);
 	}
 
 	{
-		// binSearch for reference types: alt sort function
+		// binContains works correctly
 		FooAr *fa = FooAr_new10();
 		FooAr_sortReverseI(fa);
-		Foo *key = Foo_newBuild(5, 5.0);
-		Foo *foo = FooAr_binSearchReverseI(fa, key, err);
-		fatal(!Error_iserror(err));
-		chk(foo->i == 5);
-		FooAr_decRef(key);
+		Foo *key1 = Foo_newBuild(5, 5);
+		Foo *key2 = Foo_newBuild(10, 10);
+		chk(FooAr_binContainsReverseI(fa, key1));
+		chk(!FooAr_binContainsReverseI(fa, key2));
+		FooAr_decRef(fa);
+		Foo_decRef(key1);
+		Foo_decRef(key2);
 	}
 }
 
 Unit_declare(testBinInsert) {
 	Error_declare(err);
 	{
-		// binInsert value works correctly
-		IntAr *ia = IntAr_new();
-		IntAr_binInsert(ia, 10);
-		IntAr_binInsert(ia, 2);
-		IntAr_binInsert(ia, 5);
-		chk(IntAr_popVal(ia, err) == 2);
-		fatal(!Error_iserror(err));
-		chk(IntAr_popVal(ia, err) == 5);
-		fatal(!Error_iserror(err));
-		chk(IntAr_popVal(ia, err) == 10);
-		fatal(!Error_iserror(err));
-		IntAr_decRef(ia);
-	}
-
-	{
-		// binInsert value can insert the same key
-		IntAr *ia = IntAr_new();
-		IntAr_binInsert(ia, 10);
-		IntAr_binInsert(ia, 10);
-		IntAr_binInsert(ia, 10);
-		chk(IntAr_len(ia) == 1);
-		chk(IntAr_popVal(ia, err) == 10);
-		fatal(!Error_iserror(err));
-		IntAr_decRef(ia);
-	}
-
-	{
-		// binInsert reference works correctly
+		// binInsert works correctly
 		FooAr *fa = FooAr_new();
 		Foo *f1 = Foo_newBuild(10, 10.0);
 		Foo *f2 = Foo_newBuild(2, 2.0);
 		FooAr_binInsert(fa, f1);
 		FooAr_binInsert(fa, f2);
-		chk(FooAr_popVal(fa, err) == f2); // remember popVal does NOT decrement
+		chk(FooAr_pop(fa, err) == f2); 
 		fatal(!Error_iserror(err));
-		chk(FooAr_popVal(fa, err) == f1);
+		chk(FooAr_pop(fa, err) == f1);
 		fatal(!Error_iserror(err));
 		FooAr_decRef(fa);
 		Foo_decRef(f1); 
@@ -469,58 +380,36 @@ Unit_declare(testBinInsert) {
 		FooAr_binInsert(fa, f1);
 		FooAr_binInsert(fa, f1);
 		chk(FooAr_len(fa) == 1);
-		chk(FooAr_popVal(fa, err) == f1);
+		chk(FooAr_pop(fa, err) == f1);
 		fatal(!Error_iserror(err));
 		FooAr_decRef(fa);
 		Foo_decRef(f1);
 		Foo_decRef(f1);
 	}
-
 }
 
 Unit_declare(testBinRemove) {
 	Error_declare(err);
 	{
 		// binRemove correctly removes
-		IntAr *ia = IntAr_new();
-		IntAr_binInsert(ia, 10);
-		IntAr_binInsert(ia, 2);
-		IntAr_binRemove(ia, 2, err);
-		fatal(!Error_iserror(err));
-		chk(IntAr_len(ia) == 1);
-		IntAr_decRef(ia);
-	}
-
-	{
-		// binRemove errors correctly
-		IntAr *ia = IntAr_new();
-		IntAr_binInsert(ia, 10);
-		IntAr_binInsert(ia, 2);
-		IntAr_binRemove(ia, 4, err);
-		chk(Error_iserror(err));
-		Error_clear(err);
-		chk(IntAr_len(ia) == 2);
-		IntAr_decRef(ia);
-	}
-
-	{
-		// binRemove correctly removes
 		FooAr *fa = FooAr_new();
 		Foo *f1 = Foo_newBuild(10, 10.0);
 		Foo *f2 = Foo_newBuild(2, 2.0);
+		Foo *f3 = Foo_newBuild(10, 10.0);
 		FooAr_binInsert(fa, f1);
 		FooAr_binInsert(fa, f2);
-		FooAr_binRemove(fa, f1, err);
+		FooAr_binRemove(fa, f3, err);
 		fatal(!Error_iserror(err));
 		chk(FooAr_len(fa) == 1);
 		Foo_decRef(f1);
 		Foo_decRef(f2);
+		Foo_decRef(f3);
 		FooAr_decRef(fa);
 	}
 	
 	{
 		// binRemove errors correctly
-		FooAr *ia = FooAr_new();
+		FooAr *fa = FooAr_new();
 		Foo *f1 = Foo_newBuild(10, 10.0);
 		Foo *f2 = Foo_newBuild(2, 2.0);
 		Foo *key = Foo_newBuild(4, 4.0);
@@ -538,101 +427,103 @@ Unit_declare(testBinRemove) {
 
 Unit_declare(testPq) 
 {
-	{
-		// pqPush works correctly
-		IntAr *ia = IntAr_new();
-		IntAr_pqPush(ia, 10);
-		IntAr_pqPush(ia, 2);
-		IntAr_foreach(it, ia) {
-			if (it.index == 0) {
-				chk(*it.var == 2);
-			} else {
-				chk(*it.var == 10);
-			}
-		}
-		IntAr_decRef(ia);
-	}
+	// {
+	// 	// pqPush works correctly
+	// 	FooAr *fa = FooAr_new();
+	// 	FooAr_pqPush(fa, 10);
+	// 	FooAr_pqPush(fa, 2);
+	// 	FooAr_foreach(it, fa) {
+	// 		if (it.index == 0) {
+	// 			chk(*it.var == 2);
+	// 		} else {
+	// 			chk(*it.var == 10);
+	// 		}
+	// 	}
+	// 	FooAr_decRef(fa);
+	// }
 
-	{
-		// pqPop works correctly
-		IntAr *ia = IntAr_new();
-		IntAr_pqPush(ia, 10);
-		IntAr_pqPush(ia, 2);
+	// {
+	// 	// pqPop works correctly
+	// 	FooAr *fa = FooAr_new();
+	// 	FooAr_pqPush(fa, 10);
+	// 	FooAr_pqPush(fa, 2);
 
-		IntAr_pqPop(ia, err);
-		fatal(!Error_iserror(err));
-		chk(IntAr_len(ia) == 2);
+	// 	FooAr_pqPop(fa, err);
+	// 	fatal(!Error_iserror(err));
+	// 	chk(FooAr_len(fa) == 2);
 
-		IntAr_pqPop(ia, err);
-		fatal(!Error_iserror(err));
-		chk(IntAr_len(ia) == 1);
+	// 	FooAr_pqPop(fa, err);
+	// 	fatal(!Error_iserror(err));
+	// 	chk(FooAr_len(fa) == 1);
 
-		IntAr_pqPop(ia, err);
-		fatal(!Error_iserror(err));
-		chk(IntAr_len(ia) == 0);
-		IntAr_decRef(ia);
-	}
+	// 	FooAr_pqPop(fa, err);
+	// 	fatal(!Error_iserror(err));
+	// 	chk(FooAr_len(fa) == 0);
+	// 	FooAr_decRef(fa);
+	// }
 
-	{
-		// pqPopVal works correctly
-		IntAr *ia = IntAr_new();
-		IntAr_pqPush(ia, 10);
-		IntAr_pqPush(ia, 2);
-		int v = IntAr_pqPopVal(ia, err);
-		fatal(!Error_iserror(err));
-		chk(v == 2);
-		v = IntAr_pqPopVal(ia, err);
-		fatal(!Error_iserror(err));
-		chk(v == 10);
-		IntAr_decRef(ia);
-	}
-	{
-		// pqPopVal errors correctly
-		IntAr *ia = IntAr_new();
-		int v = IntAr_pqPopVal(ia, err);
-		chk(Error_iserror(err));
-		Error_clear(err);
-		IntAr_decRef(ia);
-	}
-	{
-		// pqSort works correctly
-		IntAr *ia = IntAr_new();
-		IntAr_push(ia, 5);
-		IntAr_push(ia, 10);
-		IntAr_push(ia, 2);
-		IntAr_pqSort(ia);
-		int v = IntAr_pqPopVal(ia, err);
-		fatal(!Error_iserror(err));
-		chk(v == 2);
-		v = IntAr_pqPopVal(ia, err);
-		fatal(!Error_iserror(err));
-		chk(v == 5);
-		v = IntAr_pqPopVal(ia, err);
-		fatal(!Error_iserror(err));
-		chk(v == 10);
-		IntAr_decRef(ia);
-	}
+	// {
+	// 	// pqPopVal works correctly
+	// 	FooAr *fa = FooAr_new();
+	// 	FooAr_pqPush(fa, 10);
+	// 	FooAr_pqPush(fa, 2);
+	// 	int v = FooAr_pqPopVal(fa, err);
+	// 	fatal(!Error_iserror(err));
+	// 	chk(v == 2);
+	// 	v = FooAr_pqPopVal(fa, err);
+	// 	fatal(!Error_iserror(err));
+	// 	chk(v == 10);
+	// 	FooAr_decRef(fa);
+	// }
+	// {
+	// 	// pqPopVal errors correctly
+	// 	FooAr *fa = FooAr_new();
+	// 	int v = FooAr_pqPopVal(fa, err);
+	// 	chk(Error_iserror(err));
+	// 	Error_clear(err);
+	// 	FooAr_decRef(fa);
+	// }
+	// {
+	// 	// pqSort works correctly
+	// 	FooAr *fa = FooAr_new();
+	// 	FooAr_push(fa, 5);
+	// 	FooAr_push(fa, 10);
+	// 	FooAr_push(fa, 2);
+	// 	FooAr_pqSort(fa);
+	// 	int v = FooAr_pqPopVal(fa, err);
+	// 	fatal(!Error_iserror(err));
+	// 	chk(v == 2);
+	// 	v = FooAr_pqPopVal(fa, err);
+	// 	fatal(!Error_iserror(err));
+	// 	chk(v == 5);
+	// 	v = FooAr_pqPopVal(fa, err);
+	// 	fatal(!Error_iserror(err));
+	// 	chk(v == 10);
+	// 	FooAr_decRef(fa);
+	// }
 
-	{
-		// pqPeek returns value that is at the top of heap, and sets passed bool to true
-		IntAr *ia = IntAr_new();
-		IntAr_push(ia, 7);
-		bool q = false;
-		int v = IntAr_pqPeek(ia, &q);
-		chk(q);
-		chk(v == 7);
-		IntAr_decRef(ia);
-	}
+	// {
+	// 	// pqPeek returns value that is at the top of heap, and sets passed bool to true
+	// 	FooAr *fa = FooAr_new();
+	// 	FooAr_push(fa, 7);
+	// 	bool q = false;
+	// 	int v = FooAr_pqPeek(fa, &q);
+	// 	chk(q);
+	// 	chk(v == 7);
+	// 	FooAr_decRef(fa);
+	// }
 
-	{
-		// pqPeek returns zero and sets q to false if pq is empty.
-		IntAr *ia = IntAr_new();
-		bool q = true;
-		int v = IntAr_pqPeek(ia, &q);
-		chk(q);
-		chk(v == 7);
-		IntAr_decRef(ia);
-	}
+	// {
+	// 	// pqPeek returns zero and sets q to false if pq is empty.
+	// 	FooAr *fa = FooAr_new();
+	// 	bool q = true;
+	// 	int v = FooAr_pqPeek(fa, &q);
+	// 	chk(q);
+	// 	chk(v == 7);
+	// 	FooAr_decRef(fa);
+	// }
+
+
 
 	{
 		// pqPush works correctly
@@ -645,7 +536,7 @@ Unit_declare(testPq)
 			if (it.index == 0) {
 				chk(it.var == f2);
 			} else {
-				chk(*it.var == f1);
+				chk(it.var == f1);
 			}
 		}
 		FooAr_decRef(fa);
@@ -655,27 +546,29 @@ Unit_declare(testPq)
 
 	{
 		// pqPop works correctly
-		FooAr *ia = FooAr_new();
+		FooAr *fa = FooAr_new();
 		Foo *f1 = Foo_newBuild(10, 10.0);
 		Foo *f2 = Foo_newBuild(2, 2.0);
 		FooAr_pqPush(fa, f1);
 		FooAr_pqPush(fa, f2);
-		Foo *v = FooAr_pqPopVal(fa, err);
-		Foo_decRef(v);
+		Foo *v = FooAr_pqPop(fa, err);
 		fatal(!Error_iserror(err));
+		Foo_decRef(v);
 		chk(v == f2);
-		v = FooAr_pqPopVal(ia, err);
-		Foo_decRef(v);
+
+		v = FooAr_pqPopVal(fa, err);
 		fatal(!Error_iserror(err));
+		Foo_decRef(v);
 		chk(v == f1);
-		FooAr_decRef(ia);
+
+		FooAr_decRef(fa);
 		Foo_decRef(f1);
 		Foo_decRef(f2);
 	}
 	{
 		// pqPop errors correctly
 		FooAr *fa = FooAr_new();
-		Foo *v = FooAr_pqPopVal(fa, err);
+		Foo *v = FooAr_pqPop(fa, err);
 		chk(Error_iserror(err));
 		chk(v == NULL);
 		Error_clear(err);
@@ -691,18 +584,21 @@ Unit_declare(testPq)
 		FooAr_push(fa, f2);
 		FooAr_push(fa, f3);
 		FooAr_pqSort(fa);
-		Foo *v = FooAr_pqPopVal(ia, err);
-		Foo_decRef(v);
+		Foo *v = FooAr_pqPop(fa, err);
 		fatal(!Error_iserror(err));
-		chk(v == f3);
-		v = FooAr_pqPopVal(ia, err);
 		Foo_decRef(v);
+		chk(v == f3);
+
+		v = FooAr_pqPopVal(fa, err);		
 		fatal(!Error_iserror(err));
 		chk(v == f1);
-		v = FooAr_pqPop(ia, err);
 		Foo_decRef(v);
+
+		v = FooAr_pqPop(fa, err);		
 		fatal(!Error_iserror(err));
 		chk(v == f2);
+		Foo_decRef(v);
+		
 		FooAr_decRef(fa);
 		Foo_decRef(f1);
 		Foo_decRef(f2);
@@ -713,7 +609,7 @@ Unit_declare(testPq)
 		// pqPeek returns value that is at the top of heap, and sets passed bool to true
 		FooAr *fa = FooAr_new();
 		Foo *f1 = Foo_newBuild(7, 7.0);
-		FooAr_push(ia, f1);
+		FooAr_push(fa, f1);
 		bool q = false;
 		chk(FooAr_pqPeek(fa, &q) == f1);
 		chk(q);
@@ -732,7 +628,7 @@ Unit_declare(testPq)
 }
 
 int main(int argc, char *argv[]) {
-	Unit_initialize(argc, argv);
+	Unit_initfalize(argc, argv);
 	Unit_test(testNewFree);
 	Unit_test(testLen);
 	Unit_test(testGetSetPushPop);

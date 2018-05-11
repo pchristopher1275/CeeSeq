@@ -40,14 +40,3 @@ APIF int Bar_cmp(Bar *left, Bar *right)
 }
 @end
 
-@type
-{
-	"typeName": "StdValue",
-	"valueType": true,
-	"fields": [
-		{"name": "i", "type": "int"},
-		{"name": "s", "type": "String *"}
-	]
-}
-@end
-

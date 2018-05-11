@@ -19,17 +19,6 @@
 	}
 @end
 
-APIF IntAr *IntAr_new10()
-{
-	IntAr *ia = IntAr_new();
-	for (int i = 0; i < 10; i++) {
-		IntAr_push(ia, i);
-	}
-	return ia;
-}
-
-#define IntAr_cap(arr) ((Array*)arr)->cap
-
 APIF FooAr *FooAr_new25()
 {
 	FooAr *self = FooAr_new();

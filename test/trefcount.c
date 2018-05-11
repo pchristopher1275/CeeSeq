@@ -33,31 +33,6 @@ Unit_declare(testCompileNames) {
 		Bar_incRef(b);
 		Bar_decRef(c);
 	}
-
-#   ifdef COMPILE_CHECK
-	{
-		// NO values have new/decRef
-		StdValue *s = Bar_new();
-		StdValue_decRef(s);
-	}
-	{
-		// NO values have init/clear
-		StdValue v = {0};
-		StdValue_init(&v);
-		StdValue_clear(&v);
-	}
-	{
-		// NO pointers have init/clear
-		Bar s = {0};
-		Bar_init(&s);
-		Bar_clear(&s);
-	}
-	{
-		// NO pointers have free
-		Bar *s = Bar_new();
-		Bar_free(s);
-	}
-#   endif
 }
 
 Unit_declare(testBasic) {
@@ -180,12 +155,12 @@ Unit_declare(testArray) {
 	}
 
 	{
-		// popVal decs refcount
+		// pop DOES NOT dec refcount
 		Error_declare(err);
 		BarAr *ba = BarAr_new();
 		Bar *b = Bar_new();
 		BarAr_push(ba, b);
-		b = BarAr_popVal(ba, err);
+		b = BarAr_pop(ba, err);
 		fatal(!Error_iserror(err));
 		chk(Bar_refCount(b) == 2);
 		BarAr_decRef(ba);
@@ -194,12 +169,12 @@ Unit_declare(testArray) {
 	}
 
 	{
-		// pop decs refcount
+		// popDecRef decs refcount
 		Error_declare(err);
 		BarAr *ba = BarAr_new();
 		Bar *b = Bar_new();
 		BarAr_push(ba, b);
-		BarAr_pop(ba, err);
+		BarAr_popDecRef(ba, err);
 		fatal(!Error_iserror(err));
 		chk(Bar_refCount(b) == 1);
 		BarAr_decRef(ba);
@@ -243,12 +218,12 @@ Unit_declare(testArray) {
 	}
 
 	{
-		// pqPopVal DOES NOT dec refcount
+		// pqPop DOES NOT dec refcount
 		Error_declare(err);
 		BarAr *ba = BarAr_new();
 		Bar *b = Bar_new();
 		BarAr_pqPush(ba, b);
-		b = BarAr_pqPopVal(ba, err);
+		b = BarAr_pqPop(ba, err);
 		fatal(!Error_iserror(err));
 		chk(Bar_refCount(b) == 2);
 		BarAr_decRef(ba);
@@ -257,12 +232,12 @@ Unit_declare(testArray) {
 	}
 
 	{
-		// pqPop decs refcount
+		// pqPopDecRef decs refcount
 		Error_declare(err);
 		BarAr *ba = BarAr_new();
 		Bar *b = Bar_new();
 		BarAr_pqPush(ba, b);
-		BarAr_pqPop(ba, err);
+		BarAr_pqPopDecRef(ba, err);
 		fatal(!Error_iserror(err));
 		chk(Bar_refCount(b) == 1);
 		BarAr_decRef(ba);

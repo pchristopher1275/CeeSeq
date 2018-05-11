@@ -65,7 +65,7 @@ ENDxxxxxxxxxx
 ENDxxxxxxxxxx
     },
 
-
+    ## A R R A Y   S T R U C T
     {
         key =>    'Array:struct',
         symbol => '',
@@ -75,8 +75,8 @@ ENDxxxxxxxxxx
             @   int refCount;
             @   int len;
             @   int cap;
-            @   ${ELEMNAME}*data;
-            @} ${TYPENAME};
+            @   ${REFNAME} **data;
+            @};
 ENDxxxxxxxxxx
     },
 
@@ -90,7 +90,7 @@ ENDxxxxxxxxxx
             @   bool remove;
             @
             @   int index;
-            @   ${ELEMNAME}*var;
+            @   ${REFNAME} *var;
             @} ${TYPENAME}FIt;
 ENDxxxxxxxxxx
     },
@@ -104,22 +104,30 @@ ENDxxxxxxxxxx
             @   bool remove;
             @
             @   int index;
-            @   ${ELEMNAME}*var;
+            @   ${REFNAME} *var;
             @} ${TYPENAME}RIt;
 ENDxxxxxxxxxx
     },
 
+    ## A R R A Y   L I F E C Y C L E
     {
         key =>    'Array:new',
         symbol => '',
         tmpl   => <<'ENDxxxxxxxxxx', 
             @${TYPENAME} *${TYPENAME}_new() {
-            @   return (${TYPENAME}*)Array_new(sizeof(${ELEMNAME_NS}), ${TYPENAME}_itype);
+            @   return (${TYPENAME}*)Array_new(${TYPENAME}_itype);
             @}
 ENDxxxxxxxxxx
     },
+    {
+        key =>    'Array:newProto',
+        symbol => '',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @${TYPENAME} *${TYPENAME}_new();
+ENDxxxxxxxxxx
+    },
     
-        {
+    {
         key =>    'Array:incRef',
         symbol => '',
         tmpl   => <<'ENDxxxxxxxxxx', 
@@ -128,14 +136,28 @@ ENDxxxxxxxxxx
             @}
 ENDxxxxxxxxxx
     },
+    {
+        key =>    'Array:incRefProto',
+        symbol => '',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @void ${TYPENAME}_incRef(${TYPENAME} *arr);
+ENDxxxxxxxxxx
+    },
 
     {
         key =>    'Array:decRef',
         symbol => '',
         tmpl   => <<'ENDxxxxxxxxxx', 
             @void ${TYPENAME}_decRef(${TYPENAME} *arr) {
-            @   Array_decRef((Array*)arr, ${ELEMDECREF});
+            @   Array_decRef((Array*)arr, ${DECREF});
             @}
+ENDxxxxxxxxxx
+    },
+    {
+        key =>    'Array:decRefProto',
+        symbol => '',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @void ${TYPENAME}_decRef(${TYPENAME} *arr);
 ENDxxxxxxxxxx
     },
 
@@ -160,7 +182,7 @@ ENDxxxxxxxxxx
             @   JSON_Value *jarrValue = json_value_init_array();
             @   JSON_Array *jarr      = json_value_get_array(jarrayValue);
             @   ${TYPENAME}_foreach(it, self) {
-            @       JSON_Value *v = ${ELEMNAME}_toJson(it.var, err);
+            @       JSON_Value *v = ${REFNAME}_toJson(it.var, err);
             @       if (Error_iserror(err)) {
             @           json_value_free(jarrValue);
             @           goto FAIL;
@@ -178,6 +200,13 @@ ENDxxxxxxxxxx
             @   }
             @   return jval
             @}
+ENDxxxxxxxxxx
+    },
+    {
+        key =>    'Array:toJsonProto',
+        symbol => '',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @JSON_Value *${TYPENAME}_toJson(${TYPENAME} *self, Error *err);
 ENDxxxxxxxxxx
     },
 
@@ -204,11 +233,11 @@ ENDxxxxxxxxxx
             @
             @   ${TYPENAME} *self = ${TYPENAME}_new();
             @   if (!json_object_has_value_of_type(jobj, "len", JSONNumber) {
-            @       Error_format0(err, "fromJson object for ${FIELDNAME} does not contain a number len field on type ${TYPENAME}");
+            @       Error_format0(err, "fromJson object for len does not contain a number len field on type ${TYPENAME}");
             @       goto FAIL;
             @   }
             @   if (!json_object_has_value_of_type(jobj, "data", JSONArray) {
-            @       Error_format0(err, "fromJson object for ${FIELDNAME} does not contain a list for the data field on type ${TYPENAME}");
+            @       Error_format0(err, "fromJson object for data does not contain a list for the data field on type ${TYPENAME}");
             @       goto FAIL;
             @   }
             @
@@ -220,13 +249,14 @@ ENDxxxxxxxxxx
             @       Error_format0(err, "fromJson count/len mismatch for ${TYPENAME}");
             @       goto FAIL;
             @   }
+            @   ${TYPENAME}_reserve(self, len);
             @   for (int i = 0; i < len; i++) {
             @       JSON_Value *jelem = json_array_get_value(jarr, i);
             @       if (jelem == NULL) {
             @           Error_format(err, "fromJson json_array_get_value failed at inded %d for ${TYPENAME}", i);
             @           goto FAIL;
             @       }
-            @       ${ELEMNAMENP} *elem = ${ELEMNAME}_fromJson(jelem, err);
+            @       ${REFNAME} *elem = ${REFNAME}_fromJson(jelem, err);
             @       if (Error_iserror(err)) {
             @           goto FAIL;
             @       }
@@ -239,25 +269,84 @@ ENDxxxxxxxxxx
             @}
 ENDxxxxxxxxxx
     },
+    {
+        key =>    'Array:fromJsonProto',
+        symbol => '',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @${TYPENAME} *${TYPENAME}_fromJson(JSON_Value *jval, Error *err);
+ENDxxxxxxxxxx
+    },
+
+    {
+        key =>    'Array:clone',
+        symbol => '${TYPENAME}_clone',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @${TYPENAME} *${TYPENAME}_clone(${TYPENAME} *arr) {
+            @   ${TYPENAME} *other = ${TYPENAME}_new();
+            @   ${TYPENAME}_reserve(other, arr->cap);
+            @   ${TYPENAME}_foreach(it, arr) {
+            @       ${TYPENAME}_push(other, ${REFNAME}_clone(it.var)); 
+            @   }
+            @   return other;
+            @}
+ENDxxxxxxxxxx
+    },
+    {
+        key =>    'Array:cloneProto',
+        symbol => '${TYPENAME}_clone',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @${TYPENAME} *${TYPENAME}_clone(${TYPENAME} *arr);
+ENDxxxxxxxxxx
+    },
 
     {
         key =>    'Array:truncate',
         symbol => '${TYPENAME}_truncate',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline void ${TYPENAME}_truncate(${TYPENAME} *arr) {
-            @   Array_truncate((Array*)arr);
+            @void ${TYPENAME}_truncate(${TYPENAME} *arr, int newLen) {
+            @   Array_truncate((Array*)arr, newLen, ${DECREF}, ${ELEMSIZE}));
             @}
 ENDxxxxxxxxxx
     },
+    {
+        key =>    'Array:truncateProto',
+        symbol => '${TYPENAME}_truncate',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @void ${TYPENAME}_truncate(${TYPENAME} *arr, int newLen);
+ENDxxxxxxxxxx
+    },
 
+    {
+        key =>    'Array:reserve',
+        symbol => '${TYPENAME}_reserve',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @void ${TYPENAME}_reserve(${TYPENAME} *arr, int newCap) {
+            @   Array_reserve((Array*)arr, newCap, ${ELEMSIZE});
+            @}
+ENDxxxxxxxxxx
+    },
+    {
+        key =>    'Array:reserveProto',
+        symbol => '${TYPENAME}_reserve',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @void ${TYPENAME}_reserve(${TYPENAME} *arr, int newCap);
+ENDxxxxxxxxxx
+    },
 
     {
         key =>    'Array:len',
         symbol => '${TYPENAME}_len',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline int ${TYPENAME}_len(${TYPENAME} *arr) {
+            @int ${TYPENAME}_len(${TYPENAME} *arr) {
             @   return Array_len((Array*)arr);
             @}
+ENDxxxxxxxxxx
+    },
+    {
+        key =>    'Array:lenProto',
+        symbol => '${TYPENAME}_len',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @int ${TYPENAME}_len(${TYPENAME} *arr);
 ENDxxxxxxxxxx
     },
 
@@ -266,23 +355,17 @@ ENDxxxxxxxxxx
         key =>    'Array:get',
         symbol => '${TYPENAME}_get',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline ${ELEMNAME}${TYPENAME}_get(${TYPENAME} *arr, int index, Error *err) {
-            @   ${ELEMNAME_NS} v = ${ELEMZERO};
+            @${REFNAME} *${TYPENAME}_get(${TYPENAME} *arr, int index, Error *err) {
             @   Array_getCheck(arr, index, v, err);
-            @   memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-            @   return v;
+            @   return ${TYPENAME}_at(arr, index);
             @}
 ENDxxxxxxxxxx
     },
-
     {
-        key =>    'Array:getp',
-        symbol => '${TYPENAME}_getp',
+        key =>    'Array:getProto',
+        symbol => '${TYPENAME}_get',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline ${ELEMNAME}*${TYPENAME}_getp(${TYPENAME} *arr, int index, Error *err) {
-            @   Array_getCheck(arr, index, NULL, err);
-            @   return (${ELEMNAME}*)Array_get((Array*)arr, index);
-            @}
+            @${REFNAME} *${TYPENAME}_get(${TYPENAME} *arr, int index, Error *err);
 ENDxxxxxxxxxx
     },
 
@@ -290,37 +373,32 @@ ENDxxxxxxxxxx
         key =>    'Array:at',
         symbol => '${TYPENAME}_at',
         tmpl   => <<'ENDxxxxxxxxxx',
-            @#define ${TYPENAME}_at(arr, index) (arr)->data[index]
+ENDxxxxxxxxxx
+    },
+    {
+        key =>    'Array:atProto',
+        symbol => '${TYPENAME}_at',
+        tmpl   => <<'ENDxxxxxxxxxx',
+            @#define ${TYPENAME}_at(arr, index) ((arr)->data[index*${ELEMSIZE}])
 ENDxxxxxxxxxx
     },
 
-    {
-        key =>    'Array:atp',
-        symbol => '${TYPENAME}_at',
-        tmpl   => <<'ENDxxxxxxxxxx',
-            @#define ${TYPENAME}_atp(arr, index) ((arr)->data + (index))
-ENDxxxxxxxxxx
-    },
 
     {
         key =>    'Array:set',
         symbol => '${TYPENAME}_set',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline void ${TYPENAME}_set(${TYPENAME} *arr, int index, ${ELEMNAME}elem, Error *err) {
+            @void ${TYPENAME}_set(${TYPENAME} *arr, int index, ${REFNAME} *elem, Error *err) {
             @   Array_setCheck(arr, index, err);
-            @   Array_set((Array*)arr, index, (char*)&elem);
+            @   Array_set((Array*)arr, index, (char*)&elem, ${INCREF}, ${DECREF}, ${ELEMSIZE});
             @}
 ENDxxxxxxxxxx
     },
-
     {
-        key =>    'Array:setp',
-        symbol => '${TYPENAME}_setp',
+        key =>    'Array:setProto',
+        symbol => '${TYPENAME}_set',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline void ${TYPENAME}_setp(${TYPENAME} *arr, int index, ${ELEMNAME}*elem, Error *err) {
-            @   Array_setCheck(arr, index, err);
-            @   Array_set((Array*)arr, index, (char*)elem);
-            @}
+            @void ${TYPENAME}_setProto(${TYPENAME} *arr, int index, ${REFNAME} *elem, Error *err);
 ENDxxxxxxxxxx
     },
 
@@ -328,10 +406,19 @@ ENDxxxxxxxxxx
         key =>    'Array:pop',
         symbol => '${TYPENAME}_pop',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline void ${TYPENAME}_pop(${TYPENAME} *arr, Error *err) {
+            @${REFNAME} *${TYPENAME}_pop(${TYPENAME} *arr, Error *err) {
             @   Array_popNCheck(arr, 1, err);
-            @   Array_popN((Array*)arr, 1);
+            @   ${REFNAME} *p = NULL;
+            @   Array_popN((Array*)arr, 1, &p, ${DECREF}, ${ELEMSIZE});
+            @   return p;
             @}
+ENDxxxxxxxxxx
+    },
+    {
+        key =>    'Array:popProto',
+        symbol => '${TYPENAME}_pop',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @${REFNAME} *${TYPENAME}_pop(${TYPENAME} *arr, Error *err);
 ENDxxxxxxxxxx
     },
 
@@ -339,23 +426,17 @@ ENDxxxxxxxxxx
         key =>    'Array:push',
         symbol => '${TYPENAME}_push',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline void ${TYPENAME}_push(${TYPENAME} *arr, ${ELEMNAME}elem) {
-            @   ${ELEMNAME_NS} *p = (${ELEMNAME}*)Array_pushN((Array*)arr, 1);
-            @   *p = elem;
+            @void ${TYPENAME}_push(${TYPENAME} *arr, ${REFNAME} *elem) {
+            @   Array_pushN((Array*)arr, 1, &elem, ${INCREF}, ${ELEMSIZE});
             @   return; 
             @}          
 ENDxxxxxxxxxx
     },
-
     {
-        key =>    'Array:pushp',
-        symbol => '${TYPENAME}_pushp',
+        key =>    'Array:pushProto',
+        symbol => '${TYPENAME}_push',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline void ${TYPENAME}_pushp(${TYPENAME} *arr, ${ELEMNAME}*elem) {
-            @   ${ELEMNAME_NS} *p = (${ELEMNAME}*)Array_pushN((Array*)arr, 1);
-            @   *p = *elem;
-            @   return; 
-            @}
+            @void ${TYPENAME}_push(${TYPENAME} *arr, ${REFNAME} *elem);
 ENDxxxxxxxxxx
     },
 
@@ -363,23 +444,17 @@ ENDxxxxxxxxxx
         key =>    'Array:insert',
         symbol => '${TYPENAME}_insert',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline void ${TYPENAME}_insert(${TYPENAME} *arr, int index, ${ELEMNAME}elem, Error *err) {
+            @void ${TYPENAME}_insert(${TYPENAME} *arr, int index, ${REFNAME} *elem, Error *err) {
             @   Array_insertNCheck(arr, index, 1, err);
-            @   ${ELEMNAME_NS} *p = (${ELEMNAME}*)Array_insertN((Array*)arr, index, 1);
-            @   *p = elem;
+            @   Array_insert((Array*)arr, index, 1, &elem, ${INCREF}, ${ELEMSIZE});
             @}
 ENDxxxxxxxxxx
     },
-
     {
-        key =>    'Array:insertp',
-        symbol => '${TYPENAME}_insertp',
+        key =>    'Array:insertProto',
+        symbol => '${TYPENAME}_insert',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline void ${TYPENAME}_insertp(${TYPENAME} *arr, int index, ${ELEMNAME}*elem, Error *err) {
-            @   Array_insertNCheck(arr, index, 1, err);
-            @   ${ELEMNAME_NS} *p = (${ELEMNAME}*)Array_insertN((Array*)arr, index, 1);
-            @   *p = *elem;
-            @}          
+            @void ${TYPENAME}_insert(${TYPENAME} *arr, int index, ${REFNAME} *elem, Error *err);
 ENDxxxxxxxxxx
     },
 
@@ -387,21 +462,17 @@ ENDxxxxxxxxxx
         key =>    'Array:remove',
         symbol => '${TYPENAME}_remove',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline void ${TYPENAME}_remove(${TYPENAME} *arr, int index, Error *err) {
+            @void ${TYPENAME}_remove(${TYPENAME} *arr, int index, Error *err) {
             @   Array_removeNCheck(arr, index, 1, err);
-            @   Array_removeN((Array*)arr, index, 1);
+            @   Array_removeN((Array*)arr, index, 1, &elem, ${DECREF}, ${ELEMSIZE});
             @}  
 ENDxxxxxxxxxx
     },
-
     {
-        key =>    'Array:removeN',
-        symbol => '${TYPENAME}_removeN',
+        key =>    'Array:removeProto',
+        symbol => '${TYPENAME}_remove',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline void ${TYPENAME}_removeN(${TYPENAME} *arr, int index, int N, Error *err) {
-            @   Array_removeNCheck(arr, index, N, err);
-            @   Array_removeN((Array*)arr, index, N);
-            @}
+            @void ${TYPENAME}_remove(${TYPENAME} *arr, int index, Error *err);
 ENDxxxxxxxxxx
     },
 
@@ -409,9 +480,16 @@ ENDxxxxxxxxxx
         key =>    'Array:fit',
         symbol => '${TYPENAME}_fit',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline void ${TYPENAME}_fit(${TYPENAME} *arr) {
-            @   Array_fit((Array*)arr);
+            @void ${TYPENAME}_fit(${TYPENAME} *arr) {
+            @   Array_fit((Array*)arr, ${ELEMSIZE});
             @}
+ENDxxxxxxxxxx
+    },
+    {
+        key =>    'Array:fitProto',
+        symbol => '${TYPENAME}_fit',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @void ${TYPENAME}_fit(${TYPENAME} *arr);
 ENDxxxxxxxxxx
     },
 
@@ -419,19 +497,16 @@ ENDxxxxxxxxxx
         key =>    'Array:last',
         symbol => '${TYPENAME}_last',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline int ${TYPENAME}_last(${TYPENAME} *arr) {
+            @int ${TYPENAME}_last(${TYPENAME} *arr) {
             @   return Array_len((Array*)arr)-1;
             @}          
 ENDxxxxxxxxxx
     },  
-
     {
-        key =>    'Array:changeLength',
-        symbol => '${TYPENAME}_changeLength',
+        key =>    'Array:lastProto',
+        symbol => '${TYPENAME}_last',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline void ${TYPENAME}_changeLength(${TYPENAME} *arr, int newLength) {
-            @   Array_changeLength((Array*)arr, newLength);
-            @}                      
+            @int ${TYPENAME}_last(${TYPENAME} *arr);
 ENDxxxxxxxxxx
     },  
 
@@ -439,167 +514,93 @@ ENDxxxxxxxxxx
         key =>    'ArrayFIt:next',
         symbol => '${TYPENAME}FIt_next',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline bool ${TYPENAME}FIt_next(${TYPENAME}FIt *iterator) {
-            @   return ArrayFIt_next((ArrayFIt*)iterator);
+            @bool ${TYPENAME}FIt_next(${TYPENAME}FIt *iterator) {
+            @   return ArrayFIt_next((ArrayFIt*)iterator, ${DECREF}, ${ELEMSIZE});
             @}
 ENDxxxxxxxxxx
     },  
-
     {
-        key =>    'ArrayFIt:atEnd',
-        symbol => '${TYPENAME}FIt_atEnd',
+        key =>    'ArrayFIt:nextProto',
+        symbol => '${TYPENAME}FIt_next',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline bool ${TYPENAME}FIt_atEnd(${TYPENAME}FIt *iterator) {
-            @   return iterator->index+1 >= iterator->uBound;
-            @}
+            @bool ${TYPENAME}FIt_next(${TYPENAME}FIt *iterator);
 ENDxxxxxxxxxx
     },  
-
-    {
-        key =>    'ArrayRIt:atEnd',
-        symbol => '${TYPENAME}RIt_atEnd',
-        tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline bool ${TYPENAME}RIt_atEnd(${TYPENAME}RIt *iterator) {
-            @   return iterator->index-1 < iterator->lBound;
-            @}
-ENDxxxxxxxxxx
-    },  
-
-
-    {
-        key =>    'ArrayFIt:remove',
-        symbol => '${TYPENAME}FIt_remove',
-        tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline bool ${TYPENAME}FIt_remove(${TYPENAME}FIt *iterator) {
-            @   return ArrayFIt_remove((ArrayFIt*)iterator);
-            @}
-ENDxxxxxxxxxx
-    },  
-
+ 
     {
         key =>    'ArrayRIt:next',
         symbol => '${TYPENAME}RIt_next',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline bool ${TYPENAME}RIt_next(${TYPENAME}RIt *iterator) {
-            @   return ArrayRIt_next((ArrayRIt*)iterator);
+            @bool ${TYPENAME}RIt_next(${TYPENAME}RIt *iterator) {
+            @   return ArrayFIt_next((ArrayFIt*)iterator, ${INCREF}, ${ELEMSIZE});
             @}
 ENDxxxxxxxxxx
     },  
-
     {
-        key =>    'ArrayRIt:remove',
-        symbol => '${TYPENAME}RIt_remove',
+        key =>    'ArrayRIt:nextProto',
+        symbol => '${TYPENAME}RIt_next',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline bool ${TYPENAME}RIt_remove(${TYPENAME}RIt *iterator) {
-            @   return ArrayRIt_remove((ArrayRIt*)iterator);
-            @}
+            @bool ${TYPENAME}RIt_next(${TYPENAME}RIt *iterator);
 ENDxxxxxxxxxx
     },  
 
-    {
-        key    =>    'ArrayFIt:declare',
-        symbol => '${TYPENAME}FIt_declare',
-        tmpl   => <<'ENDxxxxxxxxxx', 
-            @#define ${TYPENAME}FIt_declare(var, arr, offset)  ${TYPENAME}FIt var = {arr, 0, (arr)->len, offset-1, NULL}
-ENDxxxxxxxxxx
-    },  
 
     {
-        key    =>    'ArrayFIt:declare0',
-        symbol => '${TYPENAME}FIt_declare0',
-        tmpl   => <<'ENDxxxxxxxxxx', 
-            @#define ${TYPENAME}FIt_declare0(var)  ${TYPENAME}FIt var = {0}
-ENDxxxxxxxxxx
-    },  
-        
-    {
-        key    =>    'ArrayRIt:declare',
-        symbol => '${TYPENAME}RIt_declare',
-        tmpl   => <<'ENDxxxxxxxxxx', 
-            @#define ${TYPENAME}RIt_declare(var, arr, offset)  ${TYPENAME}RIt var = {arr, 0, (arr)->len, (arr)->len-offset, NULL}
-ENDxxxxxxxxxx
-    },  
-
-    {
-        key    =>    'ArrayRIt:declare0',
-        symbol => '${TYPENAME}RIt_declare0',
-        tmpl   => <<'ENDxxxxxxxxxx', 
-            @#define ${TYPENAME}RIt_declare0(var)  ${TYPENAME}RIt var = {0}
-ENDxxxxxxxxxx
-    },  
-
-    {
-        key     =>  'Array:foreach',
-        implies => ["ArrayFIt:declare", "ArrayFIt:next"],
+        key     =>  'Array:foreachProto',
         symbol  => '${TYPENAME}_foreach',
         tmpl    => <<'ENDxxxxxxxxxx', 
-            @#define ${TYPENAME}_foreach(var, arr)                for (${TYPENAME}FIt_declare(var, arr, 0); ${TYPENAME}FIt_next(&var); )
-            @#define ${TYPENAME}_foreachOffset(var, arr, offset)  for (${TYPENAME}FIt_declare(var, arr, offset); ${TYPENAME}FIt_next(&var); )           
+ENDxxxxxxxxxx
+    },
+    {
+        key     =>  'Array:foreachProto',
+        symbol  => '${TYPENAME}_foreach',
+        tmpl    => <<'ENDxxxxxxxxxx', 
+            @#define ${TYPENAME}_foreach(var, arr)               for (${TYPENAME}FIt var = {arr, false, 0, NULL};        ${TYPENAME}FIt_next(&var); )
+            @#define ${TYPENAME}_foreachOffset(var, arr, offset) for (${TYPENAME}FIt var = {arr, false, offset-1, NULL}; ${TYPENAME}FIt_next(&var); )
 ENDxxxxxxxxxx
     },  
 
     { 
         key =>    'Array:rforeach',
-        implies => ["ArrayRIt:declare", "ArrayRIt:next"],
         symbol => '${TYPENAME}_rforeach',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @#define ${TYPENAME}_rforeach(var, arr)                for (${TYPENAME}RIt_declare(var, arr, 0); ${TYPENAME}RIt_next(&var); )
-            @#define ${TYPENAME}_rforeachOffset(var, arr, offset)  for (${TYPENAME}RIt_declare(var, arr, offset); ${TYPENAME}RIt_next(&var); )
 ENDxxxxxxxxxx
     },
     { 
-        key =>    'Array:rforeachOffset',
-        implies => ["ArrayRIt:declare", "ArrayRIt:next"],
+        key =>    'Array:rforeachProto',
         symbol => '${TYPENAME}_rforeach',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @#define ${TYPENAME}_rforeachOffset(var, arr)  for (${TYPENAME}RIt_declare(var, arr, offset); ${TYPENAME}RIt_next(&var); )          
-ENDxxxxxxxxxx
-    },  
-
-    {
-        key =>    'Array:loop',
-        implies => ["ArrayFIt:next"],
-        symbol => '${TYPENAME}_loop',
-        tmpl   => <<'ENDxxxxxxxxxx', 
-            @#define ${TYPENAME}_loop(var) while (${TYPENAME}FIt_next(&var)) 
+            @#define ${TYPENAME}_rforeach(var, arr)               for (${TYPENAME}FIt var = {arr, false, (arr)->len, NULL};        ${TYPENAME}FIt_next(&var); )
+            @#define ${TYPENAME}_rforeachOffset(var, arr, offset) for (${TYPENAME}FIt var = {arr, false, (arr)->len-offset, NULL}; ${TYPENAME}FIt_next(&var); )
 ENDxxxxxxxxxx
     },
 
+    ### XXX: I need to make sure that this function is only generated once
     {
-        key =>    'Array:rloop',
-        implies => ["ArrayRIt:next"],
-        symbol => '${TYPENAME}_rloop',
+        key =>    'Array:indirectResolve',
+        symbol => '${COMPARE}IndirectResolve',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @#define ${TYPENAME}_rloop(var) while (${TYPENAME}RIt_next(&var))           
+            @int ${COMPAREINDIRECT}(${REFNAME} **left, ${REFNAME} **right) {
+            @   int (*compare)(${REFNAME}*, ${REFNAME}*) = ${COMPARE};
+            @   return ${COMPARE}(*left, *right);
+            @}          
 ENDxxxxxxxxxx
     },
-
-    {
-        key     =>  'Array:each',
-        implies => [],
-        symbol  => '${TYPENAME}_each',
-        tmpl    => <<'ENDxxxxxxxxxx', 
-            @#define ${TYPENAME}_each(it, arr) for (${ELEMNAME_NS}* it = arr->data; it < arr->data + arr->len; it++)
-ENDxxxxxxxxxx
-    },  
-
-    {
-        key     =>  'Array:reach',
-        implies => [],
-        symbol  => '${TYPENAME}_reach',
-        tmpl    => <<'ENDxxxxxxxxxx', 
-            @#define ${TYPENAME}_reach(it, arr) for (${ELEMNAME_NS}* it = arr->data+arr->len-1; it >= arr->data; it--)
-ENDxxxxxxxxxx
-    },  
 
     {
         key =>    'Array:binInsert',
         symbol => '${TYPENAME}_binInsert${TAG}',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline void ${TYPENAME}_binInsert${TAG}(${TYPENAME} *arr, ${ELEMNAME}elem) {
-            @   int (*compare)(${ELEMNAME}*, ${ELEMNAME}*) = ${COMPARE};
-            @   Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)compare, ${MULTI});
+            @void ${TYPENAME}_binInsert${TAG}(${TYPENAME} *arr, ${REFNAME} *elem) {
+            @   Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)${COMPAREINDIRECT}, ${INCREF}, ${DECREF}, ${ELEMSIZE});
             @}          
+ENDxxxxxxxxxx
+    },  
+    {
+        key =>    'Array:binInsertProto',
+        symbol => '${TYPENAME}_binInsert${TAG}',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @void ${TYPENAME}_binInsert${TAG}(${TYPENAME} *arr, ${REFNAME} *elem);
 ENDxxxxxxxxxx
     },  
 
@@ -607,10 +608,16 @@ ENDxxxxxxxxxx
         key =>    'Array:binRemove',
         symbol => '${TYPENAME}_binRemove${TAG}',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline void ${TYPENAME}_binRemove${TAG}(${TYPENAME} *arr, ${ELEMNAME}elem) {
-            @   int (*compare)(${ELEMNAME}*, ${ELEMNAME}*) = ${COMPARE};
-            @   Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)compare, ${MULTI});
+            @void ${TYPENAME}_binRemove${TAG}(${TYPENAME} *arr, ${REFNAME} *elem) {
+            @   Array_binRemove(arr, &elem, (Array_compare)${COMPAREINDIRECT}, ${DECREF}, ${ELEMSIZE});
             @}      
+ENDxxxxxxxxxx
+    },  
+    {
+        key =>    'Array:binRemoveProto',
+        symbol => '${TYPENAME}_binRemove${TAG}',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @void ${TYPENAME}_binRemove${TAG}(${TYPENAME} *arr, ${REFNAME} *elem);
 ENDxxxxxxxxxx
     },  
 
@@ -618,38 +625,37 @@ ENDxxxxxxxxxx
         key =>    'Array:sort',
         symbol => '${TYPENAME}_sort${TAG}',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline void ${TYPENAME}_sort${TAG}(${TYPENAME} *arr) {
-            @   int (*compare)(${ELEMNAME}*, ${ELEMNAME}*) = ${COMPARE};
-            @   Array_sort((Array*)arr, (Array_compare)compare);
+            @void ${TYPENAME}_sort${TAG}(${TYPENAME} *arr) {
+            @   Array_sort((Array*)arr, (Array_compare)${COMPAREINDIRECT});
             @}              
+ENDxxxxxxxxxx
+    },  
+    {
+        key =>    'Array:sortProto',
+        symbol => '${TYPENAME}_sort${TAG}',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @void ${TYPENAME}_sort${TAG}(${TYPENAME} *arr);
 ENDxxxxxxxxxx
     },  
 
     {
-        key =>    'Array:binSearchSliceReturn',
+        key =>    'Array:binSearch',
         symbol => '${TYPENAME}_binSearch${TAG}',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline ${TYPENAME}FIt ${TYPENAME}_binSearch${TAG}(${TYPENAME} *arr, ${ELEMNAME}elem) {
-            @   int (*compare)(${ELEMNAME}*, ${ELEMNAME}*) = ${COMPARE};
-            @   ${TYPENAME}FIt it = {0};
-            @   if (Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, (ArrayFIt*)&it) != NULL) {
-            @       return it;
+            @${REFNAME} *${TYPENAME}_binSearch${TAG}(${TYPENAME} *arr, ${REFNAME} *elem) {
+            @   ${REFNAME} *output = NULL;
+            @   if (Array_binSearch((Array*)arr, (char*)&elem, (char*)&output, (Array_compare)${COMPAREINDIRECT}, NULL)) {
+            @       return output;
             @   }
-            @   it.index  = arr->len;
-            @   it.uBound = 0;
-            @   return it;
+            @   return NULL;
             @}
 ENDxxxxxxxxxx
-    },
-
+    },  
     {
-        key =>    'Array:binSearchElemReturn',
+        key =>    'Array:binSearchProto',
         symbol => '${TYPENAME}_binSearch${TAG}',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline ${ELEMNAME}*${TYPENAME}_binSearch${TAG}(${TYPENAME} *arr, ${ELEMNAME}elem) {
-            @   int (*compare)(${ELEMNAME}*, ${ELEMNAME}*) = ${COMPARE};
-            @   return (${ELEMNAME}*)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, NULL);
-            @}
+            @${REFNAME} *${TYPENAME}_binSearch${TAG}(${TYPENAME} *arr, ${REFNAME} *elem);
 ENDxxxxxxxxxx
     },  
 
@@ -657,10 +663,16 @@ ENDxxxxxxxxxx
         key =>    'Array:pqSort',
         symbol => '${TYPENAME}_pqSort${TAG}',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline void ${TYPENAME}_pqSort${TAG}(${TYPENAME} *arr) {
-            @   int (*compare)(${ELEMNAME}*, ${ELEMNAME}*) = ${COMPARE};
-            @   Array_pqSort((Array*)arr, (Array_compare)compare);
+            @void ${TYPENAME}_pqSort${TAG}(${TYPENAME} *arr) {
+            @   Array_pqSort((Array*)arr, (Array_compare)${COMPAREINDIRECT}, ${ELEMSIZE});
             @}
+ENDxxxxxxxxxx
+    }, 
+    {
+        key =>    'Array:pqSortProto',
+        symbol => '${TYPENAME}_pqSort${TAG}',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @void ${TYPENAME}_pqSort${TAG}(${TYPENAME} *arr);
 ENDxxxxxxxxxx
     },  
 
@@ -668,10 +680,16 @@ ENDxxxxxxxxxx
         key =>    'Array:pqPush',
         symbol => '${TYPENAME}_pqPush${TAG}',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline void ${TYPENAME}_pqPush${TAG}(${TYPENAME} *arr, ${ELEMNAME}elem) {
-            @   int (*compare)(${ELEMNAME}*, ${ELEMNAME}*) = ${COMPARE};
-            @   Array_pqPush((Array*)arr, (char*)&elem, (Array_compare)compare);
+            @void ${TYPENAME}_pqPush${TAG}(${TYPENAME} *arr, ${REFNAME} *elem) {
+            @   Array_pqPush((Array*)arr, (char*)&elem, (Array_compare)${COMPAREINDIRECT}, ${INCREF}, ${ELEMSIZE});
             @}
+ENDxxxxxxxxxx
+    }, 
+    {
+        key =>    'Array:pqPushProto',
+        symbol => '${TYPENAME}_pqPush${TAG}',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @void ${TYPENAME}_pqPush${TAG}(${TYPENAME} *arr, ${REFNAME} *elem);
 ENDxxxxxxxxxx
     },  
 
@@ -679,10 +697,37 @@ ENDxxxxxxxxxx
         key =>    'Array:pqPop',
         symbol => '${TYPENAME}_pqPop${TAG}',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline bool ${TYPENAME}_pqPop${TAG}(${TYPENAME} *arr, ${ELEMNAME}*elem) {
-            @   int (*compare)(${ELEMNAME}*, ${ELEMNAME}*) = ${COMPARE};
-            @   return Array_pqPop((Array*)arr, (char*)elem, (Array_compare)compare);
+            @${REFNAME} *${TYPENAME}_pqPop${TAG}(${TYPENAME} *arr) {
+            @   ${REFNAME} *output = NULL;
+            @   if (Array_pqPop((Array*)arr, (char*)&output, (Array_compare)${COMPAREINDIRECT}, NULL, ${ELEMSIZE})) {
+            @       return output;
+            @   }
+            @   return NULL;
             @}
+ENDxxxxxxxxxx
+    },  
+    {
+        key =>    'Array:pqPopProto',
+        symbol => '${TYPENAME}_pqPop${TAG}',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @${REFNAME} *${TYPENAME}_pqPop${TAG}(${TYPENAME} *arr);
+ENDxxxxxxxxxx
+    },  
+
+    {
+        key =>    'Array:pqPopDecRef',
+        symbol => '${TYPENAME}_pqPopDecRef${TAG}',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @void ${TYPENAME}_pqPopDecRef${TAG}(${TYPENAME} *arr, ${REFNAME} *elem) {
+            @   Array_pqPop((Array*)arr, NULL, (Array_compare)${COMPAREINDIRECT}, ${DECREF}, ${ELEMSIZE});
+            @}
+ENDxxxxxxxxxx
+    },  
+    {
+        key =>    'Array:pqPopDecRefProto',
+        symbol => '${TYPENAME}_pqPopDecRef${TAG}',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @void ${TYPENAME}_pqPopDecRef${TAG}(${TYPENAME} *arr, ${REFNAME} *elem);
 ENDxxxxxxxxxx
     },  
 
@@ -690,12 +735,20 @@ ENDxxxxxxxxxx
         key =>    'Array:pqPeek',
         symbol => '${TYPENAME}_pqPeek${TAG}',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline ${ELEMNAME}*${TYPENAME}_pqPeek${TAG}(${TYPENAME} *arr) {
-            @   return (${ELEMNAME}*)Array_pqPeek((Array*)arr);
+            @${REFNAME} *${TYPENAME}_pqPeek${TAG}(${TYPENAME} *arr) {
+            @   return (${REFNAME}*)Array_pqPeek((Array*)arr);
             @}
 ENDxxxxxxxxxx
     },  
+    {
+        key =>    'Array:pqPeekProto',
+        symbol => '${TYPENAME}_pqPeek${TAG}',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @${REFNAME} *${TYPENAME}_pqPeek${TAG}(${TYPENAME} *arr);
+ENDxxxxxxxxxx
+    },  
 
+    ## P R E D E F I N E D
     {
         key =>    'Predefined:struct',
         symbol => '',
@@ -722,10 +775,18 @@ ENDxxxxxxxxxx
     },
 
     {
-        key =>    'Struct:field',
+        key =>    'Struct:refField',
         symbol => '',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @    ${STYPE}${NAME};
+            @    ${REFNAME} *${NAME};
+ENDxxxxxxxxxx
+    },
+
+    {
+        key =>    'Struct:valField',
+        symbol => '',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @    ${VALNAME} ${NAME};
 ENDxxxxxxxxxx
     },
 
@@ -1266,6 +1327,40 @@ ENDxxxxxxxxxx
 ENDxxxxxxxxxx
     },
 
+    ################ CLONE
+    {
+        key =>    'Lifecycle:cloneStart',
+        symbol => '',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @${TYPENAME} *${TYPENAME}_clone(${TYPENAME} *self) {
+            @   ${TYPENAME} *other = ${TYPENAME}_new();
+ENDxxxxxxxxxx
+    },
+    {
+        key =>    'Lifecycle:cloneValue',
+        symbol => '',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @   other->${FIELDNAME} = self->${FIELDNAME};
+ENDxxxxxxxxxx
+    },
+    {
+        key =>    'Lifecycle:cloneReference',
+        symbol => '',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @   other->${FIELDNAME} = ${FIELDTYPE}_clone(self->${FIELDNAME});
+ENDxxxxxxxxxx
+    },
+    {
+        key =>    'Lifecycle:cloneEnd',
+        symbol => '',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @   return self;
+            @}
+ENDxxxxxxxxxx
+    },
+
+    ################ END CLONE
+
     {
         key =>    'Lifecycle:allProto',
         symbol => '',
@@ -1465,16 +1560,6 @@ sub ClassOrInterface_emitAccessors {
     }
 }
 
-sub ClassOrInterface_emitStruct {
-    my ($artifact, $out) = @_;
-    Expand_emit($out, ["Struct:head"], {TYPENAME => $artifact->{typeName}});    
-    for my $field (@{$artifact->{fields}}) {
-        my $stype = Util_spaceAdjustType($field->{type});
-        Expand_emit($out, ["Struct:field"], {STYPE=>$stype, NAME => $field->{name}});   
-    }
-    Expand_emit($out, ["Struct:tail"], {});     
-}
-
 sub ClassOrInterface_emitArgDeclare {
     my ($self, $out) = @_;
     my $args = "";
@@ -1501,7 +1586,18 @@ sub ClassArtifact_isa {
 }
 
 sub ClassArtifact_emitStruct {
-    ClassOrInterface_emitStruct(@_);
+    my ($artifact, $out) = @_;
+    Expand_emit($out, ["Struct:head"], {TYPENAME => $artifact->{typeName}});    
+    for my $field (@{$artifact->{fields}}) {
+        if (defined($field->{refName})) {
+            Expand_emit($out, ["Struct:refField"], {REFNAME=>$field->{refName}, NAME => $field->{name}});
+        } elsif (defined($field->{valName})){
+            Expand_emit($out, ["Struct:valField"], {VALNAME=>$field->{valName}, NAME => $field->{name}});
+        } else {
+            die "Every field must either define refField or valField but $field->{name} does not";
+        }
+    }
+    Expand_emit($out, ["Struct:tail"], {});
 }
 
 sub ClassArtifact_emitArgDeclare {
@@ -1530,64 +1626,78 @@ sub ClassArtifact_emitLifecycle {
         "String"   => "String",
         "Symbol"   => "Symbol",
     );
-    for my $t (qw/new decRef toJson fromJson/) {
+    my $selfTypeName = $self->{typeName};
+    for my $t (qw/new decRef toJson fromJson clone/) {
         if ($t eq 'decRef') {
-            Expand_emit($out, ["Lifecycle:incRef"], {TYPENAME=>$self->{typeName}});     
+            Expand_emit($out, ["Lifecycle:incRef"], {TYPENAME=>$selfTypeName});     
         }
 
-        Expand_emit($out, ["Lifecycle:${t}Start"], {TYPENAME=>$self->{typeName}});
+        Expand_emit($out, ["Lifecycle:${t}Start"], {TYPENAME=>$selfTypeName});
         if ($t eq 'decRef' && Api_definedCall($api, $self->{typeName}, "userClear")) {
-            Expand_emit($out, ["Lifecycle:userClear"], {TYPENAME=>$self->{typeName}});
+            Expand_emit($out, ["Lifecycle:userClear"], {TYPENAME=>$selfTypeName});
         } 
 
         for my $field (@{$self->{fields}}) {
             my $name        = $field->{name};
             next if $name eq 'itype' || $name eq 'refCount';
 
-            my $type        = $field->{type};
-            (my $typeName   = $type) =~ s/[\s\*]+//g;
-            my $isString    = $typeName eq 'String';
-            my $isSymbol    = $typeName eq 'Symbol';
-            my $isKnown     = $isString || $isSymbol || $artifactMap->{$typeName};
+            my $refName  = $field->{refName};
+            my $valName  = $field->{valName};
+            die "Unknown refName $refName" unless !defined($refName) || defined($artifactMap->{$refName});
 
-            my $isInterface     = $isKnown ? $artifactMap->{$typeName}{itype} eq 'Interface' : 0;
-            my $isTypeReference = ($type =~ /\*/) && !$isInterface; 
-            my $noSerial        = defined($field->{lifecycle}) && $field->{lifecycle} eq 'noSerial' ? 1 : 0;
-            my $btype           = $builtinTypes{$typeName};
-            my $dict            = {FIELDTYPE=>$typeName, FIELDNAME=>$name, TYPENAME=>$self->{typeName}};
-            
+            my $noSerial = defined($field->{lifecycle}) && $field->{lifecycle} eq 'noSerial' ? 1 : 0;
             if ($noSerial && $t =~ /Json$/) {
                 next;
             }
             
-            if ($isKnown) {
+
+            my %dict = (
+                FIELDTYPE => defined($refName) ? $refName : $valName, 
+                FIELDNAME => $name, 
+                TYPENAME  => $selfTypeName,
+            );
+
+            if (defined($refName)) {
+                my $isInterface = $artifactMap->{$typeName}{itype} eq 'Interface' : 0;
                 if ($isInterface) {
-                    if ($t eq 'new' || $t eq 'decRef') {
+                    if ($t eq 'new') {
                         Expand_emit($out, ["Lifecycle:${t}FieldPointer"], $dict);
                     } elsif ($t eq 'decRef') {
                         Expand_emit($out, ["Lifecycle:decRefFieldKnown"], $dict);
-                    } elsif ($t eq 'toJson' || $t eq 'fromJson') {
+                    } elsif ($t eq 'toJson' || $t eq 'fromJson' || $t eq 'clone') {
                         Expand_emit($out, ["Lifecycle:${t}Reference"], $dict);
-                    }
+                    } 
                 } else { ## !isInterface
                     if ($t eq 'new' || $t eq 'decRef') {
                         Expand_emit($out, ["Lifecycle:${t}FieldKnown"], $dict);
                     } elsif ($t eq 'toJson' || $t eq 'fromJson') {
-                        if ($isString) {
+                        if ($refName eq 'String') {
                             Expand_emit($out, ["Lifecycle:${t}String"], $dict); 
-                        } elsif ($isSymbol) {
+                        } elsif ($refName eq 'Symbol') {
                             Expand_emit($out, ["Lifecycle:${t}Symbol"], $dict); 
                         } else {
                             Expand_emit($out, ["Lifecycle:${t}Reference"], $dict);      
                         }
+                    } elsif ($t eq 'clone') {
+                        Expand_emit($out, ["Lifecycle:cloneReference"], $dict);
                     }
                 } 
             } else {
                 if ($t eq 'new') {
-                    Expand_emit($out, ["Lifecycle:newFieldValue"], $dict);
+                    my $isPointer = ($valName =~ /\*/);
+                    if ($isPointer) {
+                        Expand_emit($out, ["Lifecycle:newFieldPointer"], $dict);
+                    } else {
+                        Expand_emit($out, ["Lifecycle:newFieldValue"], $dict);
+                    }
                 } elsif ($t eq 'toJson' || $t eq 'fromJson') {
-                    die "Woops don't know how $t type $typeName" unless defined($btype);
-                    Expand_emit($out, ["Lifecycle:${t}${btype}"], $dict);
+                    ## NOTE: if we don't know the builtin type, we do not serialize/deserialize
+                    my $btype = $builtinTypes{$valName};
+                    if (defined($btype)) {
+                        Expand_emit($out, ["Lifecycle:${t}${btype}"], $dict);
+                    }
+                } elsif ($t eq 'clone') {
+                    Expand_emit($out, ["Lifecycle:cloneValue"], $dict);
                 }
             }
         }
@@ -1598,79 +1708,6 @@ sub ClassArtifact_emitLifecycle {
         Expand_emit($out, ["Lifecycle:${t}End"], {TYPENAME=>$self->{typeName}});
     }
 }
-
-# sub ClassArtifact_emitLifecycleOLD {
-#   my ($self, $out, $api, $artifactMap) = @_;
-#   if ($self->{lifecycle} eq "manual") {
-#       return;
-#   }
-#   for my $t (qw/init clear/) {
-#       Expand_emit($out, ["Lifecycle:${t}Start"], {TYPENAME=>$self->{typeName}});
-#       if ($t eq 'clear' && Api_definedCall($api, $self->{typeName}, "userClear")) {
-#           Expand_emit($out, ["Lifecycle:clearUser"], {TYPENAME=>$self->{typeName}});
-#       } 
-#       for my $field (@{$self->{fields}}) {
-#           my $name        = $field->{name};
-#           my $type        = $field->{type};
-#           my $isItype     = $name eq 'itype';
-#           (my $typeName   = $type) =~ s/[\s\*]+//g;
-#           my $isKnown     = $artifactMap->{$typeName} ? 1 : 0;
-#           my $isArray     = $isKnown ? $artifactMap->{$typeName}{itype} eq 'Container' : 0;
-#           my $isInterface = $isKnown ? $artifactMap->{$typeName}{itype} eq 'Interface' : 0;
-#           my $isPointer   = ($type =~ /\*/);
-#           my $isString    = $typeName eq 'String';
-#           my $isUnmanaged = defined($field->{lifecycle}) && $field->{lifecycle} eq 'unmanaged' ? 1 : 0;
-#           my $dict        = {FIELDTYPE=>$typeName, FIELDNAME=>$name, TYPENAME=>$self->{typeName}};
-            
-#           if ($isItype) {
-#               if ($t eq 'init') {
-#                   Expand_emit($out, ["Lifecycle:initITypeField"], $dict);
-#               }
-#           }
-#           elsif ($isString) {
-#               Expand_emit($out, ["Lifecycle:${t}FieldString"], $dict);
-#           } elsif ($isKnown) {
-#               if ($isUnmanaged || $isInterface) {
-#                   if ($isPointer) {
-#                       if ($t eq 'init') {
-#                           Expand_emit($out, ["Lifecycle:${t}FieldPointer"], $dict);
-#                       }
-#                   } else {
-#                       if ($t eq 'init') {
-#                           Expand_emit($out, ["Lifecycle:${t}FieldValue"], $dict);
-#                       }
-#                   }
-#               } elsif ($isPointer) {
-#                   if ($isArray && $t eq 'init') {
-#                       Expand_emit($out, ["Lifecycle:${t}FieldKnownArrayPointer"], $dict);
-#                   } else {
-#                       Expand_emit($out, ["Lifecycle:${t}FieldKnownPointer"], $dict);
-#                   }
-#               } else {
-#                   if ($isArray && $t eq 'init') {
-#                       Expand_emit($out, ["Lifecycle:${t}FieldKnownArrayValue"], $dict);
-#                   } else {
-#                       Expand_emit($out, ["Lifecycle:${t}FieldKnownValue"], $dict);
-#                   }
-#               }   
-#           } elsif ($isPointer) {
-#               if ($t eq 'init') {
-#                   Expand_emit($out, ["Lifecycle:${t}FieldPointer"], $dict);
-#               }
-#           } else {
-#               if ($t eq 'init') {
-#                   Expand_emit($out, ["Lifecycle:${t}FieldValue"], $dict);
-#               }
-#           }
-#       }
-#       if ($t eq 'init' && Api_definedCall($api, $self->{typeName}, "userInit")) {
-#           Expand_emit($out, ["Lifecycle:initUser"], {TYPENAME=>$self->{typeName}});
-#       } 
-#       Expand_emit($out, ["Lifecycle:${t}End"], {TYPENAME=>$self->{typeName}});
-#   }
-#   Expand_emit($out, ["Lifecycle:new", "Lifecycle:free"], {TYPENAME=>$self->{typeName}});
-# }
-
 
 sub ClassArtifact_emitInlines {
     my ($self, $out) = @_;
@@ -1698,7 +1735,9 @@ sub InterfaceArtifact_isa {
 }
 
 sub InterfaceArtifact_emitStruct {
-    ClassArtifact_emitStruct(@_);
+    Expand_emit($out, ["Struct:head"], {TYPENAME => $artifact->{typeName}});
+    Expand_emit($out, ["Struct:valField"], {VALNAME=>"int", NAME => "itype");
+    Expand_emit($out, ["Struct:tail"], {});
 }
 
 sub InterfaceArtifact_emitInterfaceMethod {
@@ -1833,105 +1872,69 @@ sub ContainerArtifact_isa {
 
 sub ContainerArtifact_emitStruct {
     my ($self, $out) = @_;
-
-    my $TYPENAME    = $self->{typeName};
-    my $ELEMNAME_NS = $self->{elemName};
-    my $ELEMNAME    = "";
-    if ($ELEMNAME_NS !~ /\*$/) {
-        $ELEMNAME = "$ELEMNAME_NS ";
-    } else {
-        $ELEMNAME = $ELEMNAME_NS;
-    }
-
-    my $dict = {
-        TYPENAME    => $TYPENAME, 
-        ELEMNAME    => $ELEMNAME, 
-        ELEMNAME_NS => $ELEMNAME_NS
+    my $TYPENAME     = $self->{typeName};
+    my $REFNAME      = $self->{refName};
+    my %dict = {
+        TYPENAME => $TYPENAME, 
+        REFNAME  => $REFNAME
     };
     
     my @keys = ("Array:struct", 'ArrayFIt:struct', 'ArrayRIt:struct');
-    Expand_emitNl($out, \@keys, $dict);
+    Expand_emitNl($out, \@keys, \%dict);
     return
 }
 
 sub ContainerArtifact_emitInlines {
     my ($self, $out) = @_;
-    my $TYPENAME    = $self->{typeName};
-    my $ELEMNAME_NS = $self->{elemName};
-    my $CLEARER     = $self->{clearer};
-    my $ELEMNAME    = "";
-    if ($ELEMNAME_NS !~ /\*$/) {
-        $ELEMNAME = "$ELEMNAME_NS ";
-    } else {
-        $ELEMNAME = $ELEMNAME_NS;
-    }
-    my $ELEMNAME_NP = $ELEMNAME_NS;
-    $ELEMNAME_NP =~ s/\*//g;
-    my $ELEMPTR = "";
-    while ($ELEMNAME_NS =~ /\*/ga) {
-        $ELEMPTR .= "*"
-    }
-    $ELEMPTR .= "*";
-    
-
-    if (!defined($CLEARER)) {
-        $CLEARER = "NULL";
-    }
-    my %use0 = (int=>1, double=>1);
-    my $ELEMZERO = "{0}";
-    if ($use0{$ELEMNAME_NS}) {
-        $ELEMZERO = "0";
-    }
+    my $TYPENAME     = $self->{typeName};
+    my $REFNAME      = $self->{refName};
     my $binarySearch = $self->{binarySearch};
+    die "Container $TYPENAME does not have a refName field" unless defined($REFNAME);
 
     my $dict = {
-        TYPENAME=>$TYPENAME, 
-        ELEMNAME_NS=>$ELEMNAME_NS, 
-        ELEMNAME=>$ELEMNAME, 
-        CLEARER=>$CLEARER, 
-        ELEMZERO=>$ELEMZERO,
-        ELEMPTR=>$ELEMPTR,
-        ELEMNAME_NP=>$ELEMNAME_NP,
+        TYPENAME  => $TYPENAME, 
+        REFNAME   => $REFNAME, 
+        DECREF    => "${REFNAME}_decRef",
+        INCREF    => "${REFNAME}_incRef",
+        ELEMSIZE  => "sizeof(void*)",
     };
 
     ##
-    ## Setup base keys
+    ## Lifecycle
     ##
-    my @keys = (
-        'Array:new', 'Array:init', 'Array:clear', 'Array:free',
-        'Array:truncate', 'Array:len',  'Array:get', 'Array:getp', 'Array:at', 'Array:atp', 'Array:set', 'Array:setp',
-        'Array:pop', 'Array:push', 'Array:pushp', 'Array:insert', 'Array:insertp', 'Array:remove',
-        'Array:removeN', 'Array:fit', 'Array:last', 'Array:changeLength', 'Array:foreach', 'Array:rforeach',
-        'Array:loop', 'Array:rloop', "ArrayFIt:next", "ArrayRIt:next", "ArrayFIt:remove", "ArrayRIt:remove",
-        "ArrayFIt:declare0", "ArrayFIt:declare", "ArrayRIt:declare0", "ArrayRIt:declare", "ArrayFIt:atEnd", "ArrayRIt:atEnd"
-    );
+    my @keys = ('Array:new', 'Array:incRef', 'Array:decRef', 'Array:toJson', 'Array:fromJson', 'Array:clone');
 
-    push @keys, ('Array:each', 'Array:reach');
+    ##
+    ## Setup base methods
+    ##
+    push @keys, (
+        'Array:truncate', 'Array:len',  'Array:get', 'Array:at', 'Array:set', 'Array:pop',  'Array:popDecRef', 'Array:push', 
+        'Array:insert', 'Array:remove', 'Array:fit', 'Array:last', 'Array:foreach', 'Array:rforeach',
+        'ArrayFIt:next', 'ArrayRIt:next', 'Array:reserve'
+    );
     
     Expand_emitNl($out, \@keys, $dict);
+
     if (defined($binarySearch)) {
         my $usedEmpty = 0;
         for my $b (@$binarySearch) {
             my $COMPARE = $b->{compare} or die "Failed to define compare function for binarySearch";
             my $TAG     = $b->{tag};
-            my $domulti = $b->{multi};
             if (!$TAG) {
                 die "Too many binarySearch clauses without a tag" if $usedEmpty;
                 $usedEmpty = 1;
                 $TAG = "";
             }
-            $dict->{COMPARE} = $COMPARE;
-            $dict->{TAG}     = $TAG;
+            $dict->{COMPARE}         = $COMPARE;
+            $dict->{COMPAREINDIRECT} = "${COMPARE}IndirectResolve";
+            $dict->{TAG}             = $TAG;
 
-            my @keys = ('Array:binInsert', 'Array:binRemove', 'Array:sort', 
-                        "Array:pqSort", "Array:pqPush", "Array:pqPop", "Array:pqPeek");
-            if ($domulti) {
-                $dict->{MULTI} = "true";
-                push @keys, "Array:binSearchSliceReturn";
-            } else {
-                $dict->{MULTI} = "false";
-                push @keys, "Array:binSearchElemReturn";
-            }
+            my @keys = (
+                'Array:indirectResolve', 
+                'Array:binInsert', 'Array:binRemove', 'Array:binSearch', 'Array:sort',
+                'Array:pqSort', 'Array:pqPush', 'Array:pqPop', 'Array:pqPopDecRef', 'Array:pqPeek',
+            );
+            
             Expand_emitNl($out, \@keys, $dict);
         }
     }
@@ -1962,7 +1965,7 @@ sub ContainerArtifact_emitLifecycle {
         ELEMDECREF => "${ELEMNAME_NP}_decRef",
         ELEMINCREF => "${ELEMNAME_NP}_incRef",
     );
-    Expand_emit($out, ['Array:new', 'Array:incRef', 'Array:decRef', 'Array:toJsonReference', 'Array:fromJsonReference'], \%dict);
+    Expand_emit($out, ['Array:new', 'Array:incRef', 'Array:decRef', 'Array:toJson', 'Array:fromJson', 'Array:clone'], \%dict);
 }
 
 
@@ -2300,7 +2303,7 @@ sub ArtifactList_scanFromTemplateFiles {
     return;
 }
 
-sub ArtifactList_emitPredefined {
+sub ArtifactList_emitTypedefs {
     my ($self, $out) = @_;
     for my $artifact (@{$self->{artifacts}}) {
         if (ClassArtifact_isa($artifact) && defined($artifact->{aliasFor})) {
@@ -2320,58 +2323,26 @@ sub Util_copyFile {
     close($inp);
 }
 
+sub ArtifactList_writeArrayGuts {
+    my ($self, $out) = @_;
+    Expand_emit($out, ['Predefined:struct'], {TYPENAME=>"Array"});
+    Expand_emit($out, ['Array:struct'], {TYPENAME=>"Array", REFNAME=>"char"});
+    Util_copyFile("$gMasterSourceDir/array.c", $out);
+}
+
 sub ArtifactList_emitStructs {
     my ($self, $out) = @_;
+    my %vtable = (
+        "Container" => \&ContainerArtifact_emitStruct,
+        "Class"     => \&ClassArtifact_emitStruct,
+        "Interface" => \&InterfaceArtifact_emitStruct,
+    );
+
     my $artifacts = $self->{artifacts};
-    my @structNamesToWrite = map {$_->{typeName}} @$artifacts;
-    my %artMap = map {$_->{typeName} => $_} @$artifacts;
-
-    my %valueDepend;
-    for my $structName (@structNamesToWrite) {
-        my $artifact = $artMap{$structName};
-        die "INTERNAL ERROR" if defined($valueDepend{$structName});
-        my $subhash = {};
-        $valueDepend{$structName} = $subhash;
-        if (ContainerArtifact_isa($artifact)) {
-            if ($artifact->{elemName} !~ /\*/ && defined($artMap{$artifact->{elemName}})) {
-                $subhash->{$artifact->{elemName}} = 1;  
-            }
-        } else {
-            for my $field (@{$artifact->{fields}}) {
-                if ($field->{type} !~ /\*/ && defined($artMap{$field->{type}})) {
-                    $subhash->{$field->{type}} = 1;
-                }
-            }
-        }
-    }
-
-    ## Start by writing the Array structs
-    Artifact_emitStruct({itype => 'Container', typeName=>"Array", elemName=>"char"}, $out);
-    Util_copyFile("$gMasterSourceDir/array.c", $out);
-    
-    my %written;
-    my %queued;
-    my $wt;
-    $wt = sub {
-        my ($structName) = @_;
-        return if !defined($structName);
-        return if $written{$structName};
-        die "Unable to output structs in the right order" if $queued{$structName};
-        
-        my $depends = $valueDepend{$structName} || die "INTERNAL ERROR";
-        for my $artifactName (keys(%$depends)) {
-            if (!$written{$artifactName}) {             
-                $queued{$structName} = 1;
-                $wt->($artifactName);
-                delete($queued{$structName});
-            }
-        }
-        $written{$structName} = 1;
-        my $artifact = $artMap{$structName} || die "INTERNAL ERROR";
-        Artifact_emitStruct($artifact, $out);
-    };
-    while (@structNamesToWrite) {
-        $wt->(pop @structNamesToWrite, \@structNamesToWrite);
+    for my $artifact (@{$self->{artifacts}}) {
+        my $f = $vtable{$artifact->{itype}};
+        die "Bad artifact passed to ArtifactList_emitStruct '$artifact->{itype}'" unless defined($f);
+        $f->($artifact, $out);
     }
 }
 
@@ -2444,18 +2415,6 @@ sub ArtifactList_emitLifecyle {
 sub Util_spaceAdjustType {
     my ($type) = @_;
     return $type =~ /\*$/ ? $type : "$type ";
-}
-
-sub Artifact_emitStruct {
-    my ($artifact, $out) = @_;
-    my %vtable = (
-        "Container" => \&ContainerArtifact_emitStruct,
-        "Class"     => \&ClassArtifact_emitStruct,
-        "Interface" => \&InterfaceArtifact_emitStruct,
-    );
-    my $f = $vtable{$artifact->{itype}};
-    die "Bad artifact passed to Artifact_emitStruct '$artifact->{itype}'" unless defined($f);
-    $f->($artifact, $out);
 }
 
 sub Artifact_emitInlines {
@@ -2705,10 +2664,18 @@ sub Main_main {
     open my $out, ">", $outFile or die "Failed to open $outFile";
     Main_emitWarning($out);
     Coverage_writePreamble($coverage, $out);
-    ArtifactList_emitPredefined($artifactList, $out);
+
+    ## Write array support
+    ArtifactList_writeArrayGuts($artifactList, $out);
+
+    ## Structs
+    ArtifactList_emitTypedefs($artifactList, $out);
     ArtifactList_emitStructs($artifactList, $out);
-    Api_emitPrototypes($api, $out);
+
+    ## Function prototypes
     ArtifactList_emitLifecylePrototype($artifactList, $out);
+    Api_emitPrototypes($api, $out);
+    
     ArtifactList_emitInterfaceDefines($artifactList, $out);
     ArtifactList_emitInlines($artifactList, $out);
     ArtifactList_emitLifecyle($artifactList, $out, $api);

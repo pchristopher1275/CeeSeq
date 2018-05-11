@@ -4,20 +4,32 @@
 
 typedef void (*Array_refModifier)(char *);
 typedef int (*Array_compare)(const char *left, const char *right);
+Array *Array_new(int itype);
+void Array_incRef(Array *arr);
+void Array_decRef(Array *arr, Array_refModifier decRef, int elemSize);
+void Array_truncate(Array *arr, int newLength, Array_refModifier decRef, int elemSize);
+void Array_mayGrow(Array *arr, int increment, int elemSize);
+static inline char *Array_get(Array *arr, int index, int elemSize);
+void Array_set(Array *arr, int index, char *newElem, Array_refModifier incRef, Array_refModifier decRef, int elemSize);
+void Array_popN(Array *arr, int N, char *output, Array_refModifier decRef, int elemSize);
+void Array_pushN(Array *arr, int N, char *input, Array_refModifier incRef, int elemSize);
+char *Array_insertN(Array *arr, int index, int N, char *input, Array_refModifier incRef, int elemSize);
+void Array_removeN(Array *arr, int index, int N, Array_refModifier decRef, int elemSize);
+void Array_fit(Array *arr, int elemSize);
+bool ArrayFIt_next(ArrayFIt *iterator, Array_refModifier decRef, int elemSize);
+bool ArrayRIt_next(ArrayRIt *iterator, Array_refModifier decRef, int elemSize);
+int Array_binSearchWithInsertMulti(Array *arr, char *key, int *insert, Array_compare comparer, char **lowerBound, char **upperBound, int elemSize);
+void Array_sort(Array *arr, Array_compare comparer, int elemSize);
+void Array_binInsert(Array *arr, char *elem, Array_compare comparer, Array_refModifier incRef, Array_refModifier decRef, int elemSize);
+void Array_binRemove(Array *arr, char *elem, Array_compare comparer, Array_refModifier decRef, int elemSize);
+char *Array_binSearch(Array *arr, char *elem, Array_compare comparer, int elemSize);
+void Array_pqUp(Array *arr, int j, Array_compare comparer, int elemSize);
+bool Array_pqDown(Array *arr, int i0, int n, Array_compare comparer, int elemSize);
+void Array_pqSort(Array *arr, Array_compare comparer, int elemSize);
+void Array_pqPush(Array *arr, char *elem, Array_compare comparer, Array_refModifier incRef, int elemSize);
+bool Array_pqPop(Array *arr, char *elem, Array_compare comparer, Array_refModifier decRef, int elemSize);
+char *Array_pqPeek(Array *arr);
 
-Array *Array_new(int nelems, int elemSize, Array_clearElement clearer);
-void Array_init(Array *arr, int nelems, int elemSize, Array_clearElement clearer);
-void Array_clear(Array *arr);
-void Array_free(Array *arr);
-void Array_truncate(Array *arr);
-int Array_len(Array *arr);
-void Array_set(Array *arr, int index, char *newElem);
-void Array_popN(Array *arr, int N);
-void Array_mayGrow(Array *arr, int increment);
-char *Array_pushN(Array *arr, int N);
-char *Array_insertN(Array *arr, int index, int N);
-void Array_removeN(Array *arr, int index, int N);
-void Array_fit(Array *arr);
 
 // REMEMBER: when you specify a range of elements to operate on, always select the range as
 // [start, end) : here start is the first index of the subsequence, and end is ONE-PAST the last
@@ -25,7 +37,7 @@ void Array_fit(Array *arr);
 
 #define Array_formatIndexError(err, m, n, o) Error_format((err), "Index out of range (%d, %d, %d)", (m), (n), (o))
 #define Array_len(arr) (arr)->len
-#define Array_at(arr, index, elemSize) ((arr)->data + (index)*(elemSize))
+#define Array_ptr(arr, index, elemSize) ((arr)->data + (index)*(elemSize))
 
 Array *Array_new(int itype) {
     Array *arr = (Array*)Mem_calloc(sizeof(Array));
@@ -47,7 +59,7 @@ void Array_decRef(Array *arr, Array_refModifier decRef, int elemSize)
     arr->refCount--;
     if (arr->refCount <= 0) {
         if (decRef) {
-            for (char *p = arr->data; p < arr->data + elemSize*arr->len; p += elemSize) {
+            for (char *p = arr->data; p < Array_ptr(arr, arr->len, elemSize); p += elemSize) {
                 char **d = (char**)p;
                 decRef(*d);
             }
@@ -65,7 +77,7 @@ void Array_truncate(Array *arr, int newLength, Array_refModifier decRef, int ele
    if (newLength < arr->len) {
         if (decRef) {
             for (int i = newLength; i < Array_len(arr); i++) {
-                char *p  = Array_at(arr, i, elemSize);
+                char *p  = Array_ptr(arr, i, elemSize);
                 char **d = (char**)p;
                 decRef(*d);
             }
@@ -74,6 +86,12 @@ void Array_truncate(Array *arr, int newLength, Array_refModifier decRef, int ele
         arr->len = newLength;
    }
    return;
+}
+
+void Array_reserve(Array *arr, int newCap, int elemSize) {
+    if (newCap > arr->cap) {
+        Array_mayGrow(arr, newCap - arr->cap, elemSize);
+    }
 }
 
 void Array_mayGrow(Array *arr, int increment, int elemSize) {
@@ -98,7 +116,7 @@ void Array_mayGrow(Array *arr, int increment, int elemSize) {
 } while (0)
 
 static inline char *Array_get(Array *arr, int index, int elemSize) {
-   return Array_at(arr, index, elemSize);
+   return Array_ptr(arr, index, elemSize);
 }
 
 #define Array_setCheck(arr_in, index_in, err) do {\
@@ -111,7 +129,7 @@ static inline char *Array_get(Array *arr, int index, int elemSize) {
 } while (0)
 
 void Array_set(Array *arr, int index, char *newElem, Array_refModifier incRef, Array_refModifier decRef, int elemSize) {
-    char *p = Array_at(arr, index, elemSize);
+    char *p = Array_ptr(arr, index, elemSize);
     char *toDec = decRef ? *((char**)p) : NULL; 
     memmove(p, newElem, elemSize);
 
@@ -136,9 +154,9 @@ void Array_set(Array *arr, int index, char *newElem, Array_refModifier incRef, A
 } while (0)
 
 void Array_popN(Array *arr, int N, char *output, Array_refModifier decRef, int elemSize) {
-    char *end   = Array_at(arr, arr->len, elemSize);
+    char *end   = Array_ptr(arr, arr->len, elemSize);
     arr->len   -= N;
-    char *start = Array_at(arr, arr->len, elemSize);
+    char *start = Array_ptr(arr, arr->len, elemSize);
     if (decRef) {
         for (char *p = start; p <= end; p += elemSize) {
             char **d = (char**)p;
@@ -153,7 +171,7 @@ void Array_popN(Array *arr, int N, char *output, Array_refModifier decRef, int e
 
 void Array_pushN(Array *arr, int N, char *input, Array_refModifier incRef, int elemSize) {
     Array_mayGrow(arr, N);
-    char *pushed = Array_at(arr, arr->len, elemSize);
+    char *pushed = Array_ptr(arr, arr->len, elemSize);
     memmove(pushed, input, N*elemSize);
     arr->len += N;
     if (incRef) {
@@ -177,9 +195,9 @@ void Array_pushN(Array *arr, int N, char *input, Array_refModifier incRef, int e
 
 char *Array_insertN(Array *arr, int index, int N, char *input, Array_refModifier incRef, int elemSize) {
     Array_mayGrow(arr, N);
-    char *subStart  = Array_at(arr, index, elemSize);
-    char *subEnd    = Array_at(arr, index+N, elemSize);
-    char *arrayEnd  = Array_at(arr, arr->len, elemSize);
+    char *subStart  = Array_ptr(arr, index, elemSize);
+    char *subEnd    = Array_ptr(arr, index+N, elemSize);
+    char *arrayEnd  = Array_ptr(arr, arr->len, elemSize);
     arr->len       += N;
 
     memmove(subEnd, subStart, (size_t)(arrayEnd-subStart));
@@ -204,10 +222,10 @@ char *Array_insertN(Array *arr, int index, int N, char *input, Array_refModifier
 } while (0)
 
 void Array_removeN(Array *arr, int index, int N, Array_refModifier decRef, int elemSize) {
-   char *removeStart = Array_at(arr, index, elemSize); 
-   char *removeEnd   = Array_at(arr, index+N, elemSize);
-   char *clearStart  = Array_at(arr, arr->len-N, elemSize);
-   char *clearEnd    = Array_at(arr, arr->len, elemSize);
+   char *removeStart = Array_ptr(arr, index, elemSize); 
+   char *removeEnd   = Array_ptr(arr, index+N, elemSize);
+   char *clearStart  = Array_ptr(arr, arr->len-N, elemSize);
+   char *clearEnd    = Array_ptr(arr, arr->len, elemSize);
    arr->len         -= N;
 
    if (decRef) {
@@ -240,7 +258,7 @@ void Array_fit(Array *arr, int elemSize) {
 
 bool ArrayFIt_next(ArrayFIt *iterator, Array_refModifier decRef, int elemSize) {
     if (iterator->remove && iterator->index < Array_len(iterator->arr) && iterator->index >= 0) {
-        Array_removeN(iterator->arr, iterator->index, 1, decRef);
+        Array_removeN(iterator->arr, iterator->index, 1, decRef, elemSize);
         iterator->index--;
         iterator->remove = false;
     }
@@ -251,10 +269,11 @@ bool ArrayFIt_next(ArrayFIt *iterator, Array_refModifier decRef, int elemSize) {
     
     iterator->index++;
     if (decRef) {
-        char **p      = (char**)Array_at(iterator->arr, iterator->index, elemSize);
+        char **p      = (char**)Array_ptr(iterator->arr, iterator->index, elemSize);
         iterator->var = *p;
     } else {
-        iterator->var = Array_at(iterator->arr, iterator->index, elemSize);
+        //XXX: This doesn't currently have any use case
+        iterator->var = Array_ptr(iterator->arr, iterator->index, elemSize);
     }
     return true;
 }
@@ -271,7 +290,7 @@ bool ArrayRIt_next(ArrayRIt *iterator, Array_refModifier decRef, int elemSize) {
 
     iterator->index--;
     if (decRef) {
-        char **p      = (char**)Array_at(iterator->arr, iterator->index, elemSize);
+        char **p      = (char**)Array_ptr(iterator->arr, iterator->index, elemSize);
         iterator->var = *p;
     } else {
         iterator->var = Array_get(iterator->arr, iterator->index);
@@ -360,7 +379,7 @@ void Array_binInsert(Array *arr, char *elem, Array_compare comparer, Array_refMo
       return;
     }
 
-    char *target = Array_at(arr, index, elemSize);
+    char *target = Array_ptr(arr, index, elemSize);
     char *toDec = decRef ? *((char**)target) : NULL; 
     memmove(target, elem, elemSize);
     // incRef first to handle the case when the new and old object are the same reference.
@@ -387,27 +406,27 @@ void Array_binRemove(Array *arr, char *elem, Array_compare comparer, Array_refMo
     Array_removeN(arr, index, 1, decRef, elemSize);
 }
 
-char *Array_binSearch(Array *arr, char *elem, Array_compare comparer, int elemSize) {
-   int insert = -1;
-   char *lower = NULL;
-   char *upper = NULL;
-   int index  = Array_binSearchWithInsertMulti(arr, elem, &insert, comparer, &lower, &upper, elemSize);
-   if (index < 0) {
-      return NULL;
-   }
-   
-   return lower;
+bool Array_binSearch(Array *arr, char *key, char *output, Array_compare comparer, int elemSize) {
+    int insert = -1;
+    char *lower = NULL;
+    char *upper = NULL;
+    int index  = Array_binSearchWithInsertMulti(arr, key, &insert, comparer, &lower, &upper, elemSize);
+    if (index < 0) {
+        return false;
+    }
+    memmove(output, Array_ptr(arr, index, elemSize), elemSize);
+    return true;
 }
 
 //
 // Priority queue. This code is ported from https://golang.org/src/container/heap/heap.go
 //
 
-#define PQ_LESS(i, j) ((comparer(Array_at(arr->data, i, elemSize), Array_at(arr->data, j, elemSize)) < 0)
+#define PQ_LESS(i, j) ((comparer(Array_ptr(arr->data, i, elemSize), Array_ptr(arr->data, j, elemSize)) < 0)
 #define PQ_SWAP(i, j) do {\
-    memmove(Array_at(arr, arr->len, elemSize), Array_at(arr, i, elemSize),        elemSize);\
-    memmove(Array_at(arr, i, elemSize),        Array_at(arr, j, elemSize),        elemSize);\
-    memmove(Array_at(arr, j, elemSize),        Array_at(arr, arr->len, elemSize), elemSize);\
+    memmove(Array_ptr(arr, arr->len, elemSize), Array_ptr(arr, i, elemSize),        elemSize);\
+    memmove(Array_ptr(arr, i, elemSize),        Array_ptr(arr, j, elemSize),        elemSize);\
+    memmove(Array_ptr(arr, j, elemSize),        Array_ptr(arr, arr->len, elemSize), elemSize);\
 } while (0)
 
 
@@ -520,14 +539,14 @@ func Pop(h Interface) interface{} {
 }
 */
 
-bool Array_pqPop(Array *arr, char *elem, Array_compare comparer, Array_refModifier decRef, int elemSize) 
+bool Array_pqPop(Array *arr, char *output, Array_compare comparer, Array_refModifier decRef, int elemSize) 
 {
     if (Array_len(arr) <= 0) {
         return false;
     }
 
     if (elem != NULL) {
-        memmove(elem, arr->data, elemSize);
+        memmove(output, arr->data, elemSize);
     }
     if (decRef) {
         char **d = (char**)arr->data;
