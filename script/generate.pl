@@ -42,28 +42,68 @@ sub backtick {
 
 my @templates = (
     {
-        key =>    'Type:argDeclare',
-        symbol => '${TYPENAME}_declare',
-        tmpl   => <<'ENDxxxxxxxxxx', 
-            @#define ${TYPENAME}_declare(name, ${ARGS}) ${TYPENAME} name = ${STRUCT}
+        key =>    'Type:getterValue',
+        symbol => '${TYPENAME}_${FIELDNAME}',
+        tmpl   => <<'ENDxxxxxxxxxx',            
 ENDxxxxxxxxxx
     },
-
     {
-        key =>    'Type:getter',
+        key =>    'Type:getterValueProto',
         symbol => '${TYPENAME}_${FIELDNAME}',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline ${STYPE}${TYPENAME}_${FIELDNAME}(${TYPENAME} *self){return ${MAYBEAMPER}self->${FIELDNAME};}
+            @static inline ${VALNAME} ${TYPENAME}_${FIELDNAME}(${TYPENAME} *self){return self->${FIELDNAME};}
 ENDxxxxxxxxxx
     },
 
     {
-        key =>    'Type:setter',
-        symbol => '${TYPENAME}_${SETNAME}',
-        tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline void ${TYPENAME}_${SETNAME}(${TYPENAME} *self, ${STYPE}value){self->${FIELDNAME} = value;}
+        key =>    'Type:getterReference',
+        symbol => '${TYPENAME}_${FIELDNAME}',
+        tmpl   => <<'ENDxxxxxxxxxx',
 ENDxxxxxxxxxx
     },
+    {
+        key =>    'Type:getterReferenceProto',
+        symbol => '${TYPENAME}_${FIELDNAME}',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @static inline ${REFNAME} *${TYPENAME}_${FIELDNAME}(${TYPENAME} *self){return self->${FIELDNAME};}
+ENDxxxxxxxxxx
+    },
+
+    {
+        key =>    'Type:setterValue',
+        symbol => '${TYPENAME}_${SETNAME}',
+        tmpl   => <<'ENDxxxxxxxxxx',
+ENDxxxxxxxxxx
+    },
+    {
+        key =>    'Type:setterValueProto',
+        symbol => '${TYPENAME}_${SETNAME}',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @static inline void ${TYPENAME}_${SETNAME}(${TYPENAME} *self, ${VALNAME} value){self->${FIELDNAME} = value;}
+ENDxxxxxxxxxx
+    },
+
+
+    {
+        key =>    'Type:setterReference',
+        symbol => '${TYPENAME}_${SETNAME}',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @void ${TYPENAME}_${SETNAME}(${TYPENAME} *self, ${REFNAME} *value) {
+                ${REFNAME} *old = self->${FIELDNAME};
+                self->${FIELDNAME} = value;
+                ${FIELDTYPE}_incRef(self->${FIELDNAME});
+                ${FIELDTYPE}_decRef(old);
+            }
+ENDxxxxxxxxxx
+    },
+    {
+        key =>    'Type:setterReferenceProto',
+        symbol => '${TYPENAME}_${SETNAME}',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @void ${TYPENAME}_${SETNAME}(${TYPENAME} *self, ${REFNAME} *value);
+ENDxxxxxxxxxx
+    },
+
 
     ## A R R A Y   S T R U C T
     {
@@ -818,7 +858,7 @@ ENDxxxxxxxxxx
         key =>    'Interface:protoToString',
         symbol => '',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @${RTYPE}${IFCNAME}_${METHODNAME}(int itype)
+            @const char *Interface_toString(int itype)
 ENDxxxxxxxxxx
     },
     {
@@ -834,6 +874,10 @@ ENDxxxxxxxxxx
         symbol => '',
         tmpl   => <<'ENDxxxxxxxxxx', 
             @{
+            @   if (self == NULL) {
+            @       Error_format0(err, "Undefined interface passed to ${TYPENAME}_${METHODNAME}");
+            @       return ${DEFRET};
+            @   }
             @   switch(${SWITCHTARGET}) {
 ENDxxxxxxxxxx
     },
@@ -933,7 +977,7 @@ ENDxxxxxxxxxx
         key =>    'Interface:foreachIType',
         symbol => '',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline int ${IFCNAME}_nthIType(int n, int *itype) {
+            @int ${IFCNAME}_nthIType(int n, int *itype) {
             @   static int itypes[] = {
             @       ${ITYPELIST}
             @   };
@@ -944,12 +988,19 @@ ENDxxxxxxxxxx
             @   *itype = itypes[n];
             @   return 1;
             @}
+ENDxxxxxxxxxx
+    },
+    {
+        key =>    'Interface:foreachITypeProto',
+        symbol => '',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @int ${IFCNAME}_nthIType(int n, int *itype);
             @#define ${IFCNAME}_foreachIType(itype) for (int __##itype = 0, itype = 0; ${IFCNAME}_nthIType(__##itype, &itype); __##itype++)
 ENDxxxxxxxxxx
     },
 
     {
-        key =>    'Interface:castTo',
+        key =>    'Interface:castToProto',
         symbol => '',
         tmpl   => <<'ENDxxxxxxxxxx', 
             @static inline ${IFCNAME} *${TYPENAME}_castTo${IFCNAME}(${TYPENAME} *self) {
@@ -957,9 +1008,15 @@ ENDxxxxxxxxxx
             @}
 ENDxxxxxxxxxx
     },
+    {
+        key =>    'Interface:castTo',
+        symbol => '',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+ENDxxxxxxxxxx
+    },
 
     {
-        key =>    'Interface:castFrom',
+        key =>    'Interface:castFromProto',
         symbol => '',
         tmpl   => <<'ENDxxxxxxxxxx', 
             @static inline ${TYPENAME} *${TYPENAME}_castFrom${IFCNAME}(${IFCNAME} *self) {
@@ -970,47 +1027,12 @@ ENDxxxxxxxxxx
             @}
 ENDxxxxxxxxxx
     },
-
     {
-        key =>    'Interface:undefined',
+        key =>    'Interface:castFrom',
         symbol => '',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @typedef struct Undefined_t {
-            @   int itype;
-            @   char buffer[1024];
-            @} Undefined;
-            @#define Undefined_itype ${ITYPE}
-            @Undefined Undefined_instance = {Undefined_itype, {0}};
-            @#define Undefined_ptr(typeName) ((typeName*)&Undefined_instance)
 ENDxxxxxxxxxx
     },
-
-#   {
-#       key =>    'Lifecycle:new',
-#       symbol => '',
-#       tmpl   => <<'ENDxxxxxxxxxx', 
-#           @${TYPENAME} *${TYPENAME}_new()
-#           @{
-#           @   ${TYPENAME} *self = Mem_malloc(sizeof(${TYPENAME}));
-#           @   ${TYPENAME}_init(self);
-#           @   return self;
-#           @}
-# ENDxxxxxxxxxx
-#   },
-
-#   {
-#       key =>    'Lifecycle:free',
-#       symbol => '',
-#       tmpl   => <<'ENDxxxxxxxxxx', 
-#           @void ${TYPENAME}_free(${TYPENAME} *self)
-#           @{
-#           @   if (self != NULL) {
-#           @       ${TYPENAME}_clear(self);
-#           @       Mem_free(self);
-#           @   }
-#           @}
-# ENDxxxxxxxxxx
-#   },
 
     {
         key =>    'Lifecycle:newStart',
@@ -1366,9 +1388,11 @@ ENDxxxxxxxxxx
         symbol => '',
         tmpl   => <<'ENDxxxxxxxxxx', 
             @${TYPENAME} *${TYPENAME}_new();
-            @void ${TYPENAME}_free(${TYPENAME} *self);
+            @void ${TYPENAME}_incRef(${TYPENAME} *self);
+            @void ${TYPENAME}_decRef(${TYPENAME} *self);
             @${TYPENAME} *${TYPENAME}_fromJson(JSON_Value *jvalue, Error *err);
             @JSON_Value *${TYPENAME}_toJson(${TYPENAME} *self, Error *err);
+            ${TYPENAME} *${TYPENAME}_clone(${TYPENAME} *self);
 ENDxxxxxxxxxx
     },
 
@@ -1514,68 +1538,9 @@ sub Expand_emitNl {
 }
 
 
-sub ClassOrInterface_emitAccessors {
-    my ($artifact, $out) = @_;
-    my $typeName = $artifact->{typeName};
-    for my $field (@{$artifact->{fields}}) {
-
-        ## XXX: this is legacy, can I remove?
-        if (defined($field->{group})) {
-            next;
-        }
-        next if $field->{name} eq 'itype';
-
-
-        my $getter       = $field->{getter}; 
-        my $getterReturn = $field->{getterReturn};
-        my $rtype        = $field->{type};
-        my $maybeAmper   = '';
-        if ($getterReturn eq 'pointer') {
-            $rtype      = "$rtype *";
-            $maybeAmper = "&";
-        }
-        my $stype = Util_spaceAdjustType($rtype);
-        my $setter = $field->{setter}; 
-        my ($first, $rest) = ($field->{name} =~ /^(.)(.*)$/);
-        die "INTERNAL ERROR" unless defined($rest);
-        my $setName = 'set' . uc($first) . $rest;
-    
-        my $exCfg = {TYPENAME=>$typeName, STYPE=>$stype, FIELDNAME=>$field->{name}, MAYBEAMPER=>$maybeAmper, SETNAME=>$setName};
-        
-        if (defined($getter)) {         
-            if ($getter ne 'none') {
-                die "The 'getter' flag set to something funny: getter=$getter, typeName=$typeName";
-            }
-        } else {
-            Expand_emit($out, ["Type:getter"], $exCfg);
-        }
-            
-        if (defined($setter)) { 
-            if ($setter ne 'none') {
-                die "The 'setter' flag set to something funny: setter=$setter, typeName=$typeName";
-            }
-        } else {
-            Expand_emit($out, ["Type:setter"], $exCfg);
-        }
-    }
-}
-
-sub ClassOrInterface_emitArgDeclare {
-    my ($self, $out) = @_;
-    my $args = "";
-    my $struct = "{";
-    for my $field (@{$self->{fields}}) {
-        if (defined($field->{group})) {
-            next;
-        }
-        $args   .= "$field->{name}, ";
-        $struct .= "($field->{name}), ";
-    }
-    $args   =~ s/,\s*$//;
-    $struct =~ s/,\s*$//;
-    $struct .= "}";
-    Expand_emit($out, ["Type:argDeclare"], {ARGS=>$args, STRUCT=>$struct, TYPENAME=>$self->{typeName}});
-}
+##
+## C L A S S
+##
 
 sub ClassArtifact_new {
     return {itype => 'Class'};
@@ -1584,32 +1549,41 @@ sub ClassArtifact_new {
 sub ClassArtifact_isa {
     return $_[0]->{itype} eq 'Class';
 }
-
-sub ClassArtifact_emitStruct {
-    my ($artifact, $out) = @_;
-    Expand_emit($out, ["Struct:head"], {TYPENAME => $artifact->{typeName}});    
+sub ClassArtifact_emitAccessors {
+    my ($artifact, $out, $proto) = @_;
+    my $typeName = $artifact->{typeName};
     for my $field (@{$artifact->{fields}}) {
-        if (defined($field->{refName})) {
-            Expand_emit($out, ["Struct:refField"], {REFNAME=>$field->{refName}, NAME => $field->{name}});
-        } elsif (defined($field->{valName})){
-            Expand_emit($out, ["Struct:valField"], {VALNAME=>$field->{valName}, NAME => $field->{name}});
+        next if $field->{name} eq 'itype';
+        my $rtype   = $field->{type};
+        my $refName = $field->{refName};
+        my $valName = $field->{valName};
+        my $name    = defined($refName) ? $refName : $valName;
+        my ($first, $rest) = ($name =~ /^(.)(.*)$/);
+        die "INTERNAL ERROR" unless defined($rest);
+        my $setName = 'set' . uc($first) . $rest;
+    
+        my %dict = (
+            TYPENAME  => $typeName, 
+            VALNAME   => $valName,
+            REFNAME   => $refName,
+            SETNAME   => $setName,
+        );
+        if (defined($refName)) {
+            if ($proto) {
+                Expand_emit($out, ["Type:getterReferenceProto", "Type:setterReferenceProto"], \%dict);
+            } else {
+                Expand_emit($out, ["Type:getterReference", "Type:setterReference"], \%dict);
+            }
+        } elsif (defined($valName)){
+            if ($proto) {
+                Expand_emit($out, ["Type:getterValueProto", "Type:setterValueProto"], \%dict);
+            } else {
+                Expand_emit($out, ["Type:getterValue", "Type:setterValue"], \%dict);
+            }
         } else {
-            die "Every field must either define refField or valField but $field->{name} does not";
+            die "Typename $typeName has a field that is neither reference nor value";
         }
     }
-    Expand_emit($out, ["Struct:tail"], {});
-}
-
-sub ClassArtifact_emitArgDeclare {
-    ClassOrInterface_emitArgDeclare(@_);
-}
-
-sub ClassArtifact_emitLifecyclePrototype {
-    my ($self, $out) = @_;
-    if (defined($self->{lifecycle}) && $self->{lifecycle} eq "manual") {
-        return;
-    }
-    Expand_emit($out, ["Lifecycle:allProto"], {TYPENAME=>$self->{typeName}});
 }
 
 sub ClassArtifact_emitLifecycle {
@@ -1709,13 +1683,42 @@ sub ClassArtifact_emitLifecycle {
     }
 }
 
-sub ClassArtifact_emitInlines {
-    my ($self, $out) = @_;
-    ClassOrInterface_emitAccessors($self, $out);
-    if (defined($self->{argDeclare})) {
-        ClassArtifact_emitArgDeclare($self, $out);
+sub ClassArtifact_emitStructs {
+    my ($artifact, $out) = @_;
+    Expand_emit($out, ["Struct:head"], {TYPENAME => $artifact->{typeName}});    
+    for my $field (@{$artifact->{fields}}) {
+        if (defined($field->{refName})) {
+            Expand_emit($out, ["Struct:refField"], {REFNAME=>$field->{refName}, NAME => $field->{name}});
+        } elsif (defined($field->{valName})){
+            Expand_emit($out, ["Struct:valField"], {VALNAME=>$field->{valName}, NAME => $field->{name}});
+        } else {
+            die "Every field must either define refField or valField but $field->{name} does not";
+        }
     }
-    
+    Expand_emit($out, ["Struct:tail"], {});
+}
+
+sub ClassArtifact_emitPrototypes {
+    my ($self, $out) = @_;
+    unless (defined($self->{lifecycle}) && $self->{lifecycle} eq "manual") {
+        Expand_emit($out, ["Lifecycle:allProto"], {TYPENAME=>$self->{typeName}});
+    }
+    my $prototypes = 1;
+    ClassArtifact_emitAccessors($self, $out, $prototypes);
+    if (defined($self->{implements})) {
+        my $h = {TYPENAME=>$self->{typeName}};
+        for my $ifc (@{$self->{implements}}) {
+            $h->{IFCNAME} = $ifc;
+            Expand_emit($out, ['Interface:castToProto', 'Interface:castFromProto'], $h);
+        }
+    }
+}
+
+sub ClassArtifact_emitFunctions {
+    my ($self, $out, $api, $artifactMap) = @_;
+    # ClassOrInterface_emitAccessors($self, $out);
+    ClassArtifact_emitLifecycle($self, $out, $api, $artifactMap);
+    ClassArtifact_emitAccessors($self, $out, 0);
     if (defined($self->{implements})) {
         my $h = {TYPENAME=>$self->{typeName}};
         for my $ifc (@{$self->{implements}}) {
@@ -1725,7 +1728,9 @@ sub ClassArtifact_emitInlines {
     }
 }
 
-
+##
+## I N T E R F A C E
+##
 sub InterfaceArtifact_new {
     return {itype => 'Interface'};
 }
@@ -1734,24 +1739,22 @@ sub InterfaceArtifact_isa {
     return $_[0]->{itype} eq 'Interface';
 }
 
-sub InterfaceArtifact_emitStruct {
-    Expand_emit($out, ["Struct:head"], {TYPENAME => $artifact->{typeName}});
-    Expand_emit($out, ["Struct:valField"], {VALNAME=>"int", NAME => "itype");
-    Expand_emit($out, ["Struct:tail"], {});
-}
-
 sub InterfaceArtifact_emitInterfaceMethod {
-    my ($self, $out, $methodIndex, $justProto, $api) = @_;
+    my ($self, $out, $methodIndex, $proto, $api) = @_;
     die "Bad type expected Interface found $self->{itype}" unless $self->{itype} eq 'Interface';
     my $ifcName       = $self->{typeName};
     my $method        = $self->{methods}[$methodIndex];
-    my $itypeReceiver = $method->{itypeReceiver};
+    my $classMethod   = $method->{classMethod};
     my $defMethod     = $method->{defMethod};
-    my $retVoid       = $method->{retVal} eq 'void';
-    my $retPtr        = ($method->{retVal} =~ /\*/);
-    my $absentOk      = defined($defMethod) ? 0 : $method->{absentOk};
-    my $methodName    = $method->{name};
-    my @methodArgs    = @{$method->{args}};
+    my $refReturn     = $method->{refReturn};
+    my $valReturn     = $method->{valReturn};
+
+    my $theReturn      = defined($refReturn) ? $refReturn : $valReturn;
+    my $retVoid        = $theReturn eq 'void';
+    $theReturn         = defined($refReturn) ? "$theReturn *" : "$theReturn ";
+    my $absentOk       = defined($defMethod) ? 0 : $method->{absentOk};
+    my $methodName     = $method->{name};
+    my @methodArgPairs = @{$method->{args}};
 
     my $forwardError = 1;
     if (@methodArgs == 0 || $methodArgs[$#methodArgs] !~ m[Error\s*\*]) {
@@ -1760,18 +1763,28 @@ sub InterfaceArtifact_emitInterfaceMethod {
         pop @methodArgs;
     }
 
+    my @argReference;
     my @argWithVariable;
     my @variable;
     my $count = 1;
-    for my $arg (@methodArgs) {
-        if ($arg =~ /\*/) {
-            push @argWithVariable, "${arg}a$count";
+    for my $pair (@methodArgPairs) {
+        die "Ill formated method arg for $ifcName" unless @$pair == 2;
+        
+        my $type  = $pair->[0];
+        my $ctype = $pair->[1];
+        if ($type eq 'ref') {
+            push @argWithVariable, "${ctype} *a$count";
+            push @argReference, 1;
+        } elsif ($type eq 'val') {
+            push @argWithVariable, "$ctype a$count";
+            push @argReference, 0;
         } else {
-            push @argWithVariable, "$arg a$count";
+            die "Unknown type in method argument for $ifcName";
         }
         push @variable, "a$count";
         $count++;
     }
+
     if ($forwardError) {
         push @variable, "err"
     }
@@ -1786,17 +1799,17 @@ sub InterfaceArtifact_emitInterfaceMethod {
     
     my $cfg       = {
         IFCNAME       => $ifcName,
-        TYPEDRECIEVER => $itypeReceiver ? "int itype" : "$ifcName *self",
+        TYPEDRECIEVER => $classMethod ? "int itype" : "$ifcName *self",
         METHODNAME    => $methodName,
         DEFRET        => $retPtr ? "NULL" : '0',
         LISTARGS      => $listArgs,
         TYPEDARGS     => $typedArgs,
-        RTYPE         => Util_spaceAdjustType($method->{retVal}),
+        RTYPE         => $theReturn,
         ENDPROTO      => ";",
-        SWITCHTARGET  => $itypeReceiver ? "itype" : "self->itype",
+        SWITCHTARGET  => $classMethod ? "itype" : "self->itype",
     };
 
-    if ($justProto) {
+    if ($proto) {
         Expand_emit($out, ['Interface:proto'], $cfg);
         return;
     }
@@ -1814,11 +1827,11 @@ sub InterfaceArtifact_emitInterfaceMethod {
         if (!defined($defMethod) || Api_definedCall($api, $implementedBy, $methodName)) {
             $cfg->{CALLTYPENAME}     = $implementedBy;
             $cfg->{CALLMETHODNAME}   = $methodName; 
-            $cfg->{CASTRECIEVER}     = $itypeReceiver ? "itype" : "($implementedBy*)self";
+            $cfg->{CASTRECIEVER}     = $classMethod ? "itype" : "($implementedBy*)self";
         } else {
             $cfg->{CALLTYPENAME}     = $defClassName;
             $cfg->{CALLMETHODNAME}   = $defMethodName;  
-            $cfg->{CASTRECIEVER}     = $itypeReceiver ? "itype" : "self";
+            $cfg->{CASTRECIEVER}     = $classMethod ? "itype" : "self";
         }
         
         if ($absentOk && !Api_definedCall($api, $implementedBy, $methodName)) {
@@ -1843,25 +1856,40 @@ sub InterfaceArtifact_emitInterfaceMethod {
     print {$out} "\n";
 }
 
-sub InterfaceArtifact_emitInlines {
-    my ($self, $out) = @_;
+sub InterfaceArtifact_emitForeachItype {
+    my ($self, $out, $proto) = @_;
     my @itypeList = sort map {"${_}_itype"} keys(%{$self->{implementedBy}});
     my $h = {IFCNAME => $self->{typeName}, ITYPELIST=>join(", ", @itypeList)};
-    Expand_emit($out, ['Interface:foreachIType'], $h);
-    ClassOrInterface_emitAccessors($self, $out);
-    if (defined($self->{argDeclare})) {
-        ClassOrInterface_emitArgDeclare($self, $out);
+    Expand_emit($out, ['Interface:foreachIType' . ($proto ? "Proto" : "")], $h);
+}
+
+sub InterfaceArtifact_emitStructs {
+    my ($artifact, $out) = @_;
+    Expand_emit($out, ["Struct:head"], {TYPENAME => $artifact->{typeName}});
+    Expand_emit($out, ["Struct:valField"], {VALNAME=>"int", NAME => "itype");
+    Expand_emit($out, ["Struct:tail"], {});
+}
+
+sub InterfaceArtifact_emitPrototypes {
+    my ($self, $out, $api) = @_;
+    InterfaceArtifact_emitForeachItype($self, $out, 1);
+    for (my $methodIndex = 0; $methodIndex < @{$self->{methods}}; $methodIndex++) {
+        InterfaceArtifact_emitInterfaceMethod($self, $out, $methodIndex, 1, $api);
     }
 }
 
-sub InterfaceArtifact_emitInterfaceMethods {
+sub InterfaceArtifact_emitFunctions {
     my ($self, $out, $api) = @_;
+    InterfaceArtifact_emitForeachItype($self, $out, 1);
     for (my $methodIndex = 0; $methodIndex < @{$self->{methods}}; $methodIndex++) {
         InterfaceArtifact_emitInterfaceMethod($self, $out, $methodIndex, 0, $api);
     }
 }
 
 
+##
+## C O N T A I N E R
+##
 sub ContainerArtifact_new {
     return {itype => 'Container'};
 }
@@ -1870,22 +1898,8 @@ sub ContainerArtifact_isa {
     return $_[0]->{itype} eq 'Container';
 }
 
-sub ContainerArtifact_emitStruct {
-    my ($self, $out) = @_;
-    my $TYPENAME     = $self->{typeName};
-    my $REFNAME      = $self->{refName};
-    my %dict = {
-        TYPENAME => $TYPENAME, 
-        REFNAME  => $REFNAME
-    };
-    
-    my @keys = ("Array:struct", 'ArrayFIt:struct', 'ArrayRIt:struct');
-    Expand_emitNl($out, \@keys, \%dict);
-    return
-}
-
-sub ContainerArtifact_emitInlines {
-    my ($self, $out) = @_;
+sub ContainerArtifact_emitAll {
+    my ($self, $out, $proto) = @_;
     my $TYPENAME     = $self->{typeName};
     my $REFNAME      = $self->{refName};
     my $binarySearch = $self->{binarySearch};
@@ -1913,6 +1927,9 @@ sub ContainerArtifact_emitInlines {
         'ArrayFIt:next', 'ArrayRIt:next', 'Array:reserve'
     );
     
+    if ($proto) {
+        @keys = map {"${_}Proto"} @keys;
+    }
     Expand_emitNl($out, \@keys, $dict);
 
     if (defined($binarySearch)) {
@@ -1935,39 +1952,43 @@ sub ContainerArtifact_emitInlines {
                 'Array:pqSort', 'Array:pqPush', 'Array:pqPop', 'Array:pqPopDecRef', 'Array:pqPeek',
             );
             
+            if ($proto) {
+                @keys = map {"${_}Proto"} @keys;
+            }
             Expand_emitNl($out, \@keys, $dict);
         }
     }
 }
 
-sub ContainerArtifact_emitLifecyclePrototype {
+sub ContainerArtifact_emitStructs {
     my ($self, $out) = @_;
-    Expand_emit($out, ["Lifecycle:allProto"], {TYPENAME=>$self->{typeName}});
+    my $TYPENAME     = $self->{typeName};
+    my $REFNAME      = $self->{refName};
+    my %dict = {
+        TYPENAME => $TYPENAME, 
+        REFNAME  => $REFNAME
+    };
+    
+    my @keys = ("Array:struct", 'ArrayFIt:struct', 'ArrayRIt:struct');
+    Expand_emitNl($out, \@keys, \%dict);
+    return
 }
 
-sub ContainerArtifact_emitLifecycle {
-    my ($self, $out, $api, $artifactMap) = @_;
-    my $TYPENAME    = $self->{typeName};
-    my $ELEMNAME_NS = $self->{elemName};
-    my $ELEMNAME    = "";
-    if ($ELEMNAME_NS !~ /\*$/) {
-        $ELEMNAME = "$ELEMNAME_NS ";
-    } else {
-        $ELEMNAME = $ELEMNAME_NS;
-    }
-    (my $ELEMNAME_NP = $elemName) =~ s/[\s\*]+//g;
-    my $isReference = $elemName =~ /\*/;
-    my %dict = (
-        "TYPENAME"    => $typeName,
-        "ELEMNAME"    => $ELEMNAME,
-        "ELEMNAME_NP" => $ELEMNAME_NP,
-        "ELEMNAME_NS" => $ELEMNAME_NS,
-        ELEMDECREF => "${ELEMNAME_NP}_decRef",
-        ELEMINCREF => "${ELEMNAME_NP}_incRef",
-    );
-    Expand_emit($out, ['Array:new', 'Array:incRef', 'Array:decRef', 'Array:toJson', 'Array:fromJson', 'Array:clone'], \%dict);
+sub ContainerArtifact_emitPrototypes {
+    my ($self, $out) = @_;
+    ContainerArtifact_emitAll($self, $out, 1);
 }
 
+sub ContainerArtifact_emitFunctions {
+    my ($self, $out) = @_;
+    ContainerArtifact_emitAll($self, $out, 1);
+}
+
+
+
+##
+## C O V E R A G E
+##
 
 sub Coverage_new {
     my ($coverageActivated) = @_;
@@ -2074,6 +2095,9 @@ sub Coverage_write {
     }
 }
 
+##
+## T E M P L A T E    F I L E
+##
 sub TemplateFile_scanUntilAtEnd {
     my ($self) = @_;
     die "Bad type" unless $self->{itype} eq 'TemplateFile';
@@ -2159,7 +2183,7 @@ sub TemplateFile_scanAllArtifacts {
     return @artifacts;
 }
 
-sub TemplateFile_copyTemplateCode {
+sub TemplateFile_copyUserCode {
     my ($self, $out, $coverage) = @_;
     die "Bad type" unless $self->{itype} eq 'TemplateFile';
     open my $inp, "<", $self->{file} or die "Failed to open $self->{file}";
@@ -2208,35 +2232,22 @@ sub TemplateFile_copyTemplateCode {
     close($self->{inp});
 }
 
-sub TemplateFile_copyHeader {
-    my ($self, $out) = @_;
-    die "Bad type" unless $self->{itype} eq 'TemplateFile';
-    open my $inp, "<", $self->{file} or die "Failed to open $self->{file}";
-    $self->{inp} = $inp;
-    while (<$inp>) {
-        chomp;
-        $self->{line}++;
-        if (/^\@type/) {
-            TemplateFile_scanUntilAtEnd($self);
-        } elsif (/^\@interface/) {
-            TemplateFile_scanUntilAtEnd($self);
-        } elsif (/^\@container/) {
-            TemplateFile_scanUntilAtEnd($self);
-        } elsif (/^\@header/) {
-            my @lines = TemplateFile_scanUntilAtEnd($self);
-            for my $line (@lines) {
-                print {$out} "$line\n";
-            }
-        } 
-    }
-    close($self->{inp});    
-}
-
 sub TemplateFile_new {
     my ($file) = @_;
     return {itype => 'TemplateFile', file=>$file, line => 0};
 }
 
+##
+## U T I L
+##
+sub Util_spaceAdjustType {
+    my ($type) = @_;
+    return $type =~ /\*$/ ? $type : "$type ";
+}
+
+##
+## A R T I F A C T    L I S T
+##
 sub ArtifactList_new {
     return {itype => 'ArtifactList'}
 }
@@ -2276,13 +2287,13 @@ sub ArtifactList_scanFromTemplateFiles {
     my %artMap = map {$_->{typeName} => $_} @artifacts;
     my $nextItype = $gUndefinedItype + 1;
     for my $artifact (@artifacts) {
-        if (ClassArtifact_isa($artifact)) {
-            if (defined($artifact->{implements}) && @{$artifact->{implements}} > 0) {
-                $artifact->{itypeIndex} = $nextItype++; 
-            }   
+        if (ClassArtifact_isa($artifact)) {   
+            $artifact->{itypeIndex} = $nextItype++; 
+            unshift @{$artifact->{fields}}, {valName => "refCount", type => "int"}; 
+            unshift @{$artifact->{fields}}, {valName => "itype",    type => "int"}; 
+
             my $implements = $artifact->{implements};
             next unless defined($implements);
-            unshift @{$artifact->{fields}}, {name=>"itype", type=>"int"}; 
             for my $interfaceName (@{$artifact->{implements}}) {
                 my $interface = $artMap{$interfaceName};
                 die "Class $artifact->{typeName} implements non-existent interface $interfaceName" unless defined($interface);
@@ -2293,9 +2304,7 @@ sub ArtifactList_scanFromTemplateFiles {
                 }
                 $implementedBy->{$artifact->{typeName}} = 1;
             }
-        } elsif (InterfaceArtifact_isa($artifact)) {
-            unshift @{$artifact->{fields}}, {name=>"itype", type=>"int"};
-        }
+        } 
     }
 
     $self->{artifacts}   = \@artifacts;
@@ -2323,22 +2332,32 @@ sub Util_copyFile {
     close($inp);
 }
 
-sub ArtifactList_writeArrayGuts {
+sub ArtifactList_emitInterfacePreamble {
     my ($self, $out) = @_;
-    Expand_emit($out, ['Predefined:struct'], {TYPENAME=>"Array"});
-    Expand_emit($out, ['Array:struct'], {TYPENAME=>"Array", REFNAME=>"char"});
-    Util_copyFile("$gMasterSourceDir/array.c", $out);
+    for my $artifact (@{$self->{artifacts}}) {
+        if (ClassArtifact_isa($artifact) && defined($artifact->{itypeIndex})) {
+            printf {$out} "#define $artifact->{typeName}_itype $artifact->{itypeIndex}\n";
+        }
+    }
+
+    ## Write toString
+    Expand_emit($out, ['Interface:protoToString'], {}});
+    Expand_emit($out, ['Interface:startFunction'], {SWITCHTARGET => "itype"});
+    for my $artifact (@{$self->{artifacts}}) {
+        next unless ClassArtifact_isa($artifact);
+        Expand_emit($out, ['Interface:caseToString'], {TYPENAME => $artifact->{typeName}});
+    }
+    Expand_emit($out, ['Interface:endFunctionToString'], {}); 
 }
 
 sub ArtifactList_emitStructs {
     my ($self, $out) = @_;
     my %vtable = (
-        "Container" => \&ContainerArtifact_emitStruct,
-        "Class"     => \&ClassArtifact_emitStruct,
-        "Interface" => \&InterfaceArtifact_emitStruct,
+        "Container" => \&ContainerArtifact_emitStructs,
+        "Class"     => \&ClassArtifact_emitStructs,
+        "Interface" => \&InterfaceArtifact_emitStructs,
     );
 
-    my $artifacts = $self->{artifacts};
     for my $artifact (@{$self->{artifacts}}) {
         my $f = $vtable{$artifact->{itype}};
         die "Bad artifact passed to ArtifactList_emitStruct '$artifact->{itype}'" unless defined($f);
@@ -2346,110 +2365,39 @@ sub ArtifactList_emitStructs {
     }
 }
 
-sub ArtifactList_emitInterfaceDefines {
+sub ArtifactList_emitPrototypes {
     my ($self, $out) = @_;
-    
-
-    Expand_emit($out, ["Interface:undefined"], {ITYPE=>$gUndefinedItype});
-    for my $artifact (@{$self->{artifacts}}) {
-        if (ClassArtifact_isa($artifact) && defined($artifact->{itypeIndex})) {
-            printf {$out} "#define $artifact->{typeName}_itype $artifact->{itypeIndex}\n";
-        }
-    }
-    Expand_emit($out, ["Interface:itype"], {});
-    for my $artifact (@{$self->{artifacts}}) {
-        if (InterfaceArtifact_isa($artifact)) {
-            for (my $methodIndex = 0; $methodIndex < @{$artifact->{methods}}; $methodIndex++) {
-                my $method = $artifact->{methods}[$methodIndex];
-                InterfaceArtifact_emitInterfaceMethod($artifact, $out, $methodIndex, 1);
-            }
-        }
-    }
-}
-
-sub ArtifactList_emitInlines {
-    my ($self, $out, $api) = @_;
-    for my $artifact (@{$self->{artifacts}}) {
-        Artifact_emitInlines($artifact, $out, $api);
-    }
-}
-
-sub ArtifactList_emitInterfaceMethods {
-    my ($self, $out, $api) = @_;    
-    ## Write all interface methods
-    for my $artifact (@{$self->{artifacts}}) {
-        Artifact_emitInterfaceMethods($artifact, $out, $api);
-    }
-
-    ## Write toString
-    my $cfg = {
-        RTYPE         => Util_spaceAdjustType("const char *"),
-        IFCNAME       => "Interface",
-        METHODNAME    => "toString",
-    };
-    Expand_emit($out, ['Interface:protoToString'], $cfg);
-    Expand_emit($out, ['Interface:startFunction'], {SWITCHTARGET => "itype"});
-    Expand_emit($out, ['Interface:caseToString'], {TYPENAME => "Undefined"});
-    for my $artifact (@{$self->{artifacts}}) {
-        next unless ClassArtifact_isa($artifact);
-        next unless @{$artifact->{implements} || []} > 0;
-        Expand_emit($out, ['Interface:caseToString'], {TYPENAME => $artifact->{typeName}});
-    }
-    Expand_emit($out, ['Interface:endFunctionToString'], {});       
-}
-
-sub ArtifactList_emitLifecylePrototype {
-    my ($self, $out, $api, $artifactMap) = @_;
-    for my $artifact (@{$self->{artifacts}}) {
-        Artifact_emitLifecyclePrototype($artifact, $out, $api, $self->{artifactMap});
-    }   
-}
-
-sub ArtifactList_emitLifecyle {
-    my ($self, $out, $api, $artifactMap) = @_;
-    for my $artifact (@{$self->{artifacts}}) {
-        Artifact_emitLifecycle($artifact, $out, $api, $self->{artifactMap});
-    }   
-}
-
-sub Util_spaceAdjustType {
-    my ($type) = @_;
-    return $type =~ /\*$/ ? $type : "$type ";
-}
-
-sub Artifact_emitInlines {
-    my ($artifact, $out) = @_;
     my %vtable = (
-        "Container" => \&ContainerArtifact_emitInlines,
-        "Class"     => \&ClassArtifact_emitInlines,
-        "Interface" => \&InterfaceArtifact_emitInlines,
+        "Container" => \&ContainerArtifact_emitPrototypes,
+        "Class"     => \&ClassArtifact_emitPrototypes,
+        "Interface" => \&InterfaceArtifact_emitPrototypes,
     );
-    my $f = $vtable{$artifact->{itype}};
-    die "Bad artifact passed to Artifact_emitInlines '$artifact->{itype}'" unless defined($f);
-    $f->($artifact, $out);
-}
 
-sub Artifact_emitInterfaceMethods {
-    my ($artifact, $out, $api) = @_;
-    if (InterfaceArtifact_isa($artifact)) {
-        InterfaceArtifact_emitInterfaceMethods($artifact, $out, $api);
+    for my $artifact (@{$self->{artifacts}}) {
+        my $f = $vtable{$artifact->{itype}};
+        die "Bad artifact passed to ArtifactList_emitStruct '$artifact->{itype}'" unless defined($f);
+        $f->($artifact, $out);
     }
 }
 
-sub Artifact_emitLifecyclePrototype {
-    my ($artifact, $out, $api, $artifactMap) = @_;
-    if (ClassArtifact_isa($artifact)) {
-        ClassArtifact_emitLifecyclePrototype($artifact, $out);
+sub ArtifactList_emitFunctions {
+    my ($self, $out) = @_;
+    my %vtable = (
+        "Container" => \&ContainerArtifact_emitFunctions,
+        "Class"     => \&ClassArtifact_emitFunctions,
+        "Interface" => \&InterfaceArtifact_emitFunctions,
+    );
+
+    for my $artifact (@{$self->{artifacts}}) {
+        my $f = $vtable{$artifact->{itype}};
+        die "Bad artifact passed to ArtifactList_emitStruct '$artifact->{itype}'" unless defined($f);
+        $f->($artifact, $out);
     }
 }
 
-sub Artifact_emitLifecycle {
-    my ($artifact, $out, $api, $artifactMap) = @_;
-    if (ClassArtifact_isa($artifact)) {
-        ClassArtifact_emitLifecycle($artifact, $out, $api, $artifactMap);
-    }
-}
-
+##
+## C A L L E D
+##
 sub Called_new {
     return {itype => "Called"};
 }
@@ -2498,6 +2446,10 @@ sub Called_is {
     return $self->{allUsed} || $self->{used}{$className}{$methodName};  
 }
 
+
+##
+## A P I
+##
 sub Api_new {
     return {itype => 'Api'};
 }
@@ -2547,6 +2499,10 @@ sub Api_definedCall {
     return $self->{definedCalls}{$className}{$methodName};
 }
 
+
+##
+## M A I N
+##
 sub Main_handleArgs {
     my @beforeArgs = @ARGV;
     my @afterArgs;
@@ -2599,6 +2555,13 @@ sub Main_emitWarning {
     for my $i (0 .. 9) {
         print {$out} "// *** DO NOT MODIFY THIS FILE generated $gNow ***\n";
     }
+}
+
+sub Main_emitArrayGuts {
+    my ($out) = @_;
+    Expand_emit($out, ['Predefined:struct'], {TYPENAME=>"Array"});
+    Expand_emit($out, ['Array:struct'], {TYPENAME=>"Array", REFNAME=>"char"});
+    Util_copyFile("$gMasterSourceDir/array.c", $out);
 }
 
 sub Main_readIgnores {
@@ -2660,37 +2623,37 @@ sub Main_main {
     
     my $coverage = Coverage_new($gGenerateCoverage);
 
+    ##
     ## Let's write the application
+    ##
     open my $out, ">", $outFile or die "Failed to open $outFile";
     Main_emitWarning($out);
     Coverage_writePreamble($coverage, $out);
 
     ## Write array support
-    ArtifactList_writeArrayGuts($artifactList, $out);
+    Main_writeArrayGuts($artifactList, $out);
 
     ## Structs
     ArtifactList_emitTypedefs($artifactList, $out);
     ArtifactList_emitStructs($artifactList, $out);
 
+    ## Interface stuff
+    ArtifactList_emitInterfacePreamble($artifactList, $out);
+
     ## Function prototypes
-    ArtifactList_emitLifecylePrototype($artifactList, $out);
+    ArtifactList_emitPrototypes($artifactList, $out);
     Api_emitPrototypes($api, $out);
     
-    ArtifactList_emitInterfaceDefines($artifactList, $out);
-    ArtifactList_emitInlines($artifactList, $out);
-    ArtifactList_emitLifecyle($artifactList, $out, $api);
+    ## Copy user code
     for my $tFile (@templateFiles) {
         my $templateFile = TemplateFile_new($tFile);
-        TemplateFile_copyHeader($templateFile, $out);   
+        TemplateFile_copyUserCode($templateFile, $out, $coverage);
     }
-    ArtifactList_emitInterfaceMethods($artifactList, $out, $api);
-    for my $tFile (@templateFiles) {
-        my $templateFile = TemplateFile_new($tFile);
-        TemplateFile_copyTemplateCode($templateFile, $out, $coverage);  
-    }
+
+    ## Resolve coverage
     Coverage_writeFinalize($coverage, $out);
+
     close($out);
-    
     return;
 }   
 

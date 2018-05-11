@@ -1199,43 +1199,44 @@ APIF void FloatSequence_compactFinish(FloatSequence *self, Ticks endgroupTime, T
         // Methods to play sequences
         {
             "name": "start",
-            "retVal": "void",
+            "valReturn": "void",
             "args": ["Ticks", "Ticks", "TimedPq *", "RecordBuffer *", "Error *"]
+            //"args": [["val", "Ticks"], ["val", "Ticks"], ["ref", "TimedPq"], ["ref", "RecordBuffer"], ["ref", "Error *"]],
         },
         {
             "name": "drive",
-            "retVal": "void",
+            "valReturn": "void",
             "args": ["Ticks", "TimedPq *", "Error *"]
         },
         {
             "name": "stop",
-            "retVal": "void",
+            "valReturn": "void",
             "args": ["Ticks", "Error *"]
         },
         {
             "name": "padNoteOff",
-            "retVal": "void",
+            "valReturn": "void",
             "args": ["Ticks", "Error *"]
         },
 
         // Configure sequence
         {
             "name": "setCycle",
-            "retVal": "void",
+            "valReturn": "void",
             "args": ["bool"]
         },
 
         // Lifecycle
         {
             "name": "free",
-            "retVal": "void",
+            "valReturn": "void",
             "args": []
         },
 
         // Compaction
         {
             "name": "compactNew",
-            "retVal": "Sequence *",
+            "refReturn": "Sequence",
             "args": ["Ticks"],
 
             // This is temporary
@@ -1243,7 +1244,7 @@ APIF void FloatSequence_compactFinish(FloatSequence *self, Ticks endgroupTime, T
         },
         {
             "name": "compactConcat",
-            "retVal": "void",
+            "valReturn": "void",
             "args": ["Sequence *", "Error *"],
 
             // This is temporary
@@ -1251,7 +1252,7 @@ APIF void FloatSequence_compactFinish(FloatSequence *self, Ticks endgroupTime, T
         },
         {
             "name": "compactSortEvents",
-            "retVal": "void",
+            "valReturn": "void",
             "args": [],
 
             // This is temporary
@@ -1259,7 +1260,7 @@ APIF void FloatSequence_compactFinish(FloatSequence *self, Ticks endgroupTime, T
         },  
         {
             "name": "compactComputeSequenceLength",
-            "retVal": "Ticks",
+            "valReturn": "Ticks",
             "args": [],
 
             // This is temporary
@@ -1267,7 +1268,7 @@ APIF void FloatSequence_compactFinish(FloatSequence *self, Ticks endgroupTime, T
         },   
         {
             "name": "compactFinish",
-            "retVal": "void",
+            "valReturn": "void",
             "args": ["Ticks", "Ticks", "Error *"],
 
             // This is temporary
