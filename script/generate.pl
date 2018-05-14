@@ -1632,46 +1632,46 @@ sub ClassArtifact_emitLifecycle {
             );
 
             if (defined($refName)) {
-                my $isInterface = $artifactMap->{$typeName}{itype} eq 'Interface' : 0;
+                my $isInterface = $artifactMap->{$refName}{itype} eq 'Interface' ? 1 : 0;
                 if ($isInterface) {
                     if ($t eq 'new') {
-                        Expand_emit($out, ["Lifecycle:${t}FieldPointer"], $dict);
+                        Expand_emit($out, ["Lifecycle:${t}FieldPointer"], \%dict);
                     } elsif ($t eq 'decRef') {
-                        Expand_emit($out, ["Lifecycle:decRefFieldKnown"], $dict);
+                        Expand_emit($out, ["Lifecycle:decRefFieldKnown"], \%dict);
                     } elsif ($t eq 'toJson' || $t eq 'fromJson' || $t eq 'clone') {
-                        Expand_emit($out, ["Lifecycle:${t}Reference"], $dict);
+                        Expand_emit($out, ["Lifecycle:${t}Reference"], \%dict);
                     } 
                 } else { ## !isInterface
                     if ($t eq 'new' || $t eq 'decRef') {
-                        Expand_emit($out, ["Lifecycle:${t}FieldKnown"], $dict);
+                        Expand_emit($out, ["Lifecycle:${t}FieldKnown"], \%dict);
                     } elsif ($t eq 'toJson' || $t eq 'fromJson') {
                         if ($refName eq 'String') {
-                            Expand_emit($out, ["Lifecycle:${t}String"], $dict); 
+                            Expand_emit($out, ["Lifecycle:${t}String"], \%dict); 
                         } elsif ($refName eq 'Symbol') {
-                            Expand_emit($out, ["Lifecycle:${t}Symbol"], $dict); 
+                            Expand_emit($out, ["Lifecycle:${t}Symbol"], \%dict); 
                         } else {
-                            Expand_emit($out, ["Lifecycle:${t}Reference"], $dict);      
+                            Expand_emit($out, ["Lifecycle:${t}Reference"], \%dict);      
                         }
                     } elsif ($t eq 'clone') {
-                        Expand_emit($out, ["Lifecycle:cloneReference"], $dict);
+                        Expand_emit($out, ["Lifecycle:cloneReference"], \%dict);
                     }
                 } 
             } else {
                 if ($t eq 'new') {
                     my $isPointer = ($valName =~ /\*/);
                     if ($isPointer) {
-                        Expand_emit($out, ["Lifecycle:newFieldPointer"], $dict);
+                        Expand_emit($out, ["Lifecycle:newFieldPointer"], \%dict);
                     } else {
-                        Expand_emit($out, ["Lifecycle:newFieldValue"], $dict);
+                        Expand_emit($out, ["Lifecycle:newFieldValue"], \%dict);
                     }
                 } elsif ($t eq 'toJson' || $t eq 'fromJson') {
                     ## NOTE: if we don't know the builtin type, we do not serialize/deserialize
                     my $btype = $builtinTypes{$valName};
                     if (defined($btype)) {
-                        Expand_emit($out, ["Lifecycle:${t}${btype}"], $dict);
+                        Expand_emit($out, ["Lifecycle:${t}${btype}"], \%dict);
                     }
                 } elsif ($t eq 'clone') {
-                    Expand_emit($out, ["Lifecycle:cloneValue"], $dict);
+                    Expand_emit($out, ["Lifecycle:cloneValue"], \%dict);
                 }
             }
         }
