@@ -4,6 +4,7 @@ use lib "$ENV{HOME}/CeeSeq/script/lib";
 use JSON::Tiny qw(decode_json encode_json);
 use POSIX qw(strftime);
 use Data::Dumper;
+use Carp;
 
 my $gVerbose             = 1;
 my $gApplicationName     = undef;
@@ -51,7 +52,7 @@ ENDxxxxxxxxxx
         key =>    'Type:getterValueProto',
         symbol => '${TYPENAME}_${FIELDNAME}',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline ${VALNAME} ${TYPENAME}_${FIELDNAME}(${TYPENAME} *self){return self->${FIELDNAME};}
+            @static inline ${FIELDTYPE} ${TYPENAME}_${FIELDNAME}(${TYPENAME} *self){return self->${FIELDNAME};}
 ENDxxxxxxxxxx
     },
 
@@ -65,7 +66,7 @@ ENDxxxxxxxxxx
         key =>    'Type:getterReferenceProto',
         symbol => '${TYPENAME}_${FIELDNAME}',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline ${REFNAME} *${TYPENAME}_${FIELDNAME}(${TYPENAME} *self){return self->${FIELDNAME};}
+            @static inline ${FIELDTYPE} *${TYPENAME}_${FIELDNAME}(${TYPENAME} *self){return self->${FIELDNAME};}
 ENDxxxxxxxxxx
     },
 
@@ -79,7 +80,7 @@ ENDxxxxxxxxxx
         key =>    'Type:setterValueProto',
         symbol => '${TYPENAME}_${SETNAME}',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @static inline void ${TYPENAME}_${SETNAME}(${TYPENAME} *self, ${VALNAME} value){self->${FIELDNAME} = value;}
+            @static inline void ${TYPENAME}_${SETNAME}(${TYPENAME} *self, ${FIELDTYPE} value){self->${FIELDNAME} = value;}
 ENDxxxxxxxxxx
     },
 
@@ -128,7 +129,6 @@ ENDxxxxxxxxxx
             @typedef struct ${TYPENAME}FIt_t {
             @   ${TYPENAME} *arr;
             @   bool remove;
-            @
             @   int index;
             @   ${REFNAME} *var;
             @} ${TYPENAME}FIt;
@@ -142,7 +142,6 @@ ENDxxxxxxxxxx
             @typedef struct ${TYPENAME}RIt_t {
             @   ${TYPENAME} *arr;
             @   bool remove;
-            @
             @   int index;
             @   ${REFNAME} *var;
             @} ${TYPENAME}RIt;
@@ -412,8 +411,7 @@ ENDxxxxxxxxxx
     {
         key =>    'Array:at',
         symbol => '${TYPENAME}_at',
-        tmpl   => <<'ENDxxxxxxxxxx',
-ENDxxxxxxxxxx
+        tmpl   => '',
     },
     {
         key =>    'Array:atProto',
@@ -438,7 +436,25 @@ ENDxxxxxxxxxx
         key =>    'Array:setProto',
         symbol => '${TYPENAME}_set',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @void ${TYPENAME}_setProto(${TYPENAME} *arr, int index, ${REFNAME} *elem, Error *err);
+            @void ${TYPENAME}_set(${TYPENAME} *arr, int index, ${REFNAME} *elem, Error *err);
+ENDxxxxxxxxxx
+    },
+
+    {
+        key =>    'Array:popDecRef',
+        symbol => '${TYPENAME}_popDecRef',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @void ${TYPENAME}_popDecRef(${TYPENAME} *arr, Error *err) {
+            @   Array_popNCheck(arr, 1, err);
+            @   Array_popN((Array*)arr, 1, NULL, ${DECREF}, ${ELEMSIZE});
+            @}
+ENDxxxxxxxxxx
+    },
+    {
+        key =>    'Array:popDecRefProto',
+        symbol => '${TYPENAME}_popDecRef',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @void ${TYPENAME}_pop(${TYPENAME} *arr, Error *err);
 ENDxxxxxxxxxx
     },
 
@@ -446,10 +462,10 @@ ENDxxxxxxxxxx
         key =>    'Array:pop',
         symbol => '${TYPENAME}_pop',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @${REFNAME} *${TYPENAME}_pop(${TYPENAME} *arr, Error *err) {
+            @${REFNAME} *${TYPENAME}_popDecRef(${TYPENAME} *arr, Error *err) {
             @   Array_popNCheck(arr, 1, err);
             @   ${REFNAME} *p = NULL;
-            @   Array_popN((Array*)arr, 1, &p, ${DECREF}, ${ELEMSIZE});
+            @   Array_popN((Array*)arr, 1, &p, NULL, ${ELEMSIZE});
             @   return p;
             @}
 ENDxxxxxxxxxx
@@ -461,6 +477,7 @@ ENDxxxxxxxxxx
             @${REFNAME} *${TYPENAME}_pop(${TYPENAME} *arr, Error *err);
 ENDxxxxxxxxxx
     },
+
 
     {
         key =>    'Array:push',
@@ -626,6 +643,14 @@ ENDxxxxxxxxxx
             @}          
 ENDxxxxxxxxxx
     },
+    {
+        key =>    'Array:indirectResolveProto',
+        symbol => '${COMPARE}IndirectResolve',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @int ${COMPAREINDIRECT}(${REFNAME} **left, ${REFNAME} **right);
+ENDxxxxxxxxxx
+    },
+
 
     {
         key =>    'Array:binInsert',
@@ -818,7 +843,7 @@ ENDxxxxxxxxxx
         key =>    'Struct:refField',
         symbol => '',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @    ${REFNAME} *${NAME};
+            @    ${TYPE} *${REFNAME};
 ENDxxxxxxxxxx
     },
 
@@ -826,7 +851,7 @@ ENDxxxxxxxxxx
         key =>    'Struct:valField',
         symbol => '',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @    ${VALNAME} ${NAME};
+            @    ${TYPE} ${VALNAME};
 ENDxxxxxxxxxx
     },
 
@@ -1045,6 +1070,28 @@ ENDxxxxxxxxxx
             @   self->refCount    = 1;
 ENDxxxxxxxxxx
     },
+
+    {
+        key =>    'Lifecycle:newStartPooled',
+        symbol => '',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @Array ${TYPENAME}_pool    = {-1, 1};
+            @int ${TYPENAME}_poolMiss  = 0;
+            @${TYPENAME} *${TYPENAME}_new()
+            @{
+            @   ${TYPENAME} *self = NULL;
+            @   if (Array_len(&${TYPENAME}_pool) > 0) {
+            @       self = Mem_malloc(sizeof(${TYPENAME}));
+            @       Array_popN(&${TYPENAME}_pool, 1, &self, NULL, sizeof(void *));
+            @   } else {
+            @       self = Mem_malloc(sizeof(${TYPENAME}));
+            @       ${TYPENAME}_poolMiss++;
+            @   }
+            @   self->itype       = ${TYPENAME}_itype;
+            @   self->refCount    = 1;
+ENDxxxxxxxxxx
+    },
+
 
     {
         key =>    'Lifecycle:newFieldValue',
@@ -1392,7 +1439,7 @@ ENDxxxxxxxxxx
             @void ${TYPENAME}_decRef(${TYPENAME} *self);
             @${TYPENAME} *${TYPENAME}_fromJson(JSON_Value *jvalue, Error *err);
             @JSON_Value *${TYPENAME}_toJson(${TYPENAME} *self, Error *err);
-            ${TYPENAME} *${TYPENAME}_clone(${TYPENAME} *self);
+            @${TYPENAME} *${TYPENAME}_clone(${TYPENAME} *self);
 ENDxxxxxxxxxx
     },
 
@@ -1553,19 +1600,20 @@ sub ClassArtifact_emitAccessors {
     my ($artifact, $out, $proto) = @_;
     my $typeName = $artifact->{typeName};
     for my $field (@{$artifact->{fields}}) {
-        next if $field->{name} eq 'itype';
-        my $rtype   = $field->{type};
         my $refName = $field->{refName};
         my $valName = $field->{valName};
         my $name    = defined($refName) ? $refName : $valName;
+        next if $name eq 'itype' || $name eq 'refCount';
+
+        my $rtype   = $field->{type};
         my ($first, $rest) = ($name =~ /^(.)(.*)$/);
         die "INTERNAL ERROR" unless defined($rest);
         my $setName = 'set' . uc($first) . $rest;
     
         my %dict = (
             TYPENAME  => $typeName, 
-            VALNAME   => $valName,
-            REFNAME   => $refName,
+            FIELDNAME => $name,
+            FIELDTYPE => $rtype,
             SETNAME   => $setName,
         );
         if (defined($refName)) {
@@ -1612,12 +1660,13 @@ sub ClassArtifact_emitLifecycle {
         } 
 
         for my $field (@{$self->{fields}}) {
-            my $name        = $field->{name};
+            my $refName   = $field->{refName};
+            my $valName   = $field->{valName};
+            my $name      = defined($refName) ? $refName : $valName; 
             next if $name eq 'itype' || $name eq 'refCount';
 
-            my $refName  = $field->{refName};
-            my $valName  = $field->{valName};
-            die "Unknown refName $refName" unless !defined($refName) || defined($artifactMap->{$refName});
+            my $fieldType = $field->{type};
+            die "Unknown field type '$fieldType' in type '$selfTypeName'" unless !defined($refName) || defined($artifactMap->{$fieldType});
 
             my $noSerial = defined($field->{lifecycle}) && $field->{lifecycle} eq 'noSerial' ? 1 : 0;
             if ($noSerial && $t =~ /Json$/) {
@@ -1626,7 +1675,7 @@ sub ClassArtifact_emitLifecycle {
             
 
             my %dict = (
-                FIELDTYPE => defined($refName) ? $refName : $valName, 
+                FIELDTYPE => $fieldType, 
                 FIELDNAME => $name, 
                 TYPENAME  => $selfTypeName,
             );
@@ -1688,11 +1737,11 @@ sub ClassArtifact_emitStructs {
     Expand_emit($out, ["Struct:head"], {TYPENAME => $artifact->{typeName}});    
     for my $field (@{$artifact->{fields}}) {
         if (defined($field->{refName})) {
-            Expand_emit($out, ["Struct:refField"], {REFNAME=>$field->{refName}, NAME => $field->{name}});
+            Expand_emit($out, ["Struct:refField"], {REFNAME=>$field->{refName}, TYPE => $field->{type}});
         } elsif (defined($field->{valName})){
-            Expand_emit($out, ["Struct:valField"], {VALNAME=>$field->{valName}, NAME => $field->{name}});
+            Expand_emit($out, ["Struct:valField"], {VALNAME=>$field->{valName}, TYPE => $field->{type}});
         } else {
-            die "Every field must either define refField or valField but $field->{name} does not";
+            Carp::carp "Every field must either define refField or valField but $field->{name} does not";
         }
     }
     Expand_emit($out, ["Struct:tail"], {});
@@ -1757,13 +1806,10 @@ sub InterfaceArtifact_emitInterfaceMethod {
     my @methodArgPairs = @{$method->{args}};
 
     my $forwardError = 1;
-    if (@methodArgs == 0 || $methodArgs[$#methodArgs] !~ m[Error\s*\*]) {
+    if (@methodArgPairs == 0 || $methodArgPairs[$#methodArgPairs][1] !~ m[Error\s*\*]) {
         $forwardError = 0;
-    } else {
-        pop @methodArgs;
-    }
+    } 
 
-    my @argReference;
     my @argWithVariable;
     my @variable;
     my $count = 1;
@@ -1772,12 +1818,11 @@ sub InterfaceArtifact_emitInterfaceMethod {
         
         my $type  = $pair->[0];
         my $ctype = $pair->[1];
+        die "Bad argument to method $ifcName for method $methodName" unless defined($type) && defined($ctype);
         if ($type eq 'ref') {
             push @argWithVariable, "${ctype} *a$count";
-            push @argReference, 1;
         } elsif ($type eq 'val') {
             push @argWithVariable, "$ctype a$count";
-            push @argReference, 0;
         } else {
             die "Unknown type in method argument for $ifcName";
         }
@@ -1786,7 +1831,8 @@ sub InterfaceArtifact_emitInterfaceMethod {
     }
 
     if ($forwardError) {
-        push @variable, "err"
+        push @argWithVariable, "Error *err";
+        push @variable, "err";
     }
 
     my $typedArgs  = "";
@@ -1801,7 +1847,7 @@ sub InterfaceArtifact_emitInterfaceMethod {
         IFCNAME       => $ifcName,
         TYPEDRECIEVER => $classMethod ? "int itype" : "$ifcName *self",
         METHODNAME    => $methodName,
-        DEFRET        => $retPtr ? "NULL" : '0',
+        DEFRET        => $theReturn =~ /\*/ ? "NULL" : '0',
         LISTARGS      => $listArgs,
         TYPEDARGS     => $typedArgs,
         RTYPE         => $theReturn,
@@ -1866,7 +1912,7 @@ sub InterfaceArtifact_emitForeachItype {
 sub InterfaceArtifact_emitStructs {
     my ($artifact, $out) = @_;
     Expand_emit($out, ["Struct:head"], {TYPENAME => $artifact->{typeName}});
-    Expand_emit($out, ["Struct:valField"], {VALNAME=>"int", NAME => "itype");
+    Expand_emit($out, ["Struct:valField"], {VALNAME=>"int", TYPE => "itype"});
     Expand_emit($out, ["Struct:tail"], {});
 }
 
@@ -1891,7 +1937,7 @@ sub InterfaceArtifact_emitFunctions {
 ## C O N T A I N E R
 ##
 sub ContainerArtifact_new {
-    return {itype => 'Container'};
+    return {itype => 'Container', indirectResolve => {}};
 }
 
 sub ContainerArtifact_isa {
@@ -1930,7 +1976,7 @@ sub ContainerArtifact_emitAll {
     if ($proto) {
         @keys = map {"${_}Proto"} @keys;
     }
-    Expand_emitNl($out, \@keys, $dict);
+    Expand_emit($out, \@keys, $dict);
 
     if (defined($binarySearch)) {
         my $usedEmpty = 0;
@@ -1947,15 +1993,21 @@ sub ContainerArtifact_emitAll {
             $dict->{TAG}             = $TAG;
 
             my @keys = (
-                'Array:indirectResolve', 
                 'Array:binInsert', 'Array:binRemove', 'Array:binSearch', 'Array:sort',
                 'Array:pqSort', 'Array:pqPush', 'Array:pqPop', 'Array:pqPopDecRef', 'Array:pqPeek',
             );
+
+            ## Only include COMPAREINDIRECT if it hasn't been generated yet.
+            my $indirectKey = $dict->{COMPAREINDIRECT} . ($proto ? 'Proto' : '');
+            if (!defined($self->{indirectResolve}{$indirectKey})) {
+                push @keys, 'Array:indirectResolve';
+                $self->{indirectResolve}{$indirectKey} = 1;
+            }
             
             if ($proto) {
                 @keys = map {"${_}Proto"} @keys;
             }
-            Expand_emitNl($out, \@keys, $dict);
+            Expand_emit($out, \@keys, $dict);
         }
     }
 }
@@ -1964,10 +2016,10 @@ sub ContainerArtifact_emitStructs {
     my ($self, $out) = @_;
     my $TYPENAME     = $self->{typeName};
     my $REFNAME      = $self->{refName};
-    my %dict = {
+    my %dict = (
         TYPENAME => $TYPENAME, 
         REFNAME  => $REFNAME
-    };
+    );
     
     my @keys = ("Array:struct", 'ArrayFIt:struct', 'ArrayRIt:struct');
     Expand_emitNl($out, \@keys, \%dict);
@@ -2341,7 +2393,7 @@ sub ArtifactList_emitInterfacePreamble {
     }
 
     ## Write toString
-    Expand_emit($out, ['Interface:protoToString'], {}});
+    Expand_emit($out, ['Interface:protoToString'], {});
     Expand_emit($out, ['Interface:startFunction'], {SWITCHTARGET => "itype"});
     for my $artifact (@{$self->{artifacts}}) {
         next unless ClassArtifact_isa($artifact);
@@ -2381,7 +2433,7 @@ sub ArtifactList_emitPrototypes {
 }
 
 sub ArtifactList_emitFunctions {
-    my ($self, $out) = @_;
+    my ($self, $out, $api) = @_;
     my %vtable = (
         "Container" => \&ContainerArtifact_emitFunctions,
         "Class"     => \&ClassArtifact_emitFunctions,
@@ -2391,7 +2443,7 @@ sub ArtifactList_emitFunctions {
     for my $artifact (@{$self->{artifacts}}) {
         my $f = $vtable{$artifact->{itype}};
         die "Bad artifact passed to ArtifactList_emitStruct '$artifact->{itype}'" unless defined($f);
-        $f->($artifact, $out);
+        $f->($artifact, $out, $api, $self->{artifactMap});
     }
 }
 
@@ -2631,7 +2683,7 @@ sub Main_main {
     Coverage_writePreamble($coverage, $out);
 
     ## Write array support
-    Main_writeArrayGuts($artifactList, $out);
+    Main_emitArrayGuts($out);
 
     ## Structs
     ArtifactList_emitTypedefs($artifactList, $out);
@@ -2643,7 +2695,10 @@ sub Main_main {
     ## Function prototypes
     ArtifactList_emitPrototypes($artifactList, $out);
     Api_emitPrototypes($api, $out);
-    
+
+    ## Functions
+    ArtifactList_emitFunctions($artifactList, $out, $api);
+
     ## Copy user code
     for my $tFile (@templateFiles) {
         my $templateFile = TemplateFile_new($tFile);

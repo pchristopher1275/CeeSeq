@@ -3,12 +3,12 @@
    {
       "typeName": "Arguments",
       "fields": [
-         {"name": "s1", "type": "Symbol *"},
-         {"name": "i1", "type": "long"},
-         {"name": "i2", "type": "long"},
+         {"valName": "s1", "type": "Symbol *"},
+         {"valName": "i1", "type": "long"},
+         {"valName": "i2", "type": "long"},
 
-         {"name": "ivalue", "type": "long"},
-         {"name": "inlet", "type": "long"}
+         {"valName": "ivalue", "type": "long"},
+         {"valName": "inlet", "type": "long"}
       ]
    }
 @end
@@ -16,17 +16,18 @@
 @interface
    {
       "typeName": "Marshal",
-      "fields": [],
       "methods": [
          {
             "name": "process",
-            "retVal": "void",
-            "args": ["Arguments *", "long", "Atom *", "Error *"]
+            "valReturn": "void",
+            // "args": ["Arguments *", "long", "Atom *", "Error *"]
+            "args": [["ref", "Arguments"], ["val", "long"], ["val", "Atom *"], ["val", "Error *"]]
          },
          {
             "name": "zeroArgs",
-            "retVal": "void",
-            "args": ["Arguments *"]
+            "valReturn": "void",
+            // "args": ["Arguments *"]
+            "args": [["ref", "Arguments"]]
          }
       ]
    }
@@ -35,7 +36,20 @@
 @type 
    {
       "typeName": "MarshalSi",
-      "aliasFor": "Marshal",
+      "fields": [
+         {
+            "valName": "selector",
+            "type": "Symbol *"
+         },
+         {
+            "valName": "portId",
+            "type": "Symbol *"
+         },
+         {
+            "valName": "inlet",
+            "type": "int"
+         }
+      ],
       "implements": ["Marshal"]
    }
 @end
@@ -43,7 +57,20 @@
 @type
    { 
       "typeName": "MarshalSii",
-      "aliasFor": "Marshal",
+       "fields": [
+          {
+            "valName": "selector",
+            "type": "Symbol *"
+         },
+         {
+            "valName": "portId",
+            "type": "Symbol *"
+         },
+         {
+            "valName": "inlet",
+            "type": "int"
+         }
+      ],
       "implements": ["Marshal"]
    }
 @end
@@ -51,7 +78,20 @@
 @type
    { 
       "typeName": "MarshalSs",
-      "aliasFor": "Marshal",
+      "fields": [
+         {
+            "valName": "selector",
+            "type": "Symbol *"
+         },
+         {
+            "valName": "portId",
+            "type": "Symbol *"
+         },
+         {
+            "valName": "inlet",
+            "type": "int"
+         }
+      ],
       "implements": ["Marshal"]
    }
 @end
@@ -59,56 +99,40 @@
 @interface
    {
       "typeName": "Dispatch",
-      "fields": [
-         {
-            "name": "selector",
-            "type": "Symbol *"
-         },
-         {
-            "name": "portId",
-            "type": "Symbol *"
-         },
-         {
-            "name": "inlet",
-            "type": "int"
-         },
-         {
-            "name": "marshal",
-            "type": "Marshal *"
-         }
-      ],
       "methods": [
          {
             "name": "exec",
-            "retVal": "void",
-            "args": ["Hub *", "Arguments *", "Error *"]
+            "valReturn": "void",
+            // "args": ["Hub *", "Arguments *", "Error *"]
+            "args": [["ref", "Hub"], ["ref", "Arguments"], ["val", "Error *"]]
          },
          {
             "name": "create",
-            "itypeReceiver": true,
-            "retVal": "Dispatch *",
+            "classMethod": true,
+            "refReturn": "Dispatch",
             "args": []
          },
          {
             "name": "free",
-            "retVal": "void",
+            "valReturn": "void",
             "args": [],
             "defMethod": "Dispatch_freeDefault"
          },
          {
-            "name": "initDispatchPtAr",
-            "retVal": "void",
-            "args": ["DispatchPtAr *", "Error *"],
+            "name": "initDispatchAr",
+            "valReturn": "void",
+            // "args": ["DispatchAr *", "Error *"],
+            "args": [["ref", "DispatchAr"], ["val", "Error *"]],
             "absentOk": true,
-            "itypeReceiver": true,
-            "defMethod": "Dispatch_initDispatchPtArDefault"
+            "classMethod": true,
+            "defMethod": "Dispatch_initDispatchArDefault"
          }
       ],
       "containers": [
          {
             "type": "array",
-            "typeName": "DispatchPtAr", 
-            "elemName": "Dispatch *",
+            "typeName": "DispatchAr", 
+            "refName": "Dispatch",
             "binarySearch": [
                {"compare": "Dispatch_cmp"}
             ]
@@ -119,43 +143,128 @@
 @end
 
 @type
-   {
-      "typeName": "IncrementFrameDispatch",
-      "aliasFor": "Dispatch",
-      "implements": ["Dispatch"]
-   }
+{
+   "typeName": "IncrementFrameDispatch",
+   "fields": [
+      {
+         "valName": "selector",
+         "type": "Symbol *"
+      },
+      {
+         "valName": "portId",
+         "type": "Symbol *"
+      },
+      {
+         "valName": "inlet",
+         "type": "int"
+      },
+      {
+         "valName": "marshal",
+         "type": "Marshal *"
+      }
+   ],
+   "implements": ["Dispatch"]
+}
 @end
 
 @type
-   {
-      "typeName": "DecrementFrameDispatch",
-      "aliasFor": "Dispatch",
-      "implements": ["Dispatch"]
-   }
+{
+   "typeName": "DecrementFrameDispatch",
+   "fields": [
+      {
+         "valName": "selector",
+         "type": "Symbol *"
+      },
+      {
+         "valName": "portId",
+         "type": "Symbol *"
+      },
+      {
+         "valName": "inlet",
+         "type": "int"
+      },
+      {
+         "valName": "marshal",
+         "type": "Marshal *"
+      }
+   ],
+   "implements": ["Dispatch"]
+}
 @end
 
 @type
-   {
-      "typeName": "SelectNextPushedPadDispatch",
-      "aliasFor": "Dispatch",
-      "implements": ["Dispatch"]
-   }
+{
+   "typeName": "SelectNextPushedPadDispatch",
+   "fields": [
+      {
+         "valName": "selector",
+         "type": "Symbol *"
+      },
+      {
+         "valName": "portId",
+         "type": "Symbol *"
+      },
+      {
+         "valName": "inlet",
+         "type": "int"
+      },
+      {
+         "valName": "marshal",
+         "type": "Marshal *"
+      }
+   ],
+   "implements": ["Dispatch"]
+}
 @end
 
 @type
-   {
-      "typeName": "MidiFileDropDispatch",
-      "aliasFor": "Dispatch",
-      "implements": ["Dispatch"]
-   }
+{
+   "typeName": "MidiFileDropDispatch",
+   "fields": [
+      {
+         "valName": "selector",
+         "type": "Symbol *"
+      },
+      {
+         "valName": "portId",
+         "type": "Symbol *"
+      },
+      {
+         "valName": "inlet",
+         "type": "int"
+      },
+      {
+         "valName": "marshal",
+         "type": "Marshal *"
+      }
+   ],
+   "implements": ["Dispatch"]
+}
 @end
 
 @type
-   {
-      "typeName": "ManageChokeGroupsDispatch",
-      "aliasFor": "Dispatch",
-      "implements": ["Dispatch"]
-   }
+{
+   "typeName": "ManageChokeGroupsDispatch",
+   "fields": [
+      {
+         "valName": "selector",
+         "type": "Symbol *"
+      },
+      {
+         "valName": "portId",
+         "type": "Symbol *"
+      },
+      {
+         "valName": "inlet",
+         "type": "int"
+      },
+      {
+         "valName": "marshal",
+         "type": "Marshal *"
+      }
+   ],
+   "implements": ["Dispatch"]
+}
 @end
 
 
@@ -330,11 +439,11 @@ APIF Dispatch *ManageChokeGroupsDispatch_create(int itype) {
    return self;
 }
 
-APIF void ManageChokeGroupsDispatch_initDispatchPtAr(int itype, DispatchPtAr *disPtAr, Error *ignored) {
+APIF void ManageChokeGroupsDispatch_initDispatchAr(int itype, DispatchAr *disPtAr, Error *ignored) {
    for (int i = 0; i < 3; i++) {
       Dispatch *dis = ManageChokeGroupsDispatch_create(itype);
       dis->inlet    = i;
-      DispatchPtAr_push(disPtAr, dis);
+      DispatchAr_push(disPtAr, dis);
    }
    return;
 }
@@ -390,19 +499,19 @@ APIF void Dispatch_freeDefault(Dispatch *d) {
    Mem_free(d);
 }
 
-APIF void Dispatch_initDispatchPtArDefault(int itype, DispatchPtAr *disPtAr, Error *err) {
+APIF void Dispatch_initDispatchArDefault(int itype, DispatchAr *disPtAr, Error *err) {
    Dispatch *dis = Dispatch_create(itype, err);
    Error_returnVoidOnError(err);
-   DispatchPtAr_push(disPtAr, dis);
+   DispatchAr_push(disPtAr, dis);
 }
 
-APIF void DispatchPtAr_populate(DispatchPtAr *self, Error *err) {
-   DispatchPtAr_truncate(self);
+APIF void DispatchAr_populate(DispatchAr *self, Error *err) {
+   DispatchAr_truncate(self);
    Dispatch_foreachIType(itype) {
-      Dispatch_initDispatchPtAr(itype, self, err);
+      Dispatch_initDispatchAr(itype, self, err);
       Error_maypost(err);
    }
-   DispatchPtAr_sort(self);
+   DispatchAr_sort(self);
 }
 
 

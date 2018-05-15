@@ -1,263 +1,131 @@
-// *** DO NOT MODIFY THIS FILE generated 04/20/2018 10:20:35 ***
-// *** DO NOT MODIFY THIS FILE generated 04/20/2018 10:20:35 ***
-// *** DO NOT MODIFY THIS FILE generated 04/20/2018 10:20:35 ***
-// *** DO NOT MODIFY THIS FILE generated 04/20/2018 10:20:35 ***
-// *** DO NOT MODIFY THIS FILE generated 04/20/2018 10:20:35 ***
-// *** DO NOT MODIFY THIS FILE generated 04/20/2018 10:20:35 ***
-// *** DO NOT MODIFY THIS FILE generated 04/20/2018 10:20:35 ***
-// *** DO NOT MODIFY THIS FILE generated 04/20/2018 10:20:35 ***
-// *** DO NOT MODIFY THIS FILE generated 04/20/2018 10:20:35 ***
-// *** DO NOT MODIFY THIS FILE generated 04/20/2018 10:20:35 ***
+// *** DO NOT MODIFY THIS FILE generated 05/15/2018 15:45:21 ***
+// *** DO NOT MODIFY THIS FILE generated 05/15/2018 15:45:21 ***
+// *** DO NOT MODIFY THIS FILE generated 05/15/2018 15:45:21 ***
+// *** DO NOT MODIFY THIS FILE generated 05/15/2018 15:45:21 ***
+// *** DO NOT MODIFY THIS FILE generated 05/15/2018 15:45:21 ***
+// *** DO NOT MODIFY THIS FILE generated 05/15/2018 15:45:21 ***
+// *** DO NOT MODIFY THIS FILE generated 05/15/2018 15:45:21 ***
+// *** DO NOT MODIFY THIS FILE generated 05/15/2018 15:45:21 ***
+// *** DO NOT MODIFY THIS FILE generated 05/15/2018 15:45:21 ***
+// *** DO NOT MODIFY THIS FILE generated 05/15/2018 15:45:21 ***
 const bool Coverage_activated = false;
 const char **Coverage_array   = NULL;
-struct Arguments_t;
-typedef struct Arguments_t Arguments;
-struct AtomAr_t;
-typedef struct AtomAr_t AtomAr;
-struct AtomArAr_t;
-typedef struct AtomArAr_t AtomArAr;
-struct BendOutlet_t;
-typedef struct BendOutlet_t BendOutlet;
-struct BinFile_t;
-typedef struct BinFile_t BinFile;
-struct BinFilePayload_t;
-typedef struct BinFilePayload_t BinFilePayload;
-struct CcOutlet_t;
-typedef struct CcOutlet_t CcOutlet;
-typedef struct Dispatch_t DecrementFrameDispatch;
-struct Dispatch_t;
-typedef struct Dispatch_t Dispatch;
-struct DispatchPtAr_t;
-typedef struct DispatchPtAr_t DispatchPtAr;
-struct DropDown_t;
-typedef struct DropDown_t DropDown;
-struct FloatEvent_t;
-typedef struct FloatEvent_t FloatEvent;
-struct FloatEventAr_t;
-typedef struct FloatEventAr_t FloatEventAr;
-struct FloatSequence_t;
-typedef struct FloatSequence_t FloatSequence;
-struct Hub_t;
-typedef struct Hub_t Hub;
-typedef struct Dispatch_t IncrementFrameDispatch;
-struct IndexedOff_t;
-typedef struct IndexedOff_t IndexedOff;
-struct IndexedOffAr_t;
-typedef struct IndexedOffAr_t IndexedOffAr;
-struct IntAr_t;
-typedef struct IntAr_t IntAr;
-struct MEventAr_t;
-typedef struct MEventAr_t MEventAr;
-typedef struct Dispatch_t ManageChokeGroupsDispatch;
-struct Marshal_t;
-typedef struct Marshal_t Marshal;
-typedef struct Marshal_t MarshalSi;
-typedef struct Marshal_t MarshalSii;
-typedef struct Marshal_t MarshalSs;
-typedef struct Dispatch_t MidiFileDropDispatch;
-struct Midiseq_t;
-typedef struct Midiseq_t Midiseq;
-struct MusicalContext_t;
-typedef struct MusicalContext_t MusicalContext;
-struct NoteEvent_t;
-typedef struct NoteEvent_t NoteEvent;
-struct NoteEventAr_t;
-typedef struct NoteEventAr_t NoteEventAr;
-struct NoteManager_t;
-typedef struct NoteManager_t NoteManager;
-struct NoteOutlet_t;
-typedef struct NoteOutlet_t NoteOutlet;
-struct NoteSequence_t;
-typedef struct NoteSequence_t NoteSequence;
-struct NullOutlet_t;
-typedef struct NullOutlet_t NullOutlet;
-struct Outlet_t;
-typedef struct Outlet_t Outlet;
-struct OutletSpecifier_t;
-typedef struct OutletSpecifier_t OutletSpecifier;
-struct Pad_t;
-typedef struct Pad_t Pad;
-struct PadAr_t;
-typedef struct PadAr_t PadAr;
-struct PadList_t;
-typedef struct PadList_t PadList;
-struct PadPtrAr_t;
-typedef struct PadPtrAr_t PadPtrAr;
-struct Port_t;
-typedef struct Port_t Port;
-struct PortFind_t;
-typedef struct PortFind_t PortFind;
-struct PortFindCell_t;
-typedef struct PortFindCell_t PortFindCell;
-struct PortFindCellAr_t;
-typedef struct PortFindCellAr_t PortFindCellAr;
-struct PortRef_t;
-typedef struct PortRef_t PortRef;
-struct PtrAr_t;
-typedef struct PtrAr_t PtrAr;
-struct RecordBuffer_t;
-typedef struct RecordBuffer_t RecordBuffer;
-typedef struct Dispatch_t SelectNextPushedPadDispatch;
-struct Sequence_t;
-typedef struct Sequence_t Sequence;
-struct SequenceAr_t;
-typedef struct SequenceAr_t SequenceAr;
-struct StringPtAr_t;
-typedef struct StringPtAr_t StringPtAr;
-struct SymbolPtAr_t;
-typedef struct SymbolPtAr_t SymbolPtAr;
-struct SymbolPtrAr_t;
-typedef struct SymbolPtrAr_t SymbolPtrAr;
-struct Timed_t;
-typedef struct Timed_t Timed;
-struct TimedOff_t;
-typedef struct TimedOff_t TimedOff;
-struct TimedOffAr_t;
-typedef struct TimedOffAr_t TimedOffAr;
-struct TimedPq_t;
-typedef struct TimedPq_t TimedPq;
-struct Track_t;
-typedef struct Track_t Track;
-struct TrackAr_t;
-typedef struct TrackAr_t TrackAr;
-struct TrackList_t;
-typedef struct TrackList_t TrackList;
-struct VstOutlet_t;
-typedef struct VstOutlet_t VstOutlet;
+struct Array_t;
+typedef struct Array_t Array;
 typedef struct Array_t {
+   int itype;
+   int refCount;
    int len;
    int cap;
-   int elemSize;
-   void (*clearer)(char*);
-   char *data;
-} Array;
-
-typedef struct ArrayFIt_t {
-   Array *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   char *var;
-} ArrayFIt;
-
-typedef struct ArrayRIt_t {
-   Array *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   char *var;
-} ArrayRIt;
-
+   char **data;
+};
 
 #include <stdbool.h>
 #include <stdlib.h>
 
-typedef void (*Array_clearElement)(char *);
+typedef void (*Array_refModifier)(char *);
+typedef int (*Array_compare)(const char *left, const char *right);
+Array *Array_new(int itype);
+void Array_incRef(Array *arr);
+void Array_decRef(Array *arr, Array_refModifier decRef, int elemSize);
+void Array_truncate(Array *arr, int newLength, Array_refModifier decRef, int elemSize);
+void Array_mayGrow(Array *arr, int increment, int elemSize);
+static inline char *Array_get(Array *arr, int index, int elemSize);
+void Array_set(Array *arr, int index, char *newElem, Array_refModifier incRef, Array_refModifier decRef, int elemSize);
+void Array_popN(Array *arr, int N, char *output, Array_refModifier decRef, int elemSize);
+void Array_pushN(Array *arr, int N, char *input, Array_refModifier incRef, int elemSize);
+char *Array_insertN(Array *arr, int index, int N, char *input, Array_refModifier incRef, int elemSize);
+void Array_removeN(Array *arr, int index, int N, Array_refModifier decRef, int elemSize);
+void Array_fit(Array *arr, int elemSize);
+bool ArrayFIt_next(ArrayFIt *iterator, Array_refModifier decRef, int elemSize);
+bool ArrayRIt_next(ArrayRIt *iterator, Array_refModifier decRef, int elemSize);
+int Array_binSearchWithInsertMulti(Array *arr, char *key, int *insert, Array_compare comparer, char **lowerBound, char **upperBound, int elemSize);
+void Array_sort(Array *arr, Array_compare comparer, int elemSize);
+void Array_binInsert(Array *arr, char *elem, Array_compare comparer, Array_refModifier incRef, Array_refModifier decRef, int elemSize);
+void Array_binRemove(Array *arr, char *elem, Array_compare comparer, Array_refModifier decRef, int elemSize);
+char *Array_binSearch(Array *arr, char *elem, Array_compare comparer, int elemSize);
+void Array_pqUp(Array *arr, int j, Array_compare comparer, int elemSize);
+bool Array_pqDown(Array *arr, int i0, int n, Array_compare comparer, int elemSize);
+void Array_pqSort(Array *arr, Array_compare comparer, int elemSize);
+void Array_pqPush(Array *arr, char *elem, Array_compare comparer, Array_refModifier incRef, int elemSize);
+bool Array_pqPop(Array *arr, char *elem, Array_compare comparer, Array_refModifier decRef, int elemSize);
+char *Array_pqPeek(Array *arr);
 
-Array *Array_new(int nelems, int elemSize, Array_clearElement clearer);
-void Array_init(Array *arr, int nelems, int elemSize, Array_clearElement clearer);
-void Array_clear(Array *arr);
-void Array_free(Array *arr);
-void Array_truncate(Array *arr);
-int Array_len(Array *arr);
-void Array_set(Array *arr, int index, char *newElem);
-void Array_popN(Array *arr, int N);
-void Array_mayGrow(Array *arr, int increment);
-char *Array_pushN(Array *arr, int N);
-char *Array_insertN(Array *arr, int index, int N);
-void Array_removeN(Array *arr, int index, int N);
-void Array_fit(Array *arr);
 
 // REMEMBER: when you specify a range of elements to operate on, always select the range as
 // [start, end) : here start is the first index of the subsequence, and end is ONE-PAST the last
 // index of the subsequence. With this, the number of elements in the subsequence is end-start.
 
 #define Array_formatIndexError(err, m, n, o) Error_format((err), "Index out of range (%d, %d, %d)", (m), (n), (o))
+#define Array_len(arr) (arr)->len
+#define Array_ptr(arr, index, elemSize) ((arr)->data + (index)*(elemSize))
 
-Array *Array_new(int nelems, int elemSize, Array_clearElement clearer) {
-   Array *arr = (Array*)Mem_calloc(sizeof(Array));
-   Array_init(arr, nelems, elemSize, clearer);
-   return arr;
+Array *Array_new(int itype) {
+    Array *arr = (Array*)Mem_calloc(sizeof(Array));
+    arr->itype    = itype;
+    arr->refCount = 1;
+    arr->len      = 0;
+    arr->cap      = 0;
+    arr->data     = NULL;
+    return arr;
 }
 
-void Array_init(Array *arr, int nelems, int elemSize, Array_clearElement clearer) {
-   arr->elemSize = elemSize;
-   arr->len      = nelems > 0 ? nelems : 0;
-   arr->cap      = nelems > 0 ? nelems : 0;
-   arr->data     = NULL;
-   arr->clearer  = clearer;
-   if (nelems > 0) {
-      arr->data = (char*)Mem_calloc(nelems*elemSize); 
-   } 
+void Array_incRef(Array *arr)
+{
+    arr->refCount++;
 }
 
-void Array_clear(Array *arr) {
-   Array_truncate(arr);
-   if (arr->cap > 0) {
-      Mem_free(arr->data);
-   }
-   memset(arr, 0, sizeof(Array));
-}
-
-void Array_free(Array *arr) {
-   Array_clear(arr);
-   Mem_free(arr);
-}
-
-void Array_truncate(Array *arr) {
-   if (arr->clearer != NULL) {
-      char *start = arr->data;
-      char *end   = arr->data + arr->len*arr->elemSize;
-      for (char *p = start; p < end; p += arr->elemSize) {
-         arr->clearer(p);
-      }
-   }
-   memset(arr->data, 0, arr->len*arr->elemSize);
-   arr->len = 0;
-}
-
-void Array_changeLength(Array *arr, int newLength) {
-   if (newLength == arr->len) {
-      return;
-   } else if (newLength < arr->len) {
-      if (arr->clearer != NULL) {
-         char *start = arr->data + newLength*arr->elemSize;
-         char *end   = arr->data + arr->len*arr->elemSize;
-         for (char *p = start; p < end; p += arr->elemSize) {
-            arr->clearer(p);
-         }
-      }
-      memset(arr->data + newLength*arr->elemSize, 0, (arr->len-newLength)*arr->elemSize);
-      arr->len = newLength;
-      return;
-   } 
-
-   if (arr->cap < newLength) {
-      Array_mayGrow(arr, newLength-arr->len);
-   }
-   arr->len = newLength;
-}
-
-int Array_len(Array *arr) {
-   return arr->len;
-}
-
-void Array_mayGrow(Array *arr, int increment) {
-
-    if (arr->len + increment >= arr->cap) {
-        int requiredBytes = (arr->len + increment)*arr->elemSize;
-        int dblCurrBytes  = 2*arr->cap*arr->elemSize;
-        int szBytes       = dblCurrBytes >= requiredBytes ? dblCurrBytes : requiredBytes;
-        int oldCap        = arr->cap;
-        arr->cap          = szBytes/arr->elemSize;
-        arr->data         = (char*)Mem_realloc(arr->data, szBytes);
-        memset(arr->data + oldCap*arr->elemSize, 0, (arr->cap-oldCap)*arr->elemSize);
+void Array_decRef(Array *arr, Array_refModifier decRef, int elemSize)
+{
+    arr->refCount--;
+    if (arr->refCount <= 0) {
+        if (decRef) {
+            for (char *p = arr->data; p < Array_ptr(arr, arr->len, elemSize); p += elemSize) {
+                char **d = (char**)p;
+                decRef(*d);
+            }
+        }
+        memset(arr->data, 0, arr->len*elemSize);
+        if (arr->cap > 0) {
+            Mem_free(arr->data);
+        }
+        memset(arr, 0, sizeof(Array));
+        Mem_free(arr); 
     }
 }
 
-#define Array_at(arr, index) ((arr)->data + index*(arr)->elemSize)
+void Array_truncate(Array *arr, int newLength, Array_refModifier decRef, int elemSize) {
+   if (newLength < arr->len) {
+        if (decRef) {
+            for (int i = newLength; i < Array_len(arr); i++) {
+                char *p  = Array_ptr(arr, i, elemSize);
+                char **d = (char**)p;
+                decRef(*d);
+            }
+        }
+        memset(arr->data + newLength*elemSize, 0, (arr->len-newLength)*elemSize);
+        arr->len = newLength;
+   }
+   return;
+}
+
+void Array_reserve(Array *arr, int newCap, int elemSize) {
+    if (newCap > arr->cap) {
+        Array_mayGrow(arr, newCap - arr->cap, elemSize);
+    }
+}
+
+void Array_mayGrow(Array *arr, int increment, int elemSize) {
+    if (arr->len + increment >= arr->cap) {
+        int requiredBytes = (arr->len + increment)*elemSize;
+        int dblCurrBytes  = 2*arr->cap*elemSize;
+        int szBytes       = dblCurrBytes >= requiredBytes ? dblCurrBytes : requiredBytes;
+        int oldCap        = arr->cap;
+        arr->cap          = szBytes/elemSize;
+        arr->data         = (char*)Mem_realloc(arr->data, szBytes);
+        memset(arr->data + oldCap*elemSize, 0, (arr->cap-oldCap)*elemSize);
+    }
+}
 
 #define Array_getCheck(arr_in, index_in, failedReturn, err) do {\
    Array *_arr = (Array *)(arr_in);\
@@ -268,8 +136,8 @@ void Array_mayGrow(Array *arr, int increment) {
    }\
 } while (0)
 
-static inline char *Array_get(Array *arr, int index) {
-   return (arr->data + index*arr->elemSize);
+static inline char *Array_get(Array *arr, int index, int elemSize) {
+   return Array_ptr(arr, index, elemSize);
 }
 
 #define Array_setCheck(arr_in, index_in, err) do {\
@@ -281,12 +149,19 @@ static inline char *Array_get(Array *arr, int index) {
    }\
 } while (0)
 
-void Array_set(Array *arr, int index, char *newElem) {
-   char *p = arr->data + index*arr->elemSize;
-   if (arr->clearer != NULL) {
-      arr->clearer(p);
-   }
-   memmove(p, newElem, arr->elemSize);
+void Array_set(Array *arr, int index, char *newElem, Array_refModifier incRef, Array_refModifier decRef, int elemSize) {
+    char *p = Array_ptr(arr, index, elemSize);
+    char *toDec = decRef ? *((char**)p) : NULL; 
+    memmove(p, newElem, elemSize);
+
+    // We do the incRef first to handle the case when the new object is the same object as the old object.
+    if (incRef) {
+        char **d = (char**)p;
+        incRef(*d);
+    }
+    if (decRef) {
+        decRef(toDec);
+    }
 }
 
 
@@ -299,23 +174,33 @@ void Array_set(Array *arr, int index, char *newElem) {
    }\
 } while (0)
 
-void Array_popN(Array *arr, int N) {
-   char *end   = arr->data + arr->len*arr->elemSize;
-   arr->len   -= N;
-   char *start = arr->data + arr->len*arr->elemSize;
-   if (arr->clearer != NULL) {
-      for (char *p = start; p != end; p += arr->elemSize) {
-            arr->clearer(p);
-      }
-   }
-   memset(start, 0, (size_t)(end-start));
+void Array_popN(Array *arr, int N, char *output, Array_refModifier decRef, int elemSize) {
+    char *end   = Array_ptr(arr, arr->len, elemSize);
+    arr->len   -= N;
+    char *start = Array_ptr(arr, arr->len, elemSize);
+    if (decRef) {
+        for (char *p = start; p <= end; p += elemSize) {
+            char **d = (char**)p;
+            decRef(d);
+        }
+    }
+    if (output) {
+        memmove(output, start, (size_t)(end-start));
+    }
+    memset(start, 0, (size_t)(end-start));
 } 
 
-char *Array_pushN(Array *arr, int N) {
-   Array_mayGrow(arr, N);
-   char *pushed = arr->data + arr->len*arr->elemSize;
-   arr->len    += N;
-   return pushed;
+void Array_pushN(Array *arr, int N, char *input, Array_refModifier incRef, int elemSize) {
+    Array_mayGrow(arr, N);
+    char *pushed = Array_ptr(arr, arr->len, elemSize);
+    memmove(pushed, input, N*elemSize);
+    arr->len += N;
+    if (incRef) {
+        for (char *p = pushed; p < arr->data + elemSize*arr->len; p += elemSize) {
+            char **d = (char**)p;
+            incRef(*d);
+        }
+    }
 }
 
 #define Array_insertNCheck(arr_in, index_in, N_in, err) do {\
@@ -329,16 +214,22 @@ char *Array_pushN(Array *arr, int N) {
    }\
 } while (0)
 
-char *Array_insertN(Array *arr, int index, int N) {
-   Array_mayGrow(arr, N);
-   char *subStart  = arr->data + index*arr->elemSize;
-   char *subEnd    = arr->data + (index+N)*arr->elemSize;
-   char *arrayEnd  = arr->data + arr->len*arr->elemSize;
-   arr->len       += N;
-   
-   memmove(subEnd, subStart, (size_t)(arrayEnd-subStart));
-   memset(subStart, 0,      (size_t)(subEnd-subStart));
-   return subStart;
+char *Array_insertN(Array *arr, int index, int N, char *input, Array_refModifier incRef, int elemSize) {
+    Array_mayGrow(arr, N);
+    char *subStart  = Array_ptr(arr, index, elemSize);
+    char *subEnd    = Array_ptr(arr, index+N, elemSize);
+    char *arrayEnd  = Array_ptr(arr, arr->len, elemSize);
+    arr->len       += N;
+
+    memmove(subEnd, subStart, (size_t)(arrayEnd-subStart));
+    memmove(subStart, input, (size_t)(subEnd-subStart));
+    if (incRef) {
+        for (char *p = subStart; p < subEnd; p += elemSize) {
+            char **d = (char**)p;
+            incRef(*d);
+        }
+    }
+    return subStart;
 }
 
 #define Array_removeNCheck(arr_in, index_in, N_in, err) do {\
@@ -351,101 +242,89 @@ char *Array_insertN(Array *arr, int index, int N) {
    }\
 } while (0)
 
-void Array_removeN(Array *arr, int index, int N) {
-   char *removeStart = arr->data + index*arr->elemSize;
-   char *removeEnd   = arr->data + (index+N)*arr->elemSize;
-   char *clearStart  = arr->data + (arr->len-N)*arr->elemSize; 
-   char *clearEnd    = arr->data + arr->len*arr->elemSize;
+void Array_removeN(Array *arr, int index, int N, Array_refModifier decRef, int elemSize) {
+   char *removeStart = Array_ptr(arr, index, elemSize); 
+   char *removeEnd   = Array_ptr(arr, index+N, elemSize);
+   char *clearStart  = Array_ptr(arr, arr->len-N, elemSize);
+   char *clearEnd    = Array_ptr(arr, arr->len, elemSize);
    arr->len         -= N;
 
+   if (decRef) {
+        for (char *p = removeStart; p < removeEnd; p += elemSize) {
+            char **d = (char**)p;
+            decRef(*d);
+        }
+    }
 
-   if (arr->clearer != NULL) {
-      for (char *p = removeStart; p < removeEnd; p += arr->elemSize) {
-            arr->clearer(p);
-      }
-   }
-
-   memmove(removeStart,  removeEnd, (size_t)(clearEnd-removeEnd));
-   memset(clearStart,    0,         (size_t)(clearEnd-clearStart));
-   return;
+    memmove(removeStart,  removeEnd, (size_t)(clearEnd-removeEnd));
+    memset(clearStart,    0,         (size_t)(clearEnd-clearStart));
+    return;
 }
 
-void Array_fit(Array *arr) {
-   if (arr->len <= 0) {
-      if (arr->cap > 0) {
-         Mem_free(arr->data);
-      }
-      arr->data = NULL;
-      arr->len  = 0;
-      arr->cap  = 0;
-      return;
-   }
+void Array_fit(Array *arr, int elemSize) {
+    if (arr->len <= 0) {
+        if (arr->cap > 0) {
+            Mem_free(arr->data);
+        }
+        arr->data = NULL;
+        arr->len  = 0;
+        arr->cap  = 0;
+        return;
+    }
 
-   int szBytes = arr->len*arr->elemSize;
-   arr->data   = (char*)Mem_realloc(arr->data, szBytes);
-   arr->cap    = arr->len;
+    int szBytes = arr->len*elemSize;
+    arr->data   = (char*)Mem_realloc(arr->data, szBytes);
+    arr->cap    = arr->len;
 }
 
-int Array_elemSize(Array *arr){
-   return arr->elemSize;
-}
+bool ArrayFIt_next(ArrayFIt *iterator, Array_refModifier decRef, int elemSize) {
+    if (iterator->remove && iterator->index < Array_len(iterator->arr) && iterator->index >= 0) {
+        Array_removeN(iterator->arr, iterator->index, 1, decRef, elemSize);
+        iterator->index--;
+        iterator->remove = false;
+    }
 
-bool ArrayFIt_next(ArrayFIt *iterator) {
-   if (iterator->index+1 < iterator->lBound || iterator->index+1 >= iterator->uBound) {
+    if (iterator->index+1 >= Array_len(iterator->arr) || iterator->index+1 < 0) {
       return false;
-   }
-   iterator->index++;
-   iterator->var = Array_get(iterator->arr, iterator->index);
-   return true;
+    }
+    
+    iterator->index++;
+    if (decRef) {
+        char **p      = (char**)Array_ptr(iterator->arr, iterator->index, elemSize);
+        iterator->var = *p;
+    } else {
+        //XXX: This doesn't currently have any use case
+        iterator->var = Array_ptr(iterator->arr, iterator->index, elemSize);
+    }
+    return true;
 }
 
-bool ArrayRIt_next(ArrayRIt *iterator) {
-   if (iterator->index-1 < iterator->lBound || iterator->index-1 >= iterator->uBound) {
-      return false;
-   }
-   iterator->index--;
-   iterator->var  = Array_get(iterator->arr, iterator->index);
-   return true;
+bool ArrayRIt_next(ArrayRIt *iterator, Array_refModifier decRef, int elemSize) {
+    if (iterator->remove && iterator->index < Array_len(iterator->arr) && iterator->index >= 0) {
+        Array_removeN(iterator->arr, iterator->index, 1, decRef, elemSize);
+        iterator->remove = false;
+    }
+
+    if (iterator->index-1 >= Array_len(iterator->arr) || iterator->index-1 < 0) {
+        return false;
+    }
+
+    iterator->index--;
+    if (decRef) {
+        char **p      = (char**)Array_ptr(iterator->arr, iterator->index, elemSize);
+        iterator->var = *p;
+    } else {
+        iterator->var = Array_get(iterator->arr, iterator->index);
+    }
+
+    return true;
 }
-
-
-bool ArrayFIt_remove(ArrayFIt *iterator) {
-   if (iterator->index < iterator->lBound || iterator->index >= iterator->uBound) {
-      return false;
-   }   
-
-   int index = iterator->index;
-   iterator->index--;
-   iterator->var = NULL;
-   iterator->uBound--;
-   Array_removeN(iterator->arr, index, 1);
-   return true;
-}
-
-bool ArrayRIt_remove(ArrayRIt *iterator) {
-   if (iterator->index < iterator->lBound || iterator->index >= iterator->uBound) {
-      return false;
-   }   
-
-   iterator->var = NULL;
-   Array_removeN(iterator->arr, iterator->index, 1);
-   return true;
-}
-
-typedef int (*Array_compare)(const char *left, const char *right);
-
-typedef struct ArraySlice_t {
-   int len;
-   char *data;
-   int index;
-   char *var;
-} ArraySlice;
 
 // This code is based on bsearch pulled from the linux kernal
-int Array_binSearchWithInsertMulti(Array *arr, char *key, int *insert, Array_compare comparer, char **lowerBound, char **upperBound) {  
+int Array_binSearchWithInsertMulti(Array *arr, char *key, int *insert, Array_compare comparer, char **lowerBound, char **upperBound, int elemSize) {  
    char *base  = arr->data;
    size_t num  = arr->len;
-   size_t size = arr->elemSize;
+   size_t size = (size_t)elemSize;
    char *high  = NULL;
    char *pivot = NULL;
    // If there are no elements in the incomming array, and lowerBound != NULL, this makes sure that the insert index is set.
@@ -509,79 +388,66 @@ int Array_binSearchWithInsertMulti(Array *arr, char *key, int *insert, Array_com
 }
 
 
-void Array_sort(Array *arr, Array_compare comparer) {
-   qsort(arr->data, arr->len, arr->elemSize, (void*)comparer);
+void Array_sort(Array *arr, Array_compare comparer, int elemSize) {
+    qsort(arr->data, arr->len, elemSize, (void*)comparer);
 }
 
-void Array_binInsert(Array *arr, char *elem, Array_compare comparer, bool append) {
-   int insert = -1;
-   int index  = Array_binSearchWithInsertMulti(arr, elem, &insert, comparer, NULL, NULL);
-   if (index < 0) {
-      Error_declare(err);
-      char *d = Array_insertN(arr, insert, 1);
-      memmove(d, elem, arr->elemSize);
-      Error_clear(err);
+void Array_binInsert(Array *arr, char *elem, Array_compare comparer, Array_refModifier incRef, Array_refModifier decRef, int elemSize) {
+    int insert = -1;
+    int index  = Array_binSearchWithInsertMulti(arr, elem, &insert, comparer, NULL, NULL, elemSize);
+    if (index < 0) {
+      Array_insertN(arr, insert, 1, elem, incRef, elemSize);
       return;
-   }
+    }
 
-   char *target = NULL;
-   if (append) {
-      target = Array_insertN(arr, index+1, 1);
-   } else {
-      target = Array_get(arr, index); 
-      if (arr->clearer) {
-         arr->clearer(target);
-      }
-   }
-   memmove(target, elem, arr->elemSize);
-   return;
+    char *target = Array_ptr(arr, index, elemSize);
+    char *toDec = decRef ? *((char**)target) : NULL; 
+    memmove(target, elem, elemSize);
+    // incRef first to handle the case when the new and old object are the same reference.
+    if (incRef) {
+        char **d = (char**)target;
+        incRef(*d);
+    }
+    if (decRef) {
+        decRef(toDec);
+    }
+
+    return;
 }
 
-void Array_binRemove(Array *arr, char *elem, Array_compare comparer, bool all) {
-   int insert = -1;
-   char *lower = NULL;
-   char *upper = NULL;
-   int index  = Array_binSearchWithInsertMulti(arr, elem, &insert, comparer, &lower, &upper);
-   if (index < 0) {
-      return;
-   }
-   if (all) {
-      size_t N = (size_t)(upper-lower)/arr->elemSize;
-      size_t ind = (lower-arr->data)/arr->elemSize;
-      Array_removeN(arr, ind, N);
-   } else {
-      Array_removeN(arr, index, 1);
-   }
+void Array_binRemove(Array *arr, char *elem, Array_compare comparer, Array_refModifier decRef, int elemSize) {
+    int insert = -1;
+    char *lower = NULL;
+    char *upper = NULL;
+    int index  = Array_binSearchWithInsertMulti(arr, elem, &insert, comparer, &lower, &upper, elemSize);
+    if (index < 0) {
+        return;
+    }
+    
+    Array_removeN(arr, index, 1, decRef, elemSize);
 }
 
-char *Array_binSearch(Array *arr, char *elem, Array_compare comparer, ArrayFIt *iterator) {
-   int insert = -1;
-   char *lower = NULL;
-   char *upper = NULL;
-   int index  = Array_binSearchWithInsertMulti(arr, elem, &insert, comparer, &lower, &upper);
-   if (index < 0) {
-      return NULL;
-   }
-   if (iterator != NULL) {
-      iterator->arr    = arr;
-      iterator->lBound = (int)((lower - arr->data)/arr->elemSize);
-      iterator->uBound = (int)((upper - arr->data)/arr->elemSize);
-      iterator->index  = iterator->lBound-1;
-      iterator->var    = NULL;
-   }
-
-   return lower;
+bool Array_binSearch(Array *arr, char *key, char *output, Array_compare comparer, int elemSize) {
+    int insert = -1;
+    char *lower = NULL;
+    char *upper = NULL;
+    int index  = Array_binSearchWithInsertMulti(arr, key, &insert, comparer, &lower, &upper, elemSize);
+    if (index < 0) {
+        return false;
+    }
+    memmove(output, Array_ptr(arr, index, elemSize), elemSize);
+    return true;
 }
 
 //
 // Priority queue. This code is ported from https://golang.org/src/container/heap/heap.go
 //
 
-#define PQ_LESS(i, j) ((comparer(arr->data + arr->elemSize*i, arr->data + arr->elemSize*j)) < 0)
+#define PQ_LESS(i, j) ((comparer(Array_ptr(arr->data, i, elemSize), Array_ptr(arr->data, j, elemSize)) < 0)
 #define PQ_SWAP(i, j) do {\
-    memmove(arr->data + arr->elemSize*arr->len, arr->data + arr->elemSize*i,        arr->elemSize);\
-    memmove(arr->data + arr->elemSize*i,        arr->data + arr->elemSize*j,        arr->elemSize);\
-    memmove(arr->data + arr->elemSize*j,        arr->data + arr->elemSize*arr->len, arr->elemSize);\
+    memmove(Array_ptr(arr, arr->len, elemSize), Array_ptr(arr, i, elemSize),        elemSize);\
+    memmove(Array_ptr(arr, i, elemSize),        Array_ptr(arr, j, elemSize),        elemSize);\
+    memmove(Array_ptr(arr, j, elemSize),        Array_ptr(arr, arr->len, elemSize), elemSize);\
 } while (0)
 
 
@@ -598,7 +464,7 @@ func up(h Interface, j int) {
 }
 */
 
-void Array_pqUp(Array *arr, int j, int (*comparer)(const char *, const char*)) 
+void Array_pqUp(Array *arr, int j, Array_compare comparer, int elemSize) 
 {
    Array_mayGrow(arr, 1); // use the first unused element of the array as the swap space
    for (;;) {
@@ -632,7 +498,7 @@ func down(h Interface, i0, n int) bool {
    return i > i0
 }
 */
-bool Array_pqDown(Array *arr, int i0, int n, int (*comparer)(const char *, const char *)) {
+bool Array_pqDown(Array *arr, int i0, int n, Array_compare comparer, int elemSize) {
     Array_mayGrow(arr, 1);
     int i = i0;
     for (;;) {
@@ -664,11 +530,11 @@ func Init(h Interface) {
 }
 */
 
-void Array_pqSort(Array *arr, int (*comparer)(const char *, const char*)) 
+void Array_pqSort(Array *arr, Array_compare comparer, int elemSize) 
 {
     int n = Array_len(arr);
     for (int i = n/2-1; i >= 0; i--) {
-        Array_pqDown(arr, i, n, comparer);
+        Array_pqDown(arr, i, n, comparer, elemSize);
     }
 }
 
@@ -679,11 +545,10 @@ func Push(h Interface, x interface{}) {
 }
 */
 
-void Array_pqPush(Array *arr, char *elem, int (*comparer)(const char *, const char*))
+void Array_pqPush(Array *arr, char *elem, Array_compare comparer, Array_refModifier incRef, int elemSize)
 {
-   char *dst = Array_pushN(arr, 1);
-   memmove(dst, elem, arr->elemSize);
-   Array_pqUp(arr, Array_len(arr)-1, comparer);
+    Array_pushN(arr, 1, elem, incRef, elemSize);
+    Array_pqUp(arr, Array_len(arr)-1, comparer, elemSize);
 }
 
 /*
@@ -695,21 +560,24 @@ func Pop(h Interface) interface{} {
 }
 */
 
-bool Array_pqPop(Array *arr, char *elem, int (*comparer)(const char *, const char*)) 
+bool Array_pqPop(Array *arr, char *output, Array_compare comparer, Array_refModifier decRef, int elemSize) 
 {
     if (Array_len(arr) <= 0) {
         return false;
     }
 
     if (elem != NULL) {
-        memmove(elem, arr->data, arr->elemSize);
-    } else if (arr->clearer != NULL) {
-        arr->clearer(arr->data);
+        memmove(output, arr->data, elemSize);
+    }
+    if (decRef) {
+        char **d = (char**)arr->data;
+        decRef(*d);
+        *d = NULL;
     }
 
     int n = Array_len(arr)-1;
     PQ_SWAP(0, n);
-    Array_pqDown(arr, 0, n, comparer);
+    Array_pqDown(arr, 0, n, comparer, elemSize);
     arr->len--;
     return true;    
 }
@@ -723,377 +591,472 @@ char *Array_pqPeek(Array *arr) {
 
 #undef PQ_LESS
 #undef PQ_SWAP
+struct Arguments_t;
+typedef struct Arguments_t Arguments;
+struct AtomAr_t;
+typedef struct AtomAr_t AtomAr;
+struct AtomArAr_t;
+typedef struct AtomArAr_t AtomArAr;
+struct AtomRf_t;
+typedef struct AtomRf_t AtomRf;
+struct BendOutlet_t;
+typedef struct BendOutlet_t BendOutlet;
+struct CcOutlet_t;
+typedef struct CcOutlet_t CcOutlet;
+struct DecrementFrameDispatch_t;
+typedef struct DecrementFrameDispatch_t DecrementFrameDispatch;
+struct Dispatch_t;
+typedef struct Dispatch_t Dispatch;
+struct DispatchAr_t;
+typedef struct DispatchAr_t DispatchAr;
+struct DropDown_t;
+typedef struct DropDown_t DropDown;
+struct FloatEvent_t;
+typedef struct FloatEvent_t FloatEvent;
+struct FloatEventAr_t;
+typedef struct FloatEventAr_t FloatEventAr;
+struct FloatSequence_t;
+typedef struct FloatSequence_t FloatSequence;
+struct Hub_t;
+typedef struct Hub_t Hub;
+struct IncrementFrameDispatch_t;
+typedef struct IncrementFrameDispatch_t IncrementFrameDispatch;
+struct Int_t;
+typedef struct Int_t Int;
+struct IntAr_t;
+typedef struct IntAr_t IntAr;
+struct ManageChokeGroupsDispatch_t;
+typedef struct ManageChokeGroupsDispatch_t ManageChokeGroupsDispatch;
+struct Marshal_t;
+typedef struct Marshal_t Marshal;
+struct MarshalSi_t;
+typedef struct MarshalSi_t MarshalSi;
+struct MarshalSii_t;
+typedef struct MarshalSii_t MarshalSii;
+struct MarshalSs_t;
+typedef struct MarshalSs_t MarshalSs;
+struct MidiFileDropDispatch_t;
+typedef struct MidiFileDropDispatch_t MidiFileDropDispatch;
+struct MusicalContext_t;
+typedef struct MusicalContext_t MusicalContext;
+struct NoteEvent_t;
+typedef struct NoteEvent_t NoteEvent;
+struct NoteEventAr_t;
+typedef struct NoteEventAr_t NoteEventAr;
+struct NoteOutlet_t;
+typedef struct NoteOutlet_t NoteOutlet;
+struct NoteSequence_t;
+typedef struct NoteSequence_t NoteSequence;
+struct NullOutlet_t;
+typedef struct NullOutlet_t NullOutlet;
+struct Outlet_t;
+typedef struct Outlet_t Outlet;
+struct OutletSpecifier_t;
+typedef struct OutletSpecifier_t OutletSpecifier;
+struct Pad_t;
+typedef struct Pad_t Pad;
+struct PadAr_t;
+typedef struct PadAr_t PadAr;
+struct Port_t;
+typedef struct Port_t Port;
+struct PortFind_t;
+typedef struct PortFind_t PortFind;
+struct PortFindCell_t;
+typedef struct PortFindCell_t PortFindCell;
+struct PortFindCellAr_t;
+typedef struct PortFindCellAr_t PortFindCellAr;
+struct PortRef_t;
+typedef struct PortRef_t PortRef;
+struct Ptr_t;
+typedef struct Ptr_t Ptr;
+struct PtrAr_t;
+typedef struct PtrAr_t PtrAr;
+struct RecordBuffer_t;
+typedef struct RecordBuffer_t RecordBuffer;
+struct SelectNextPushedPadDispatch_t;
+typedef struct SelectNextPushedPadDispatch_t SelectNextPushedPadDispatch;
+struct Sequence_t;
+typedef struct Sequence_t Sequence;
+struct SequenceAr_t;
+typedef struct SequenceAr_t SequenceAr;
+struct StringAr_t;
+typedef struct StringAr_t StringAr;
+struct SymbolAr_t;
+typedef struct SymbolAr_t SymbolAr;
+struct SymbolAr_t;
+typedef struct SymbolAr_t SymbolAr;
+struct Timed_t;
+typedef struct Timed_t Timed;
+struct TimedOff_t;
+typedef struct TimedOff_t TimedOff;
+struct TimedOffAr_t;
+typedef struct TimedOffAr_t TimedOffAr;
+struct TimedPq_t;
+typedef struct TimedPq_t TimedPq;
+struct Track_t;
+typedef struct Track_t Track;
+struct TrackAr_t;
+typedef struct TrackAr_t TrackAr;
+struct VstOutlet_t;
+typedef struct VstOutlet_t VstOutlet;
+struct Arguments_t
+{
+    int itype;
+    int refCount;
+    Symbol * s1;
+    long i1;
+    long i2;
+    long ivalue;
+    long inlet;
+};
 typedef struct AtomAr_t {
+   int itype;
+   int refCount;
    int len;
    int cap;
-   int elemSize;
-   void (*clearer)(Atom*);
-   Atom *data;
-} AtomAr;
+   AtomRf **data;
+};
 
 typedef struct AtomArFIt_t {
    AtomAr *arr;
-   int lBound;
-   int uBound;
-
+   bool remove;
    int index;
-   Atom *var;
+   AtomRf *var;
 } AtomArFIt;
 
 typedef struct AtomArRIt_t {
    AtomAr *arr;
-   int lBound;
-   int uBound;
-
+   bool remove;
    int index;
-   Atom *var;
+   AtomRf *var;
 } AtomArRIt;
 
-struct VstOutlet_t
+typedef struct AtomArAr_t {
+   int itype;
+   int refCount;
+   int len;
+   int cap;
+   AtomAr **data;
+};
+
+typedef struct AtomArArFIt_t {
+   AtomArAr *arr;
+   bool remove;
+   int index;
+   AtomAr *var;
+} AtomArArFIt;
+
+typedef struct AtomArArRIt_t {
+   AtomArAr *arr;
+   bool remove;
+   int index;
+   AtomAr *var;
+} AtomArArRIt;
+
+struct AtomRf_t
 {
     int itype;
-    AtomAr atoms;
+    int refCount;
+    Atom a;
+};
+struct BendOutlet_t
+{
+    int itype;
+    int refCount;
+    AtomAr *atoms;
     Port *port;
 };
-struct Track_t
-{
-    Symbol *name;
-    NoteManager *noteManager;
-};
-typedef struct TrackAr_t {
-   int len;
-   int cap;
-   int elemSize;
-   void (*clearer)(Track*);
-   Track *data;
-} TrackAr;
-
-typedef struct TrackArFIt_t {
-   TrackAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   Track *var;
-} TrackArFIt;
-
-typedef struct TrackArRIt_t {
-   TrackAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   Track *var;
-} TrackArRIt;
-
-struct TrackList_t
-{
-    TrackAr list;
-};
-struct Timed_t
-{
-    Ticks time;
-    int version;
-    Sequence *sequence;
-};
-typedef struct TimedPq_t {
-   int len;
-   int cap;
-   int elemSize;
-   void (*clearer)(Timed*);
-   Timed *data;
-} TimedPq;
-
-typedef struct TimedPqFIt_t {
-   TimedPq *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   Timed *var;
-} TimedPqFIt;
-
-typedef struct TimedPqRIt_t {
-   TimedPq *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   Timed *var;
-} TimedPqRIt;
-
-struct TimedOff_t
-{
-    Ticks time;
-    int pitch;
-};
-typedef struct TimedOffAr_t {
-   int len;
-   int cap;
-   int elemSize;
-   void (*clearer)(TimedOff*);
-   TimedOff *data;
-} TimedOffAr;
-
-typedef struct TimedOffArFIt_t {
-   TimedOffAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   TimedOff *var;
-} TimedOffArFIt;
-
-typedef struct TimedOffArRIt_t {
-   TimedOffAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   TimedOff *var;
-} TimedOffArRIt;
-
-typedef struct SymbolPtrAr_t {
-   int len;
-   int cap;
-   int elemSize;
-   void (*clearer)(Symbol **);
-   Symbol **data;
-} SymbolPtrAr;
-
-typedef struct SymbolPtrArFIt_t {
-   SymbolPtrAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   Symbol **var;
-} SymbolPtrArFIt;
-
-typedef struct SymbolPtrArRIt_t {
-   SymbolPtrAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   Symbol **var;
-} SymbolPtrArRIt;
-
-typedef struct SymbolPtAr_t {
-   int len;
-   int cap;
-   int elemSize;
-   void (*clearer)(Symbol **);
-   Symbol **data;
-} SymbolPtAr;
-
-typedef struct SymbolPtArFIt_t {
-   SymbolPtAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   Symbol **var;
-} SymbolPtArFIt;
-
-typedef struct SymbolPtArRIt_t {
-   SymbolPtAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   Symbol **var;
-} SymbolPtArRIt;
-
-typedef struct StringPtAr_t {
-   int len;
-   int cap;
-   int elemSize;
-   void (*clearer)(String **);
-   String **data;
-} StringPtAr;
-
-typedef struct StringPtArFIt_t {
-   StringPtAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   String **var;
-} StringPtArFIt;
-
-typedef struct StringPtArRIt_t {
-   StringPtAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   String **var;
-} StringPtArRIt;
-
-typedef struct SequenceAr_t {
-   int len;
-   int cap;
-   int elemSize;
-   void (*clearer)(Sequence **);
-   Sequence **data;
-} SequenceAr;
-
-typedef struct SequenceArFIt_t {
-   SequenceAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   Sequence **var;
-} SequenceArFIt;
-
-typedef struct SequenceArRIt_t {
-   SequenceAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   Sequence **var;
-} SequenceArRIt;
-
-struct OutletSpecifier_t
-{
-    Symbol *track;
-    int pluginIndex;
-    Symbol *parameter;
-    int paramIndex;
-};
-struct Sequence_t
+struct CcOutlet_t
 {
     int itype;
+    int refCount;
+    int cc;
+    AtomAr *atoms;
+    Port *port;
+};
+struct DecrementFrameDispatch_t
+{
+    int itype;
+    int refCount;
+    Symbol * selector;
+    Symbol * portId;
+    int inlet;
+    Marshal * marshal;
+};
+struct Dispatch_t
+{
+    itype int;
+};
+typedef struct DispatchAr_t {
+   int itype;
+   int refCount;
+   int len;
+   int cap;
+   Dispatch **data;
+};
+
+typedef struct DispatchArFIt_t {
+   DispatchAr *arr;
+   bool remove;
+   int index;
+   Dispatch *var;
+} DispatchArFIt;
+
+typedef struct DispatchArRIt_t {
+   DispatchAr *arr;
+   bool remove;
+   int index;
+   Dispatch *var;
+} DispatchArRIt;
+
+struct DropDown_t
+{
+    int itype;
+    int refCount;
+    SymbolAr *table;
+    int selected;
+    Outlet *outlet;
+};
+struct FloatEvent_t
+{
+    int itype;
+    int refCount;
+    Ticks stime;
+    double value;
+};
+typedef struct FloatEventAr_t {
+   int itype;
+   int refCount;
+   int len;
+   int cap;
+   FloatEvent **data;
+};
+
+typedef struct FloatEventArFIt_t {
+   FloatEventAr *arr;
+   bool remove;
+   int index;
+   FloatEvent *var;
+} FloatEventArFIt;
+
+typedef struct FloatEventArRIt_t {
+   FloatEventAr *arr;
+   bool remove;
+   int index;
+   FloatEvent *var;
+} FloatEventArRIt;
+
+struct FloatSequence_t
+{
+    int itype;
+    int refCount;
     long version;
     Ticks startTime;
-    OutletSpecifier outletSpecifier;
+    OutletSpecifier *outletSpecifier;
+    Ticks sequenceLength;
+    int cursor;
+    bool cycle;
+    bool inEndgroup;
+    Outlet *outlet;
+    FloatSequence * recordingSeq;
+    FloatEventAr *events;
+    double restoreValue;
 };
-struct SelectNextPushedPadDispatch_t
+struct Hub_t
 {
     int itype;
+    int refCount;
+    PadAr *padList;
+    TrackAr *trackList;
+    Port *currBankPort;
+    Port *currFramePort;
+    Port *selBankPort;
+    Port *selFramePort;
+    Port *selPadPort;
+    Port *chokeGroupPort;
+    DropDown *cgLocalGlobalMenu;
+    DropDown *cgInstrumentMenu;
+    DropDown *cgIndexMenu;
+    int bank;
+    int frame;
+    bool grabNextTappedPad;
+    int selectedPad;
+    Arguments *arguments;
+    DispatchAr *dispatcher;
+    Ticks masterClock;
 };
-struct RecordBuffer_t
+struct IncrementFrameDispatch_t
 {
-    Ticks recordStart;
-    SequenceAr sequences;
+    int itype;
+    int refCount;
+    Symbol * selector;
+    Symbol * portId;
+    int inlet;
+    Marshal * marshal;
 };
-typedef struct PtrAr_t {
+struct Int_t
+{
+    int itype;
+    int refCount;
+    int i;
+};
+typedef struct IntAr_t {
+   int itype;
+   int refCount;
    int len;
    int cap;
-   int elemSize;
-   void (*clearer)(void **);
-   void **data;
-} PtrAr;
+   Int **data;
+};
 
-typedef struct PtrArFIt_t {
-   PtrAr *arr;
-   int lBound;
-   int uBound;
-
+typedef struct IntArFIt_t {
+   IntAr *arr;
+   bool remove;
    int index;
-   void **var;
-} PtrArFIt;
+   Int *var;
+} IntArFIt;
 
-typedef struct PtrArRIt_t {
-   PtrAr *arr;
-   int lBound;
-   int uBound;
-
+typedef struct IntArRIt_t {
+   IntAr *arr;
+   bool remove;
    int index;
-   void **var;
-} PtrArRIt;
+   Int *var;
+} IntArRIt;
 
-struct PortRef_t
+struct ManageChokeGroupsDispatch_t
 {
+    int itype;
+    int refCount;
+    Symbol * selector;
+    Symbol * portId;
+    int inlet;
+    Marshal * marshal;
+};
+struct Marshal_t
+{
+    itype int;
+};
+struct MarshalSi_t
+{
+    int itype;
+    int refCount;
+    Symbol * selector;
+    Symbol * portId;
+    int inlet;
+};
+struct MarshalSii_t
+{
+    int itype;
+    int refCount;
+    Symbol * selector;
+    Symbol * portId;
+    int inlet;
+};
+struct MarshalSs_t
+{
+    int itype;
+    int refCount;
+    Symbol * selector;
+    Symbol * portId;
+    int inlet;
+};
+struct MidiFileDropDispatch_t
+{
+    int itype;
+    int refCount;
+    Symbol * selector;
+    Symbol * portId;
+    int inlet;
+    Marshal * marshal;
+};
+struct MusicalContext_t
+{
+    int itype;
+    int refCount;
+    Ticks ticksPerQuarterNote;
+    Ticks quarterNotesPerMeasure;
+};
+struct NoteEvent_t
+{
+    int itype;
+    int refCount;
+    uint8_t pitch;
+    uint8_t velocity;
+    Ticks stime;
+    Ticks duration;
+};
+typedef struct NoteEventAr_t {
+   int itype;
+   int refCount;
+   int len;
+   int cap;
+   NoteEvent **data;
+};
+
+typedef struct NoteEventArFIt_t {
+   NoteEventAr *arr;
+   bool remove;
+   int index;
+   NoteEvent *var;
+} NoteEventArFIt;
+
+typedef struct NoteEventArRIt_t {
+   NoteEventAr *arr;
+   bool remove;
+   int index;
+   NoteEvent *var;
+} NoteEventArRIt;
+
+struct NoteOutlet_t
+{
+    int itype;
+    int refCount;
+    AtomAr *atoms;
     Port *port;
-    int outlet;
 };
-struct PortFindCell_t
+struct NoteSequence_t
 {
-    Port *reciever;
-    Symbol *varname;
+    int itype;
+    int refCount;
+    long version;
+    Ticks startTime;
+    OutletSpecifier *outletSpecifier;
+    Ticks sequenceLength;
+    int cursor;
+    bool cycle;
+    Ticks nextOffEvent;
+    Ticks nextOnEvent;
+    bool inEndgroup;
+    Outlet *outlet;
+    NoteSequence * recordingSeq;
+    TimedOffAr *offs;
+    NoteEventAr *events;
 };
-typedef struct PortFindCellAr_t {
-   int len;
-   int cap;
-   int elemSize;
-   void (*clearer)(PortFindCell*);
-   PortFindCell *data;
-} PortFindCellAr;
-
-typedef struct PortFindCellArFIt_t {
-   PortFindCellAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   PortFindCell *var;
-} PortFindCellArFIt;
-
-typedef struct PortFindCellArRIt_t {
-   PortFindCellAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   PortFindCell *var;
-} PortFindCellArRIt;
-
-struct PortFind_t
+struct NullOutlet_t
 {
-    PortFindCellAr objects;
-    void *hub;
-    Port_anythingDispatchFunc anythingDispatch;
-    Port_intDispatchFunc intDispatch;
+    int itype;
+    int refCount;
+    int unused;
 };
-struct Port_t
+struct Outlet_t
 {
-    MaxObject obj;
-    long inletnum;
-    PtrAr proxy;
-    PtrAr outlet;
-    Symbol *track;
-    Symbol *id;
-    long intInlets;
-    long intOutlets;
-    void *hub;
-    Port_anythingDispatchFunc anythingDispatch;
-    Port_intDispatchFunc intDispatch;
+    itype int;
 };
-typedef struct PadPtrAr_t {
-   int len;
-   int cap;
-   int elemSize;
-   void (*clearer)(Pad **);
-   Pad **data;
-} PadPtrAr;
-
-typedef struct PadPtrArFIt_t {
-   PadPtrAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   Pad **var;
-} PadPtrArFIt;
-
-typedef struct PadPtrArRIt_t {
-   PadPtrAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   Pad **var;
-} PadPtrArRIt;
-
+struct OutletSpecifier_t
+{
+    int itype;
+    int refCount;
+    Symbol * track;
+    int pluginIndex;
+    Symbol * parameter;
+    int paramIndex;
+};
 struct Pad_t
 {
-    Symbol *trackName;
+    int itype;
+    int refCount;
+    Symbol * trackName;
     int padIndex;
-    Midiseq *sequence;
+    Sequence *SequenceAr;
     bool chokeGroupGlobal;
     int chokeGroupInstrument;
     int chokeGroupIndex;
@@ -1104,402 +1067,1574 @@ struct Pad_t
     bool useMasterClock;
 };
 typedef struct PadAr_t {
+   int itype;
+   int refCount;
    int len;
    int cap;
-   int elemSize;
-   void (*clearer)(Pad*);
-   Pad *data;
-} PadAr;
+   Pad **data;
+};
 
 typedef struct PadArFIt_t {
    PadAr *arr;
-   int lBound;
-   int uBound;
-
+   bool remove;
    int index;
    Pad *var;
 } PadArFIt;
 
 typedef struct PadArRIt_t {
    PadAr *arr;
-   int lBound;
-   int uBound;
-
+   bool remove;
    int index;
    Pad *var;
 } PadArRIt;
 
-struct PadList_t
-{
-    PadAr pads;
-    PadPtrAr running;
-};
-struct Outlet_t
+struct Port_t
 {
     int itype;
+    int refCount;
+    MaxObject obj;
+    long inletnum;
+    PtrAr *proxy;
+    PtrAr *outlet;
+    Symbol * track;
+    Symbol * id;
+    long intInlets;
+    long intOutlets;
+    void * hub;
+    Port_anythingDispatchFunc anythingDispatch;
+    Port_intDispatchFunc intDispatch;
 };
-struct NullOutlet_t
+struct PortFind_t
 {
     int itype;
-    int unused;
+    int refCount;
+    PortFindCellAr *objects;
+    void * hub;
+    Port_anythingDispatchFunc anythingDispatch;
+    Port_intDispatchFunc intDispatch;
 };
-struct NoteEvent_t
+struct PortFindCell_t
 {
-    uint8_t pitch;
-    uint8_t velocity;
-    Ticks stime;
-    Ticks duration;
+    int itype;
+    int refCount;
+    Port reciever;
+    Symbol * varname;
 };
-typedef struct NoteEventAr_t {
+typedef struct PortFindCellAr_t {
+   int itype;
+   int refCount;
    int len;
    int cap;
-   int elemSize;
-   void (*clearer)(NoteEvent*);
-   NoteEvent *data;
-} NoteEventAr;
+   PortFindCell **data;
+};
 
-typedef struct NoteEventArFIt_t {
-   NoteEventAr *arr;
-   int lBound;
-   int uBound;
-
+typedef struct PortFindCellArFIt_t {
+   PortFindCellAr *arr;
+   bool remove;
    int index;
-   NoteEvent *var;
-} NoteEventArFIt;
+   PortFindCell *var;
+} PortFindCellArFIt;
 
-typedef struct NoteEventArRIt_t {
-   NoteEventAr *arr;
-   int lBound;
-   int uBound;
-
+typedef struct PortFindCellArRIt_t {
+   PortFindCellAr *arr;
+   bool remove;
    int index;
-   NoteEvent *var;
-} NoteEventArRIt;
+   PortFindCell *var;
+} PortFindCellArRIt;
 
-struct NoteSequence_t
+struct PortRef_t
 {
     int itype;
-    long version;
-    Ticks startTime;
-    OutletSpecifier outletSpecifier;
-    Ticks sequenceLength;
-    int cursor;
-    bool cycle;
-    Ticks nextOffEvent;
-    Ticks nextOnEvent;
-    bool inEndgroup;
-    Outlet *outlet;
-    NoteSequence *recordingSeq;
-    TimedOffAr offs;
-    NoteEventAr events;
+    int refCount;
+    Port * port;
+    int outlet;
 };
-struct NoteOutlet_t
+struct Ptr_t
 {
     int itype;
-    AtomAr atoms;
-    Port *port;
+    int refCount;
+    void * p;
 };
-struct IndexedOff_t
+typedef struct PtrAr_t {
+   int itype;
+   int refCount;
+   int len;
+   int cap;
+   Ptr **data;
+};
+
+typedef struct PtrArFIt_t {
+   PtrAr *arr;
+   bool remove;
+   int index;
+   Ptr *var;
+} PtrArFIt;
+
+typedef struct PtrArRIt_t {
+   PtrAr *arr;
+   bool remove;
+   int index;
+   Ptr *var;
+} PtrArRIt;
+
+struct RecordBuffer_t
 {
-    int padIndex;
+    int itype;
+    int refCount;
+    Ticks recordStart;
+    SequenceAr *sequences;
+};
+struct SelectNextPushedPadDispatch_t
+{
+    int itype;
+    int refCount;
+    Symbol * selector;
+    Symbol * portId;
+    int inlet;
+    Marshal * marshal;
+};
+struct Sequence_t
+{
+    itype int;
+};
+typedef struct SequenceAr_t {
+   int itype;
+   int refCount;
+   int len;
+   int cap;
+   Sequence **data;
+};
+
+typedef struct SequenceArFIt_t {
+   SequenceAr *arr;
+   bool remove;
+   int index;
+   Sequence *var;
+} SequenceArFIt;
+
+typedef struct SequenceArRIt_t {
+   SequenceAr *arr;
+   bool remove;
+   int index;
+   Sequence *var;
+} SequenceArRIt;
+
+typedef struct StringAr_t {
+   int itype;
+   int refCount;
+   int len;
+   int cap;
+   String **data;
+};
+
+typedef struct StringArFIt_t {
+   StringAr *arr;
+   bool remove;
+   int index;
+   String *var;
+} StringArFIt;
+
+typedef struct StringArRIt_t {
+   StringAr *arr;
+   bool remove;
+   int index;
+   String *var;
+} StringArRIt;
+
+typedef struct SymbolAr_t {
+   int itype;
+   int refCount;
+   int len;
+   int cap;
+   Symbol **data;
+};
+
+typedef struct SymbolArFIt_t {
+   SymbolAr *arr;
+   bool remove;
+   int index;
+   Symbol *var;
+} SymbolArFIt;
+
+typedef struct SymbolArRIt_t {
+   SymbolAr *arr;
+   bool remove;
+   int index;
+   Symbol *var;
+} SymbolArRIt;
+
+typedef struct SymbolAr_t {
+   int itype;
+   int refCount;
+   int len;
+   int cap;
+   Symbol **data;
+};
+
+typedef struct SymbolArFIt_t {
+   SymbolAr *arr;
+   bool remove;
+   int index;
+   Symbol *var;
+} SymbolArFIt;
+
+typedef struct SymbolArRIt_t {
+   SymbolAr *arr;
+   bool remove;
+   int index;
+   Symbol *var;
+} SymbolArRIt;
+
+struct Timed_t
+{
+    int itype;
+    int refCount;
+    Ticks time;
+    int version;
+    Sequence *sequence;
+};
+struct TimedOff_t
+{
+    int itype;
+    int refCount;
+    Ticks time;
     int pitch;
 };
-typedef struct IndexedOffAr_t {
+typedef struct TimedOffAr_t {
+   int itype;
+   int refCount;
    int len;
    int cap;
-   int elemSize;
-   void (*clearer)(IndexedOff*);
-   IndexedOff *data;
-} IndexedOffAr;
-
-typedef struct IndexedOffArFIt_t {
-   IndexedOffAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   IndexedOff *var;
-} IndexedOffArFIt;
-
-typedef struct IndexedOffArRIt_t {
-   IndexedOffAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   IndexedOff *var;
-} IndexedOffArRIt;
-
-struct NoteManager_t
-{
-    TimedOffAr pending;
-    IndexedOffAr endgroups;
-    Port *output;
-    Atom *atoms;
+   TimedOff **data;
 };
-struct MusicalContext_t
-{
-    Ticks ticksPerQuarterNote;
-    Ticks quarterNotesPerMeasure;
-};
-typedef struct MEventAr_t {
+
+typedef struct TimedOffArFIt_t {
+   TimedOffAr *arr;
+   bool remove;
+   int index;
+   TimedOff *var;
+} TimedOffArFIt;
+
+typedef struct TimedOffArRIt_t {
+   TimedOffAr *arr;
+   bool remove;
+   int index;
+   TimedOff *var;
+} TimedOffArRIt;
+
+typedef struct TimedPq_t {
+   int itype;
+   int refCount;
    int len;
    int cap;
-   int elemSize;
-   void (*clearer)(MEvent*);
-   MEvent *data;
-} MEventAr;
+   Timed **data;
+};
 
-typedef struct MEventArFIt_t {
-   MEventAr *arr;
-   int lBound;
-   int uBound;
-
+typedef struct TimedPqFIt_t {
+   TimedPq *arr;
+   bool remove;
    int index;
-   MEvent *var;
-} MEventArFIt;
+   Timed *var;
+} TimedPqFIt;
 
-typedef struct MEventArRIt_t {
-   MEventAr *arr;
-   int lBound;
-   int uBound;
-
+typedef struct TimedPqRIt_t {
+   TimedPq *arr;
+   bool remove;
    int index;
-   MEvent *var;
-} MEventArRIt;
+   Timed *var;
+} TimedPqRIt;
 
-struct Midiseq_t
-{
-    bool useMasterClock;
-    Ticks sequenceLength;
-    MEventAr events;
-    Ticks startTime;
-    int ptr;
-};
-struct MidiFileDropDispatch_t
+struct Track_t
 {
     int itype;
+    int refCount;
+    Symbol * name;
 };
-struct MarshalSs_t
-{
-    int itype;
-};
-struct MarshalSii_t
-{
-    int itype;
-};
-struct MarshalSi_t
-{
-    int itype;
-};
-struct Marshal_t
-{
-    int itype;
-};
-struct ManageChokeGroupsDispatch_t
-{
-    int itype;
-};
-typedef struct IntAr_t {
+typedef struct TrackAr_t {
+   int itype;
+   int refCount;
    int len;
    int cap;
-   int elemSize;
-   void (*clearer)(int*);
-   int *data;
-} IntAr;
+   Track **data;
+};
 
-typedef struct IntArFIt_t {
-   IntAr *arr;
-   int lBound;
-   int uBound;
-
+typedef struct TrackArFIt_t {
+   TrackAr *arr;
+   bool remove;
    int index;
-   int *var;
-} IntArFIt;
+   Track *var;
+} TrackArFIt;
 
-typedef struct IntArRIt_t {
-   IntAr *arr;
-   int lBound;
-   int uBound;
-
+typedef struct TrackArRIt_t {
+   TrackAr *arr;
+   bool remove;
    int index;
-   int *var;
-} IntArRIt;
+   Track *var;
+} TrackArRIt;
 
-struct IncrementFrameDispatch_t
+struct VstOutlet_t
 {
     int itype;
-};
-struct Arguments_t
-{
-    Symbol *s1;
-    long i1;
-    long i2;
-    long ivalue;
-    long inlet;
-};
-typedef struct DispatchPtAr_t {
-   int len;
-   int cap;
-   int elemSize;
-   void (*clearer)(Dispatch **);
-   Dispatch **data;
-} DispatchPtAr;
-
-typedef struct DispatchPtArFIt_t {
-   DispatchPtAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   Dispatch **var;
-} DispatchPtArFIt;
-
-typedef struct DispatchPtArRIt_t {
-   DispatchPtAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   Dispatch **var;
-} DispatchPtArRIt;
-
-struct DropDown_t
-{
-    SymbolPtrAr table;
-    int selected;
-    PortRef portRef;
-};
-struct Hub_t
-{
-    PadList *padList;
-    TrackList *trackList;
-    Port *currBankPort;
-    Port *currFramePort;
-    Port *selBankPort;
-    Port *selFramePort;
-    Port *selPadPort;
-    Port *chokeGroupPort;
-    DropDown cgLocalGlobalMenu;
-    DropDown cgInstrumentMenu;
-    DropDown cgIndexMenu;
-    int bank;
-    int frame;
-    bool grabNextTappedPad;
-    int selectedPad;
-    Arguments arguments;
-    DispatchPtAr dispatcher;
-    Ticks masterClock;
-};
-struct FloatEvent_t
-{
-    Ticks stime;
-    double value;
-};
-typedef struct FloatEventAr_t {
-   int len;
-   int cap;
-   int elemSize;
-   void (*clearer)(FloatEvent*);
-   FloatEvent *data;
-} FloatEventAr;
-
-typedef struct FloatEventArFIt_t {
-   FloatEventAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   FloatEvent *var;
-} FloatEventArFIt;
-
-typedef struct FloatEventArRIt_t {
-   FloatEventAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   FloatEvent *var;
-} FloatEventArRIt;
-
-struct FloatSequence_t
-{
-    int itype;
-    long version;
-    Ticks startTime;
-    OutletSpecifier outletSpecifier;
-    Ticks sequenceLength;
-    int cursor;
-    bool cycle;
-    bool inEndgroup;
-    Outlet *outlet;
-    FloatSequence *recordingSeq;
-    FloatEventAr events;
-    double restoreValue;
-};
-struct Dispatch_t
-{
-    int itype;
-    Symbol *selector;
-    Symbol *portId;
-    int inlet;
-    Marshal *marshal;
-};
-struct DecrementFrameDispatch_t
-{
-    int itype;
-};
-struct CcOutlet_t
-{
-    int itype;
-    int cc;
-    AtomAr atoms;
+    int refCount;
+    AtomAr *atoms;
     Port *port;
 };
-struct BinFilePayload_t
+#define Arguments_itype 11
+#define AtomRf_itype 12
+#define BendOutlet_itype 13
+#define CcOutlet_itype 14
+#define DecrementFrameDispatch_itype 15
+#define DropDown_itype 16
+#define FloatEvent_itype 17
+#define FloatSequence_itype 18
+#define Hub_itype 19
+#define IncrementFrameDispatch_itype 20
+#define Int_itype 21
+#define ManageChokeGroupsDispatch_itype 22
+#define MarshalSi_itype 23
+#define MarshalSii_itype 24
+#define MarshalSs_itype 25
+#define MidiFileDropDispatch_itype 26
+#define MusicalContext_itype 27
+#define NoteEvent_itype 28
+#define NoteOutlet_itype 29
+#define NoteSequence_itype 30
+#define NullOutlet_itype 31
+#define OutletSpecifier_itype 32
+#define Pad_itype 33
+#define Port_itype 34
+#define PortFind_itype 35
+#define PortFindCell_itype 36
+#define PortRef_itype 37
+#define Ptr_itype 38
+#define RecordBuffer_itype 39
+#define SelectNextPushedPadDispatch_itype 40
+#define Timed_itype 41
+#define TimedOff_itype 42
+#define Track_itype 43
+#define VstOutlet_itype 44
+const char *Interface_toString(int itype)
 {
-    PortFind *portFind;
-};
-struct BinFile_t
-{
-    int version;
-    String *filename;
-    String *buffer;
-    FILE *stream;
-    BinFilePayload *payload;
-};
-struct BendOutlet_t
-{
-    int itype;
-    AtomAr atoms;
-    Port *port;
-};
-typedef struct AtomArAr_t {
-   int len;
-   int cap;
-   int elemSize;
-   void (*clearer)(AtomAr*);
-   AtomAr *data;
-} AtomArAr;
-
-typedef struct AtomArArFIt_t {
-   AtomArAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   AtomAr *var;
-} AtomArArFIt;
-
-typedef struct AtomArArRIt_t {
-   AtomArAr *arr;
-   int lBound;
-   int uBound;
-
-   int index;
-   AtomAr *var;
-} AtomArArRIt;
-
+   if (self == NULL) {
+       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_<EXPAND_FAIL>");
+       return <EXPAND_FAIL>;
+   }
+   switch(itype) {
+       case Arguments_itype:
+           return "Arguments";
+       case AtomRf_itype:
+           return "AtomRf";
+       case BendOutlet_itype:
+           return "BendOutlet";
+       case CcOutlet_itype:
+           return "CcOutlet";
+       case DecrementFrameDispatch_itype:
+           return "DecrementFrameDispatch";
+       case DropDown_itype:
+           return "DropDown";
+       case FloatEvent_itype:
+           return "FloatEvent";
+       case FloatSequence_itype:
+           return "FloatSequence";
+       case Hub_itype:
+           return "Hub";
+       case IncrementFrameDispatch_itype:
+           return "IncrementFrameDispatch";
+       case Int_itype:
+           return "Int";
+       case ManageChokeGroupsDispatch_itype:
+           return "ManageChokeGroupsDispatch";
+       case MarshalSi_itype:
+           return "MarshalSi";
+       case MarshalSii_itype:
+           return "MarshalSii";
+       case MarshalSs_itype:
+           return "MarshalSs";
+       case MidiFileDropDispatch_itype:
+           return "MidiFileDropDispatch";
+       case MusicalContext_itype:
+           return "MusicalContext";
+       case NoteEvent_itype:
+           return "NoteEvent";
+       case NoteOutlet_itype:
+           return "NoteOutlet";
+       case NoteSequence_itype:
+           return "NoteSequence";
+       case NullOutlet_itype:
+           return "NullOutlet";
+       case OutletSpecifier_itype:
+           return "OutletSpecifier";
+       case Pad_itype:
+           return "Pad";
+       case Port_itype:
+           return "Port";
+       case PortFind_itype:
+           return "PortFind";
+       case PortFindCell_itype:
+           return "PortFindCell";
+       case PortRef_itype:
+           return "PortRef";
+       case Ptr_itype:
+           return "Ptr";
+       case RecordBuffer_itype:
+           return "RecordBuffer";
+       case SelectNextPushedPadDispatch_itype:
+           return "SelectNextPushedPadDispatch";
+       case Timed_itype:
+           return "Timed";
+       case TimedOff_itype:
+           return "TimedOff";
+       case Track_itype:
+           return "Track";
+       case VstOutlet_itype:
+           return "VstOutlet";
+    }
+    return "Unknown";
+}
+Arguments *Arguments_new();
+void Arguments_incRef(Arguments *self);
+void Arguments_decRef(Arguments *self);
+Arguments *Arguments_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *Arguments_toJson(Arguments *self, Error *err);
+Arguments *Arguments_clone(Arguments *self);
+static inline Symbol * Arguments_s1(Arguments *self){return self->s1;}
+static inline void Arguments_setS1(Arguments *self, Symbol * value){self->s1 = value;}
+static inline long Arguments_i1(Arguments *self){return self->i1;}
+static inline void Arguments_setI1(Arguments *self, long value){self->i1 = value;}
+static inline long Arguments_i2(Arguments *self){return self->i2;}
+static inline void Arguments_setI2(Arguments *self, long value){self->i2 = value;}
+static inline long Arguments_ivalue(Arguments *self){return self->ivalue;}
+static inline void Arguments_setIvalue(Arguments *self, long value){self->ivalue = value;}
+static inline long Arguments_inlet(Arguments *self){return self->inlet;}
+static inline void Arguments_setInlet(Arguments *self, long value){self->inlet = value;}
+#define AtomAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
+AtomAr *AtomAr_clone(AtomAr *arr);
+void AtomAr_decRef(AtomAr *arr);
+void AtomAr_fit(AtomAr *arr);
+#define AtomAr_foreach(var, arr)               for (AtomArFIt var = {arr, false, 0, NULL};        AtomArFIt_next(&var); )
+#define AtomAr_foreachOffset(var, arr, offset) for (AtomArFIt var = {arr, false, offset-1, NULL}; AtomArFIt_next(&var); )
+AtomAr *AtomAr_fromJson(JSON_Value *jval, Error *err);
+AtomRf *AtomAr_get(AtomAr *arr, int index, Error *err);
+void AtomAr_incRef(AtomAr *arr);
+void AtomAr_insert(AtomAr *arr, int index, AtomRf *elem, Error *err);
+int AtomAr_last(AtomAr *arr);
+int AtomAr_len(AtomAr *arr);
+AtomAr *AtomAr_new();
+void AtomAr_pop(AtomAr *arr, Error *err);
+AtomRf *AtomAr_pop(AtomAr *arr, Error *err);
+void AtomAr_push(AtomAr *arr, AtomRf *elem);
+void AtomAr_remove(AtomAr *arr, int index, Error *err);
+void AtomAr_reserve(AtomAr *arr, int newCap);
+#define AtomAr_rforeach(var, arr)               for (AtomArFIt var = {arr, false, (arr)->len, NULL};        AtomArFIt_next(&var); )
+#define AtomAr_rforeachOffset(var, arr, offset) for (AtomArFIt var = {arr, false, (arr)->len-offset, NULL}; AtomArFIt_next(&var); )
+void AtomAr_set(AtomAr *arr, int index, AtomRf *elem, Error *err);
+JSON_Value *AtomAr_toJson(AtomAr *self, Error *err);
+void AtomAr_truncate(AtomAr *arr, int newLen);
+bool AtomArFIt_next(AtomArFIt *iterator);
+bool AtomArRIt_next(AtomArRIt *iterator);
+#define AtomArAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
+AtomArAr *AtomArAr_clone(AtomArAr *arr);
+void AtomArAr_decRef(AtomArAr *arr);
+void AtomArAr_fit(AtomArAr *arr);
+#define AtomArAr_foreach(var, arr)               for (AtomArArFIt var = {arr, false, 0, NULL};        AtomArArFIt_next(&var); )
+#define AtomArAr_foreachOffset(var, arr, offset) for (AtomArArFIt var = {arr, false, offset-1, NULL}; AtomArArFIt_next(&var); )
+AtomArAr *AtomArAr_fromJson(JSON_Value *jval, Error *err);
+AtomAr *AtomArAr_get(AtomArAr *arr, int index, Error *err);
+void AtomArAr_incRef(AtomArAr *arr);
+void AtomArAr_insert(AtomArAr *arr, int index, AtomAr *elem, Error *err);
+int AtomArAr_last(AtomArAr *arr);
+int AtomArAr_len(AtomArAr *arr);
+AtomArAr *AtomArAr_new();
+void AtomArAr_pop(AtomArAr *arr, Error *err);
+AtomAr *AtomArAr_pop(AtomArAr *arr, Error *err);
+void AtomArAr_push(AtomArAr *arr, AtomAr *elem);
+void AtomArAr_remove(AtomArAr *arr, int index, Error *err);
+void AtomArAr_reserve(AtomArAr *arr, int newCap);
+#define AtomArAr_rforeach(var, arr)               for (AtomArArFIt var = {arr, false, (arr)->len, NULL};        AtomArArFIt_next(&var); )
+#define AtomArAr_rforeachOffset(var, arr, offset) for (AtomArArFIt var = {arr, false, (arr)->len-offset, NULL}; AtomArArFIt_next(&var); )
+void AtomArAr_set(AtomArAr *arr, int index, AtomAr *elem, Error *err);
+JSON_Value *AtomArAr_toJson(AtomArAr *self, Error *err);
+void AtomArAr_truncate(AtomArAr *arr, int newLen);
+bool AtomArArFIt_next(AtomArArFIt *iterator);
+bool AtomArArRIt_next(AtomArArRIt *iterator);
+AtomRf *AtomRf_new();
+void AtomRf_incRef(AtomRf *self);
+void AtomRf_decRef(AtomRf *self);
+AtomRf *AtomRf_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *AtomRf_toJson(AtomRf *self, Error *err);
+AtomRf *AtomRf_clone(AtomRf *self);
+static inline Atom AtomRf_a(AtomRf *self){return self->a;}
+static inline void AtomRf_setA(AtomRf *self, Atom value){self->a = value;}
+BendOutlet *BendOutlet_new();
+void BendOutlet_incRef(BendOutlet *self);
+void BendOutlet_decRef(BendOutlet *self);
+BendOutlet *BendOutlet_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *BendOutlet_toJson(BendOutlet *self, Error *err);
+BendOutlet *BendOutlet_clone(BendOutlet *self);
+static inline AtomAr *BendOutlet_atoms(BendOutlet *self){return self->atoms;}
+void BendOutlet_setAtoms(BendOutlet *self, <EXPAND_FAIL> *value);
+static inline Port *BendOutlet_port(BendOutlet *self){return self->port;}
+void BendOutlet_setPort(BendOutlet *self, <EXPAND_FAIL> *value);
+static inline BendOutlet *BendOutlet_castFromOutlet(Outlet *self) {
+   if (self->itype == BendOutlet_itype) {
+       return (BendOutlet*)self;
+   }
+   return NULL;
+}
+static inline Outlet *BendOutlet_castToOutlet(BendOutlet *self) {
+   return (Outlet*)self;
+}
+CcOutlet *CcOutlet_new();
+void CcOutlet_incRef(CcOutlet *self);
+void CcOutlet_decRef(CcOutlet *self);
+CcOutlet *CcOutlet_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *CcOutlet_toJson(CcOutlet *self, Error *err);
+CcOutlet *CcOutlet_clone(CcOutlet *self);
+static inline int CcOutlet_cc(CcOutlet *self){return self->cc;}
+static inline void CcOutlet_setCc(CcOutlet *self, int value){self->cc = value;}
+static inline AtomAr *CcOutlet_atoms(CcOutlet *self){return self->atoms;}
+void CcOutlet_setAtoms(CcOutlet *self, <EXPAND_FAIL> *value);
+static inline Port *CcOutlet_port(CcOutlet *self){return self->port;}
+void CcOutlet_setPort(CcOutlet *self, <EXPAND_FAIL> *value);
+static inline CcOutlet *CcOutlet_castFromOutlet(Outlet *self) {
+   if (self->itype == CcOutlet_itype) {
+       return (CcOutlet*)self;
+   }
+   return NULL;
+}
+static inline Outlet *CcOutlet_castToOutlet(CcOutlet *self) {
+   return (Outlet*)self;
+}
+DecrementFrameDispatch *DecrementFrameDispatch_new();
+void DecrementFrameDispatch_incRef(DecrementFrameDispatch *self);
+void DecrementFrameDispatch_decRef(DecrementFrameDispatch *self);
+DecrementFrameDispatch *DecrementFrameDispatch_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *DecrementFrameDispatch_toJson(DecrementFrameDispatch *self, Error *err);
+DecrementFrameDispatch *DecrementFrameDispatch_clone(DecrementFrameDispatch *self);
+static inline Symbol * DecrementFrameDispatch_selector(DecrementFrameDispatch *self){return self->selector;}
+static inline void DecrementFrameDispatch_setSelector(DecrementFrameDispatch *self, Symbol * value){self->selector = value;}
+static inline Symbol * DecrementFrameDispatch_portId(DecrementFrameDispatch *self){return self->portId;}
+static inline void DecrementFrameDispatch_setPortId(DecrementFrameDispatch *self, Symbol * value){self->portId = value;}
+static inline int DecrementFrameDispatch_inlet(DecrementFrameDispatch *self){return self->inlet;}
+static inline void DecrementFrameDispatch_setInlet(DecrementFrameDispatch *self, int value){self->inlet = value;}
+static inline Marshal * DecrementFrameDispatch_marshal(DecrementFrameDispatch *self){return self->marshal;}
+static inline void DecrementFrameDispatch_setMarshal(DecrementFrameDispatch *self, Marshal * value){self->marshal = value;}
+static inline DecrementFrameDispatch *DecrementFrameDispatch_castFromDispatch(Dispatch *self) {
+   if (self->itype == DecrementFrameDispatch_itype) {
+       return (DecrementFrameDispatch*)self;
+   }
+   return NULL;
+}
+static inline Dispatch *DecrementFrameDispatch_castToDispatch(DecrementFrameDispatch *self) {
+   return (Dispatch*)self;
+}
+int Dispatch_nthIType(int n, int *itype);
+#define Dispatch_foreachIType(itype) for (int __##itype = 0, itype = 0; Dispatch_nthIType(__##itype, &itype); __##itype++)
+xvoid Dispatch_exec(Dispatch *self, Hub *a1, Arguments *a2, Error * a3, Error *err, Error *err);
+xDispatch *Dispatch_create(int itype, Error *err);
+xvoid Dispatch_free(Dispatch *self, Error *err);
+xvoid Dispatch_initDispatchAr(int itype, DispatchAr *a1, Error * a2, Error *err, Error *err);
+#define DispatchAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
+DispatchAr *DispatchAr_clone(DispatchAr *arr);
+void DispatchAr_decRef(DispatchAr *arr);
+void DispatchAr_fit(DispatchAr *arr);
+#define DispatchAr_foreach(var, arr)               for (DispatchArFIt var = {arr, false, 0, NULL};        DispatchArFIt_next(&var); )
+#define DispatchAr_foreachOffset(var, arr, offset) for (DispatchArFIt var = {arr, false, offset-1, NULL}; DispatchArFIt_next(&var); )
+DispatchAr *DispatchAr_fromJson(JSON_Value *jval, Error *err);
+Dispatch *DispatchAr_get(DispatchAr *arr, int index, Error *err);
+void DispatchAr_incRef(DispatchAr *arr);
+void DispatchAr_insert(DispatchAr *arr, int index, Dispatch *elem, Error *err);
+int DispatchAr_last(DispatchAr *arr);
+int DispatchAr_len(DispatchAr *arr);
+DispatchAr *DispatchAr_new();
+void DispatchAr_pop(DispatchAr *arr, Error *err);
+Dispatch *DispatchAr_pop(DispatchAr *arr, Error *err);
+void DispatchAr_push(DispatchAr *arr, Dispatch *elem);
+void DispatchAr_remove(DispatchAr *arr, int index, Error *err);
+void DispatchAr_reserve(DispatchAr *arr, int newCap);
+#define DispatchAr_rforeach(var, arr)               for (DispatchArFIt var = {arr, false, (arr)->len, NULL};        DispatchArFIt_next(&var); )
+#define DispatchAr_rforeachOffset(var, arr, offset) for (DispatchArFIt var = {arr, false, (arr)->len-offset, NULL}; DispatchArFIt_next(&var); )
+void DispatchAr_set(DispatchAr *arr, int index, Dispatch *elem, Error *err);
+JSON_Value *DispatchAr_toJson(DispatchAr *self, Error *err);
+void DispatchAr_truncate(DispatchAr *arr, int newLen);
+bool DispatchArFIt_next(DispatchArFIt *iterator);
+bool DispatchArRIt_next(DispatchArRIt *iterator);
+void DispatchAr_binInsert(DispatchAr *arr, Dispatch *elem);
+void DispatchAr_binRemove(DispatchAr *arr, Dispatch *elem);
+Dispatch *DispatchAr_binSearch(DispatchAr *arr, Dispatch *elem);
+int Dispatch_cmpIndirectResolve(Dispatch **left, Dispatch **right);
+Dispatch *DispatchAr_pqPeek(DispatchAr *arr);
+void DispatchAr_pqPopDecRef(DispatchAr *arr, Dispatch *elem);
+Dispatch *DispatchAr_pqPop(DispatchAr *arr);
+void DispatchAr_pqPush(DispatchAr *arr, Dispatch *elem);
+void DispatchAr_pqSort(DispatchAr *arr);
+void DispatchAr_sort(DispatchAr *arr);
+DropDown *DropDown_new();
+void DropDown_incRef(DropDown *self);
+void DropDown_decRef(DropDown *self);
+DropDown *DropDown_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *DropDown_toJson(DropDown *self, Error *err);
+DropDown *DropDown_clone(DropDown *self);
+static inline SymbolAr *DropDown_table(DropDown *self){return self->table;}
+void DropDown_setTable(DropDown *self, <EXPAND_FAIL> *value);
+static inline int DropDown_selected(DropDown *self){return self->selected;}
+static inline void DropDown_setSelected(DropDown *self, int value){self->selected = value;}
+static inline Outlet *DropDown_outlet(DropDown *self){return self->outlet;}
+void DropDown_setOutlet(DropDown *self, <EXPAND_FAIL> *value);
+FloatEvent *FloatEvent_new();
+void FloatEvent_incRef(FloatEvent *self);
+void FloatEvent_decRef(FloatEvent *self);
+FloatEvent *FloatEvent_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *FloatEvent_toJson(FloatEvent *self, Error *err);
+FloatEvent *FloatEvent_clone(FloatEvent *self);
+static inline Ticks FloatEvent_stime(FloatEvent *self){return self->stime;}
+static inline void FloatEvent_setStime(FloatEvent *self, Ticks value){self->stime = value;}
+static inline double FloatEvent_value(FloatEvent *self){return self->value;}
+static inline void FloatEvent_setValue(FloatEvent *self, double value){self->value = value;}
+#define FloatEventAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
+FloatEventAr *FloatEventAr_clone(FloatEventAr *arr);
+void FloatEventAr_decRef(FloatEventAr *arr);
+void FloatEventAr_fit(FloatEventAr *arr);
+#define FloatEventAr_foreach(var, arr)               for (FloatEventArFIt var = {arr, false, 0, NULL};        FloatEventArFIt_next(&var); )
+#define FloatEventAr_foreachOffset(var, arr, offset) for (FloatEventArFIt var = {arr, false, offset-1, NULL}; FloatEventArFIt_next(&var); )
+FloatEventAr *FloatEventAr_fromJson(JSON_Value *jval, Error *err);
+FloatEvent *FloatEventAr_get(FloatEventAr *arr, int index, Error *err);
+void FloatEventAr_incRef(FloatEventAr *arr);
+void FloatEventAr_insert(FloatEventAr *arr, int index, FloatEvent *elem, Error *err);
+int FloatEventAr_last(FloatEventAr *arr);
+int FloatEventAr_len(FloatEventAr *arr);
+FloatEventAr *FloatEventAr_new();
+void FloatEventAr_pop(FloatEventAr *arr, Error *err);
+FloatEvent *FloatEventAr_pop(FloatEventAr *arr, Error *err);
+void FloatEventAr_push(FloatEventAr *arr, FloatEvent *elem);
+void FloatEventAr_remove(FloatEventAr *arr, int index, Error *err);
+void FloatEventAr_reserve(FloatEventAr *arr, int newCap);
+#define FloatEventAr_rforeach(var, arr)               for (FloatEventArFIt var = {arr, false, (arr)->len, NULL};        FloatEventArFIt_next(&var); )
+#define FloatEventAr_rforeachOffset(var, arr, offset) for (FloatEventArFIt var = {arr, false, (arr)->len-offset, NULL}; FloatEventArFIt_next(&var); )
+void FloatEventAr_set(FloatEventAr *arr, int index, FloatEvent *elem, Error *err);
+JSON_Value *FloatEventAr_toJson(FloatEventAr *self, Error *err);
+void FloatEventAr_truncate(FloatEventAr *arr, int newLen);
+bool FloatEventArFIt_next(FloatEventArFIt *iterator);
+bool FloatEventArRIt_next(FloatEventArRIt *iterator);
+void FloatEventAr_binInsert(FloatEventAr *arr, FloatEvent *elem);
+void FloatEventAr_binRemove(FloatEventAr *arr, FloatEvent *elem);
+FloatEvent *FloatEventAr_binSearch(FloatEventAr *arr, FloatEvent *elem);
+int FloatEvent_cmpIndirectResolve(FloatEvent **left, FloatEvent **right);
+FloatEvent *FloatEventAr_pqPeek(FloatEventAr *arr);
+void FloatEventAr_pqPopDecRef(FloatEventAr *arr, FloatEvent *elem);
+FloatEvent *FloatEventAr_pqPop(FloatEventAr *arr);
+void FloatEventAr_pqPush(FloatEventAr *arr, FloatEvent *elem);
+void FloatEventAr_pqSort(FloatEventAr *arr);
+void FloatEventAr_sort(FloatEventAr *arr);
+FloatSequence *FloatSequence_new();
+void FloatSequence_incRef(FloatSequence *self);
+void FloatSequence_decRef(FloatSequence *self);
+FloatSequence *FloatSequence_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *FloatSequence_toJson(FloatSequence *self, Error *err);
+FloatSequence *FloatSequence_clone(FloatSequence *self);
+static inline long FloatSequence_version(FloatSequence *self){return self->version;}
+static inline void FloatSequence_setVersion(FloatSequence *self, long value){self->version = value;}
+static inline Ticks FloatSequence_startTime(FloatSequence *self){return self->startTime;}
+static inline void FloatSequence_setStartTime(FloatSequence *self, Ticks value){self->startTime = value;}
+static inline OutletSpecifier *FloatSequence_outletSpecifier(FloatSequence *self){return self->outletSpecifier;}
+void FloatSequence_setOutletSpecifier(FloatSequence *self, <EXPAND_FAIL> *value);
+static inline Ticks FloatSequence_sequenceLength(FloatSequence *self){return self->sequenceLength;}
+static inline void FloatSequence_setSequenceLength(FloatSequence *self, Ticks value){self->sequenceLength = value;}
+static inline int FloatSequence_cursor(FloatSequence *self){return self->cursor;}
+static inline void FloatSequence_setCursor(FloatSequence *self, int value){self->cursor = value;}
+static inline bool FloatSequence_cycle(FloatSequence *self){return self->cycle;}
+static inline void FloatSequence_setCycle(FloatSequence *self, bool value){self->cycle = value;}
+static inline bool FloatSequence_inEndgroup(FloatSequence *self){return self->inEndgroup;}
+static inline void FloatSequence_setInEndgroup(FloatSequence *self, bool value){self->inEndgroup = value;}
+static inline Outlet *FloatSequence_outlet(FloatSequence *self){return self->outlet;}
+void FloatSequence_setOutlet(FloatSequence *self, <EXPAND_FAIL> *value);
+static inline FloatSequence * FloatSequence_recordingSeq(FloatSequence *self){return self->recordingSeq;}
+static inline void FloatSequence_setRecordingSeq(FloatSequence *self, FloatSequence * value){self->recordingSeq = value;}
+static inline FloatEventAr *FloatSequence_events(FloatSequence *self){return self->events;}
+void FloatSequence_setEvents(FloatSequence *self, <EXPAND_FAIL> *value);
+static inline double FloatSequence_restoreValue(FloatSequence *self){return self->restoreValue;}
+static inline void FloatSequence_setRestoreValue(FloatSequence *self, double value){self->restoreValue = value;}
+static inline FloatSequence *FloatSequence_castFromSequence(Sequence *self) {
+   if (self->itype == FloatSequence_itype) {
+       return (FloatSequence*)self;
+   }
+   return NULL;
+}
+static inline Sequence *FloatSequence_castToSequence(FloatSequence *self) {
+   return (Sequence*)self;
+}
+Hub *Hub_new();
+void Hub_incRef(Hub *self);
+void Hub_decRef(Hub *self);
+Hub *Hub_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *Hub_toJson(Hub *self, Error *err);
+Hub *Hub_clone(Hub *self);
+static inline PadAr *Hub_padList(Hub *self){return self->padList;}
+void Hub_setPadList(Hub *self, <EXPAND_FAIL> *value);
+static inline TrackAr *Hub_trackList(Hub *self){return self->trackList;}
+void Hub_setTrackList(Hub *self, <EXPAND_FAIL> *value);
+static inline Port *Hub_currBankPort(Hub *self){return self->currBankPort;}
+void Hub_setCurrBankPort(Hub *self, <EXPAND_FAIL> *value);
+static inline Port *Hub_currFramePort(Hub *self){return self->currFramePort;}
+void Hub_setCurrFramePort(Hub *self, <EXPAND_FAIL> *value);
+static inline Port *Hub_selBankPort(Hub *self){return self->selBankPort;}
+void Hub_setSelBankPort(Hub *self, <EXPAND_FAIL> *value);
+static inline Port *Hub_selFramePort(Hub *self){return self->selFramePort;}
+void Hub_setSelFramePort(Hub *self, <EXPAND_FAIL> *value);
+static inline Port *Hub_selPadPort(Hub *self){return self->selPadPort;}
+void Hub_setSelPadPort(Hub *self, <EXPAND_FAIL> *value);
+static inline Port *Hub_chokeGroupPort(Hub *self){return self->chokeGroupPort;}
+void Hub_setChokeGroupPort(Hub *self, <EXPAND_FAIL> *value);
+static inline DropDown *Hub_cgLocalGlobalMenu(Hub *self){return self->cgLocalGlobalMenu;}
+void Hub_setCgLocalGlobalMenu(Hub *self, <EXPAND_FAIL> *value);
+static inline DropDown *Hub_cgInstrumentMenu(Hub *self){return self->cgInstrumentMenu;}
+void Hub_setCgInstrumentMenu(Hub *self, <EXPAND_FAIL> *value);
+static inline DropDown *Hub_cgIndexMenu(Hub *self){return self->cgIndexMenu;}
+void Hub_setCgIndexMenu(Hub *self, <EXPAND_FAIL> *value);
+static inline int Hub_bank(Hub *self){return self->bank;}
+static inline void Hub_setBank(Hub *self, int value){self->bank = value;}
+static inline int Hub_frame(Hub *self){return self->frame;}
+static inline void Hub_setFrame(Hub *self, int value){self->frame = value;}
+static inline bool Hub_grabNextTappedPad(Hub *self){return self->grabNextTappedPad;}
+static inline void Hub_setGrabNextTappedPad(Hub *self, bool value){self->grabNextTappedPad = value;}
+static inline int Hub_selectedPad(Hub *self){return self->selectedPad;}
+static inline void Hub_setSelectedPad(Hub *self, int value){self->selectedPad = value;}
+static inline Arguments *Hub_arguments(Hub *self){return self->arguments;}
+void Hub_setArguments(Hub *self, <EXPAND_FAIL> *value);
+static inline DispatchAr *Hub_dispatcher(Hub *self){return self->dispatcher;}
+void Hub_setDispatcher(Hub *self, <EXPAND_FAIL> *value);
+static inline Ticks Hub_masterClock(Hub *self){return self->masterClock;}
+static inline void Hub_setMasterClock(Hub *self, Ticks value){self->masterClock = value;}
+IncrementFrameDispatch *IncrementFrameDispatch_new();
+void IncrementFrameDispatch_incRef(IncrementFrameDispatch *self);
+void IncrementFrameDispatch_decRef(IncrementFrameDispatch *self);
+IncrementFrameDispatch *IncrementFrameDispatch_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *IncrementFrameDispatch_toJson(IncrementFrameDispatch *self, Error *err);
+IncrementFrameDispatch *IncrementFrameDispatch_clone(IncrementFrameDispatch *self);
+static inline Symbol * IncrementFrameDispatch_selector(IncrementFrameDispatch *self){return self->selector;}
+static inline void IncrementFrameDispatch_setSelector(IncrementFrameDispatch *self, Symbol * value){self->selector = value;}
+static inline Symbol * IncrementFrameDispatch_portId(IncrementFrameDispatch *self){return self->portId;}
+static inline void IncrementFrameDispatch_setPortId(IncrementFrameDispatch *self, Symbol * value){self->portId = value;}
+static inline int IncrementFrameDispatch_inlet(IncrementFrameDispatch *self){return self->inlet;}
+static inline void IncrementFrameDispatch_setInlet(IncrementFrameDispatch *self, int value){self->inlet = value;}
+static inline Marshal * IncrementFrameDispatch_marshal(IncrementFrameDispatch *self){return self->marshal;}
+static inline void IncrementFrameDispatch_setMarshal(IncrementFrameDispatch *self, Marshal * value){self->marshal = value;}
+static inline IncrementFrameDispatch *IncrementFrameDispatch_castFromDispatch(Dispatch *self) {
+   if (self->itype == IncrementFrameDispatch_itype) {
+       return (IncrementFrameDispatch*)self;
+   }
+   return NULL;
+}
+static inline Dispatch *IncrementFrameDispatch_castToDispatch(IncrementFrameDispatch *self) {
+   return (Dispatch*)self;
+}
+Int *Int_new();
+void Int_incRef(Int *self);
+void Int_decRef(Int *self);
+Int *Int_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *Int_toJson(Int *self, Error *err);
+Int *Int_clone(Int *self);
+static inline int Int_i(Int *self){return self->i;}
+static inline void Int_setI(Int *self, int value){self->i = value;}
+#define IntAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
+IntAr *IntAr_clone(IntAr *arr);
+void IntAr_decRef(IntAr *arr);
+void IntAr_fit(IntAr *arr);
+#define IntAr_foreach(var, arr)               for (IntArFIt var = {arr, false, 0, NULL};        IntArFIt_next(&var); )
+#define IntAr_foreachOffset(var, arr, offset) for (IntArFIt var = {arr, false, offset-1, NULL}; IntArFIt_next(&var); )
+IntAr *IntAr_fromJson(JSON_Value *jval, Error *err);
+Int *IntAr_get(IntAr *arr, int index, Error *err);
+void IntAr_incRef(IntAr *arr);
+void IntAr_insert(IntAr *arr, int index, Int *elem, Error *err);
+int IntAr_last(IntAr *arr);
+int IntAr_len(IntAr *arr);
+IntAr *IntAr_new();
+void IntAr_pop(IntAr *arr, Error *err);
+Int *IntAr_pop(IntAr *arr, Error *err);
+void IntAr_push(IntAr *arr, Int *elem);
+void IntAr_remove(IntAr *arr, int index, Error *err);
+void IntAr_reserve(IntAr *arr, int newCap);
+#define IntAr_rforeach(var, arr)               for (IntArFIt var = {arr, false, (arr)->len, NULL};        IntArFIt_next(&var); )
+#define IntAr_rforeachOffset(var, arr, offset) for (IntArFIt var = {arr, false, (arr)->len-offset, NULL}; IntArFIt_next(&var); )
+void IntAr_set(IntAr *arr, int index, Int *elem, Error *err);
+JSON_Value *IntAr_toJson(IntAr *self, Error *err);
+void IntAr_truncate(IntAr *arr, int newLen);
+bool IntArFIt_next(IntArFIt *iterator);
+bool IntArRIt_next(IntArRIt *iterator);
+void IntAr_binInsert(IntAr *arr, Int *elem);
+void IntAr_binRemove(IntAr *arr, Int *elem);
+Int *IntAr_binSearch(IntAr *arr, Int *elem);
+int Int_cmpIndirectResolve(Int **left, Int **right);
+Int *IntAr_pqPeek(IntAr *arr);
+void IntAr_pqPopDecRef(IntAr *arr, Int *elem);
+Int *IntAr_pqPop(IntAr *arr);
+void IntAr_pqPush(IntAr *arr, Int *elem);
+void IntAr_pqSort(IntAr *arr);
+void IntAr_sort(IntAr *arr);
+ManageChokeGroupsDispatch *ManageChokeGroupsDispatch_new();
+void ManageChokeGroupsDispatch_incRef(ManageChokeGroupsDispatch *self);
+void ManageChokeGroupsDispatch_decRef(ManageChokeGroupsDispatch *self);
+ManageChokeGroupsDispatch *ManageChokeGroupsDispatch_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *ManageChokeGroupsDispatch_toJson(ManageChokeGroupsDispatch *self, Error *err);
+ManageChokeGroupsDispatch *ManageChokeGroupsDispatch_clone(ManageChokeGroupsDispatch *self);
+static inline Symbol * ManageChokeGroupsDispatch_selector(ManageChokeGroupsDispatch *self){return self->selector;}
+static inline void ManageChokeGroupsDispatch_setSelector(ManageChokeGroupsDispatch *self, Symbol * value){self->selector = value;}
+static inline Symbol * ManageChokeGroupsDispatch_portId(ManageChokeGroupsDispatch *self){return self->portId;}
+static inline void ManageChokeGroupsDispatch_setPortId(ManageChokeGroupsDispatch *self, Symbol * value){self->portId = value;}
+static inline int ManageChokeGroupsDispatch_inlet(ManageChokeGroupsDispatch *self){return self->inlet;}
+static inline void ManageChokeGroupsDispatch_setInlet(ManageChokeGroupsDispatch *self, int value){self->inlet = value;}
+static inline Marshal * ManageChokeGroupsDispatch_marshal(ManageChokeGroupsDispatch *self){return self->marshal;}
+static inline void ManageChokeGroupsDispatch_setMarshal(ManageChokeGroupsDispatch *self, Marshal * value){self->marshal = value;}
+static inline ManageChokeGroupsDispatch *ManageChokeGroupsDispatch_castFromDispatch(Dispatch *self) {
+   if (self->itype == ManageChokeGroupsDispatch_itype) {
+       return (ManageChokeGroupsDispatch*)self;
+   }
+   return NULL;
+}
+static inline Dispatch *ManageChokeGroupsDispatch_castToDispatch(ManageChokeGroupsDispatch *self) {
+   return (Dispatch*)self;
+}
+int Marshal_nthIType(int n, int *itype);
+#define Marshal_foreachIType(itype) for (int __##itype = 0, itype = 0; Marshal_nthIType(__##itype, &itype); __##itype++)
+xvoid Marshal_process(Marshal *self, Arguments *a1, long a2, Atom * a3, Error * a4, Error *err, Error *err);
+xvoid Marshal_zeroArgs(Marshal *self, Arguments *a1, Error *err);
+MarshalSi *MarshalSi_new();
+void MarshalSi_incRef(MarshalSi *self);
+void MarshalSi_decRef(MarshalSi *self);
+MarshalSi *MarshalSi_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *MarshalSi_toJson(MarshalSi *self, Error *err);
+MarshalSi *MarshalSi_clone(MarshalSi *self);
+static inline Symbol * MarshalSi_selector(MarshalSi *self){return self->selector;}
+static inline void MarshalSi_setSelector(MarshalSi *self, Symbol * value){self->selector = value;}
+static inline Symbol * MarshalSi_portId(MarshalSi *self){return self->portId;}
+static inline void MarshalSi_setPortId(MarshalSi *self, Symbol * value){self->portId = value;}
+static inline int MarshalSi_inlet(MarshalSi *self){return self->inlet;}
+static inline void MarshalSi_setInlet(MarshalSi *self, int value){self->inlet = value;}
+static inline MarshalSi *MarshalSi_castFromMarshal(Marshal *self) {
+   if (self->itype == MarshalSi_itype) {
+       return (MarshalSi*)self;
+   }
+   return NULL;
+}
+static inline Marshal *MarshalSi_castToMarshal(MarshalSi *self) {
+   return (Marshal*)self;
+}
+MarshalSii *MarshalSii_new();
+void MarshalSii_incRef(MarshalSii *self);
+void MarshalSii_decRef(MarshalSii *self);
+MarshalSii *MarshalSii_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *MarshalSii_toJson(MarshalSii *self, Error *err);
+MarshalSii *MarshalSii_clone(MarshalSii *self);
+static inline Symbol * MarshalSii_selector(MarshalSii *self){return self->selector;}
+static inline void MarshalSii_setSelector(MarshalSii *self, Symbol * value){self->selector = value;}
+static inline Symbol * MarshalSii_portId(MarshalSii *self){return self->portId;}
+static inline void MarshalSii_setPortId(MarshalSii *self, Symbol * value){self->portId = value;}
+static inline int MarshalSii_inlet(MarshalSii *self){return self->inlet;}
+static inline void MarshalSii_setInlet(MarshalSii *self, int value){self->inlet = value;}
+static inline MarshalSii *MarshalSii_castFromMarshal(Marshal *self) {
+   if (self->itype == MarshalSii_itype) {
+       return (MarshalSii*)self;
+   }
+   return NULL;
+}
+static inline Marshal *MarshalSii_castToMarshal(MarshalSii *self) {
+   return (Marshal*)self;
+}
+MarshalSs *MarshalSs_new();
+void MarshalSs_incRef(MarshalSs *self);
+void MarshalSs_decRef(MarshalSs *self);
+MarshalSs *MarshalSs_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *MarshalSs_toJson(MarshalSs *self, Error *err);
+MarshalSs *MarshalSs_clone(MarshalSs *self);
+static inline Symbol * MarshalSs_selector(MarshalSs *self){return self->selector;}
+static inline void MarshalSs_setSelector(MarshalSs *self, Symbol * value){self->selector = value;}
+static inline Symbol * MarshalSs_portId(MarshalSs *self){return self->portId;}
+static inline void MarshalSs_setPortId(MarshalSs *self, Symbol * value){self->portId = value;}
+static inline int MarshalSs_inlet(MarshalSs *self){return self->inlet;}
+static inline void MarshalSs_setInlet(MarshalSs *self, int value){self->inlet = value;}
+static inline MarshalSs *MarshalSs_castFromMarshal(Marshal *self) {
+   if (self->itype == MarshalSs_itype) {
+       return (MarshalSs*)self;
+   }
+   return NULL;
+}
+static inline Marshal *MarshalSs_castToMarshal(MarshalSs *self) {
+   return (Marshal*)self;
+}
+MidiFileDropDispatch *MidiFileDropDispatch_new();
+void MidiFileDropDispatch_incRef(MidiFileDropDispatch *self);
+void MidiFileDropDispatch_decRef(MidiFileDropDispatch *self);
+MidiFileDropDispatch *MidiFileDropDispatch_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *MidiFileDropDispatch_toJson(MidiFileDropDispatch *self, Error *err);
+MidiFileDropDispatch *MidiFileDropDispatch_clone(MidiFileDropDispatch *self);
+static inline Symbol * MidiFileDropDispatch_selector(MidiFileDropDispatch *self){return self->selector;}
+static inline void MidiFileDropDispatch_setSelector(MidiFileDropDispatch *self, Symbol * value){self->selector = value;}
+static inline Symbol * MidiFileDropDispatch_portId(MidiFileDropDispatch *self){return self->portId;}
+static inline void MidiFileDropDispatch_setPortId(MidiFileDropDispatch *self, Symbol * value){self->portId = value;}
+static inline int MidiFileDropDispatch_inlet(MidiFileDropDispatch *self){return self->inlet;}
+static inline void MidiFileDropDispatch_setInlet(MidiFileDropDispatch *self, int value){self->inlet = value;}
+static inline Marshal * MidiFileDropDispatch_marshal(MidiFileDropDispatch *self){return self->marshal;}
+static inline void MidiFileDropDispatch_setMarshal(MidiFileDropDispatch *self, Marshal * value){self->marshal = value;}
+static inline MidiFileDropDispatch *MidiFileDropDispatch_castFromDispatch(Dispatch *self) {
+   if (self->itype == MidiFileDropDispatch_itype) {
+       return (MidiFileDropDispatch*)self;
+   }
+   return NULL;
+}
+static inline Dispatch *MidiFileDropDispatch_castToDispatch(MidiFileDropDispatch *self) {
+   return (Dispatch*)self;
+}
+MusicalContext *MusicalContext_new();
+void MusicalContext_incRef(MusicalContext *self);
+void MusicalContext_decRef(MusicalContext *self);
+MusicalContext *MusicalContext_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *MusicalContext_toJson(MusicalContext *self, Error *err);
+MusicalContext *MusicalContext_clone(MusicalContext *self);
+static inline Ticks MusicalContext_ticksPerQuarterNote(MusicalContext *self){return self->ticksPerQuarterNote;}
+static inline void MusicalContext_setTicksPerQuarterNote(MusicalContext *self, Ticks value){self->ticksPerQuarterNote = value;}
+static inline Ticks MusicalContext_quarterNotesPerMeasure(MusicalContext *self){return self->quarterNotesPerMeasure;}
+static inline void MusicalContext_setQuarterNotesPerMeasure(MusicalContext *self, Ticks value){self->quarterNotesPerMeasure = value;}
+NoteEvent *NoteEvent_new();
+void NoteEvent_incRef(NoteEvent *self);
+void NoteEvent_decRef(NoteEvent *self);
+NoteEvent *NoteEvent_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *NoteEvent_toJson(NoteEvent *self, Error *err);
+NoteEvent *NoteEvent_clone(NoteEvent *self);
+static inline uint8_t NoteEvent_pitch(NoteEvent *self){return self->pitch;}
+static inline void NoteEvent_setPitch(NoteEvent *self, uint8_t value){self->pitch = value;}
+static inline uint8_t NoteEvent_velocity(NoteEvent *self){return self->velocity;}
+static inline void NoteEvent_setVelocity(NoteEvent *self, uint8_t value){self->velocity = value;}
+static inline Ticks NoteEvent_stime(NoteEvent *self){return self->stime;}
+static inline void NoteEvent_setStime(NoteEvent *self, Ticks value){self->stime = value;}
+static inline Ticks NoteEvent_duration(NoteEvent *self){return self->duration;}
+static inline void NoteEvent_setDuration(NoteEvent *self, Ticks value){self->duration = value;}
+#define NoteEventAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
+NoteEventAr *NoteEventAr_clone(NoteEventAr *arr);
+void NoteEventAr_decRef(NoteEventAr *arr);
+void NoteEventAr_fit(NoteEventAr *arr);
+#define NoteEventAr_foreach(var, arr)               for (NoteEventArFIt var = {arr, false, 0, NULL};        NoteEventArFIt_next(&var); )
+#define NoteEventAr_foreachOffset(var, arr, offset) for (NoteEventArFIt var = {arr, false, offset-1, NULL}; NoteEventArFIt_next(&var); )
+NoteEventAr *NoteEventAr_fromJson(JSON_Value *jval, Error *err);
+NoteEvent *NoteEventAr_get(NoteEventAr *arr, int index, Error *err);
+void NoteEventAr_incRef(NoteEventAr *arr);
+void NoteEventAr_insert(NoteEventAr *arr, int index, NoteEvent *elem, Error *err);
+int NoteEventAr_last(NoteEventAr *arr);
+int NoteEventAr_len(NoteEventAr *arr);
+NoteEventAr *NoteEventAr_new();
+void NoteEventAr_pop(NoteEventAr *arr, Error *err);
+NoteEvent *NoteEventAr_pop(NoteEventAr *arr, Error *err);
+void NoteEventAr_push(NoteEventAr *arr, NoteEvent *elem);
+void NoteEventAr_remove(NoteEventAr *arr, int index, Error *err);
+void NoteEventAr_reserve(NoteEventAr *arr, int newCap);
+#define NoteEventAr_rforeach(var, arr)               for (NoteEventArFIt var = {arr, false, (arr)->len, NULL};        NoteEventArFIt_next(&var); )
+#define NoteEventAr_rforeachOffset(var, arr, offset) for (NoteEventArFIt var = {arr, false, (arr)->len-offset, NULL}; NoteEventArFIt_next(&var); )
+void NoteEventAr_set(NoteEventAr *arr, int index, NoteEvent *elem, Error *err);
+JSON_Value *NoteEventAr_toJson(NoteEventAr *self, Error *err);
+void NoteEventAr_truncate(NoteEventAr *arr, int newLen);
+bool NoteEventArFIt_next(NoteEventArFIt *iterator);
+bool NoteEventArRIt_next(NoteEventArRIt *iterator);
+void NoteEventAr_binInsert(NoteEventAr *arr, NoteEvent *elem);
+void NoteEventAr_binRemove(NoteEventAr *arr, NoteEvent *elem);
+NoteEvent *NoteEventAr_binSearch(NoteEventAr *arr, NoteEvent *elem);
+int NoteEvent_cmpIndirectResolve(NoteEvent **left, NoteEvent **right);
+NoteEvent *NoteEventAr_pqPeek(NoteEventAr *arr);
+void NoteEventAr_pqPopDecRef(NoteEventAr *arr, NoteEvent *elem);
+NoteEvent *NoteEventAr_pqPop(NoteEventAr *arr);
+void NoteEventAr_pqPush(NoteEventAr *arr, NoteEvent *elem);
+void NoteEventAr_pqSort(NoteEventAr *arr);
+void NoteEventAr_sort(NoteEventAr *arr);
+NoteOutlet *NoteOutlet_new();
+void NoteOutlet_incRef(NoteOutlet *self);
+void NoteOutlet_decRef(NoteOutlet *self);
+NoteOutlet *NoteOutlet_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *NoteOutlet_toJson(NoteOutlet *self, Error *err);
+NoteOutlet *NoteOutlet_clone(NoteOutlet *self);
+static inline AtomAr *NoteOutlet_atoms(NoteOutlet *self){return self->atoms;}
+void NoteOutlet_setAtoms(NoteOutlet *self, <EXPAND_FAIL> *value);
+static inline Port *NoteOutlet_port(NoteOutlet *self){return self->port;}
+void NoteOutlet_setPort(NoteOutlet *self, <EXPAND_FAIL> *value);
+static inline NoteOutlet *NoteOutlet_castFromOutlet(Outlet *self) {
+   if (self->itype == NoteOutlet_itype) {
+       return (NoteOutlet*)self;
+   }
+   return NULL;
+}
+static inline Outlet *NoteOutlet_castToOutlet(NoteOutlet *self) {
+   return (Outlet*)self;
+}
+NoteSequence *NoteSequence_new();
+void NoteSequence_incRef(NoteSequence *self);
+void NoteSequence_decRef(NoteSequence *self);
+NoteSequence *NoteSequence_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *NoteSequence_toJson(NoteSequence *self, Error *err);
+NoteSequence *NoteSequence_clone(NoteSequence *self);
+static inline long NoteSequence_version(NoteSequence *self){return self->version;}
+static inline void NoteSequence_setVersion(NoteSequence *self, long value){self->version = value;}
+static inline Ticks NoteSequence_startTime(NoteSequence *self){return self->startTime;}
+static inline void NoteSequence_setStartTime(NoteSequence *self, Ticks value){self->startTime = value;}
+static inline OutletSpecifier *NoteSequence_outletSpecifier(NoteSequence *self){return self->outletSpecifier;}
+void NoteSequence_setOutletSpecifier(NoteSequence *self, <EXPAND_FAIL> *value);
+static inline Ticks NoteSequence_sequenceLength(NoteSequence *self){return self->sequenceLength;}
+static inline void NoteSequence_setSequenceLength(NoteSequence *self, Ticks value){self->sequenceLength = value;}
+static inline int NoteSequence_cursor(NoteSequence *self){return self->cursor;}
+static inline void NoteSequence_setCursor(NoteSequence *self, int value){self->cursor = value;}
+static inline bool NoteSequence_cycle(NoteSequence *self){return self->cycle;}
+static inline void NoteSequence_setCycle(NoteSequence *self, bool value){self->cycle = value;}
+static inline Ticks NoteSequence_nextOffEvent(NoteSequence *self){return self->nextOffEvent;}
+static inline void NoteSequence_setNextOffEvent(NoteSequence *self, Ticks value){self->nextOffEvent = value;}
+static inline Ticks NoteSequence_nextOnEvent(NoteSequence *self){return self->nextOnEvent;}
+static inline void NoteSequence_setNextOnEvent(NoteSequence *self, Ticks value){self->nextOnEvent = value;}
+static inline bool NoteSequence_inEndgroup(NoteSequence *self){return self->inEndgroup;}
+static inline void NoteSequence_setInEndgroup(NoteSequence *self, bool value){self->inEndgroup = value;}
+static inline Outlet *NoteSequence_outlet(NoteSequence *self){return self->outlet;}
+void NoteSequence_setOutlet(NoteSequence *self, <EXPAND_FAIL> *value);
+static inline NoteSequence * NoteSequence_recordingSeq(NoteSequence *self){return self->recordingSeq;}
+static inline void NoteSequence_setRecordingSeq(NoteSequence *self, NoteSequence * value){self->recordingSeq = value;}
+static inline TimedOffAr *NoteSequence_offs(NoteSequence *self){return self->offs;}
+void NoteSequence_setOffs(NoteSequence *self, <EXPAND_FAIL> *value);
+static inline NoteEventAr *NoteSequence_events(NoteSequence *self){return self->events;}
+void NoteSequence_setEvents(NoteSequence *self, <EXPAND_FAIL> *value);
+static inline NoteSequence *NoteSequence_castFromSequence(Sequence *self) {
+   if (self->itype == NoteSequence_itype) {
+       return (NoteSequence*)self;
+   }
+   return NULL;
+}
+static inline Sequence *NoteSequence_castToSequence(NoteSequence *self) {
+   return (Sequence*)self;
+}
+NullOutlet *NullOutlet_new();
+void NullOutlet_incRef(NullOutlet *self);
+void NullOutlet_decRef(NullOutlet *self);
+NullOutlet *NullOutlet_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *NullOutlet_toJson(NullOutlet *self, Error *err);
+NullOutlet *NullOutlet_clone(NullOutlet *self);
+static inline int NullOutlet_unused(NullOutlet *self){return self->unused;}
+static inline void NullOutlet_setUnused(NullOutlet *self, int value){self->unused = value;}
+static inline NullOutlet *NullOutlet_castFromOutlet(Outlet *self) {
+   if (self->itype == NullOutlet_itype) {
+       return (NullOutlet*)self;
+   }
+   return NULL;
+}
+static inline Outlet *NullOutlet_castToOutlet(NullOutlet *self) {
+   return (Outlet*)self;
+}
+int Outlet_nthIType(int n, int *itype);
+#define Outlet_foreachIType(itype) for (int __##itype = 0, itype = 0; Outlet_nthIType(__##itype, &itype); __##itype++)
+xvoid Outlet_sendNote(Outlet *self, uint8_t a1, uint8_t a2, Error *err);
+xvoid Outlet_sendFloat(Outlet *self, double a1, Error *err);
+OutletSpecifier *OutletSpecifier_new();
+void OutletSpecifier_incRef(OutletSpecifier *self);
+void OutletSpecifier_decRef(OutletSpecifier *self);
+OutletSpecifier *OutletSpecifier_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *OutletSpecifier_toJson(OutletSpecifier *self, Error *err);
+OutletSpecifier *OutletSpecifier_clone(OutletSpecifier *self);
+static inline Symbol * OutletSpecifier_track(OutletSpecifier *self){return self->track;}
+static inline void OutletSpecifier_setTrack(OutletSpecifier *self, Symbol * value){self->track = value;}
+static inline int OutletSpecifier_pluginIndex(OutletSpecifier *self){return self->pluginIndex;}
+static inline void OutletSpecifier_setPluginIndex(OutletSpecifier *self, int value){self->pluginIndex = value;}
+static inline Symbol * OutletSpecifier_parameter(OutletSpecifier *self){return self->parameter;}
+static inline void OutletSpecifier_setParameter(OutletSpecifier *self, Symbol * value){self->parameter = value;}
+static inline int OutletSpecifier_paramIndex(OutletSpecifier *self){return self->paramIndex;}
+static inline void OutletSpecifier_setParamIndex(OutletSpecifier *self, int value){self->paramIndex = value;}
+Pad *Pad_new();
+void Pad_incRef(Pad *self);
+void Pad_decRef(Pad *self);
+Pad *Pad_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *Pad_toJson(Pad *self, Error *err);
+Pad *Pad_clone(Pad *self);
+static inline Symbol * Pad_trackName(Pad *self){return self->trackName;}
+static inline void Pad_setTrackName(Pad *self, Symbol * value){self->trackName = value;}
+static inline int Pad_padIndex(Pad *self){return self->padIndex;}
+static inline void Pad_setPadIndex(Pad *self, int value){self->padIndex = value;}
+static inline Sequence *Pad_SequenceAr(Pad *self){return self->SequenceAr;}
+void Pad_setSequenceAr(Pad *self, <EXPAND_FAIL> *value);
+static inline bool Pad_chokeGroupGlobal(Pad *self){return self->chokeGroupGlobal;}
+static inline void Pad_setChokeGroupGlobal(Pad *self, bool value){self->chokeGroupGlobal = value;}
+static inline int Pad_chokeGroupInstrument(Pad *self){return self->chokeGroupInstrument;}
+static inline void Pad_setChokeGroupInstrument(Pad *self, int value){self->chokeGroupInstrument = value;}
+static inline int Pad_chokeGroupIndex(Pad *self){return self->chokeGroupIndex;}
+static inline void Pad_setChokeGroupIndex(Pad *self, int value){self->chokeGroupIndex = value;}
+static inline int64_t Pad_chokeGroup(Pad *self){return self->chokeGroup;}
+static inline void Pad_setChokeGroup(Pad *self, int64_t value){self->chokeGroup = value;}
+static inline bool Pad_noteReleasePending(Pad *self){return self->noteReleasePending;}
+static inline void Pad_setNoteReleasePending(Pad *self, bool value){self->noteReleasePending = value;}
+static inline bool Pad_inEndgroup(Pad *self){return self->inEndgroup;}
+static inline void Pad_setInEndgroup(Pad *self, bool value){self->inEndgroup = value;}
+static inline Track *Pad_track(Pad *self){return self->track;}
+void Pad_setTrack(Pad *self, <EXPAND_FAIL> *value);
+static inline bool Pad_useMasterClock(Pad *self){return self->useMasterClock;}
+static inline void Pad_setUseMasterClock(Pad *self, bool value){self->useMasterClock = value;}
+#define PadAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
+PadAr *PadAr_clone(PadAr *arr);
+void PadAr_decRef(PadAr *arr);
+void PadAr_fit(PadAr *arr);
+#define PadAr_foreach(var, arr)               for (PadArFIt var = {arr, false, 0, NULL};        PadArFIt_next(&var); )
+#define PadAr_foreachOffset(var, arr, offset) for (PadArFIt var = {arr, false, offset-1, NULL}; PadArFIt_next(&var); )
+PadAr *PadAr_fromJson(JSON_Value *jval, Error *err);
+Pad *PadAr_get(PadAr *arr, int index, Error *err);
+void PadAr_incRef(PadAr *arr);
+void PadAr_insert(PadAr *arr, int index, Pad *elem, Error *err);
+int PadAr_last(PadAr *arr);
+int PadAr_len(PadAr *arr);
+PadAr *PadAr_new();
+void PadAr_pop(PadAr *arr, Error *err);
+Pad *PadAr_pop(PadAr *arr, Error *err);
+void PadAr_push(PadAr *arr, Pad *elem);
+void PadAr_remove(PadAr *arr, int index, Error *err);
+void PadAr_reserve(PadAr *arr, int newCap);
+#define PadAr_rforeach(var, arr)               for (PadArFIt var = {arr, false, (arr)->len, NULL};        PadArFIt_next(&var); )
+#define PadAr_rforeachOffset(var, arr, offset) for (PadArFIt var = {arr, false, (arr)->len-offset, NULL}; PadArFIt_next(&var); )
+void PadAr_set(PadAr *arr, int index, Pad *elem, Error *err);
+JSON_Value *PadAr_toJson(PadAr *self, Error *err);
+void PadAr_truncate(PadAr *arr, int newLen);
+bool PadArFIt_next(PadArFIt *iterator);
+bool PadArRIt_next(PadArRIt *iterator);
+static inline MaxObject Port_obj(Port *self){return self->obj;}
+static inline void Port_setObj(Port *self, MaxObject value){self->obj = value;}
+static inline long Port_inletnum(Port *self){return self->inletnum;}
+static inline void Port_setInletnum(Port *self, long value){self->inletnum = value;}
+static inline PtrAr *Port_proxy(Port *self){return self->proxy;}
+void Port_setProxy(Port *self, <EXPAND_FAIL> *value);
+static inline PtrAr *Port_outlet(Port *self){return self->outlet;}
+void Port_setOutlet(Port *self, <EXPAND_FAIL> *value);
+static inline Symbol * Port_track(Port *self){return self->track;}
+static inline void Port_setTrack(Port *self, Symbol * value){self->track = value;}
+static inline Symbol * Port_id(Port *self){return self->id;}
+static inline void Port_setId(Port *self, Symbol * value){self->id = value;}
+static inline long Port_intInlets(Port *self){return self->intInlets;}
+static inline void Port_setIntInlets(Port *self, long value){self->intInlets = value;}
+static inline long Port_intOutlets(Port *self){return self->intOutlets;}
+static inline void Port_setIntOutlets(Port *self, long value){self->intOutlets = value;}
+static inline void * Port_hub(Port *self){return self->hub;}
+static inline void Port_setHub(Port *self, void * value){self->hub = value;}
+static inline Port_anythingDispatchFunc Port_anythingDispatch(Port *self){return self->anythingDispatch;}
+static inline void Port_setAnythingDispatch(Port *self, Port_anythingDispatchFunc value){self->anythingDispatch = value;}
+static inline Port_intDispatchFunc Port_intDispatch(Port *self){return self->intDispatch;}
+static inline void Port_setIntDispatch(Port *self, Port_intDispatchFunc value){self->intDispatch = value;}
+PortFind *PortFind_new();
+void PortFind_incRef(PortFind *self);
+void PortFind_decRef(PortFind *self);
+PortFind *PortFind_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *PortFind_toJson(PortFind *self, Error *err);
+PortFind *PortFind_clone(PortFind *self);
+static inline PortFindCellAr *PortFind_objects(PortFind *self){return self->objects;}
+void PortFind_setObjects(PortFind *self, <EXPAND_FAIL> *value);
+static inline void * PortFind_hub(PortFind *self){return self->hub;}
+static inline void PortFind_setHub(PortFind *self, void * value){self->hub = value;}
+static inline Port_anythingDispatchFunc PortFind_anythingDispatch(PortFind *self){return self->anythingDispatch;}
+static inline void PortFind_setAnythingDispatch(PortFind *self, Port_anythingDispatchFunc value){self->anythingDispatch = value;}
+static inline Port_intDispatchFunc PortFind_intDispatch(PortFind *self){return self->intDispatch;}
+static inline void PortFind_setIntDispatch(PortFind *self, Port_intDispatchFunc value){self->intDispatch = value;}
+PortFindCell *PortFindCell_new();
+void PortFindCell_incRef(PortFindCell *self);
+void PortFindCell_decRef(PortFindCell *self);
+PortFindCell *PortFindCell_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *PortFindCell_toJson(PortFindCell *self, Error *err);
+PortFindCell *PortFindCell_clone(PortFindCell *self);
+static inline Port PortFindCell_reciever(PortFindCell *self){return self->reciever;}
+static inline void PortFindCell_setReciever(PortFindCell *self, Port value){self->reciever = value;}
+static inline Symbol * PortFindCell_varname(PortFindCell *self){return self->varname;}
+static inline void PortFindCell_setVarname(PortFindCell *self, Symbol * value){self->varname = value;}
+#define PortFindCellAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
+PortFindCellAr *PortFindCellAr_clone(PortFindCellAr *arr);
+void PortFindCellAr_decRef(PortFindCellAr *arr);
+void PortFindCellAr_fit(PortFindCellAr *arr);
+#define PortFindCellAr_foreach(var, arr)               for (PortFindCellArFIt var = {arr, false, 0, NULL};        PortFindCellArFIt_next(&var); )
+#define PortFindCellAr_foreachOffset(var, arr, offset) for (PortFindCellArFIt var = {arr, false, offset-1, NULL}; PortFindCellArFIt_next(&var); )
+PortFindCellAr *PortFindCellAr_fromJson(JSON_Value *jval, Error *err);
+PortFindCell *PortFindCellAr_get(PortFindCellAr *arr, int index, Error *err);
+void PortFindCellAr_incRef(PortFindCellAr *arr);
+void PortFindCellAr_insert(PortFindCellAr *arr, int index, PortFindCell *elem, Error *err);
+int PortFindCellAr_last(PortFindCellAr *arr);
+int PortFindCellAr_len(PortFindCellAr *arr);
+PortFindCellAr *PortFindCellAr_new();
+void PortFindCellAr_pop(PortFindCellAr *arr, Error *err);
+PortFindCell *PortFindCellAr_pop(PortFindCellAr *arr, Error *err);
+void PortFindCellAr_push(PortFindCellAr *arr, PortFindCell *elem);
+void PortFindCellAr_remove(PortFindCellAr *arr, int index, Error *err);
+void PortFindCellAr_reserve(PortFindCellAr *arr, int newCap);
+#define PortFindCellAr_rforeach(var, arr)               for (PortFindCellArFIt var = {arr, false, (arr)->len, NULL};        PortFindCellArFIt_next(&var); )
+#define PortFindCellAr_rforeachOffset(var, arr, offset) for (PortFindCellArFIt var = {arr, false, (arr)->len-offset, NULL}; PortFindCellArFIt_next(&var); )
+void PortFindCellAr_set(PortFindCellAr *arr, int index, PortFindCell *elem, Error *err);
+JSON_Value *PortFindCellAr_toJson(PortFindCellAr *self, Error *err);
+void PortFindCellAr_truncate(PortFindCellAr *arr, int newLen);
+bool PortFindCellArFIt_next(PortFindCellArFIt *iterator);
+bool PortFindCellArRIt_next(PortFindCellArRIt *iterator);
+PortRef *PortRef_new();
+void PortRef_incRef(PortRef *self);
+void PortRef_decRef(PortRef *self);
+PortRef *PortRef_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *PortRef_toJson(PortRef *self, Error *err);
+PortRef *PortRef_clone(PortRef *self);
+static inline Port * PortRef_port(PortRef *self){return self->port;}
+static inline void PortRef_setPort(PortRef *self, Port * value){self->port = value;}
+static inline int PortRef_outlet(PortRef *self){return self->outlet;}
+static inline void PortRef_setOutlet(PortRef *self, int value){self->outlet = value;}
+Ptr *Ptr_new();
+void Ptr_incRef(Ptr *self);
+void Ptr_decRef(Ptr *self);
+Ptr *Ptr_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *Ptr_toJson(Ptr *self, Error *err);
+Ptr *Ptr_clone(Ptr *self);
+static inline void * Ptr_p(Ptr *self){return self->p;}
+static inline void Ptr_setP(Ptr *self, void * value){self->p = value;}
+#define PtrAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
+PtrAr *PtrAr_clone(PtrAr *arr);
+void PtrAr_decRef(PtrAr *arr);
+void PtrAr_fit(PtrAr *arr);
+#define PtrAr_foreach(var, arr)               for (PtrArFIt var = {arr, false, 0, NULL};        PtrArFIt_next(&var); )
+#define PtrAr_foreachOffset(var, arr, offset) for (PtrArFIt var = {arr, false, offset-1, NULL}; PtrArFIt_next(&var); )
+PtrAr *PtrAr_fromJson(JSON_Value *jval, Error *err);
+Ptr *PtrAr_get(PtrAr *arr, int index, Error *err);
+void PtrAr_incRef(PtrAr *arr);
+void PtrAr_insert(PtrAr *arr, int index, Ptr *elem, Error *err);
+int PtrAr_last(PtrAr *arr);
+int PtrAr_len(PtrAr *arr);
+PtrAr *PtrAr_new();
+void PtrAr_pop(PtrAr *arr, Error *err);
+Ptr *PtrAr_pop(PtrAr *arr, Error *err);
+void PtrAr_push(PtrAr *arr, Ptr *elem);
+void PtrAr_remove(PtrAr *arr, int index, Error *err);
+void PtrAr_reserve(PtrAr *arr, int newCap);
+#define PtrAr_rforeach(var, arr)               for (PtrArFIt var = {arr, false, (arr)->len, NULL};        PtrArFIt_next(&var); )
+#define PtrAr_rforeachOffset(var, arr, offset) for (PtrArFIt var = {arr, false, (arr)->len-offset, NULL}; PtrArFIt_next(&var); )
+void PtrAr_set(PtrAr *arr, int index, Ptr *elem, Error *err);
+JSON_Value *PtrAr_toJson(PtrAr *self, Error *err);
+void PtrAr_truncate(PtrAr *arr, int newLen);
+bool PtrArFIt_next(PtrArFIt *iterator);
+bool PtrArRIt_next(PtrArRIt *iterator);
+RecordBuffer *RecordBuffer_new();
+void RecordBuffer_incRef(RecordBuffer *self);
+void RecordBuffer_decRef(RecordBuffer *self);
+RecordBuffer *RecordBuffer_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *RecordBuffer_toJson(RecordBuffer *self, Error *err);
+RecordBuffer *RecordBuffer_clone(RecordBuffer *self);
+static inline Ticks RecordBuffer_recordStart(RecordBuffer *self){return self->recordStart;}
+static inline void RecordBuffer_setRecordStart(RecordBuffer *self, Ticks value){self->recordStart = value;}
+static inline SequenceAr *RecordBuffer_sequences(RecordBuffer *self){return self->sequences;}
+void RecordBuffer_setSequences(RecordBuffer *self, <EXPAND_FAIL> *value);
+SelectNextPushedPadDispatch *SelectNextPushedPadDispatch_new();
+void SelectNextPushedPadDispatch_incRef(SelectNextPushedPadDispatch *self);
+void SelectNextPushedPadDispatch_decRef(SelectNextPushedPadDispatch *self);
+SelectNextPushedPadDispatch *SelectNextPushedPadDispatch_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *SelectNextPushedPadDispatch_toJson(SelectNextPushedPadDispatch *self, Error *err);
+SelectNextPushedPadDispatch *SelectNextPushedPadDispatch_clone(SelectNextPushedPadDispatch *self);
+static inline Symbol * SelectNextPushedPadDispatch_selector(SelectNextPushedPadDispatch *self){return self->selector;}
+static inline void SelectNextPushedPadDispatch_setSelector(SelectNextPushedPadDispatch *self, Symbol * value){self->selector = value;}
+static inline Symbol * SelectNextPushedPadDispatch_portId(SelectNextPushedPadDispatch *self){return self->portId;}
+static inline void SelectNextPushedPadDispatch_setPortId(SelectNextPushedPadDispatch *self, Symbol * value){self->portId = value;}
+static inline int SelectNextPushedPadDispatch_inlet(SelectNextPushedPadDispatch *self){return self->inlet;}
+static inline void SelectNextPushedPadDispatch_setInlet(SelectNextPushedPadDispatch *self, int value){self->inlet = value;}
+static inline Marshal * SelectNextPushedPadDispatch_marshal(SelectNextPushedPadDispatch *self){return self->marshal;}
+static inline void SelectNextPushedPadDispatch_setMarshal(SelectNextPushedPadDispatch *self, Marshal * value){self->marshal = value;}
+static inline SelectNextPushedPadDispatch *SelectNextPushedPadDispatch_castFromDispatch(Dispatch *self) {
+   if (self->itype == SelectNextPushedPadDispatch_itype) {
+       return (SelectNextPushedPadDispatch*)self;
+   }
+   return NULL;
+}
+static inline Dispatch *SelectNextPushedPadDispatch_castToDispatch(SelectNextPushedPadDispatch *self) {
+   return (Dispatch*)self;
+}
+int Sequence_nthIType(int n, int *itype);
+#define Sequence_foreachIType(itype) for (int __##itype = 0, itype = 0; Sequence_nthIType(__##itype, &itype); __##itype++)
+xvoid Sequence_start(Sequence *self, Ticks a1, Ticks a2, TimedPq *a3, RecordBuffer *a4, Error * *a5, Error *err, Error *err);
+xvoid Sequence_drive(Sequence *self, Ticks a1, TimedPq *a2, Error * a3, Error *err, Error *err);
+xvoid Sequence_stop(Sequence *self, Ticks a1, Error * a2, Error *err, Error *err);
+xvoid Sequence_padNoteOff(Sequence *self, Ticks a1, Error * a2, Error *err, Error *err);
+xvoid Sequence_setCycle(Sequence *self, bool a1, Error *err);
+xvoid Sequence_free(Sequence *self, Error *err);
+xSequence *Sequence_compactNew(Sequence *self, Ticks a1, Error *err);
+xvoid Sequence_compactConcat(Sequence *self, Sequence *a1, Error * a2, Error *err, Error *err);
+xvoid Sequence_compactSortEvents(Sequence *self, Error *err);
+xTicks Sequence_compactComputeSequenceLength(Sequence *self, Error *err);
+xvoid Sequence_compactFinish(Sequence *self, Ticks a1, Ticks a2, Error * a3, Error *err, Error *err);
+#define SequenceAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
+SequenceAr *SequenceAr_clone(SequenceAr *arr);
+void SequenceAr_decRef(SequenceAr *arr);
+void SequenceAr_fit(SequenceAr *arr);
+#define SequenceAr_foreach(var, arr)               for (SequenceArFIt var = {arr, false, 0, NULL};        SequenceArFIt_next(&var); )
+#define SequenceAr_foreachOffset(var, arr, offset) for (SequenceArFIt var = {arr, false, offset-1, NULL}; SequenceArFIt_next(&var); )
+SequenceAr *SequenceAr_fromJson(JSON_Value *jval, Error *err);
+Sequence *SequenceAr_get(SequenceAr *arr, int index, Error *err);
+void SequenceAr_incRef(SequenceAr *arr);
+void SequenceAr_insert(SequenceAr *arr, int index, Sequence *elem, Error *err);
+int SequenceAr_last(SequenceAr *arr);
+int SequenceAr_len(SequenceAr *arr);
+SequenceAr *SequenceAr_new();
+void SequenceAr_pop(SequenceAr *arr, Error *err);
+Sequence *SequenceAr_pop(SequenceAr *arr, Error *err);
+void SequenceAr_push(SequenceAr *arr, Sequence *elem);
+void SequenceAr_remove(SequenceAr *arr, int index, Error *err);
+void SequenceAr_reserve(SequenceAr *arr, int newCap);
+#define SequenceAr_rforeach(var, arr)               for (SequenceArFIt var = {arr, false, (arr)->len, NULL};        SequenceArFIt_next(&var); )
+#define SequenceAr_rforeachOffset(var, arr, offset) for (SequenceArFIt var = {arr, false, (arr)->len-offset, NULL}; SequenceArFIt_next(&var); )
+void SequenceAr_set(SequenceAr *arr, int index, Sequence *elem, Error *err);
+JSON_Value *SequenceAr_toJson(SequenceAr *self, Error *err);
+void SequenceAr_truncate(SequenceAr *arr, int newLen);
+bool SequenceArFIt_next(SequenceArFIt *iterator);
+bool SequenceArRIt_next(SequenceArRIt *iterator);
+void SequenceAr_binInsert(SequenceAr *arr, Sequence *elem);
+void SequenceAr_binRemove(SequenceAr *arr, Sequence *elem);
+Sequence *SequenceAr_binSearch(SequenceAr *arr, Sequence *elem);
+int Sequence_cmpPpIndirectResolve(Sequence **left, Sequence **right);
+Sequence *SequenceAr_pqPeek(SequenceAr *arr);
+void SequenceAr_pqPopDecRef(SequenceAr *arr, Sequence *elem);
+Sequence *SequenceAr_pqPop(SequenceAr *arr);
+void SequenceAr_pqPush(SequenceAr *arr, Sequence *elem);
+void SequenceAr_pqSort(SequenceAr *arr);
+void SequenceAr_sort(SequenceAr *arr);
+void SequenceAr_binInsertPointer(SequenceAr *arr, Sequence *elem);
+void SequenceAr_binRemovePointer(SequenceAr *arr, Sequence *elem);
+Sequence *SequenceAr_binSearchPointer(SequenceAr *arr, Sequence *elem);
+int Sequence_cmpPointerPpIndirectResolve(Sequence **left, Sequence **right);
+Sequence *SequenceAr_pqPeekPointer(SequenceAr *arr);
+void SequenceAr_pqPopDecRefPointer(SequenceAr *arr, Sequence *elem);
+Sequence *SequenceAr_pqPopPointer(SequenceAr *arr);
+void SequenceAr_pqPushPointer(SequenceAr *arr, Sequence *elem);
+void SequenceAr_pqSortPointer(SequenceAr *arr);
+void SequenceAr_sortPointer(SequenceAr *arr);
+#define StringAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
+StringAr *StringAr_clone(StringAr *arr);
+void StringAr_decRef(StringAr *arr);
+void StringAr_fit(StringAr *arr);
+#define StringAr_foreach(var, arr)               for (StringArFIt var = {arr, false, 0, NULL};        StringArFIt_next(&var); )
+#define StringAr_foreachOffset(var, arr, offset) for (StringArFIt var = {arr, false, offset-1, NULL}; StringArFIt_next(&var); )
+StringAr *StringAr_fromJson(JSON_Value *jval, Error *err);
+String *StringAr_get(StringAr *arr, int index, Error *err);
+void StringAr_incRef(StringAr *arr);
+void StringAr_insert(StringAr *arr, int index, String *elem, Error *err);
+int StringAr_last(StringAr *arr);
+int StringAr_len(StringAr *arr);
+StringAr *StringAr_new();
+void StringAr_pop(StringAr *arr, Error *err);
+String *StringAr_pop(StringAr *arr, Error *err);
+void StringAr_push(StringAr *arr, String *elem);
+void StringAr_remove(StringAr *arr, int index, Error *err);
+void StringAr_reserve(StringAr *arr, int newCap);
+#define StringAr_rforeach(var, arr)               for (StringArFIt var = {arr, false, (arr)->len, NULL};        StringArFIt_next(&var); )
+#define StringAr_rforeachOffset(var, arr, offset) for (StringArFIt var = {arr, false, (arr)->len-offset, NULL}; StringArFIt_next(&var); )
+void StringAr_set(StringAr *arr, int index, String *elem, Error *err);
+JSON_Value *StringAr_toJson(StringAr *self, Error *err);
+void StringAr_truncate(StringAr *arr, int newLen);
+bool StringArFIt_next(StringArFIt *iterator);
+bool StringArRIt_next(StringArRIt *iterator);
+void StringAr_binInsert(StringAr *arr, String *elem);
+void StringAr_binRemove(StringAr *arr, String *elem);
+String *StringAr_binSearch(StringAr *arr, String *elem);
+int String_cmpIndirectResolve(String **left, String **right);
+String *StringAr_pqPeek(StringAr *arr);
+void StringAr_pqPopDecRef(StringAr *arr, String *elem);
+String *StringAr_pqPop(StringAr *arr);
+void StringAr_pqPush(StringAr *arr, String *elem);
+void StringAr_pqSort(StringAr *arr);
+void StringAr_sort(StringAr *arr);
+#define SymbolAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
+SymbolAr *SymbolAr_clone(SymbolAr *arr);
+void SymbolAr_decRef(SymbolAr *arr);
+void SymbolAr_fit(SymbolAr *arr);
+#define SymbolAr_foreach(var, arr)               for (SymbolArFIt var = {arr, false, 0, NULL};        SymbolArFIt_next(&var); )
+#define SymbolAr_foreachOffset(var, arr, offset) for (SymbolArFIt var = {arr, false, offset-1, NULL}; SymbolArFIt_next(&var); )
+SymbolAr *SymbolAr_fromJson(JSON_Value *jval, Error *err);
+Symbol *SymbolAr_get(SymbolAr *arr, int index, Error *err);
+void SymbolAr_incRef(SymbolAr *arr);
+void SymbolAr_insert(SymbolAr *arr, int index, Symbol *elem, Error *err);
+int SymbolAr_last(SymbolAr *arr);
+int SymbolAr_len(SymbolAr *arr);
+SymbolAr *SymbolAr_new();
+void SymbolAr_pop(SymbolAr *arr, Error *err);
+Symbol *SymbolAr_pop(SymbolAr *arr, Error *err);
+void SymbolAr_push(SymbolAr *arr, Symbol *elem);
+void SymbolAr_remove(SymbolAr *arr, int index, Error *err);
+void SymbolAr_reserve(SymbolAr *arr, int newCap);
+#define SymbolAr_rforeach(var, arr)               for (SymbolArFIt var = {arr, false, (arr)->len, NULL};        SymbolArFIt_next(&var); )
+#define SymbolAr_rforeachOffset(var, arr, offset) for (SymbolArFIt var = {arr, false, (arr)->len-offset, NULL}; SymbolArFIt_next(&var); )
+void SymbolAr_set(SymbolAr *arr, int index, Symbol *elem, Error *err);
+JSON_Value *SymbolAr_toJson(SymbolAr *self, Error *err);
+void SymbolAr_truncate(SymbolAr *arr, int newLen);
+bool SymbolArFIt_next(SymbolArFIt *iterator);
+bool SymbolArRIt_next(SymbolArRIt *iterator);
+void SymbolAr_binInsertUnderlying(SymbolAr *arr, Symbol *elem);
+void SymbolAr_binRemoveUnderlying(SymbolAr *arr, Symbol *elem);
+Symbol *SymbolAr_binSearchUnderlying(SymbolAr *arr, Symbol *elem);
+int Symbol_cmpUnderlyingIndirectResolve(Symbol **left, Symbol **right);
+Symbol *SymbolAr_pqPeekUnderlying(SymbolAr *arr);
+void SymbolAr_pqPopDecRefUnderlying(SymbolAr *arr, Symbol *elem);
+Symbol *SymbolAr_pqPopUnderlying(SymbolAr *arr);
+void SymbolAr_pqPushUnderlying(SymbolAr *arr, Symbol *elem);
+void SymbolAr_pqSortUnderlying(SymbolAr *arr);
+void SymbolAr_sortUnderlying(SymbolAr *arr);
+#define SymbolAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
+SymbolAr *SymbolAr_clone(SymbolAr *arr);
+void SymbolAr_decRef(SymbolAr *arr);
+void SymbolAr_fit(SymbolAr *arr);
+#define SymbolAr_foreach(var, arr)               for (SymbolArFIt var = {arr, false, 0, NULL};        SymbolArFIt_next(&var); )
+#define SymbolAr_foreachOffset(var, arr, offset) for (SymbolArFIt var = {arr, false, offset-1, NULL}; SymbolArFIt_next(&var); )
+SymbolAr *SymbolAr_fromJson(JSON_Value *jval, Error *err);
+Symbol *SymbolAr_get(SymbolAr *arr, int index, Error *err);
+void SymbolAr_incRef(SymbolAr *arr);
+void SymbolAr_insert(SymbolAr *arr, int index, Symbol *elem, Error *err);
+int SymbolAr_last(SymbolAr *arr);
+int SymbolAr_len(SymbolAr *arr);
+SymbolAr *SymbolAr_new();
+void SymbolAr_pop(SymbolAr *arr, Error *err);
+Symbol *SymbolAr_pop(SymbolAr *arr, Error *err);
+void SymbolAr_push(SymbolAr *arr, Symbol *elem);
+void SymbolAr_remove(SymbolAr *arr, int index, Error *err);
+void SymbolAr_reserve(SymbolAr *arr, int newCap);
+#define SymbolAr_rforeach(var, arr)               for (SymbolArFIt var = {arr, false, (arr)->len, NULL};        SymbolArFIt_next(&var); )
+#define SymbolAr_rforeachOffset(var, arr, offset) for (SymbolArFIt var = {arr, false, (arr)->len-offset, NULL}; SymbolArFIt_next(&var); )
+void SymbolAr_set(SymbolAr *arr, int index, Symbol *elem, Error *err);
+JSON_Value *SymbolAr_toJson(SymbolAr *self, Error *err);
+void SymbolAr_truncate(SymbolAr *arr, int newLen);
+bool SymbolArFIt_next(SymbolArFIt *iterator);
+bool SymbolArRIt_next(SymbolArRIt *iterator);
+Timed *Timed_new();
+void Timed_incRef(Timed *self);
+void Timed_decRef(Timed *self);
+Timed *Timed_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *Timed_toJson(Timed *self, Error *err);
+Timed *Timed_clone(Timed *self);
+static inline Ticks Timed_time(Timed *self){return self->time;}
+static inline void Timed_setTime(Timed *self, Ticks value){self->time = value;}
+static inline int Timed_version(Timed *self){return self->version;}
+static inline void Timed_setVersion(Timed *self, int value){self->version = value;}
+static inline Sequence *Timed_sequence(Timed *self){return self->sequence;}
+void Timed_setSequence(Timed *self, <EXPAND_FAIL> *value);
+TimedOff *TimedOff_new();
+void TimedOff_incRef(TimedOff *self);
+void TimedOff_decRef(TimedOff *self);
+TimedOff *TimedOff_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *TimedOff_toJson(TimedOff *self, Error *err);
+TimedOff *TimedOff_clone(TimedOff *self);
+static inline Ticks TimedOff_time(TimedOff *self){return self->time;}
+static inline void TimedOff_setTime(TimedOff *self, Ticks value){self->time = value;}
+static inline int TimedOff_pitch(TimedOff *self){return self->pitch;}
+static inline void TimedOff_setPitch(TimedOff *self, int value){self->pitch = value;}
+#define TimedOffAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
+TimedOffAr *TimedOffAr_clone(TimedOffAr *arr);
+void TimedOffAr_decRef(TimedOffAr *arr);
+void TimedOffAr_fit(TimedOffAr *arr);
+#define TimedOffAr_foreach(var, arr)               for (TimedOffArFIt var = {arr, false, 0, NULL};        TimedOffArFIt_next(&var); )
+#define TimedOffAr_foreachOffset(var, arr, offset) for (TimedOffArFIt var = {arr, false, offset-1, NULL}; TimedOffArFIt_next(&var); )
+TimedOffAr *TimedOffAr_fromJson(JSON_Value *jval, Error *err);
+TimedOff *TimedOffAr_get(TimedOffAr *arr, int index, Error *err);
+void TimedOffAr_incRef(TimedOffAr *arr);
+void TimedOffAr_insert(TimedOffAr *arr, int index, TimedOff *elem, Error *err);
+int TimedOffAr_last(TimedOffAr *arr);
+int TimedOffAr_len(TimedOffAr *arr);
+TimedOffAr *TimedOffAr_new();
+void TimedOffAr_pop(TimedOffAr *arr, Error *err);
+TimedOff *TimedOffAr_pop(TimedOffAr *arr, Error *err);
+void TimedOffAr_push(TimedOffAr *arr, TimedOff *elem);
+void TimedOffAr_remove(TimedOffAr *arr, int index, Error *err);
+void TimedOffAr_reserve(TimedOffAr *arr, int newCap);
+#define TimedOffAr_rforeach(var, arr)               for (TimedOffArFIt var = {arr, false, (arr)->len, NULL};        TimedOffArFIt_next(&var); )
+#define TimedOffAr_rforeachOffset(var, arr, offset) for (TimedOffArFIt var = {arr, false, (arr)->len-offset, NULL}; TimedOffArFIt_next(&var); )
+void TimedOffAr_set(TimedOffAr *arr, int index, TimedOff *elem, Error *err);
+JSON_Value *TimedOffAr_toJson(TimedOffAr *self, Error *err);
+void TimedOffAr_truncate(TimedOffAr *arr, int newLen);
+bool TimedOffArFIt_next(TimedOffArFIt *iterator);
+bool TimedOffArRIt_next(TimedOffArRIt *iterator);
+void TimedOffAr_binInsertTime(TimedOffAr *arr, TimedOff *elem);
+void TimedOffAr_binRemoveTime(TimedOffAr *arr, TimedOff *elem);
+TimedOff *TimedOffAr_binSearchTime(TimedOffAr *arr, TimedOff *elem);
+int TimedOff_cmpTimeIndirectResolve(TimedOff **left, TimedOff **right);
+TimedOff *TimedOffAr_pqPeekTime(TimedOffAr *arr);
+void TimedOffAr_pqPopDecRefTime(TimedOffAr *arr, TimedOff *elem);
+TimedOff *TimedOffAr_pqPopTime(TimedOffAr *arr);
+void TimedOffAr_pqPushTime(TimedOffAr *arr, TimedOff *elem);
+void TimedOffAr_pqSortTime(TimedOffAr *arr);
+void TimedOffAr_sortTime(TimedOffAr *arr);
+#define TimedPq_at(arr, index) ((arr)->data[index*sizeof(void*)])
+TimedPq *TimedPq_clone(TimedPq *arr);
+void TimedPq_decRef(TimedPq *arr);
+void TimedPq_fit(TimedPq *arr);
+#define TimedPq_foreach(var, arr)               for (TimedPqFIt var = {arr, false, 0, NULL};        TimedPqFIt_next(&var); )
+#define TimedPq_foreachOffset(var, arr, offset) for (TimedPqFIt var = {arr, false, offset-1, NULL}; TimedPqFIt_next(&var); )
+TimedPq *TimedPq_fromJson(JSON_Value *jval, Error *err);
+Timed *TimedPq_get(TimedPq *arr, int index, Error *err);
+void TimedPq_incRef(TimedPq *arr);
+void TimedPq_insert(TimedPq *arr, int index, Timed *elem, Error *err);
+int TimedPq_last(TimedPq *arr);
+int TimedPq_len(TimedPq *arr);
+TimedPq *TimedPq_new();
+void TimedPq_pop(TimedPq *arr, Error *err);
+Timed *TimedPq_pop(TimedPq *arr, Error *err);
+void TimedPq_push(TimedPq *arr, Timed *elem);
+void TimedPq_remove(TimedPq *arr, int index, Error *err);
+void TimedPq_reserve(TimedPq *arr, int newCap);
+#define TimedPq_rforeach(var, arr)               for (TimedPqFIt var = {arr, false, (arr)->len, NULL};        TimedPqFIt_next(&var); )
+#define TimedPq_rforeachOffset(var, arr, offset) for (TimedPqFIt var = {arr, false, (arr)->len-offset, NULL}; TimedPqFIt_next(&var); )
+void TimedPq_set(TimedPq *arr, int index, Timed *elem, Error *err);
+JSON_Value *TimedPq_toJson(TimedPq *self, Error *err);
+void TimedPq_truncate(TimedPq *arr, int newLen);
+bool TimedPqFIt_next(TimedPqFIt *iterator);
+bool TimedPqRIt_next(TimedPqRIt *iterator);
+void TimedPq_binInsert(TimedPq *arr, Timed *elem);
+void TimedPq_binRemove(TimedPq *arr, Timed *elem);
+Timed *TimedPq_binSearch(TimedPq *arr, Timed *elem);
+int Timed_cmpIndirectResolve(Timed **left, Timed **right);
+Timed *TimedPq_pqPeek(TimedPq *arr);
+void TimedPq_pqPopDecRef(TimedPq *arr, Timed *elem);
+Timed *TimedPq_pqPop(TimedPq *arr);
+void TimedPq_pqPush(TimedPq *arr, Timed *elem);
+void TimedPq_pqSort(TimedPq *arr);
+void TimedPq_sort(TimedPq *arr);
+Track *Track_new();
+void Track_incRef(Track *self);
+void Track_decRef(Track *self);
+Track *Track_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *Track_toJson(Track *self, Error *err);
+Track *Track_clone(Track *self);
+static inline Symbol * Track_name(Track *self){return self->name;}
+static inline void Track_setName(Track *self, Symbol * value){self->name = value;}
+#define TrackAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
+TrackAr *TrackAr_clone(TrackAr *arr);
+void TrackAr_decRef(TrackAr *arr);
+void TrackAr_fit(TrackAr *arr);
+#define TrackAr_foreach(var, arr)               for (TrackArFIt var = {arr, false, 0, NULL};        TrackArFIt_next(&var); )
+#define TrackAr_foreachOffset(var, arr, offset) for (TrackArFIt var = {arr, false, offset-1, NULL}; TrackArFIt_next(&var); )
+TrackAr *TrackAr_fromJson(JSON_Value *jval, Error *err);
+Track *TrackAr_get(TrackAr *arr, int index, Error *err);
+void TrackAr_incRef(TrackAr *arr);
+void TrackAr_insert(TrackAr *arr, int index, Track *elem, Error *err);
+int TrackAr_last(TrackAr *arr);
+int TrackAr_len(TrackAr *arr);
+TrackAr *TrackAr_new();
+void TrackAr_pop(TrackAr *arr, Error *err);
+Track *TrackAr_pop(TrackAr *arr, Error *err);
+void TrackAr_push(TrackAr *arr, Track *elem);
+void TrackAr_remove(TrackAr *arr, int index, Error *err);
+void TrackAr_reserve(TrackAr *arr, int newCap);
+#define TrackAr_rforeach(var, arr)               for (TrackArFIt var = {arr, false, (arr)->len, NULL};        TrackArFIt_next(&var); )
+#define TrackAr_rforeachOffset(var, arr, offset) for (TrackArFIt var = {arr, false, (arr)->len-offset, NULL}; TrackArFIt_next(&var); )
+void TrackAr_set(TrackAr *arr, int index, Track *elem, Error *err);
+JSON_Value *TrackAr_toJson(TrackAr *self, Error *err);
+void TrackAr_truncate(TrackAr *arr, int newLen);
+bool TrackArFIt_next(TrackArFIt *iterator);
+bool TrackArRIt_next(TrackArRIt *iterator);
+VstOutlet *VstOutlet_new();
+void VstOutlet_incRef(VstOutlet *self);
+void VstOutlet_decRef(VstOutlet *self);
+VstOutlet *VstOutlet_fromJson(JSON_Value *jvalue, Error *err);
+JSON_Value *VstOutlet_toJson(VstOutlet *self, Error *err);
+VstOutlet *VstOutlet_clone(VstOutlet *self);
+static inline AtomAr *VstOutlet_atoms(VstOutlet *self){return self->atoms;}
+void VstOutlet_setAtoms(VstOutlet *self, <EXPAND_FAIL> *value);
+static inline Port *VstOutlet_port(VstOutlet *self){return self->port;}
+void VstOutlet_setPort(VstOutlet *self, <EXPAND_FAIL> *value);
+static inline VstOutlet *VstOutlet_castFromOutlet(Outlet *self) {
+   if (self->itype == VstOutlet_itype) {
+       return (VstOutlet*)self;
+   }
+   return NULL;
+}
+static inline Outlet *VstOutlet_castToOutlet(VstOutlet *self) {
+   return (Outlet*)self;
+}
 const char *Interface_toString(int itype);
 void MarshalSi_process(MarshalSi *self, Arguments *args, long argc, Atom *argv, Error *err);
 void MarshalSi_zeroArgs(MarshalSi *self, Arguments *args);
@@ -1518,14 +2653,14 @@ void SelectNextPushedPadDispatch_exec(SelectNextPushedPadDispatch *self, Hub *hu
 Dispatch *MidiFileDropDispatch_create(int itype);
 void MidiFileDropDispatch_exec(MidiFileDropDispatch *self, Hub *hub, Arguments *args, Error *err);
 Dispatch *ManageChokeGroupsDispatch_create(int itype);
-void ManageChokeGroupsDispatch_initDispatchPtAr(int itype, DispatchPtAr *disPtAr, Error *ignored);
+void ManageChokeGroupsDispatch_initDispatchAr(int itype, DispatchAr *disPtAr, Error *ignored);
 void ManageChokeGroupsDispatch_exec(ManageChokeGroupsDispatch *self, Hub *hub, Arguments *args, Error *err);
 int Dispatch_cmp(Dispatch **leftp, Dispatch **rightp);
 void Dispatch_freeDefault(Dispatch *d);
-void Dispatch_initDispatchPtArDefault(int itype, DispatchPtAr *disPtAr, Error *err);
-void DispatchPtAr_populate(DispatchPtAr *self, Error *err);
+void Dispatch_initDispatchArDefault(int itype, DispatchAr *disPtAr, Error *err);
+void DispatchAr_populate(DispatchAr *self, Error *err);
 void String_split(String *src, const char *delim, StringPtAr *stringPtAr);
-int Symbol_cmpUnderlying(Symbol **left, Symbol **right);
+int Symbol_cmpUnderlying(Symbol *left, Symbol *right);
 Symbol *Symbol_gen(const char *word);
 void Symbol_freeAll();
 Port *Port_new();
@@ -1535,35 +2670,16 @@ void Port_clear(Port *p);
 int port_parseEvSymbol(Symbol *id);
 void Port_send(Port *self, int outletIndex, short argc, Atom *argv, Error *err);
 void Port_sendInteger(Port *self, int outlet, long value, Error *err);
+int Int_cmp(Int *left, Int *right);
 static inline Symbol *PortRef_track(PortRef *self);
 int PortRef_cmp(PortRef *left, PortRef *right);
-void DropDown_build(DropDown *dd, const char **table, PortRef *pr);
-void DropDown_buildCGLocalGlobal(DropDown *dd, PortRef *pr);
-void DropDown_buildCGInstrument(DropDown *dd, PortRef *pr);
-void DropDown_buildCGIndex(DropDown *dd, PortRef *pr);
-void DropDown_updateSelected(DropDown *dd, Error *err);
-void DropDown_setSelected(DropDown *dd, int selected, Error *err);
-void DropDown_initializeMenu(DropDown *dd, Error *err);
-int Midiseq_convertIntFileLine(const char *src, Error *err, const char *function, const char *file, int line);
-void Midiseq_userInit(Midiseq *self);
-void Midiseq_toBinFile(Midiseq *mseq, BinFile *bf, Error *err);
-Midiseq *Midiseq_fromBinFile(BinFile *bf, Error *err);
-void Midiseq_fromBinFileUnititialized(Midiseq *mseq, BinFile *bf, Error *err);
-Midiseq *Midiseq_newNote(int pitch);
-int Midiseq_len(Midiseq *mseq);
-void Midiseq_push(Midiseq *mseq, MEvent cell);
-MEvent *Midiseq_get(Midiseq *mseq, int index, Error *err);
-void Midiseq_setMidicsvExecPath();
-void Midiseq_dblog(Midiseq *mseq);
-int midiseq_tokenize(FILE *fd, StringPtAr **ret, Error *err);
-int Midiseq_assignLength(Midiseq *mseq);
-int Midiseq_insertCell(Midiseq *mseq, MEvent cell, int index, Error *err);
-void Midiseq_insertEndgroup(Midiseq *mseq, Error *err);
-int Midiseq_start(Midiseq *mseq, Ticks startTime, Ticks currentTime, bool useMasterClock, Error *err);
-void Midiseq_stop(Midiseq *mseq);
-int Midiseq_nextevent(Midiseq *mseq, Ticks until, MEvent *cell, Error *err);
-int Midiseq_fastfwrd(Midiseq *mseq, long t, Error *err);
-Midiseq *Midiseq_fromfile(const char *fullpath, Error *err);
+void DropDown_build(DropDown *self, const char **table, Outlet *outlet);
+DropDown *DropDown_newCGLocalGlobal(Outlet *outlet);
+DropDown *DropDown_newCGInstrument(Outlet *outlet);
+DropDown *DropDown_newCGIndex(DropDown *dd, Outlet *outlet);
+DropDown *DropDown_updateSelected(DropDown *dd, Error *err);
+DropDown *DropDown_setSelected(DropDown *dd, int selected, Error *err);
+DropDown *DropDown_initializeMenu(DropDown *dd, Error *err);
 long PortFind_iterator(PortFind *pf, MaxObject *targetBox);
 int PortFind_discover(PortFind *pf, MaxObject *sourceMaxObject, void *hub, Error *err);
 long PortFind_iterator(PortFind *pf, MaxObject *targetBox);
@@ -1574,72 +2690,20 @@ Port *PortFind_findById(PortFind *pf, Symbol *symbol);
 int PortFind_portCount(PortFind *pf);
 Port *PortFind_findByIndex(PortFind *pf, int index, Error *err);
 Outlet *PortFind_createOutlet(PortFind *self, OutletSpecifier *spec);
-void Pad_setSequence(Pad *pad, Midiseq *midi);
-void Pad_toBinFile(Pad *pad, BinFile *bf, Error *err);
-Pad *Pad_fromBinFile(BinFile *bf, Error *err);
-void Pad_fromBinFileUninitialized(Pad *pad, BinFile *bf, Error *err);
 void Pad_computeChokeGroup(Pad *pad);
 PadList *PadList_newN(int npads);
 void PadList_play(PadList *self, int padIndex, Ticks startTime, Ticks currentTime, bool useMasterClock, Error *err);
 void PadList_markReleasePending(PadList *self, int padIndex, bool pending, Error *err);
 Pad *PadList_pad(PadList *pl, int index, Error *err);
 void PadList_assignTrack(PadList *pl, TrackList *tl);
-void PadList_toBinFile(PadList *pl, BinFile *bf, Error *err);
-PadList *PadList_fromBinFile(BinFile *bf, Error *err);
-void PadList_fromBinFileInitialized(PadList *pl, BinFile *bf, Error *err);
-TrackList *TrackList_newBuild(PortFind *pf);
-void TrackList_build(TrackList *tl, PortFind *pf);
-Track *TrackList_findTrackByName(TrackList *tl, Symbol *name);
-int TrackList_count(TrackList *tl);
-Track *TrackList_findTrackByIndex(TrackList *tl, int index, Error *err);
-TrackList *TrackList_fromBinFile(BinFile *bf, Error *err);
-void TrackList_toBinFile(TrackList *tl, BinFile *bf, Error *err);
 int IndexedOff_cmpPadIndex(IndexedOff *left, IndexedOff *right);
 int TimedOff_cmpTime(TimedOff *left, TimedOff *right);
-NoteManager *NoteManager_newFromPort(Port *port);
-void NoteManager_userInit(NoteManager *self);
-void NoteManager_userClear(NoteManager *self);
-bool NoteManager_insertNoteOff(NoteManager *manager, Ticks timestamp, int pitch, int padIndexForEndgroup);
-void NoteManager_sendNoteOn(NoteManager *manager, int pitch, int velocity);
-void NoteManager_flushOffs(NoteManager *manager);
-void NoteManager_allOff(NoteManager *manager);
-void NoteManager_dblogPending(NoteManager *manager, Ticks current);
-Ticks NoteManager_scheduleOffs(NoteManager *manager, Ticks current);
-void NoteManager_midievent(NoteManager *manager, MEvent cell, int padIndexForEndgroup);
-void NoteManager_padNoteOff(NoteManager *manager, int padIndex);
 Hub *Hub_newBuild(PortFind *pf, Error *err);
 void Hub_build(Hub *hub, PortFind *pf, Error *err);
 void Hub_updateGuiCurrentCoordinates(Hub *hub);
 void Hub_changeSelectedPad(Hub *hub, int selectedPadIndex, Error *err);
 void Hub_anythingDispatch(Hub *hub, Port *port, Symbol *selector, long argc, Atom *argv);
 void Hub_intDispatch(Hub *hub, Port *port, long value, long inlet);
-void Hub_toBinFile(Hub *hub, BinFile *bf, Error *err);
-Hub *Hub_fromBinFile(BinFile *bf, Error *err);
-void Hub_fromBinFileUninitialized(Hub *hub, BinFile *bf, Error *err);
-BinFile *BinFile_newWriter(const char *file, Error *err);
-BinFile *BinFile_newReader(const char *file, Error *err);
-void BinFile_userClear(BinFile *bf);
-int binFile_hexDigitToInt(char hex);
-char binFile_intToHexDigit(int digit);
-off_t BinFile_writeNullLength(BinFile *bf, bool spaceForFlags, Error *err);
-void BinFile_writeFlags(BinFile *bf, long flags, Error *err);
-void BinFile_writeBackLengthFlags(BinFile *bf, off_t location, long flags, Error *err);
-void BinFile_writeLengthFlags(BinFile *bf, long length, long flags, Error *err);
-long BinFile_readLengthFlags(BinFile *bf, long *flags, Error *err);
-off_t BinFile_tell(BinFile *bf, Error *err);
-void BinFile_fillBuffer(BinFile *bf, long size, Error *err);
-void BinFile_writeInteger(BinFile *bf, long value, Error *err);
-long BinFile_readInteger(BinFile *bf, Error *err);
-void BinFile_writeString(BinFile *bf, String *value, Error *err);
-String *BinFile_readString(BinFile *bf, Error *err);
-void BinFile_writeSymbol(BinFile *bf, Symbol *value, Error *err);
-Symbol *BinFile_readSymbol(BinFile *bf, Error *err);
-void BinFile_writeTicks(BinFile *bf, Ticks value, Error *err);
-Ticks BinFile_readTicks(BinFile *bf, Error *err);
-void BinFile_writeBool(BinFile *bf, bool value, Error *err);
-bool BinFile_readBool(BinFile *bf, Error *err);
-void BinFile_writeTag(BinFile *bf, const char *tag, Error *err);
-void BinFile_verifyTag(BinFile *bf, const char *tag, Error *err);
 void NoteOutlet_sendNote(NoteOutlet *self, uint8_t pitch, uint8_t velocity);
 NoteOutlet *NoteOutlet_newBuild(Port *port);
 void CcOutlet_dbRewindSent();
@@ -1659,5198 +2723,4165 @@ NoteSequence *NoteSequence_newFromEvents(Symbol *track, PortFind *portFind, int 
 void NoteSequence_start(NoteSequence *self, Ticks clockStart, Ticks current, TimedPq *queue, RecordBuffer *recordBuffer, Error *err);
 void NoteSequence_stop(NoteSequence *self, Ticks current, Error *err);
 void NoteSequence_drive(NoteSequence *self, Ticks current, TimedPq *queue, Error *err);
-void NoteSequence_padNoteOff(NoteSequence *self, int padIndex, Ticks current, Error *err);
-OutletSpecifier *NoteSequence_outSpec(NoteSequence *self);
+void NoteSequence_padNoteOff(NoteSequence *self, Ticks current, Error *err);
 void NoteSequence_makeConsistent(NoteSequence *self, Error *err);
-Sequence *NoteSequence_compactNew(NoteSequence *self);
+Sequence *NoteSequence_compactNew(NoteSequence *self, Ticks recordStart);
 void NoteSequence_compactConcat(NoteSequence *self, Sequence *otherSeq, Error *err);
+void NoteSequence_compactSortEvents(NoteSequence *self);
+Ticks NoteSequence_computeEndgroupTime(NoteSequence *self);
+Ticks NoteSequence_compactComputeSequenceLength(NoteSequence *self);
+void NoteSequence_compactFinish(NoteSequence *self, Ticks endgroupTime, Ticks sequenceLength, Error *err);
 int FloatEvent_cmp(FloatEvent *left, FloatEvent *right);
 FloatSequence *FloatSequence_newCc(Symbol *track, int cc, PortFind *portFind);
 FloatSequence *FloatSequence_newBend(Symbol *track, PortFind *portFind);
 FloatSequence *FloatSequence_newFromEvents(Symbol *track, int ccOrNegForBend, PortFind *portFind, int argc, FloatEvent *argv);
 void FloatSequence_start(FloatSequence *self, Ticks clockStart, Ticks current, TimedPq *queue, RecordBuffer *recordBuffer, Error *err);
-void FloatSequence_stop(FloatSequence *self, Ticks current, Error *err);
 void FloatSequence_drive(FloatSequence *self, Ticks current, TimedPq *queue, Error *err);
-void FloatSequence_padNoteOff(FloatSequence *self, int padIndex, Ticks current, Error *err);
-OutletSpecifier *FloatSequence_outSpec(FloatSequence *self);
-FloatSequence *FloatSequence_recordClone(FloatSequence *self);
+void FloatSequence_stop(FloatSequence *self, Ticks current, Error *err);
+void FloatSequence_padNoteOff(FloatSequence *self, Ticks current, Error *err);
 void FloatSequence_makeConsistent(FloatSequence *self);
+Sequence *FloatSequence_compactNew(FloatSequence *self, Ticks recordStart);
+void FloatSequence_compactConcat(FloatSequence *self, Sequence *otherSeq, Error *err);
+void FloatSequence_compactSortEvents(FloatSequence *self);
+Ticks FloatSequence_compactComputeSequenceLength(FloatSequence *self);
+void FloatSequence_compactFinish(FloatSequence *self, Ticks endgroupTime, Ticks sequenceLength, Error *err);
 void Sequence_freePpErrless(Sequence **s);
 int Sequence_cmp(Sequence *leftSeq, Sequence *rightSeq);
 int Sequence_cmpPointer(Sequence *leftSeq, Sequence *rightSeq);
 int Sequence_cmpPp(Sequence **left, Sequence **right);
 int Sequence_cmpPointerPp(Sequence **left, Sequence **right);
 void Sequence_incVersion(Sequence *seq);
+RecordBuffer *RecordBuffer_newStart(Ticks recordStart);
 void RecordBuffer_push(RecordBuffer *self, Sequence *sequence);
 void RecordBuffer_compact(RecordBuffer *self, SequenceAr *output, Error *err);
 void Midi_fromfile(const char *midiFilePath, SequenceAr *output, Symbol *defaultTrack, PortFind *portFind, Error *err);
 void Frontend_recievedPadHit(Hub *hub, long pitchIn, long velocityIn);
 void Frontend_drive(Hub *hub);
 void Frontend_stop(Hub *hub);
-void Arguments_clear(Arguments *self);
-void Arguments_free(Arguments *self);
-void Arguments_init(Arguments *self);
-Arguments *Arguments_new();
-void BendOutlet_clear(BendOutlet *self);
-void BendOutlet_free(BendOutlet *self);
-void BendOutlet_init(BendOutlet *self);
-BendOutlet *BendOutlet_new();
-void BinFile_clear(BinFile *self);
-void BinFile_free(BinFile *self);
-void BinFile_init(BinFile *self);
-BinFile *BinFile_new();
-void BinFilePayload_clear(BinFilePayload *self);
-void BinFilePayload_free(BinFilePayload *self);
-void BinFilePayload_init(BinFilePayload *self);
-BinFilePayload *BinFilePayload_new();
-void CcOutlet_clear(CcOutlet *self);
-void CcOutlet_free(CcOutlet *self);
-void CcOutlet_init(CcOutlet *self);
-CcOutlet *CcOutlet_new();
-void DecrementFrameDispatch_clear(DecrementFrameDispatch *self);
-void DecrementFrameDispatch_free(DecrementFrameDispatch *self);
-void DecrementFrameDispatch_init(DecrementFrameDispatch *self);
-DecrementFrameDispatch *DecrementFrameDispatch_new();
-void DropDown_clear(DropDown *self);
-void DropDown_free(DropDown *self);
-void DropDown_init(DropDown *self);
-DropDown *DropDown_new();
-void FloatEvent_clear(FloatEvent *self);
-void FloatEvent_free(FloatEvent *self);
-void FloatEvent_init(FloatEvent *self);
-FloatEvent *FloatEvent_new();
-void FloatSequence_clear(FloatSequence *self);
-void FloatSequence_free(FloatSequence *self);
-void FloatSequence_init(FloatSequence *self);
-FloatSequence *FloatSequence_new();
-void Hub_clear(Hub *self);
-void Hub_free(Hub *self);
-void Hub_init(Hub *self);
-Hub *Hub_new();
-void IncrementFrameDispatch_clear(IncrementFrameDispatch *self);
-void IncrementFrameDispatch_free(IncrementFrameDispatch *self);
-void IncrementFrameDispatch_init(IncrementFrameDispatch *self);
-IncrementFrameDispatch *IncrementFrameDispatch_new();
-void IndexedOff_clear(IndexedOff *self);
-void IndexedOff_free(IndexedOff *self);
-void IndexedOff_init(IndexedOff *self);
-IndexedOff *IndexedOff_new();
-void ManageChokeGroupsDispatch_clear(ManageChokeGroupsDispatch *self);
-void ManageChokeGroupsDispatch_free(ManageChokeGroupsDispatch *self);
-void ManageChokeGroupsDispatch_init(ManageChokeGroupsDispatch *self);
-ManageChokeGroupsDispatch *ManageChokeGroupsDispatch_new();
-void MarshalSi_clear(MarshalSi *self);
-void MarshalSi_free(MarshalSi *self);
-void MarshalSi_init(MarshalSi *self);
-MarshalSi *MarshalSi_new();
-void MarshalSii_clear(MarshalSii *self);
-void MarshalSii_free(MarshalSii *self);
-void MarshalSii_init(MarshalSii *self);
-MarshalSii *MarshalSii_new();
-void MarshalSs_clear(MarshalSs *self);
-void MarshalSs_free(MarshalSs *self);
-void MarshalSs_init(MarshalSs *self);
-MarshalSs *MarshalSs_new();
-void MidiFileDropDispatch_clear(MidiFileDropDispatch *self);
-void MidiFileDropDispatch_free(MidiFileDropDispatch *self);
-void MidiFileDropDispatch_init(MidiFileDropDispatch *self);
-MidiFileDropDispatch *MidiFileDropDispatch_new();
-void Midiseq_clear(Midiseq *self);
-void Midiseq_free(Midiseq *self);
-void Midiseq_init(Midiseq *self);
-Midiseq *Midiseq_new();
-void MusicalContext_clear(MusicalContext *self);
-void MusicalContext_free(MusicalContext *self);
-void MusicalContext_init(MusicalContext *self);
-MusicalContext *MusicalContext_new();
-void NoteEvent_clear(NoteEvent *self);
-void NoteEvent_free(NoteEvent *self);
-void NoteEvent_init(NoteEvent *self);
-NoteEvent *NoteEvent_new();
-void NoteManager_clear(NoteManager *self);
-void NoteManager_free(NoteManager *self);
-void NoteManager_init(NoteManager *self);
-NoteManager *NoteManager_new();
-void NoteOutlet_clear(NoteOutlet *self);
-void NoteOutlet_free(NoteOutlet *self);
-void NoteOutlet_init(NoteOutlet *self);
-NoteOutlet *NoteOutlet_new();
-void NoteSequence_clear(NoteSequence *self);
-void NoteSequence_free(NoteSequence *self);
-void NoteSequence_init(NoteSequence *self);
-NoteSequence *NoteSequence_new();
-void NullOutlet_clear(NullOutlet *self);
-void NullOutlet_free(NullOutlet *self);
-void NullOutlet_init(NullOutlet *self);
-NullOutlet *NullOutlet_new();
-void OutletSpecifier_clear(OutletSpecifier *self);
-void OutletSpecifier_free(OutletSpecifier *self);
-void OutletSpecifier_init(OutletSpecifier *self);
-OutletSpecifier *OutletSpecifier_new();
-void Pad_clear(Pad *self);
-void Pad_free(Pad *self);
-void Pad_init(Pad *self);
-Pad *Pad_new();
-void PadList_clear(PadList *self);
-void PadList_free(PadList *self);
-void PadList_init(PadList *self);
-PadList *PadList_new();
-void PortFind_clear(PortFind *self);
-void PortFind_free(PortFind *self);
-void PortFind_init(PortFind *self);
-PortFind *PortFind_new();
-void PortFindCell_clear(PortFindCell *self);
-void PortFindCell_free(PortFindCell *self);
-void PortFindCell_init(PortFindCell *self);
-PortFindCell *PortFindCell_new();
-void PortRef_clear(PortRef *self);
-void PortRef_free(PortRef *self);
-void PortRef_init(PortRef *self);
-PortRef *PortRef_new();
-void RecordBuffer_clear(RecordBuffer *self);
-void RecordBuffer_free(RecordBuffer *self);
-void RecordBuffer_init(RecordBuffer *self);
-RecordBuffer *RecordBuffer_new();
-void SelectNextPushedPadDispatch_clear(SelectNextPushedPadDispatch *self);
-void SelectNextPushedPadDispatch_free(SelectNextPushedPadDispatch *self);
-void SelectNextPushedPadDispatch_init(SelectNextPushedPadDispatch *self);
-SelectNextPushedPadDispatch *SelectNextPushedPadDispatch_new();
-void Timed_clear(Timed *self);
-void Timed_free(Timed *self);
-void Timed_init(Timed *self);
-Timed *Timed_new();
-void TimedOff_clear(TimedOff *self);
-void TimedOff_free(TimedOff *self);
-void TimedOff_init(TimedOff *self);
-TimedOff *TimedOff_new();
-void Track_clear(Track *self);
-void Track_free(Track *self);
-void Track_init(Track *self);
-Track *Track_new();
-void TrackList_clear(TrackList *self);
-void TrackList_free(TrackList *self);
-void TrackList_init(TrackList *self);
-TrackList *TrackList_new();
-void VstOutlet_clear(VstOutlet *self);
-void VstOutlet_free(VstOutlet *self);
-void VstOutlet_init(VstOutlet *self);
-VstOutlet *VstOutlet_new();
-typedef struct Undefined_t {
-    int itype;
-    char buffer[1024];
-} Undefined;
-#define Undefined_itype 10
-Undefined Undefined_instance = {Undefined_itype, {0}};
-#define Undefined_ptr(typeName) ((typeName*)&Undefined_instance)
-#define BendOutlet_itype 11
-#define CcOutlet_itype 12
-#define DecrementFrameDispatch_itype 13
-#define FloatSequence_itype 14
-#define IncrementFrameDispatch_itype 15
-#define ManageChokeGroupsDispatch_itype 16
-#define MarshalSi_itype 17
-#define MarshalSii_itype 18
-#define MarshalSs_itype 19
-#define MidiFileDropDispatch_itype 20
-#define NoteOutlet_itype 21
-#define NoteSequence_itype 22
-#define NullOutlet_itype 23
-#define SelectNextPushedPadDispatch_itype 24
-#define VstOutlet_itype 25
-#define Interface_itype(self) (self->itype) 
-void Dispatch_exec(Dispatch *self, Hub *a1, Arguments *a2, Error *err);
-Dispatch *Dispatch_create(int itype, Error *err);
-void Dispatch_free(Dispatch *self, Error *err);
-void Dispatch_initDispatchPtAr(int itype, DispatchPtAr *a1, Error *err);
-void Marshal_process(Marshal *self, Arguments *a1, long a2, Atom *a3, Error *err);
-void Marshal_zeroArgs(Marshal *self, Arguments *a1, Error *err);
-void Outlet_sendNote(Outlet *self, uint8_t a1, uint8_t a2, Error *err);
-void Outlet_sendFloat(Outlet *self, double a1, Error *err);
-void Sequence_start(Sequence *self, Ticks a1, Ticks a2, TimedPq *a3, RecordBuffer *a4, Error *err);
-void Sequence_drive(Sequence *self, Ticks a1, TimedPq *a2, Error *err);
-void Sequence_stop(Sequence *self, Ticks a1, Error *err);
-void Sequence_padNoteOff(Sequence *self, int a1, Ticks a2, Error *err);
-void Sequence_setCycle(Sequence *self, bool a1, Error *err);
-void Sequence_free(Sequence *self, Error *err);
-Sequence *Sequence_compactNew(Sequence *self, Error *err);
-Sequence *Sequence_compactConcat(Sequence *self, Sequence *a1, Error *err);
-void Sequence_compactFinish(Sequence *self, Error *err);
-static inline Symbol *Arguments_s1(Arguments *self){return self->s1;}
-static inline void Arguments_setS1(Arguments *self, Symbol *value){self->s1 = value;}
-static inline long Arguments_i1(Arguments *self){return self->i1;}
-static inline void Arguments_setI1(Arguments *self, long value){self->i1 = value;}
-static inline long Arguments_i2(Arguments *self){return self->i2;}
-static inline void Arguments_setI2(Arguments *self, long value){self->i2 = value;}
-static inline long Arguments_ivalue(Arguments *self){return self->ivalue;}
-static inline void Arguments_setIvalue(Arguments *self, long value){self->ivalue = value;}
-static inline long Arguments_inlet(Arguments *self){return self->inlet;}
-static inline void Arguments_setInlet(Arguments *self, long value){self->inlet = value;}
-static inline void AtomAr_changeLength(AtomAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
-static inline void AtomAr_clear(AtomAr *arr) {
-    Array_clear((Array*)arr);
-    AtomAr zero = {0};
-    *arr = zero;
-}
-
-#define AtomAr_each(it, arr) for (Atom* it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void AtomAr_fit(AtomAr *arr) {
-    Array_fit((Array*)arr);
-}
-
-#define AtomAr_foreach(var, arr)                for (AtomArFIt_declare(var, arr, 0); AtomArFIt_next(&var); )
-#define AtomAr_foreachOffset(var, arr, offset)  for (AtomArFIt_declare(var, arr, offset); AtomArFIt_next(&var); )            
-
-static inline void AtomAr_free(AtomAr *arr) {
-    Array_free((Array*)arr);
-}
-
-static inline Atom AtomAr_get(AtomAr *arr, int index, Error *err) {
-    Atom v = {0};
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
-}
-
-static inline Atom *AtomAr_getp(AtomAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (Atom *)Array_get((Array*)arr, index);
-}
-
-static inline void AtomAr_init(AtomAr *arr, int nelems) {
-   void (*clearer)(Atom *) = NULL;
-    Array_init((Array*)arr, nelems, sizeof(Atom), (Array_clearElement)clearer);
-}
-
-static inline void AtomAr_insert(AtomAr *arr, int index, Atom elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Atom *p = (Atom *)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void AtomAr_insertp(AtomAr *arr, int index, Atom *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Atom *p = (Atom *)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int AtomAr_last(AtomAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
-
-static inline int AtomAr_len(AtomAr *arr) {
-    return Array_len((Array*)arr);
-}
-
-#define AtomAr_loop(var) while (AtomArFIt_next(&var)) 
-
-static inline AtomAr *AtomAr_new(int nelems) {
-    void (*clearer)(Atom *) = NULL;
-    return (AtomAr*)Array_new(nelems, sizeof(Atom), (Array_clearElement)clearer);
-}
-
-static inline void AtomAr_pop(AtomAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
-}
-
-static inline void AtomAr_push(AtomAr *arr, Atom elem) {
-    Atom *p = (Atom *)Array_pushN((Array*)arr, 1);
-    *p = elem;
-    return; 
-}            
-
-static inline void AtomAr_pushp(AtomAr *arr, Atom *elem) {
-    Atom *p = (Atom *)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define AtomAr_reach(it, arr) for (Atom* it = arr->data+arr->len-1; it >= arr->data; it--)
-
-static inline void AtomAr_remove(AtomAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void AtomAr_removeN(AtomAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define AtomAr_rforeach(var, arr)                for (AtomArRIt_declare(var, arr, 0); AtomArRIt_next(&var); )
-#define AtomAr_rforeachOffset(var, arr, offset)  for (AtomArRIt_declare(var, arr, offset); AtomArRIt_next(&var); )
-
-#define AtomAr_rloop(var) while (AtomArRIt_next(&var))             
-
-static inline void AtomAr_set(AtomAr *arr, int index, Atom elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void AtomAr_setp(AtomAr *arr, int index, Atom *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
-
-static inline void AtomAr_truncate(AtomAr *arr) {
-    Array_truncate((Array*)arr);
-}
-
-static inline bool AtomArFIt_atEnd(AtomArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
-#define AtomArFIt_declare(var, arr, offset)  AtomArFIt var = {arr, 0, (arr)->len, offset-1, NULL}
-
-#define AtomArFIt_declare0(var)  AtomArFIt var = {0}
-
-static inline bool AtomArFIt_next(AtomArFIt *iterator) {
-    return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
-static inline bool AtomArFIt_remove(AtomArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool AtomArRIt_atEnd(AtomArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define AtomArRIt_declare(var, arr, offset)  AtomArRIt var = {arr, 0, (arr)->len, (arr)->len-offset, NULL}
-
-#define AtomArRIt_declare0(var)  AtomArRIt var = {0}
-
-static inline bool AtomArRIt_next(AtomArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool AtomArRIt_remove(AtomArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
-}
-
-static inline void AtomArAr_changeLength(AtomArAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
-static inline void AtomArAr_clear(AtomArAr *arr) {
-    Array_clear((Array*)arr);
-    AtomArAr zero = {0};
-    *arr = zero;
-}
-
-#define AtomArAr_each(it, arr) for (AtomAr* it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void AtomArAr_fit(AtomArAr *arr) {
-    Array_fit((Array*)arr);
-}
-
-#define AtomArAr_foreach(var, arr)                for (AtomArArFIt_declare(var, arr, 0); AtomArArFIt_next(&var); )
-#define AtomArAr_foreachOffset(var, arr, offset)  for (AtomArArFIt_declare(var, arr, offset); AtomArArFIt_next(&var); )            
-
-static inline void AtomArAr_free(AtomArAr *arr) {
-    Array_free((Array*)arr);
-}
-
-static inline AtomAr AtomArAr_get(AtomArAr *arr, int index, Error *err) {
-    AtomAr v = {0};
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
-}
-
-static inline AtomAr *AtomArAr_getp(AtomArAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (AtomAr *)Array_get((Array*)arr, index);
-}
-
-static inline void AtomArAr_init(AtomArAr *arr, int nelems) {
-   void (*clearer)(AtomAr *) = AtomAr_clear;
-    Array_init((Array*)arr, nelems, sizeof(AtomAr), (Array_clearElement)clearer);
-}
-
-static inline void AtomArAr_insert(AtomArAr *arr, int index, AtomAr elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    AtomAr *p = (AtomAr *)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void AtomArAr_insertp(AtomArAr *arr, int index, AtomAr *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    AtomAr *p = (AtomAr *)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int AtomArAr_last(AtomArAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
-
-static inline int AtomArAr_len(AtomArAr *arr) {
-    return Array_len((Array*)arr);
-}
-
-#define AtomArAr_loop(var) while (AtomArArFIt_next(&var)) 
-
-static inline AtomArAr *AtomArAr_new(int nelems) {
-    void (*clearer)(AtomAr *) = AtomAr_clear;
-    return (AtomArAr*)Array_new(nelems, sizeof(AtomAr), (Array_clearElement)clearer);
-}
-
-static inline void AtomArAr_pop(AtomArAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
-}
-
-static inline void AtomArAr_push(AtomArAr *arr, AtomAr elem) {
-    AtomAr *p = (AtomAr *)Array_pushN((Array*)arr, 1);
-    *p = elem;
-    return; 
-}            
-
-static inline void AtomArAr_pushp(AtomArAr *arr, AtomAr *elem) {
-    AtomAr *p = (AtomAr *)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define AtomArAr_reach(it, arr) for (AtomAr* it = arr->data+arr->len-1; it >= arr->data; it--)
-
-static inline void AtomArAr_remove(AtomArAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void AtomArAr_removeN(AtomArAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define AtomArAr_rforeach(var, arr)                for (AtomArArRIt_declare(var, arr, 0); AtomArArRIt_next(&var); )
-#define AtomArAr_rforeachOffset(var, arr, offset)  for (AtomArArRIt_declare(var, arr, offset); AtomArArRIt_next(&var); )
-
-#define AtomArAr_rloop(var) while (AtomArArRIt_next(&var))             
-
-static inline void AtomArAr_set(AtomArAr *arr, int index, AtomAr elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void AtomArAr_setp(AtomArAr *arr, int index, AtomAr *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
-
-static inline void AtomArAr_truncate(AtomArAr *arr) {
-    Array_truncate((Array*)arr);
-}
-
-static inline bool AtomArArFIt_atEnd(AtomArArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
-#define AtomArArFIt_declare(var, arr, offset)  AtomArArFIt var = {arr, 0, (arr)->len, offset-1, NULL}
-
-#define AtomArArFIt_declare0(var)  AtomArArFIt var = {0}
-
-static inline bool AtomArArFIt_next(AtomArArFIt *iterator) {
-    return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
-static inline bool AtomArArFIt_remove(AtomArArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool AtomArArRIt_atEnd(AtomArArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define AtomArArRIt_declare(var, arr, offset)  AtomArArRIt var = {arr, 0, (arr)->len, (arr)->len-offset, NULL}
-
-#define AtomArArRIt_declare0(var)  AtomArArRIt var = {0}
-
-static inline bool AtomArArRIt_next(AtomArArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool AtomArArRIt_remove(AtomArArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
-}
-
-static inline AtomAr BendOutlet_atoms(BendOutlet *self){return self->atoms;}
-static inline void BendOutlet_setAtoms(BendOutlet *self, AtomAr value){self->atoms = value;}
-static inline Port *BendOutlet_port(BendOutlet *self){return self->port;}
-static inline void BendOutlet_setPort(BendOutlet *self, Port *value){self->port = value;}
-static inline BendOutlet *BendOutlet_castFromOutlet(Outlet *self) {
-    if (self->itype == BendOutlet_itype) {
-        return (BendOutlet*)self;
-    }
-    return NULL;
-}
-static inline Outlet *BendOutlet_castToOutlet(BendOutlet *self) {
-    return (Outlet*)self;
-}
-static inline int BinFile_version(BinFile *self){return self->version;}
-static inline void BinFile_setVersion(BinFile *self, int value){self->version = value;}
-static inline String *BinFile_filename(BinFile *self){return self->filename;}
-static inline void BinFile_setFilename(BinFile *self, String *value){self->filename = value;}
-static inline String *BinFile_buffer(BinFile *self){return self->buffer;}
-static inline void BinFile_setBuffer(BinFile *self, String *value){self->buffer = value;}
-static inline FILE *BinFile_stream(BinFile *self){return self->stream;}
-static inline void BinFile_setStream(BinFile *self, FILE *value){self->stream = value;}
-static inline int CcOutlet_cc(CcOutlet *self){return self->cc;}
-static inline void CcOutlet_setCc(CcOutlet *self, int value){self->cc = value;}
-static inline AtomAr CcOutlet_atoms(CcOutlet *self){return self->atoms;}
-static inline void CcOutlet_setAtoms(CcOutlet *self, AtomAr value){self->atoms = value;}
-static inline Port *CcOutlet_port(CcOutlet *self){return self->port;}
-static inline void CcOutlet_setPort(CcOutlet *self, Port *value){self->port = value;}
-static inline CcOutlet *CcOutlet_castFromOutlet(Outlet *self) {
-    if (self->itype == CcOutlet_itype) {
-        return (CcOutlet*)self;
-    }
-    return NULL;
-}
-static inline Outlet *CcOutlet_castToOutlet(CcOutlet *self) {
-    return (Outlet*)self;
-}
-static inline DecrementFrameDispatch *DecrementFrameDispatch_castFromDispatch(Dispatch *self) {
-    if (self->itype == DecrementFrameDispatch_itype) {
-        return (DecrementFrameDispatch*)self;
-    }
-    return NULL;
-}
-static inline Dispatch *DecrementFrameDispatch_castToDispatch(DecrementFrameDispatch *self) {
-    return (Dispatch*)self;
-}
-static inline int Dispatch_nthIType(int n, int *itype) {
-    static int itypes[] = {
-        DecrementFrameDispatch_itype, IncrementFrameDispatch_itype, ManageChokeGroupsDispatch_itype, MidiFileDropDispatch_itype, SelectNextPushedPadDispatch_itype
-    };
-    static int len = sizeof(itypes)/sizeof(int);
-    if (n < 0 || n >= len) {
-        return 0;
-    }
-    *itype = itypes[n];
-    return 1;
-}
-#define Dispatch_foreachIType(itype) for (int __##itype = 0, itype = 0; Dispatch_nthIType(__##itype, &itype); __##itype++)
-static inline Symbol *Dispatch_selector(Dispatch *self){return self->selector;}
-static inline void Dispatch_setSelector(Dispatch *self, Symbol *value){self->selector = value;}
-static inline Symbol *Dispatch_portId(Dispatch *self){return self->portId;}
-static inline void Dispatch_setPortId(Dispatch *self, Symbol *value){self->portId = value;}
-static inline int Dispatch_inlet(Dispatch *self){return self->inlet;}
-static inline void Dispatch_setInlet(Dispatch *self, int value){self->inlet = value;}
-static inline Marshal *Dispatch_marshal(Dispatch *self){return self->marshal;}
-static inline void Dispatch_setMarshal(Dispatch *self, Marshal *value){self->marshal = value;}
-#define Dispatch_declare(name, itype, selector, portId, inlet, marshal) Dispatch name = {(itype), (selector), (portId), (inlet), (marshal)}
-static inline void DispatchPtAr_changeLength(DispatchPtAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
-static inline void DispatchPtAr_clear(DispatchPtAr *arr) {
-    Array_clear((Array*)arr);
-    DispatchPtAr zero = {0};
-    *arr = zero;
-}
-
-#define DispatchPtAr_each(it, arr) for (Dispatch ** it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void DispatchPtAr_fit(DispatchPtAr *arr) {
-    Array_fit((Array*)arr);
-}
-
-#define DispatchPtAr_foreach(var, arr)                for (DispatchPtArFIt_declare(var, arr, 0); DispatchPtArFIt_next(&var); )
-#define DispatchPtAr_foreachOffset(var, arr, offset)  for (DispatchPtArFIt_declare(var, arr, offset); DispatchPtArFIt_next(&var); )            
-
-static inline void DispatchPtAr_free(DispatchPtAr *arr) {
-    Array_free((Array*)arr);
-}
-
-static inline Dispatch *DispatchPtAr_get(DispatchPtAr *arr, int index, Error *err) {
-    Dispatch * v = {0};
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
-}
-
-static inline Dispatch **DispatchPtAr_getp(DispatchPtAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (Dispatch **)Array_get((Array*)arr, index);
-}
-
-static inline void DispatchPtAr_init(DispatchPtAr *arr, int nelems) {
-   void (*clearer)(Dispatch **) = NULL;
-    Array_init((Array*)arr, nelems, sizeof(Dispatch *), (Array_clearElement)clearer);
-}
-
-static inline void DispatchPtAr_insert(DispatchPtAr *arr, int index, Dispatch *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Dispatch * *p = (Dispatch **)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void DispatchPtAr_insertp(DispatchPtAr *arr, int index, Dispatch **elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Dispatch * *p = (Dispatch **)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int DispatchPtAr_last(DispatchPtAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
-
-static inline int DispatchPtAr_len(DispatchPtAr *arr) {
-    return Array_len((Array*)arr);
-}
-
-#define DispatchPtAr_loop(var) while (DispatchPtArFIt_next(&var)) 
-
-static inline DispatchPtAr *DispatchPtAr_new(int nelems) {
-    void (*clearer)(Dispatch **) = NULL;
-    return (DispatchPtAr*)Array_new(nelems, sizeof(Dispatch *), (Array_clearElement)clearer);
-}
-
-static inline void DispatchPtAr_pop(DispatchPtAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
-}
-
-static inline void DispatchPtAr_push(DispatchPtAr *arr, Dispatch *elem) {
-    Dispatch * *p = (Dispatch **)Array_pushN((Array*)arr, 1);
-    *p = elem;
-    return; 
-}            
-
-static inline void DispatchPtAr_pushp(DispatchPtAr *arr, Dispatch **elem) {
-    Dispatch * *p = (Dispatch **)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define DispatchPtAr_reach(it, arr) for (Dispatch ** it = arr->data+arr->len-1; it >= arr->data; it--)
-
-static inline void DispatchPtAr_remove(DispatchPtAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void DispatchPtAr_removeN(DispatchPtAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define DispatchPtAr_rforeach(var, arr)                for (DispatchPtArRIt_declare(var, arr, 0); DispatchPtArRIt_next(&var); )
-#define DispatchPtAr_rforeachOffset(var, arr, offset)  for (DispatchPtArRIt_declare(var, arr, offset); DispatchPtArRIt_next(&var); )
-
-#define DispatchPtAr_rloop(var) while (DispatchPtArRIt_next(&var))             
-
-static inline void DispatchPtAr_set(DispatchPtAr *arr, int index, Dispatch *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void DispatchPtAr_setp(DispatchPtAr *arr, int index, Dispatch **elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
-
-static inline void DispatchPtAr_truncate(DispatchPtAr *arr) {
-    Array_truncate((Array*)arr);
-}
-
-static inline bool DispatchPtArFIt_atEnd(DispatchPtArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
-#define DispatchPtArFIt_declare(var, arr, offset)  DispatchPtArFIt var = {arr, 0, (arr)->len, offset-1, NULL}
-
-#define DispatchPtArFIt_declare0(var)  DispatchPtArFIt var = {0}
-
-static inline bool DispatchPtArFIt_next(DispatchPtArFIt *iterator) {
-    return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
-static inline bool DispatchPtArFIt_remove(DispatchPtArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool DispatchPtArRIt_atEnd(DispatchPtArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define DispatchPtArRIt_declare(var, arr, offset)  DispatchPtArRIt var = {arr, 0, (arr)->len, (arr)->len-offset, NULL}
-
-#define DispatchPtArRIt_declare0(var)  DispatchPtArRIt var = {0}
-
-static inline bool DispatchPtArRIt_next(DispatchPtArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool DispatchPtArRIt_remove(DispatchPtArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
-}
-
-static inline void DispatchPtAr_binInsert(DispatchPtAr *arr, Dispatch *elem) {
-    int (*compare)(Dispatch **, Dispatch **) = Dispatch_cmp;
-    Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)compare, false);
-}            
-
-static inline void DispatchPtAr_binRemove(DispatchPtAr *arr, Dispatch *elem) {
-    int (*compare)(Dispatch **, Dispatch **) = Dispatch_cmp;
-    Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)compare, false);
-}        
-
-static inline Dispatch **DispatchPtAr_binSearch(DispatchPtAr *arr, Dispatch *elem) {
-    int (*compare)(Dispatch **, Dispatch **) = Dispatch_cmp;
-    return (Dispatch **)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, NULL);
-}
-
-static inline Dispatch **DispatchPtAr_pqPeek(DispatchPtAr *arr) {
-   return (Dispatch **)Array_pqPeek((Array*)arr);
-}
-
-static inline bool DispatchPtAr_pqPop(DispatchPtAr *arr, Dispatch **elem) {
-    int (*compare)(Dispatch **, Dispatch **) = Dispatch_cmp;
-   return Array_pqPop((Array*)arr, (char*)elem, (Array_compare)compare);
-}
-
-static inline void DispatchPtAr_pqPush(DispatchPtAr *arr, Dispatch *elem) {
-    int (*compare)(Dispatch **, Dispatch **) = Dispatch_cmp;
-   Array_pqPush((Array*)arr, (char*)&elem, (Array_compare)compare);
-}
-
-static inline void DispatchPtAr_pqSort(DispatchPtAr *arr) {
-    int (*compare)(Dispatch **, Dispatch **) = Dispatch_cmp;
-   Array_pqSort((Array*)arr, (Array_compare)compare);
-}
-
-static inline void DispatchPtAr_sort(DispatchPtAr *arr) {
-    int (*compare)(Dispatch **, Dispatch **) = Dispatch_cmp;
-    Array_sort((Array*)arr, (Array_compare)compare);
-}                
-
-static inline SymbolPtrAr *DropDown_table(DropDown *self){return &self->table;}
-static inline int DropDown_selected(DropDown *self){return self->selected;}
-static inline Ticks FloatEvent_stime(FloatEvent *self){return self->stime;}
-static inline void FloatEvent_setStime(FloatEvent *self, Ticks value){self->stime = value;}
-static inline double FloatEvent_value(FloatEvent *self){return self->value;}
-static inline void FloatEvent_setValue(FloatEvent *self, double value){self->value = value;}
-static inline void FloatEventAr_changeLength(FloatEventAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
-static inline void FloatEventAr_clear(FloatEventAr *arr) {
-    Array_clear((Array*)arr);
-    FloatEventAr zero = {0};
-    *arr = zero;
-}
-
-#define FloatEventAr_each(it, arr) for (FloatEvent* it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void FloatEventAr_fit(FloatEventAr *arr) {
-    Array_fit((Array*)arr);
-}
-
-#define FloatEventAr_foreach(var, arr)                for (FloatEventArFIt_declare(var, arr, 0); FloatEventArFIt_next(&var); )
-#define FloatEventAr_foreachOffset(var, arr, offset)  for (FloatEventArFIt_declare(var, arr, offset); FloatEventArFIt_next(&var); )            
-
-static inline void FloatEventAr_free(FloatEventAr *arr) {
-    Array_free((Array*)arr);
-}
-
-static inline FloatEvent FloatEventAr_get(FloatEventAr *arr, int index, Error *err) {
-    FloatEvent v = {0};
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
-}
-
-static inline FloatEvent *FloatEventAr_getp(FloatEventAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (FloatEvent *)Array_get((Array*)arr, index);
-}
-
-static inline void FloatEventAr_init(FloatEventAr *arr, int nelems) {
-   void (*clearer)(FloatEvent *) = NULL;
-    Array_init((Array*)arr, nelems, sizeof(FloatEvent), (Array_clearElement)clearer);
-}
-
-static inline void FloatEventAr_insert(FloatEventAr *arr, int index, FloatEvent elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    FloatEvent *p = (FloatEvent *)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void FloatEventAr_insertp(FloatEventAr *arr, int index, FloatEvent *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    FloatEvent *p = (FloatEvent *)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int FloatEventAr_last(FloatEventAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
-
-static inline int FloatEventAr_len(FloatEventAr *arr) {
-    return Array_len((Array*)arr);
-}
-
-#define FloatEventAr_loop(var) while (FloatEventArFIt_next(&var)) 
-
-static inline FloatEventAr *FloatEventAr_new(int nelems) {
-    void (*clearer)(FloatEvent *) = NULL;
-    return (FloatEventAr*)Array_new(nelems, sizeof(FloatEvent), (Array_clearElement)clearer);
-}
-
-static inline void FloatEventAr_pop(FloatEventAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
-}
-
-static inline void FloatEventAr_push(FloatEventAr *arr, FloatEvent elem) {
-    FloatEvent *p = (FloatEvent *)Array_pushN((Array*)arr, 1);
-    *p = elem;
-    return; 
-}            
-
-static inline void FloatEventAr_pushp(FloatEventAr *arr, FloatEvent *elem) {
-    FloatEvent *p = (FloatEvent *)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define FloatEventAr_reach(it, arr) for (FloatEvent* it = arr->data+arr->len-1; it >= arr->data; it--)
-
-static inline void FloatEventAr_remove(FloatEventAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void FloatEventAr_removeN(FloatEventAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define FloatEventAr_rforeach(var, arr)                for (FloatEventArRIt_declare(var, arr, 0); FloatEventArRIt_next(&var); )
-#define FloatEventAr_rforeachOffset(var, arr, offset)  for (FloatEventArRIt_declare(var, arr, offset); FloatEventArRIt_next(&var); )
-
-#define FloatEventAr_rloop(var) while (FloatEventArRIt_next(&var))             
-
-static inline void FloatEventAr_set(FloatEventAr *arr, int index, FloatEvent elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void FloatEventAr_setp(FloatEventAr *arr, int index, FloatEvent *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
-
-static inline void FloatEventAr_truncate(FloatEventAr *arr) {
-    Array_truncate((Array*)arr);
-}
-
-static inline bool FloatEventArFIt_atEnd(FloatEventArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
-#define FloatEventArFIt_declare(var, arr, offset)  FloatEventArFIt var = {arr, 0, (arr)->len, offset-1, NULL}
-
-#define FloatEventArFIt_declare0(var)  FloatEventArFIt var = {0}
-
-static inline bool FloatEventArFIt_next(FloatEventArFIt *iterator) {
-    return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
-static inline bool FloatEventArFIt_remove(FloatEventArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool FloatEventArRIt_atEnd(FloatEventArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define FloatEventArRIt_declare(var, arr, offset)  FloatEventArRIt var = {arr, 0, (arr)->len, (arr)->len-offset, NULL}
-
-#define FloatEventArRIt_declare0(var)  FloatEventArRIt var = {0}
-
-static inline bool FloatEventArRIt_next(FloatEventArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool FloatEventArRIt_remove(FloatEventArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
-}
-
-static inline void FloatEventAr_binInsert(FloatEventAr *arr, FloatEvent elem) {
-    int (*compare)(FloatEvent *, FloatEvent *) = FloatEvent_cmp;
-    Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)compare, false);
-}            
-
-static inline void FloatEventAr_binRemove(FloatEventAr *arr, FloatEvent elem) {
-    int (*compare)(FloatEvent *, FloatEvent *) = FloatEvent_cmp;
-    Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)compare, false);
-}        
-
-static inline FloatEvent *FloatEventAr_binSearch(FloatEventAr *arr, FloatEvent elem) {
-    int (*compare)(FloatEvent *, FloatEvent *) = FloatEvent_cmp;
-    return (FloatEvent *)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, NULL);
-}
-
-static inline FloatEvent *FloatEventAr_pqPeek(FloatEventAr *arr) {
-   return (FloatEvent *)Array_pqPeek((Array*)arr);
-}
-
-static inline bool FloatEventAr_pqPop(FloatEventAr *arr, FloatEvent *elem) {
-    int (*compare)(FloatEvent *, FloatEvent *) = FloatEvent_cmp;
-   return Array_pqPop((Array*)arr, (char*)elem, (Array_compare)compare);
-}
-
-static inline void FloatEventAr_pqPush(FloatEventAr *arr, FloatEvent elem) {
-    int (*compare)(FloatEvent *, FloatEvent *) = FloatEvent_cmp;
-   Array_pqPush((Array*)arr, (char*)&elem, (Array_compare)compare);
-}
-
-static inline void FloatEventAr_pqSort(FloatEventAr *arr) {
-    int (*compare)(FloatEvent *, FloatEvent *) = FloatEvent_cmp;
-   Array_pqSort((Array*)arr, (Array_compare)compare);
-}
-
-static inline void FloatEventAr_sort(FloatEventAr *arr) {
-    int (*compare)(FloatEvent *, FloatEvent *) = FloatEvent_cmp;
-    Array_sort((Array*)arr, (Array_compare)compare);
-}                
-
-static inline long FloatSequence_version(FloatSequence *self){return self->version;}
-static inline void FloatSequence_setVersion(FloatSequence *self, long value){self->version = value;}
-static inline Ticks FloatSequence_startTime(FloatSequence *self){return self->startTime;}
-static inline void FloatSequence_setStartTime(FloatSequence *self, Ticks value){self->startTime = value;}
-static inline OutletSpecifier FloatSequence_outletSpecifier(FloatSequence *self){return self->outletSpecifier;}
-static inline void FloatSequence_setOutletSpecifier(FloatSequence *self, OutletSpecifier value){self->outletSpecifier = value;}
-static inline Ticks FloatSequence_sequenceLength(FloatSequence *self){return self->sequenceLength;}
-static inline void FloatSequence_setSequenceLength(FloatSequence *self, Ticks value){self->sequenceLength = value;}
-static inline int FloatSequence_cursor(FloatSequence *self){return self->cursor;}
-static inline void FloatSequence_setCursor(FloatSequence *self, int value){self->cursor = value;}
-static inline bool FloatSequence_cycle(FloatSequence *self){return self->cycle;}
-static inline void FloatSequence_setCycle(FloatSequence *self, bool value){self->cycle = value;}
-static inline bool FloatSequence_inEndgroup(FloatSequence *self){return self->inEndgroup;}
-static inline void FloatSequence_setInEndgroup(FloatSequence *self, bool value){self->inEndgroup = value;}
-static inline Outlet *FloatSequence_outlet(FloatSequence *self){return self->outlet;}
-static inline void FloatSequence_setOutlet(FloatSequence *self, Outlet *value){self->outlet = value;}
-static inline FloatSequence *FloatSequence_recordingSeq(FloatSequence *self){return self->recordingSeq;}
-static inline void FloatSequence_setRecordingSeq(FloatSequence *self, FloatSequence *value){self->recordingSeq = value;}
-static inline FloatEventAr FloatSequence_events(FloatSequence *self){return self->events;}
-static inline void FloatSequence_setEvents(FloatSequence *self, FloatEventAr value){self->events = value;}
-static inline double FloatSequence_restoreValue(FloatSequence *self){return self->restoreValue;}
-static inline void FloatSequence_setRestoreValue(FloatSequence *self, double value){self->restoreValue = value;}
-static inline FloatSequence *FloatSequence_castFromSequence(Sequence *self) {
-    if (self->itype == FloatSequence_itype) {
-        return (FloatSequence*)self;
-    }
-    return NULL;
-}
-static inline Sequence *FloatSequence_castToSequence(FloatSequence *self) {
-    return (Sequence*)self;
-}
-static inline PadList *Hub_padList(Hub *self){return self->padList;}
-static inline void Hub_setPadList(Hub *self, PadList *value){self->padList = value;}
-static inline TrackList *Hub_trackList(Hub *self){return self->trackList;}
-static inline void Hub_setTrackList(Hub *self, TrackList *value){self->trackList = value;}
-static inline Port *Hub_currBankPort(Hub *self){return self->currBankPort;}
-static inline void Hub_setCurrBankPort(Hub *self, Port *value){self->currBankPort = value;}
-static inline Port *Hub_currFramePort(Hub *self){return self->currFramePort;}
-static inline void Hub_setCurrFramePort(Hub *self, Port *value){self->currFramePort = value;}
-static inline Port *Hub_selBankPort(Hub *self){return self->selBankPort;}
-static inline void Hub_setSelBankPort(Hub *self, Port *value){self->selBankPort = value;}
-static inline Port *Hub_selFramePort(Hub *self){return self->selFramePort;}
-static inline void Hub_setSelFramePort(Hub *self, Port *value){self->selFramePort = value;}
-static inline Port *Hub_selPadPort(Hub *self){return self->selPadPort;}
-static inline void Hub_setSelPadPort(Hub *self, Port *value){self->selPadPort = value;}
-static inline Port *Hub_chokeGroupPort(Hub *self){return self->chokeGroupPort;}
-static inline void Hub_setChokeGroupPort(Hub *self, Port *value){self->chokeGroupPort = value;}
-static inline DropDown *Hub_cgLocalGlobalMenu(Hub *self){return &self->cgLocalGlobalMenu;}
-static inline DropDown *Hub_cgInstrumentMenu(Hub *self){return &self->cgInstrumentMenu;}
-static inline DropDown *Hub_cgIndexMenu(Hub *self){return &self->cgIndexMenu;}
-static inline int Hub_bank(Hub *self){return self->bank;}
-static inline void Hub_setBank(Hub *self, int value){self->bank = value;}
-static inline int Hub_frame(Hub *self){return self->frame;}
-static inline void Hub_setFrame(Hub *self, int value){self->frame = value;}
-static inline bool Hub_grabNextTappedPad(Hub *self){return self->grabNextTappedPad;}
-static inline void Hub_setGrabNextTappedPad(Hub *self, bool value){self->grabNextTappedPad = value;}
-static inline int Hub_selectedPad(Hub *self){return self->selectedPad;}
-static inline void Hub_setSelectedPad(Hub *self, int value){self->selectedPad = value;}
-static inline Arguments Hub_arguments(Hub *self){return self->arguments;}
-static inline void Hub_setArguments(Hub *self, Arguments value){self->arguments = value;}
-static inline DispatchPtAr *Hub_dispatcher(Hub *self){return &self->dispatcher;}
-static inline Ticks Hub_masterClock(Hub *self){return self->masterClock;}
-static inline void Hub_setMasterClock(Hub *self, Ticks value){self->masterClock = value;}
-static inline IncrementFrameDispatch *IncrementFrameDispatch_castFromDispatch(Dispatch *self) {
-    if (self->itype == IncrementFrameDispatch_itype) {
-        return (IncrementFrameDispatch*)self;
-    }
-    return NULL;
-}
-static inline Dispatch *IncrementFrameDispatch_castToDispatch(IncrementFrameDispatch *self) {
-    return (Dispatch*)self;
-}
-static inline int IndexedOff_padIndex(IndexedOff *self){return self->padIndex;}
-static inline void IndexedOff_setPadIndex(IndexedOff *self, int value){self->padIndex = value;}
-static inline int IndexedOff_pitch(IndexedOff *self){return self->pitch;}
-static inline void IndexedOff_setPitch(IndexedOff *self, int value){self->pitch = value;}
-#define IndexedOff_declare(name, padIndex, pitch) IndexedOff name = {(padIndex), (pitch)}
-static inline void IndexedOffAr_changeLength(IndexedOffAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
-static inline void IndexedOffAr_clear(IndexedOffAr *arr) {
-    Array_clear((Array*)arr);
-    IndexedOffAr zero = {0};
-    *arr = zero;
-}
-
-#define IndexedOffAr_each(it, arr) for (IndexedOff* it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void IndexedOffAr_fit(IndexedOffAr *arr) {
-    Array_fit((Array*)arr);
-}
-
-#define IndexedOffAr_foreach(var, arr)                for (IndexedOffArFIt_declare(var, arr, 0); IndexedOffArFIt_next(&var); )
-#define IndexedOffAr_foreachOffset(var, arr, offset)  for (IndexedOffArFIt_declare(var, arr, offset); IndexedOffArFIt_next(&var); )            
-
-static inline void IndexedOffAr_free(IndexedOffAr *arr) {
-    Array_free((Array*)arr);
-}
-
-static inline IndexedOff IndexedOffAr_get(IndexedOffAr *arr, int index, Error *err) {
-    IndexedOff v = {0};
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
-}
-
-static inline IndexedOff *IndexedOffAr_getp(IndexedOffAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (IndexedOff *)Array_get((Array*)arr, index);
-}
-
-static inline void IndexedOffAr_init(IndexedOffAr *arr, int nelems) {
-   void (*clearer)(IndexedOff *) = NULL;
-    Array_init((Array*)arr, nelems, sizeof(IndexedOff), (Array_clearElement)clearer);
-}
-
-static inline void IndexedOffAr_insert(IndexedOffAr *arr, int index, IndexedOff elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    IndexedOff *p = (IndexedOff *)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void IndexedOffAr_insertp(IndexedOffAr *arr, int index, IndexedOff *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    IndexedOff *p = (IndexedOff *)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int IndexedOffAr_last(IndexedOffAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
-
-static inline int IndexedOffAr_len(IndexedOffAr *arr) {
-    return Array_len((Array*)arr);
-}
-
-#define IndexedOffAr_loop(var) while (IndexedOffArFIt_next(&var)) 
-
-static inline IndexedOffAr *IndexedOffAr_new(int nelems) {
-    void (*clearer)(IndexedOff *) = NULL;
-    return (IndexedOffAr*)Array_new(nelems, sizeof(IndexedOff), (Array_clearElement)clearer);
-}
-
-static inline void IndexedOffAr_pop(IndexedOffAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
-}
-
-static inline void IndexedOffAr_push(IndexedOffAr *arr, IndexedOff elem) {
-    IndexedOff *p = (IndexedOff *)Array_pushN((Array*)arr, 1);
-    *p = elem;
-    return; 
-}            
-
-static inline void IndexedOffAr_pushp(IndexedOffAr *arr, IndexedOff *elem) {
-    IndexedOff *p = (IndexedOff *)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define IndexedOffAr_reach(it, arr) for (IndexedOff* it = arr->data+arr->len-1; it >= arr->data; it--)
-
-static inline void IndexedOffAr_remove(IndexedOffAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void IndexedOffAr_removeN(IndexedOffAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define IndexedOffAr_rforeach(var, arr)                for (IndexedOffArRIt_declare(var, arr, 0); IndexedOffArRIt_next(&var); )
-#define IndexedOffAr_rforeachOffset(var, arr, offset)  for (IndexedOffArRIt_declare(var, arr, offset); IndexedOffArRIt_next(&var); )
-
-#define IndexedOffAr_rloop(var) while (IndexedOffArRIt_next(&var))             
-
-static inline void IndexedOffAr_set(IndexedOffAr *arr, int index, IndexedOff elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void IndexedOffAr_setp(IndexedOffAr *arr, int index, IndexedOff *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
-
-static inline void IndexedOffAr_truncate(IndexedOffAr *arr) {
-    Array_truncate((Array*)arr);
-}
-
-static inline bool IndexedOffArFIt_atEnd(IndexedOffArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
-#define IndexedOffArFIt_declare(var, arr, offset)  IndexedOffArFIt var = {arr, 0, (arr)->len, offset-1, NULL}
-
-#define IndexedOffArFIt_declare0(var)  IndexedOffArFIt var = {0}
-
-static inline bool IndexedOffArFIt_next(IndexedOffArFIt *iterator) {
-    return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
-static inline bool IndexedOffArFIt_remove(IndexedOffArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool IndexedOffArRIt_atEnd(IndexedOffArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define IndexedOffArRIt_declare(var, arr, offset)  IndexedOffArRIt var = {arr, 0, (arr)->len, (arr)->len-offset, NULL}
-
-#define IndexedOffArRIt_declare0(var)  IndexedOffArRIt var = {0}
-
-static inline bool IndexedOffArRIt_next(IndexedOffArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool IndexedOffArRIt_remove(IndexedOffArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
-}
-
-static inline void IndexedOffAr_binInsertPadIndex(IndexedOffAr *arr, IndexedOff elem) {
-    int (*compare)(IndexedOff *, IndexedOff *) = IndexedOff_cmpPadIndex;
-    Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)compare, true);
-}            
-
-static inline void IndexedOffAr_binRemovePadIndex(IndexedOffAr *arr, IndexedOff elem) {
-    int (*compare)(IndexedOff *, IndexedOff *) = IndexedOff_cmpPadIndex;
-    Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)compare, true);
-}        
-
-static inline IndexedOffArFIt IndexedOffAr_binSearchPadIndex(IndexedOffAr *arr, IndexedOff elem) {
-    int (*compare)(IndexedOff *, IndexedOff *) = IndexedOff_cmpPadIndex;
-    IndexedOffArFIt it = {0};
-   if (Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, (ArrayFIt*)&it) != NULL) {
-       return it;
-    }
-   it.index  = arr->len;
-   it.uBound = 0;
-    return it;
-}
-
-static inline IndexedOff *IndexedOffAr_pqPeekPadIndex(IndexedOffAr *arr) {
-   return (IndexedOff *)Array_pqPeek((Array*)arr);
-}
-
-static inline bool IndexedOffAr_pqPopPadIndex(IndexedOffAr *arr, IndexedOff *elem) {
-    int (*compare)(IndexedOff *, IndexedOff *) = IndexedOff_cmpPadIndex;
-   return Array_pqPop((Array*)arr, (char*)elem, (Array_compare)compare);
-}
-
-static inline void IndexedOffAr_pqPushPadIndex(IndexedOffAr *arr, IndexedOff elem) {
-    int (*compare)(IndexedOff *, IndexedOff *) = IndexedOff_cmpPadIndex;
-   Array_pqPush((Array*)arr, (char*)&elem, (Array_compare)compare);
-}
-
-static inline void IndexedOffAr_pqSortPadIndex(IndexedOffAr *arr) {
-    int (*compare)(IndexedOff *, IndexedOff *) = IndexedOff_cmpPadIndex;
-   Array_pqSort((Array*)arr, (Array_compare)compare);
-}
-
-static inline void IndexedOffAr_sortPadIndex(IndexedOffAr *arr) {
-    int (*compare)(IndexedOff *, IndexedOff *) = IndexedOff_cmpPadIndex;
-    Array_sort((Array*)arr, (Array_compare)compare);
-}                
-
-static inline void IntAr_changeLength(IntAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
-static inline void IntAr_clear(IntAr *arr) {
-    Array_clear((Array*)arr);
-    IntAr zero = {0};
-    *arr = zero;
-}
-
-#define IntAr_each(it, arr) for (int* it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void IntAr_fit(IntAr *arr) {
-    Array_fit((Array*)arr);
-}
-
-#define IntAr_foreach(var, arr)                for (IntArFIt_declare(var, arr, 0); IntArFIt_next(&var); )
-#define IntAr_foreachOffset(var, arr, offset)  for (IntArFIt_declare(var, arr, offset); IntArFIt_next(&var); )            
-
-static inline void IntAr_free(IntAr *arr) {
-    Array_free((Array*)arr);
-}
-
-static inline int IntAr_get(IntAr *arr, int index, Error *err) {
-    int v = 0;
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
-}
-
-static inline int *IntAr_getp(IntAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (int *)Array_get((Array*)arr, index);
-}
-
-static inline void IntAr_init(IntAr *arr, int nelems) {
-   void (*clearer)(int *) = NULL;
-    Array_init((Array*)arr, nelems, sizeof(int), (Array_clearElement)clearer);
-}
-
-static inline void IntAr_insert(IntAr *arr, int index, int elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    int *p = (int *)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void IntAr_insertp(IntAr *arr, int index, int *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    int *p = (int *)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int IntAr_last(IntAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
-
-static inline int IntAr_len(IntAr *arr) {
-    return Array_len((Array*)arr);
-}
-
-#define IntAr_loop(var) while (IntArFIt_next(&var)) 
-
-static inline IntAr *IntAr_new(int nelems) {
-    void (*clearer)(int *) = NULL;
-    return (IntAr*)Array_new(nelems, sizeof(int), (Array_clearElement)clearer);
-}
-
-static inline void IntAr_pop(IntAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
-}
-
-static inline void IntAr_push(IntAr *arr, int elem) {
-    int *p = (int *)Array_pushN((Array*)arr, 1);
-    *p = elem;
-    return; 
-}            
-
-static inline void IntAr_pushp(IntAr *arr, int *elem) {
-    int *p = (int *)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define IntAr_reach(it, arr) for (int* it = arr->data+arr->len-1; it >= arr->data; it--)
-
-static inline void IntAr_remove(IntAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void IntAr_removeN(IntAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define IntAr_rforeach(var, arr)                for (IntArRIt_declare(var, arr, 0); IntArRIt_next(&var); )
-#define IntAr_rforeachOffset(var, arr, offset)  for (IntArRIt_declare(var, arr, offset); IntArRIt_next(&var); )
-
-#define IntAr_rloop(var) while (IntArRIt_next(&var))             
-
-static inline void IntAr_set(IntAr *arr, int index, int elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void IntAr_setp(IntAr *arr, int index, int *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
-
-static inline void IntAr_truncate(IntAr *arr) {
-    Array_truncate((Array*)arr);
-}
-
-static inline bool IntArFIt_atEnd(IntArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
-#define IntArFIt_declare(var, arr, offset)  IntArFIt var = {arr, 0, (arr)->len, offset-1, NULL}
-
-#define IntArFIt_declare0(var)  IntArFIt var = {0}
-
-static inline bool IntArFIt_next(IntArFIt *iterator) {
-    return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
-static inline bool IntArFIt_remove(IntArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool IntArRIt_atEnd(IntArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define IntArRIt_declare(var, arr, offset)  IntArRIt var = {arr, 0, (arr)->len, (arr)->len-offset, NULL}
-
-#define IntArRIt_declare0(var)  IntArRIt var = {0}
-
-static inline bool IntArRIt_next(IntArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool IntArRIt_remove(IntArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
-}
-
-static inline void MEventAr_changeLength(MEventAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
-static inline void MEventAr_clear(MEventAr *arr) {
-    Array_clear((Array*)arr);
-    MEventAr zero = {0};
-    *arr = zero;
-}
-
-#define MEventAr_each(it, arr) for (MEvent* it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void MEventAr_fit(MEventAr *arr) {
-    Array_fit((Array*)arr);
-}
-
-#define MEventAr_foreach(var, arr)                for (MEventArFIt_declare(var, arr, 0); MEventArFIt_next(&var); )
-#define MEventAr_foreachOffset(var, arr, offset)  for (MEventArFIt_declare(var, arr, offset); MEventArFIt_next(&var); )            
-
-static inline void MEventAr_free(MEventAr *arr) {
-    Array_free((Array*)arr);
-}
-
-static inline MEvent MEventAr_get(MEventAr *arr, int index, Error *err) {
-    MEvent v = {0};
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
-}
-
-static inline MEvent *MEventAr_getp(MEventAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (MEvent *)Array_get((Array*)arr, index);
-}
-
-static inline void MEventAr_init(MEventAr *arr, int nelems) {
-   void (*clearer)(MEvent *) = NULL;
-    Array_init((Array*)arr, nelems, sizeof(MEvent), (Array_clearElement)clearer);
-}
-
-static inline void MEventAr_insert(MEventAr *arr, int index, MEvent elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    MEvent *p = (MEvent *)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void MEventAr_insertp(MEventAr *arr, int index, MEvent *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    MEvent *p = (MEvent *)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int MEventAr_last(MEventAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
-
-static inline int MEventAr_len(MEventAr *arr) {
-    return Array_len((Array*)arr);
-}
-
-#define MEventAr_loop(var) while (MEventArFIt_next(&var)) 
-
-static inline MEventAr *MEventAr_new(int nelems) {
-    void (*clearer)(MEvent *) = NULL;
-    return (MEventAr*)Array_new(nelems, sizeof(MEvent), (Array_clearElement)clearer);
-}
-
-static inline void MEventAr_pop(MEventAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
-}
-
-static inline void MEventAr_push(MEventAr *arr, MEvent elem) {
-    MEvent *p = (MEvent *)Array_pushN((Array*)arr, 1);
-    *p = elem;
-    return; 
-}            
-
-static inline void MEventAr_pushp(MEventAr *arr, MEvent *elem) {
-    MEvent *p = (MEvent *)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define MEventAr_reach(it, arr) for (MEvent* it = arr->data+arr->len-1; it >= arr->data; it--)
-
-static inline void MEventAr_remove(MEventAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void MEventAr_removeN(MEventAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define MEventAr_rforeach(var, arr)                for (MEventArRIt_declare(var, arr, 0); MEventArRIt_next(&var); )
-#define MEventAr_rforeachOffset(var, arr, offset)  for (MEventArRIt_declare(var, arr, offset); MEventArRIt_next(&var); )
-
-#define MEventAr_rloop(var) while (MEventArRIt_next(&var))             
-
-static inline void MEventAr_set(MEventAr *arr, int index, MEvent elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void MEventAr_setp(MEventAr *arr, int index, MEvent *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
-
-static inline void MEventAr_truncate(MEventAr *arr) {
-    Array_truncate((Array*)arr);
-}
-
-static inline bool MEventArFIt_atEnd(MEventArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
-#define MEventArFIt_declare(var, arr, offset)  MEventArFIt var = {arr, 0, (arr)->len, offset-1, NULL}
-
-#define MEventArFIt_declare0(var)  MEventArFIt var = {0}
-
-static inline bool MEventArFIt_next(MEventArFIt *iterator) {
-    return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
-static inline bool MEventArFIt_remove(MEventArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool MEventArRIt_atEnd(MEventArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define MEventArRIt_declare(var, arr, offset)  MEventArRIt var = {arr, 0, (arr)->len, (arr)->len-offset, NULL}
-
-#define MEventArRIt_declare0(var)  MEventArRIt var = {0}
-
-static inline bool MEventArRIt_next(MEventArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool MEventArRIt_remove(MEventArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
-}
-
-static inline ManageChokeGroupsDispatch *ManageChokeGroupsDispatch_castFromDispatch(Dispatch *self) {
-    if (self->itype == ManageChokeGroupsDispatch_itype) {
-        return (ManageChokeGroupsDispatch*)self;
-    }
-    return NULL;
-}
-static inline Dispatch *ManageChokeGroupsDispatch_castToDispatch(ManageChokeGroupsDispatch *self) {
-    return (Dispatch*)self;
-}
-static inline int Marshal_nthIType(int n, int *itype) {
-    static int itypes[] = {
-        MarshalSi_itype, MarshalSii_itype, MarshalSs_itype
-    };
-    static int len = sizeof(itypes)/sizeof(int);
-    if (n < 0 || n >= len) {
-        return 0;
-    }
-    *itype = itypes[n];
-    return 1;
-}
-#define Marshal_foreachIType(itype) for (int __##itype = 0, itype = 0; Marshal_nthIType(__##itype, &itype); __##itype++)
-static inline MarshalSi *MarshalSi_castFromMarshal(Marshal *self) {
-    if (self->itype == MarshalSi_itype) {
-        return (MarshalSi*)self;
-    }
-    return NULL;
-}
-static inline Marshal *MarshalSi_castToMarshal(MarshalSi *self) {
-    return (Marshal*)self;
-}
-static inline MarshalSii *MarshalSii_castFromMarshal(Marshal *self) {
-    if (self->itype == MarshalSii_itype) {
-        return (MarshalSii*)self;
-    }
-    return NULL;
-}
-static inline Marshal *MarshalSii_castToMarshal(MarshalSii *self) {
-    return (Marshal*)self;
-}
-static inline MarshalSs *MarshalSs_castFromMarshal(Marshal *self) {
-    if (self->itype == MarshalSs_itype) {
-        return (MarshalSs*)self;
-    }
-    return NULL;
-}
-static inline Marshal *MarshalSs_castToMarshal(MarshalSs *self) {
-    return (Marshal*)self;
-}
-static inline MidiFileDropDispatch *MidiFileDropDispatch_castFromDispatch(Dispatch *self) {
-    if (self->itype == MidiFileDropDispatch_itype) {
-        return (MidiFileDropDispatch*)self;
-    }
-    return NULL;
-}
-static inline Dispatch *MidiFileDropDispatch_castToDispatch(MidiFileDropDispatch *self) {
-    return (Dispatch*)self;
-}
-static inline bool Midiseq_useMasterClock(Midiseq *self){return self->useMasterClock;}
-static inline void Midiseq_setUseMasterClock(Midiseq *self, bool value){self->useMasterClock = value;}
-static inline Ticks Midiseq_sequenceLength(Midiseq *self){return self->sequenceLength;}
-static inline void Midiseq_setSequenceLength(Midiseq *self, Ticks value){self->sequenceLength = value;}
-static inline MEventAr Midiseq_events(Midiseq *self){return self->events;}
-static inline void Midiseq_setEvents(Midiseq *self, MEventAr value){self->events = value;}
-static inline Ticks Midiseq_startTime(Midiseq *self){return self->startTime;}
-static inline void Midiseq_setStartTime(Midiseq *self, Ticks value){self->startTime = value;}
-static inline int Midiseq_ptr(Midiseq *self){return self->ptr;}
-static inline void Midiseq_setPtr(Midiseq *self, int value){self->ptr = value;}
-static inline Ticks MusicalContext_ticksPerQuarterNote(MusicalContext *self){return self->ticksPerQuarterNote;}
-static inline void MusicalContext_setTicksPerQuarterNote(MusicalContext *self, Ticks value){self->ticksPerQuarterNote = value;}
-static inline Ticks MusicalContext_quarterNotesPerMeasure(MusicalContext *self){return self->quarterNotesPerMeasure;}
-static inline void MusicalContext_setQuarterNotesPerMeasure(MusicalContext *self, Ticks value){self->quarterNotesPerMeasure = value;}
-static inline uint8_t NoteEvent_pitch(NoteEvent *self){return self->pitch;}
-static inline void NoteEvent_setPitch(NoteEvent *self, uint8_t value){self->pitch = value;}
-static inline uint8_t NoteEvent_velocity(NoteEvent *self){return self->velocity;}
-static inline void NoteEvent_setVelocity(NoteEvent *self, uint8_t value){self->velocity = value;}
-static inline Ticks NoteEvent_stime(NoteEvent *self){return self->stime;}
-static inline void NoteEvent_setStime(NoteEvent *self, Ticks value){self->stime = value;}
-static inline Ticks NoteEvent_duration(NoteEvent *self){return self->duration;}
-static inline void NoteEvent_setDuration(NoteEvent *self, Ticks value){self->duration = value;}
-static inline void NoteEventAr_changeLength(NoteEventAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
-static inline void NoteEventAr_clear(NoteEventAr *arr) {
-    Array_clear((Array*)arr);
-    NoteEventAr zero = {0};
-    *arr = zero;
-}
-
-#define NoteEventAr_each(it, arr) for (NoteEvent* it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void NoteEventAr_fit(NoteEventAr *arr) {
-    Array_fit((Array*)arr);
-}
-
-#define NoteEventAr_foreach(var, arr)                for (NoteEventArFIt_declare(var, arr, 0); NoteEventArFIt_next(&var); )
-#define NoteEventAr_foreachOffset(var, arr, offset)  for (NoteEventArFIt_declare(var, arr, offset); NoteEventArFIt_next(&var); )            
-
-static inline void NoteEventAr_free(NoteEventAr *arr) {
-    Array_free((Array*)arr);
-}
-
-static inline NoteEvent NoteEventAr_get(NoteEventAr *arr, int index, Error *err) {
-    NoteEvent v = {0};
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
-}
-
-static inline NoteEvent *NoteEventAr_getp(NoteEventAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (NoteEvent *)Array_get((Array*)arr, index);
-}
-
-static inline void NoteEventAr_init(NoteEventAr *arr, int nelems) {
-   void (*clearer)(NoteEvent *) = NULL;
-    Array_init((Array*)arr, nelems, sizeof(NoteEvent), (Array_clearElement)clearer);
-}
-
-static inline void NoteEventAr_insert(NoteEventAr *arr, int index, NoteEvent elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    NoteEvent *p = (NoteEvent *)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void NoteEventAr_insertp(NoteEventAr *arr, int index, NoteEvent *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    NoteEvent *p = (NoteEvent *)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int NoteEventAr_last(NoteEventAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
-
-static inline int NoteEventAr_len(NoteEventAr *arr) {
-    return Array_len((Array*)arr);
-}
-
-#define NoteEventAr_loop(var) while (NoteEventArFIt_next(&var)) 
-
-static inline NoteEventAr *NoteEventAr_new(int nelems) {
-    void (*clearer)(NoteEvent *) = NULL;
-    return (NoteEventAr*)Array_new(nelems, sizeof(NoteEvent), (Array_clearElement)clearer);
-}
-
-static inline void NoteEventAr_pop(NoteEventAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
-}
-
-static inline void NoteEventAr_push(NoteEventAr *arr, NoteEvent elem) {
-    NoteEvent *p = (NoteEvent *)Array_pushN((Array*)arr, 1);
-    *p = elem;
-    return; 
-}            
-
-static inline void NoteEventAr_pushp(NoteEventAr *arr, NoteEvent *elem) {
-    NoteEvent *p = (NoteEvent *)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define NoteEventAr_reach(it, arr) for (NoteEvent* it = arr->data+arr->len-1; it >= arr->data; it--)
-
-static inline void NoteEventAr_remove(NoteEventAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void NoteEventAr_removeN(NoteEventAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define NoteEventAr_rforeach(var, arr)                for (NoteEventArRIt_declare(var, arr, 0); NoteEventArRIt_next(&var); )
-#define NoteEventAr_rforeachOffset(var, arr, offset)  for (NoteEventArRIt_declare(var, arr, offset); NoteEventArRIt_next(&var); )
-
-#define NoteEventAr_rloop(var) while (NoteEventArRIt_next(&var))             
-
-static inline void NoteEventAr_set(NoteEventAr *arr, int index, NoteEvent elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void NoteEventAr_setp(NoteEventAr *arr, int index, NoteEvent *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
-
-static inline void NoteEventAr_truncate(NoteEventAr *arr) {
-    Array_truncate((Array*)arr);
-}
-
-static inline bool NoteEventArFIt_atEnd(NoteEventArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
-#define NoteEventArFIt_declare(var, arr, offset)  NoteEventArFIt var = {arr, 0, (arr)->len, offset-1, NULL}
-
-#define NoteEventArFIt_declare0(var)  NoteEventArFIt var = {0}
-
-static inline bool NoteEventArFIt_next(NoteEventArFIt *iterator) {
-    return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
-static inline bool NoteEventArFIt_remove(NoteEventArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool NoteEventArRIt_atEnd(NoteEventArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define NoteEventArRIt_declare(var, arr, offset)  NoteEventArRIt var = {arr, 0, (arr)->len, (arr)->len-offset, NULL}
-
-#define NoteEventArRIt_declare0(var)  NoteEventArRIt var = {0}
-
-static inline bool NoteEventArRIt_next(NoteEventArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool NoteEventArRIt_remove(NoteEventArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
-}
-
-static inline void NoteEventAr_binInsert(NoteEventAr *arr, NoteEvent elem) {
-    int (*compare)(NoteEvent *, NoteEvent *) = NoteEvent_cmp;
-    Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)compare, false);
-}            
-
-static inline void NoteEventAr_binRemove(NoteEventAr *arr, NoteEvent elem) {
-    int (*compare)(NoteEvent *, NoteEvent *) = NoteEvent_cmp;
-    Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)compare, false);
-}        
-
-static inline NoteEvent *NoteEventAr_binSearch(NoteEventAr *arr, NoteEvent elem) {
-    int (*compare)(NoteEvent *, NoteEvent *) = NoteEvent_cmp;
-    return (NoteEvent *)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, NULL);
-}
-
-static inline NoteEvent *NoteEventAr_pqPeek(NoteEventAr *arr) {
-   return (NoteEvent *)Array_pqPeek((Array*)arr);
-}
-
-static inline bool NoteEventAr_pqPop(NoteEventAr *arr, NoteEvent *elem) {
-    int (*compare)(NoteEvent *, NoteEvent *) = NoteEvent_cmp;
-   return Array_pqPop((Array*)arr, (char*)elem, (Array_compare)compare);
-}
-
-static inline void NoteEventAr_pqPush(NoteEventAr *arr, NoteEvent elem) {
-    int (*compare)(NoteEvent *, NoteEvent *) = NoteEvent_cmp;
-   Array_pqPush((Array*)arr, (char*)&elem, (Array_compare)compare);
-}
-
-static inline void NoteEventAr_pqSort(NoteEventAr *arr) {
-    int (*compare)(NoteEvent *, NoteEvent *) = NoteEvent_cmp;
-   Array_pqSort((Array*)arr, (Array_compare)compare);
-}
-
-static inline void NoteEventAr_sort(NoteEventAr *arr) {
-    int (*compare)(NoteEvent *, NoteEvent *) = NoteEvent_cmp;
-    Array_sort((Array*)arr, (Array_compare)compare);
-}                
-
-static inline TimedOffAr NoteManager_pending(NoteManager *self){return self->pending;}
-static inline void NoteManager_setPending(NoteManager *self, TimedOffAr value){self->pending = value;}
-static inline IndexedOffAr NoteManager_endgroups(NoteManager *self){return self->endgroups;}
-static inline void NoteManager_setEndgroups(NoteManager *self, IndexedOffAr value){self->endgroups = value;}
-static inline Port *NoteManager_output(NoteManager *self){return self->output;}
-static inline void NoteManager_setOutput(NoteManager *self, Port *value){self->output = value;}
-static inline Atom *NoteManager_atoms(NoteManager *self){return self->atoms;}
-static inline void NoteManager_setAtoms(NoteManager *self, Atom *value){self->atoms = value;}
-static inline AtomAr NoteOutlet_atoms(NoteOutlet *self){return self->atoms;}
-static inline void NoteOutlet_setAtoms(NoteOutlet *self, AtomAr value){self->atoms = value;}
-static inline Port *NoteOutlet_port(NoteOutlet *self){return self->port;}
-static inline void NoteOutlet_setPort(NoteOutlet *self, Port *value){self->port = value;}
-static inline NoteOutlet *NoteOutlet_castFromOutlet(Outlet *self) {
-    if (self->itype == NoteOutlet_itype) {
-        return (NoteOutlet*)self;
-    }
-    return NULL;
-}
-static inline Outlet *NoteOutlet_castToOutlet(NoteOutlet *self) {
-    return (Outlet*)self;
-}
-static inline long NoteSequence_version(NoteSequence *self){return self->version;}
-static inline void NoteSequence_setVersion(NoteSequence *self, long value){self->version = value;}
-static inline Ticks NoteSequence_startTime(NoteSequence *self){return self->startTime;}
-static inline void NoteSequence_setStartTime(NoteSequence *self, Ticks value){self->startTime = value;}
-static inline OutletSpecifier NoteSequence_outletSpecifier(NoteSequence *self){return self->outletSpecifier;}
-static inline void NoteSequence_setOutletSpecifier(NoteSequence *self, OutletSpecifier value){self->outletSpecifier = value;}
-static inline Ticks NoteSequence_sequenceLength(NoteSequence *self){return self->sequenceLength;}
-static inline void NoteSequence_setSequenceLength(NoteSequence *self, Ticks value){self->sequenceLength = value;}
-static inline int NoteSequence_cursor(NoteSequence *self){return self->cursor;}
-static inline void NoteSequence_setCursor(NoteSequence *self, int value){self->cursor = value;}
-static inline bool NoteSequence_cycle(NoteSequence *self){return self->cycle;}
-static inline void NoteSequence_setCycle(NoteSequence *self, bool value){self->cycle = value;}
-static inline Ticks NoteSequence_nextOffEvent(NoteSequence *self){return self->nextOffEvent;}
-static inline void NoteSequence_setNextOffEvent(NoteSequence *self, Ticks value){self->nextOffEvent = value;}
-static inline Ticks NoteSequence_nextOnEvent(NoteSequence *self){return self->nextOnEvent;}
-static inline void NoteSequence_setNextOnEvent(NoteSequence *self, Ticks value){self->nextOnEvent = value;}
-static inline bool NoteSequence_inEndgroup(NoteSequence *self){return self->inEndgroup;}
-static inline void NoteSequence_setInEndgroup(NoteSequence *self, bool value){self->inEndgroup = value;}
-static inline Outlet *NoteSequence_outlet(NoteSequence *self){return self->outlet;}
-static inline void NoteSequence_setOutlet(NoteSequence *self, Outlet *value){self->outlet = value;}
-static inline NoteSequence *NoteSequence_recordingSeq(NoteSequence *self){return self->recordingSeq;}
-static inline void NoteSequence_setRecordingSeq(NoteSequence *self, NoteSequence *value){self->recordingSeq = value;}
-static inline TimedOffAr NoteSequence_offs(NoteSequence *self){return self->offs;}
-static inline void NoteSequence_setOffs(NoteSequence *self, TimedOffAr value){self->offs = value;}
-static inline NoteEventAr NoteSequence_events(NoteSequence *self){return self->events;}
-static inline void NoteSequence_setEvents(NoteSequence *self, NoteEventAr value){self->events = value;}
-static inline NoteSequence *NoteSequence_castFromSequence(Sequence *self) {
-    if (self->itype == NoteSequence_itype) {
-        return (NoteSequence*)self;
-    }
-    return NULL;
-}
-static inline Sequence *NoteSequence_castToSequence(NoteSequence *self) {
-    return (Sequence*)self;
-}
-static inline int NullOutlet_unused(NullOutlet *self){return self->unused;}
-static inline void NullOutlet_setUnused(NullOutlet *self, int value){self->unused = value;}
-static inline NullOutlet *NullOutlet_castFromOutlet(Outlet *self) {
-    if (self->itype == NullOutlet_itype) {
-        return (NullOutlet*)self;
-    }
-    return NULL;
-}
-static inline Outlet *NullOutlet_castToOutlet(NullOutlet *self) {
-    return (Outlet*)self;
-}
-static inline int Outlet_nthIType(int n, int *itype) {
-    static int itypes[] = {
-        BendOutlet_itype, CcOutlet_itype, NoteOutlet_itype, NullOutlet_itype, VstOutlet_itype
-    };
-    static int len = sizeof(itypes)/sizeof(int);
-    if (n < 0 || n >= len) {
-        return 0;
-    }
-    *itype = itypes[n];
-    return 1;
-}
-#define Outlet_foreachIType(itype) for (int __##itype = 0, itype = 0; Outlet_nthIType(__##itype, &itype); __##itype++)
-static inline Symbol *OutletSpecifier_track(OutletSpecifier *self){return self->track;}
-static inline void OutletSpecifier_setTrack(OutletSpecifier *self, Symbol *value){self->track = value;}
-static inline int OutletSpecifier_pluginIndex(OutletSpecifier *self){return self->pluginIndex;}
-static inline void OutletSpecifier_setPluginIndex(OutletSpecifier *self, int value){self->pluginIndex = value;}
-static inline Symbol *OutletSpecifier_parameter(OutletSpecifier *self){return self->parameter;}
-static inline void OutletSpecifier_setParameter(OutletSpecifier *self, Symbol *value){self->parameter = value;}
-static inline int OutletSpecifier_paramIndex(OutletSpecifier *self){return self->paramIndex;}
-static inline void OutletSpecifier_setParamIndex(OutletSpecifier *self, int value){self->paramIndex = value;}
-static inline Symbol *Pad_trackName(Pad *self){return self->trackName;}
-static inline void Pad_setTrackName(Pad *self, Symbol *value){self->trackName = value;}
-static inline int Pad_padIndex(Pad *self){return self->padIndex;}
-static inline void Pad_setPadIndex(Pad *self, int value){self->padIndex = value;}
-static inline Midiseq *Pad_sequence(Pad *self){return self->sequence;}
-static inline bool Pad_chokeGroupGlobal(Pad *self){return self->chokeGroupGlobal;}
-static inline void Pad_setChokeGroupGlobal(Pad *self, bool value){self->chokeGroupGlobal = value;}
-static inline int Pad_chokeGroupInstrument(Pad *self){return self->chokeGroupInstrument;}
-static inline void Pad_setChokeGroupInstrument(Pad *self, int value){self->chokeGroupInstrument = value;}
-static inline int Pad_chokeGroupIndex(Pad *self){return self->chokeGroupIndex;}
-static inline void Pad_setChokeGroupIndex(Pad *self, int value){self->chokeGroupIndex = value;}
-static inline int64_t Pad_chokeGroup(Pad *self){return self->chokeGroup;}
-static inline void Pad_setChokeGroup(Pad *self, int64_t value){self->chokeGroup = value;}
-static inline bool Pad_noteReleasePending(Pad *self){return self->noteReleasePending;}
-static inline void Pad_setNoteReleasePending(Pad *self, bool value){self->noteReleasePending = value;}
-static inline bool Pad_inEndgroup(Pad *self){return self->inEndgroup;}
-static inline void Pad_setInEndgroup(Pad *self, bool value){self->inEndgroup = value;}
-static inline Track *Pad_track(Pad *self){return self->track;}
-static inline void Pad_setTrack(Pad *self, Track *value){self->track = value;}
-static inline bool Pad_useMasterClock(Pad *self){return self->useMasterClock;}
-static inline void Pad_setUseMasterClock(Pad *self, bool value){self->useMasterClock = value;}
-static inline void PadAr_changeLength(PadAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
-static inline void PadAr_clear(PadAr *arr) {
-    Array_clear((Array*)arr);
-    PadAr zero = {0};
-    *arr = zero;
-}
-
-#define PadAr_each(it, arr) for (Pad* it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void PadAr_fit(PadAr *arr) {
-    Array_fit((Array*)arr);
-}
-
-#define PadAr_foreach(var, arr)                for (PadArFIt_declare(var, arr, 0); PadArFIt_next(&var); )
-#define PadAr_foreachOffset(var, arr, offset)  for (PadArFIt_declare(var, arr, offset); PadArFIt_next(&var); )            
-
-static inline void PadAr_free(PadAr *arr) {
-    Array_free((Array*)arr);
-}
-
-static inline Pad PadAr_get(PadAr *arr, int index, Error *err) {
-    Pad v = {0};
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
-}
-
-static inline Pad *PadAr_getp(PadAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (Pad *)Array_get((Array*)arr, index);
-}
-
-static inline void PadAr_init(PadAr *arr, int nelems) {
-   void (*clearer)(Pad *) = NULL;
-    Array_init((Array*)arr, nelems, sizeof(Pad), (Array_clearElement)clearer);
-}
-
-static inline void PadAr_insert(PadAr *arr, int index, Pad elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Pad *p = (Pad *)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void PadAr_insertp(PadAr *arr, int index, Pad *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Pad *p = (Pad *)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int PadAr_last(PadAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
-
-static inline int PadAr_len(PadAr *arr) {
-    return Array_len((Array*)arr);
-}
-
-#define PadAr_loop(var) while (PadArFIt_next(&var)) 
-
-static inline PadAr *PadAr_new(int nelems) {
-    void (*clearer)(Pad *) = NULL;
-    return (PadAr*)Array_new(nelems, sizeof(Pad), (Array_clearElement)clearer);
-}
-
-static inline void PadAr_pop(PadAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
-}
-
-static inline void PadAr_push(PadAr *arr, Pad elem) {
-    Pad *p = (Pad *)Array_pushN((Array*)arr, 1);
-    *p = elem;
-    return; 
-}            
-
-static inline void PadAr_pushp(PadAr *arr, Pad *elem) {
-    Pad *p = (Pad *)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define PadAr_reach(it, arr) for (Pad* it = arr->data+arr->len-1; it >= arr->data; it--)
-
-static inline void PadAr_remove(PadAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void PadAr_removeN(PadAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define PadAr_rforeach(var, arr)                for (PadArRIt_declare(var, arr, 0); PadArRIt_next(&var); )
-#define PadAr_rforeachOffset(var, arr, offset)  for (PadArRIt_declare(var, arr, offset); PadArRIt_next(&var); )
-
-#define PadAr_rloop(var) while (PadArRIt_next(&var))             
-
-static inline void PadAr_set(PadAr *arr, int index, Pad elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void PadAr_setp(PadAr *arr, int index, Pad *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
-
-static inline void PadAr_truncate(PadAr *arr) {
-    Array_truncate((Array*)arr);
-}
-
-static inline bool PadArFIt_atEnd(PadArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
-#define PadArFIt_declare(var, arr, offset)  PadArFIt var = {arr, 0, (arr)->len, offset-1, NULL}
-
-#define PadArFIt_declare0(var)  PadArFIt var = {0}
-
-static inline bool PadArFIt_next(PadArFIt *iterator) {
-    return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
-static inline bool PadArFIt_remove(PadArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool PadArRIt_atEnd(PadArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define PadArRIt_declare(var, arr, offset)  PadArRIt var = {arr, 0, (arr)->len, (arr)->len-offset, NULL}
-
-#define PadArRIt_declare0(var)  PadArRIt var = {0}
-
-static inline bool PadArRIt_next(PadArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool PadArRIt_remove(PadArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
-}
-
-static inline PadAr *PadList_pads(PadList *self){return &self->pads;}
-static inline PadPtrAr *PadList_running(PadList *self){return &self->running;}
-static inline void PadPtrAr_changeLength(PadPtrAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
-static inline void PadPtrAr_clear(PadPtrAr *arr) {
-    Array_clear((Array*)arr);
-    PadPtrAr zero = {0};
-    *arr = zero;
-}
-
-#define PadPtrAr_each(it, arr) for (Pad ** it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void PadPtrAr_fit(PadPtrAr *arr) {
-    Array_fit((Array*)arr);
-}
-
-#define PadPtrAr_foreach(var, arr)                for (PadPtrArFIt_declare(var, arr, 0); PadPtrArFIt_next(&var); )
-#define PadPtrAr_foreachOffset(var, arr, offset)  for (PadPtrArFIt_declare(var, arr, offset); PadPtrArFIt_next(&var); )            
-
-static inline void PadPtrAr_free(PadPtrAr *arr) {
-    Array_free((Array*)arr);
-}
-
-static inline Pad *PadPtrAr_get(PadPtrAr *arr, int index, Error *err) {
-    Pad * v = {0};
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
-}
-
-static inline Pad **PadPtrAr_getp(PadPtrAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (Pad **)Array_get((Array*)arr, index);
-}
-
-static inline void PadPtrAr_init(PadPtrAr *arr, int nelems) {
-   void (*clearer)(Pad **) = NULL;
-    Array_init((Array*)arr, nelems, sizeof(Pad *), (Array_clearElement)clearer);
-}
-
-static inline void PadPtrAr_insert(PadPtrAr *arr, int index, Pad *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Pad * *p = (Pad **)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void PadPtrAr_insertp(PadPtrAr *arr, int index, Pad **elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Pad * *p = (Pad **)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int PadPtrAr_last(PadPtrAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
-
-static inline int PadPtrAr_len(PadPtrAr *arr) {
-    return Array_len((Array*)arr);
-}
-
-#define PadPtrAr_loop(var) while (PadPtrArFIt_next(&var)) 
-
-static inline PadPtrAr *PadPtrAr_new(int nelems) {
-    void (*clearer)(Pad **) = NULL;
-    return (PadPtrAr*)Array_new(nelems, sizeof(Pad *), (Array_clearElement)clearer);
-}
-
-static inline void PadPtrAr_pop(PadPtrAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
-}
-
-static inline void PadPtrAr_push(PadPtrAr *arr, Pad *elem) {
-    Pad * *p = (Pad **)Array_pushN((Array*)arr, 1);
-    *p = elem;
-    return; 
-}            
-
-static inline void PadPtrAr_pushp(PadPtrAr *arr, Pad **elem) {
-    Pad * *p = (Pad **)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define PadPtrAr_reach(it, arr) for (Pad ** it = arr->data+arr->len-1; it >= arr->data; it--)
-
-static inline void PadPtrAr_remove(PadPtrAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void PadPtrAr_removeN(PadPtrAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define PadPtrAr_rforeach(var, arr)                for (PadPtrArRIt_declare(var, arr, 0); PadPtrArRIt_next(&var); )
-#define PadPtrAr_rforeachOffset(var, arr, offset)  for (PadPtrArRIt_declare(var, arr, offset); PadPtrArRIt_next(&var); )
-
-#define PadPtrAr_rloop(var) while (PadPtrArRIt_next(&var))             
-
-static inline void PadPtrAr_set(PadPtrAr *arr, int index, Pad *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void PadPtrAr_setp(PadPtrAr *arr, int index, Pad **elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
-
-static inline void PadPtrAr_truncate(PadPtrAr *arr) {
-    Array_truncate((Array*)arr);
-}
-
-static inline bool PadPtrArFIt_atEnd(PadPtrArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
-#define PadPtrArFIt_declare(var, arr, offset)  PadPtrArFIt var = {arr, 0, (arr)->len, offset-1, NULL}
-
-#define PadPtrArFIt_declare0(var)  PadPtrArFIt var = {0}
-
-static inline bool PadPtrArFIt_next(PadPtrArFIt *iterator) {
-    return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
-static inline bool PadPtrArFIt_remove(PadPtrArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool PadPtrArRIt_atEnd(PadPtrArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define PadPtrArRIt_declare(var, arr, offset)  PadPtrArRIt var = {arr, 0, (arr)->len, (arr)->len-offset, NULL}
-
-#define PadPtrArRIt_declare0(var)  PadPtrArRIt var = {0}
-
-static inline bool PadPtrArRIt_next(PadPtrArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool PadPtrArRIt_remove(PadPtrArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
-}
-
-static inline MaxObject Port_obj(Port *self){return self->obj;}
-static inline void Port_setObj(Port *self, MaxObject value){self->obj = value;}
-static inline long Port_inletnum(Port *self){return self->inletnum;}
-static inline void Port_setInletnum(Port *self, long value){self->inletnum = value;}
-static inline PtrAr Port_proxy(Port *self){return self->proxy;}
-static inline void Port_setProxy(Port *self, PtrAr value){self->proxy = value;}
-static inline PtrAr Port_outlet(Port *self){return self->outlet;}
-static inline void Port_setOutlet(Port *self, PtrAr value){self->outlet = value;}
-static inline Symbol *Port_track(Port *self){return self->track;}
-static inline void Port_setTrack(Port *self, Symbol *value){self->track = value;}
-static inline Symbol *Port_id(Port *self){return self->id;}
-static inline void Port_setId(Port *self, Symbol *value){self->id = value;}
-static inline long Port_intInlets(Port *self){return self->intInlets;}
-static inline void Port_setIntInlets(Port *self, long value){self->intInlets = value;}
-static inline long Port_intOutlets(Port *self){return self->intOutlets;}
-static inline void Port_setIntOutlets(Port *self, long value){self->intOutlets = value;}
-static inline void *Port_hub(Port *self){return self->hub;}
-static inline void Port_setHub(Port *self, void *value){self->hub = value;}
-static inline Port_anythingDispatchFunc Port_anythingDispatch(Port *self){return self->anythingDispatch;}
-static inline void Port_setAnythingDispatch(Port *self, Port_anythingDispatchFunc value){self->anythingDispatch = value;}
-static inline Port_intDispatchFunc Port_intDispatch(Port *self){return self->intDispatch;}
-static inline void Port_setIntDispatch(Port *self, Port_intDispatchFunc value){self->intDispatch = value;}
-static inline PortFindCellAr PortFind_objects(PortFind *self){return self->objects;}
-static inline void PortFind_setObjects(PortFind *self, PortFindCellAr value){self->objects = value;}
-static inline void *PortFind_hub(PortFind *self){return self->hub;}
-static inline void PortFind_setHub(PortFind *self, void *value){self->hub = value;}
-static inline Port_anythingDispatchFunc PortFind_anythingDispatch(PortFind *self){return self->anythingDispatch;}
-static inline void PortFind_setAnythingDispatch(PortFind *self, Port_anythingDispatchFunc value){self->anythingDispatch = value;}
-static inline Port_intDispatchFunc PortFind_intDispatch(PortFind *self){return self->intDispatch;}
-static inline void PortFind_setIntDispatch(PortFind *self, Port_intDispatchFunc value){self->intDispatch = value;}
-static inline Port *PortFindCell_reciever(PortFindCell *self){return self->reciever;}
-static inline void PortFindCell_setReciever(PortFindCell *self, Port *value){self->reciever = value;}
-static inline Symbol *PortFindCell_varname(PortFindCell *self){return self->varname;}
-static inline void PortFindCell_setVarname(PortFindCell *self, Symbol *value){self->varname = value;}
-static inline void PortFindCellAr_changeLength(PortFindCellAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
-static inline void PortFindCellAr_clear(PortFindCellAr *arr) {
-    Array_clear((Array*)arr);
-    PortFindCellAr zero = {0};
-    *arr = zero;
-}
-
-#define PortFindCellAr_each(it, arr) for (PortFindCell* it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void PortFindCellAr_fit(PortFindCellAr *arr) {
-    Array_fit((Array*)arr);
-}
-
-#define PortFindCellAr_foreach(var, arr)                for (PortFindCellArFIt_declare(var, arr, 0); PortFindCellArFIt_next(&var); )
-#define PortFindCellAr_foreachOffset(var, arr, offset)  for (PortFindCellArFIt_declare(var, arr, offset); PortFindCellArFIt_next(&var); )            
-
-static inline void PortFindCellAr_free(PortFindCellAr *arr) {
-    Array_free((Array*)arr);
-}
-
-static inline PortFindCell PortFindCellAr_get(PortFindCellAr *arr, int index, Error *err) {
-    PortFindCell v = {0};
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
-}
-
-static inline PortFindCell *PortFindCellAr_getp(PortFindCellAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (PortFindCell *)Array_get((Array*)arr, index);
-}
-
-static inline void PortFindCellAr_init(PortFindCellAr *arr, int nelems) {
-   void (*clearer)(PortFindCell *) = NULL;
-    Array_init((Array*)arr, nelems, sizeof(PortFindCell), (Array_clearElement)clearer);
-}
-
-static inline void PortFindCellAr_insert(PortFindCellAr *arr, int index, PortFindCell elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    PortFindCell *p = (PortFindCell *)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void PortFindCellAr_insertp(PortFindCellAr *arr, int index, PortFindCell *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    PortFindCell *p = (PortFindCell *)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int PortFindCellAr_last(PortFindCellAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
-
-static inline int PortFindCellAr_len(PortFindCellAr *arr) {
-    return Array_len((Array*)arr);
-}
-
-#define PortFindCellAr_loop(var) while (PortFindCellArFIt_next(&var)) 
-
-static inline PortFindCellAr *PortFindCellAr_new(int nelems) {
-    void (*clearer)(PortFindCell *) = NULL;
-    return (PortFindCellAr*)Array_new(nelems, sizeof(PortFindCell), (Array_clearElement)clearer);
-}
-
-static inline void PortFindCellAr_pop(PortFindCellAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
-}
-
-static inline void PortFindCellAr_push(PortFindCellAr *arr, PortFindCell elem) {
-    PortFindCell *p = (PortFindCell *)Array_pushN((Array*)arr, 1);
-    *p = elem;
-    return; 
-}            
-
-static inline void PortFindCellAr_pushp(PortFindCellAr *arr, PortFindCell *elem) {
-    PortFindCell *p = (PortFindCell *)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define PortFindCellAr_reach(it, arr) for (PortFindCell* it = arr->data+arr->len-1; it >= arr->data; it--)
-
-static inline void PortFindCellAr_remove(PortFindCellAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void PortFindCellAr_removeN(PortFindCellAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define PortFindCellAr_rforeach(var, arr)                for (PortFindCellArRIt_declare(var, arr, 0); PortFindCellArRIt_next(&var); )
-#define PortFindCellAr_rforeachOffset(var, arr, offset)  for (PortFindCellArRIt_declare(var, arr, offset); PortFindCellArRIt_next(&var); )
-
-#define PortFindCellAr_rloop(var) while (PortFindCellArRIt_next(&var))             
-
-static inline void PortFindCellAr_set(PortFindCellAr *arr, int index, PortFindCell elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void PortFindCellAr_setp(PortFindCellAr *arr, int index, PortFindCell *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
-
-static inline void PortFindCellAr_truncate(PortFindCellAr *arr) {
-    Array_truncate((Array*)arr);
-}
-
-static inline bool PortFindCellArFIt_atEnd(PortFindCellArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
-#define PortFindCellArFIt_declare(var, arr, offset)  PortFindCellArFIt var = {arr, 0, (arr)->len, offset-1, NULL}
-
-#define PortFindCellArFIt_declare0(var)  PortFindCellArFIt var = {0}
-
-static inline bool PortFindCellArFIt_next(PortFindCellArFIt *iterator) {
-    return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
-static inline bool PortFindCellArFIt_remove(PortFindCellArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool PortFindCellArRIt_atEnd(PortFindCellArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define PortFindCellArRIt_declare(var, arr, offset)  PortFindCellArRIt var = {arr, 0, (arr)->len, (arr)->len-offset, NULL}
-
-#define PortFindCellArRIt_declare0(var)  PortFindCellArRIt var = {0}
-
-static inline bool PortFindCellArRIt_next(PortFindCellArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool PortFindCellArRIt_remove(PortFindCellArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
-}
-
-static inline Port *PortRef_port(PortRef *self){return self->port;}
-static inline void PortRef_setPort(PortRef *self, Port *value){self->port = value;}
-static inline int PortRef_outlet(PortRef *self){return self->outlet;}
-static inline void PortRef_setOutlet(PortRef *self, int value){self->outlet = value;}
-static inline void PtrAr_changeLength(PtrAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
-static inline void PtrAr_clear(PtrAr *arr) {
-    Array_clear((Array*)arr);
-    PtrAr zero = {0};
-    *arr = zero;
-}
-
-#define PtrAr_each(it, arr) for (void ** it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void PtrAr_fit(PtrAr *arr) {
-    Array_fit((Array*)arr);
-}
-
-#define PtrAr_foreach(var, arr)                for (PtrArFIt_declare(var, arr, 0); PtrArFIt_next(&var); )
-#define PtrAr_foreachOffset(var, arr, offset)  for (PtrArFIt_declare(var, arr, offset); PtrArFIt_next(&var); )            
-
-static inline void PtrAr_free(PtrAr *arr) {
-    Array_free((Array*)arr);
-}
-
-static inline void *PtrAr_get(PtrAr *arr, int index, Error *err) {
-    void * v = {0};
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
-}
-
-static inline void **PtrAr_getp(PtrAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (void **)Array_get((Array*)arr, index);
-}
-
-static inline void PtrAr_init(PtrAr *arr, int nelems) {
-   void (*clearer)(void **) = NULL;
-    Array_init((Array*)arr, nelems, sizeof(void *), (Array_clearElement)clearer);
-}
-
-static inline void PtrAr_insert(PtrAr *arr, int index, void *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    void * *p = (void **)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void PtrAr_insertp(PtrAr *arr, int index, void **elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    void * *p = (void **)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int PtrAr_last(PtrAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
-
-static inline int PtrAr_len(PtrAr *arr) {
-    return Array_len((Array*)arr);
-}
-
-#define PtrAr_loop(var) while (PtrArFIt_next(&var)) 
-
-static inline PtrAr *PtrAr_new(int nelems) {
-    void (*clearer)(void **) = NULL;
-    return (PtrAr*)Array_new(nelems, sizeof(void *), (Array_clearElement)clearer);
-}
-
-static inline void PtrAr_pop(PtrAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
-}
-
-static inline void PtrAr_push(PtrAr *arr, void *elem) {
-    void * *p = (void **)Array_pushN((Array*)arr, 1);
-    *p = elem;
-    return; 
-}            
-
-static inline void PtrAr_pushp(PtrAr *arr, void **elem) {
-    void * *p = (void **)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define PtrAr_reach(it, arr) for (void ** it = arr->data+arr->len-1; it >= arr->data; it--)
-
-static inline void PtrAr_remove(PtrAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void PtrAr_removeN(PtrAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define PtrAr_rforeach(var, arr)                for (PtrArRIt_declare(var, arr, 0); PtrArRIt_next(&var); )
-#define PtrAr_rforeachOffset(var, arr, offset)  for (PtrArRIt_declare(var, arr, offset); PtrArRIt_next(&var); )
-
-#define PtrAr_rloop(var) while (PtrArRIt_next(&var))             
-
-static inline void PtrAr_set(PtrAr *arr, int index, void *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void PtrAr_setp(PtrAr *arr, int index, void **elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
-
-static inline void PtrAr_truncate(PtrAr *arr) {
-    Array_truncate((Array*)arr);
-}
-
-static inline bool PtrArFIt_atEnd(PtrArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
-#define PtrArFIt_declare(var, arr, offset)  PtrArFIt var = {arr, 0, (arr)->len, offset-1, NULL}
-
-#define PtrArFIt_declare0(var)  PtrArFIt var = {0}
-
-static inline bool PtrArFIt_next(PtrArFIt *iterator) {
-    return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
-static inline bool PtrArFIt_remove(PtrArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool PtrArRIt_atEnd(PtrArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define PtrArRIt_declare(var, arr, offset)  PtrArRIt var = {arr, 0, (arr)->len, (arr)->len-offset, NULL}
-
-#define PtrArRIt_declare0(var)  PtrArRIt var = {0}
-
-static inline bool PtrArRIt_next(PtrArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool PtrArRIt_remove(PtrArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
-}
-
-static inline Ticks RecordBuffer_recordStart(RecordBuffer *self){return self->recordStart;}
-static inline void RecordBuffer_setRecordStart(RecordBuffer *self, Ticks value){self->recordStart = value;}
-static inline SequenceAr RecordBuffer_sequences(RecordBuffer *self){return self->sequences;}
-static inline void RecordBuffer_setSequences(RecordBuffer *self, SequenceAr value){self->sequences = value;}
-static inline SelectNextPushedPadDispatch *SelectNextPushedPadDispatch_castFromDispatch(Dispatch *self) {
-    if (self->itype == SelectNextPushedPadDispatch_itype) {
-        return (SelectNextPushedPadDispatch*)self;
-    }
-    return NULL;
-}
-static inline Dispatch *SelectNextPushedPadDispatch_castToDispatch(SelectNextPushedPadDispatch *self) {
-    return (Dispatch*)self;
-}
-static inline int Sequence_nthIType(int n, int *itype) {
-    static int itypes[] = {
-        FloatSequence_itype, NoteSequence_itype
-    };
-    static int len = sizeof(itypes)/sizeof(int);
-    if (n < 0 || n >= len) {
-        return 0;
-    }
-    *itype = itypes[n];
-    return 1;
-}
-#define Sequence_foreachIType(itype) for (int __##itype = 0, itype = 0; Sequence_nthIType(__##itype, &itype); __##itype++)
-static inline long Sequence_version(Sequence *self){return self->version;}
-static inline void Sequence_setVersion(Sequence *self, long value){self->version = value;}
-static inline Ticks Sequence_startTime(Sequence *self){return self->startTime;}
-static inline void Sequence_setStartTime(Sequence *self, Ticks value){self->startTime = value;}
-static inline OutletSpecifier Sequence_outletSpecifier(Sequence *self){return self->outletSpecifier;}
-static inline void Sequence_setOutletSpecifier(Sequence *self, OutletSpecifier value){self->outletSpecifier = value;}
-static inline void SequenceAr_changeLength(SequenceAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
-static inline void SequenceAr_clear(SequenceAr *arr) {
-    Array_clear((Array*)arr);
-    SequenceAr zero = {0};
-    *arr = zero;
-}
-
-#define SequenceAr_each(it, arr) for (Sequence ** it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void SequenceAr_fit(SequenceAr *arr) {
-    Array_fit((Array*)arr);
-}
-
-#define SequenceAr_foreach(var, arr)                for (SequenceArFIt_declare(var, arr, 0); SequenceArFIt_next(&var); )
-#define SequenceAr_foreachOffset(var, arr, offset)  for (SequenceArFIt_declare(var, arr, offset); SequenceArFIt_next(&var); )            
-
-static inline void SequenceAr_free(SequenceAr *arr) {
-    Array_free((Array*)arr);
-}
-
-static inline Sequence *SequenceAr_get(SequenceAr *arr, int index, Error *err) {
-    Sequence * v = {0};
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
-}
-
-static inline Sequence **SequenceAr_getp(SequenceAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (Sequence **)Array_get((Array*)arr, index);
-}
-
-static inline void SequenceAr_init(SequenceAr *arr, int nelems) {
-   void (*clearer)(Sequence **) = Sequence_freePpErrless;
-    Array_init((Array*)arr, nelems, sizeof(Sequence *), (Array_clearElement)clearer);
-}
-
-static inline void SequenceAr_insert(SequenceAr *arr, int index, Sequence *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Sequence * *p = (Sequence **)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void SequenceAr_insertp(SequenceAr *arr, int index, Sequence **elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Sequence * *p = (Sequence **)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int SequenceAr_last(SequenceAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
-
-static inline int SequenceAr_len(SequenceAr *arr) {
-    return Array_len((Array*)arr);
-}
-
-#define SequenceAr_loop(var) while (SequenceArFIt_next(&var)) 
-
-static inline SequenceAr *SequenceAr_new(int nelems) {
-    void (*clearer)(Sequence **) = Sequence_freePpErrless;
-    return (SequenceAr*)Array_new(nelems, sizeof(Sequence *), (Array_clearElement)clearer);
-}
-
-static inline void SequenceAr_pop(SequenceAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
-}
-
-static inline void SequenceAr_push(SequenceAr *arr, Sequence *elem) {
-    Sequence * *p = (Sequence **)Array_pushN((Array*)arr, 1);
-    *p = elem;
-    return; 
-}            
-
-static inline void SequenceAr_pushp(SequenceAr *arr, Sequence **elem) {
-    Sequence * *p = (Sequence **)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define SequenceAr_reach(it, arr) for (Sequence ** it = arr->data+arr->len-1; it >= arr->data; it--)
-
-static inline void SequenceAr_remove(SequenceAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void SequenceAr_removeN(SequenceAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define SequenceAr_rforeach(var, arr)                for (SequenceArRIt_declare(var, arr, 0); SequenceArRIt_next(&var); )
-#define SequenceAr_rforeachOffset(var, arr, offset)  for (SequenceArRIt_declare(var, arr, offset); SequenceArRIt_next(&var); )
-
-#define SequenceAr_rloop(var) while (SequenceArRIt_next(&var))             
-
-static inline void SequenceAr_set(SequenceAr *arr, int index, Sequence *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void SequenceAr_setp(SequenceAr *arr, int index, Sequence **elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
-
-static inline void SequenceAr_truncate(SequenceAr *arr) {
-    Array_truncate((Array*)arr);
-}
-
-static inline bool SequenceArFIt_atEnd(SequenceArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
-#define SequenceArFIt_declare(var, arr, offset)  SequenceArFIt var = {arr, 0, (arr)->len, offset-1, NULL}
-
-#define SequenceArFIt_declare0(var)  SequenceArFIt var = {0}
-
-static inline bool SequenceArFIt_next(SequenceArFIt *iterator) {
-    return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
-static inline bool SequenceArFIt_remove(SequenceArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool SequenceArRIt_atEnd(SequenceArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define SequenceArRIt_declare(var, arr, offset)  SequenceArRIt var = {arr, 0, (arr)->len, (arr)->len-offset, NULL}
-
-#define SequenceArRIt_declare0(var)  SequenceArRIt var = {0}
-
-static inline bool SequenceArRIt_next(SequenceArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool SequenceArRIt_remove(SequenceArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
-}
-
-static inline void SequenceAr_binInsert(SequenceAr *arr, Sequence *elem) {
-    int (*compare)(Sequence **, Sequence **) = Sequence_cmpPp;
-    Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)compare, false);
-}            
-
-static inline void SequenceAr_binRemove(SequenceAr *arr, Sequence *elem) {
-    int (*compare)(Sequence **, Sequence **) = Sequence_cmpPp;
-    Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)compare, false);
-}        
-
-static inline Sequence **SequenceAr_binSearch(SequenceAr *arr, Sequence *elem) {
-    int (*compare)(Sequence **, Sequence **) = Sequence_cmpPp;
-    return (Sequence **)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, NULL);
-}
-
-static inline Sequence **SequenceAr_pqPeek(SequenceAr *arr) {
-   return (Sequence **)Array_pqPeek((Array*)arr);
-}
-
-static inline bool SequenceAr_pqPop(SequenceAr *arr, Sequence **elem) {
-    int (*compare)(Sequence **, Sequence **) = Sequence_cmpPp;
-   return Array_pqPop((Array*)arr, (char*)elem, (Array_compare)compare);
-}
-
-static inline void SequenceAr_pqPush(SequenceAr *arr, Sequence *elem) {
-    int (*compare)(Sequence **, Sequence **) = Sequence_cmpPp;
-   Array_pqPush((Array*)arr, (char*)&elem, (Array_compare)compare);
-}
-
-static inline void SequenceAr_pqSort(SequenceAr *arr) {
-    int (*compare)(Sequence **, Sequence **) = Sequence_cmpPp;
-   Array_pqSort((Array*)arr, (Array_compare)compare);
-}
-
-static inline void SequenceAr_sort(SequenceAr *arr) {
-    int (*compare)(Sequence **, Sequence **) = Sequence_cmpPp;
-    Array_sort((Array*)arr, (Array_compare)compare);
-}                
-
-static inline void SequenceAr_binInsertPointer(SequenceAr *arr, Sequence *elem) {
-    int (*compare)(Sequence **, Sequence **) = Sequence_cmpPointerPp;
-    Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)compare, false);
-}            
-
-static inline void SequenceAr_binRemovePointer(SequenceAr *arr, Sequence *elem) {
-    int (*compare)(Sequence **, Sequence **) = Sequence_cmpPointerPp;
-    Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)compare, false);
-}        
-
-static inline Sequence **SequenceAr_binSearchPointer(SequenceAr *arr, Sequence *elem) {
-    int (*compare)(Sequence **, Sequence **) = Sequence_cmpPointerPp;
-    return (Sequence **)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, NULL);
-}
-
-static inline Sequence **SequenceAr_pqPeekPointer(SequenceAr *arr) {
-   return (Sequence **)Array_pqPeek((Array*)arr);
-}
-
-static inline bool SequenceAr_pqPopPointer(SequenceAr *arr, Sequence **elem) {
-    int (*compare)(Sequence **, Sequence **) = Sequence_cmpPointerPp;
-   return Array_pqPop((Array*)arr, (char*)elem, (Array_compare)compare);
-}
-
-static inline void SequenceAr_pqPushPointer(SequenceAr *arr, Sequence *elem) {
-    int (*compare)(Sequence **, Sequence **) = Sequence_cmpPointerPp;
-   Array_pqPush((Array*)arr, (char*)&elem, (Array_compare)compare);
-}
-
-static inline void SequenceAr_pqSortPointer(SequenceAr *arr) {
-    int (*compare)(Sequence **, Sequence **) = Sequence_cmpPointerPp;
-   Array_pqSort((Array*)arr, (Array_compare)compare);
-}
-
-static inline void SequenceAr_sortPointer(SequenceAr *arr) {
-    int (*compare)(Sequence **, Sequence **) = Sequence_cmpPointerPp;
-    Array_sort((Array*)arr, (Array_compare)compare);
-}                
-
-static inline void StringPtAr_changeLength(StringPtAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
-static inline void StringPtAr_clear(StringPtAr *arr) {
-    Array_clear((Array*)arr);
-    StringPtAr zero = {0};
-    *arr = zero;
-}
-
-#define StringPtAr_each(it, arr) for (String ** it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void StringPtAr_fit(StringPtAr *arr) {
-    Array_fit((Array*)arr);
-}
-
-#define StringPtAr_foreach(var, arr)                for (StringPtArFIt_declare(var, arr, 0); StringPtArFIt_next(&var); )
-#define StringPtAr_foreachOffset(var, arr, offset)  for (StringPtArFIt_declare(var, arr, offset); StringPtArFIt_next(&var); )            
-
-static inline void StringPtAr_free(StringPtAr *arr) {
-    Array_free((Array*)arr);
-}
-
-static inline String *StringPtAr_get(StringPtAr *arr, int index, Error *err) {
-    String * v = {0};
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
-}
-
-static inline String **StringPtAr_getp(StringPtAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (String **)Array_get((Array*)arr, index);
-}
-
-static inline void StringPtAr_init(StringPtAr *arr, int nelems) {
-   void (*clearer)(String **) = String_freep;
-    Array_init((Array*)arr, nelems, sizeof(String *), (Array_clearElement)clearer);
-}
-
-static inline void StringPtAr_insert(StringPtAr *arr, int index, String *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    String * *p = (String **)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void StringPtAr_insertp(StringPtAr *arr, int index, String **elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    String * *p = (String **)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int StringPtAr_last(StringPtAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
-
-static inline int StringPtAr_len(StringPtAr *arr) {
-    return Array_len((Array*)arr);
-}
-
-#define StringPtAr_loop(var) while (StringPtArFIt_next(&var)) 
-
-static inline StringPtAr *StringPtAr_new(int nelems) {
-    void (*clearer)(String **) = String_freep;
-    return (StringPtAr*)Array_new(nelems, sizeof(String *), (Array_clearElement)clearer);
-}
-
-static inline void StringPtAr_pop(StringPtAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
-}
-
-static inline void StringPtAr_push(StringPtAr *arr, String *elem) {
-    String * *p = (String **)Array_pushN((Array*)arr, 1);
-    *p = elem;
-    return; 
-}            
-
-static inline void StringPtAr_pushp(StringPtAr *arr, String **elem) {
-    String * *p = (String **)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define StringPtAr_reach(it, arr) for (String ** it = arr->data+arr->len-1; it >= arr->data; it--)
-
-static inline void StringPtAr_remove(StringPtAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void StringPtAr_removeN(StringPtAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define StringPtAr_rforeach(var, arr)                for (StringPtArRIt_declare(var, arr, 0); StringPtArRIt_next(&var); )
-#define StringPtAr_rforeachOffset(var, arr, offset)  for (StringPtArRIt_declare(var, arr, offset); StringPtArRIt_next(&var); )
-
-#define StringPtAr_rloop(var) while (StringPtArRIt_next(&var))             
-
-static inline void StringPtAr_set(StringPtAr *arr, int index, String *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void StringPtAr_setp(StringPtAr *arr, int index, String **elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
-
-static inline void StringPtAr_truncate(StringPtAr *arr) {
-    Array_truncate((Array*)arr);
-}
-
-static inline bool StringPtArFIt_atEnd(StringPtArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
-#define StringPtArFIt_declare(var, arr, offset)  StringPtArFIt var = {arr, 0, (arr)->len, offset-1, NULL}
-
-#define StringPtArFIt_declare0(var)  StringPtArFIt var = {0}
-
-static inline bool StringPtArFIt_next(StringPtArFIt *iterator) {
-    return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
-static inline bool StringPtArFIt_remove(StringPtArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool StringPtArRIt_atEnd(StringPtArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define StringPtArRIt_declare(var, arr, offset)  StringPtArRIt var = {arr, 0, (arr)->len, (arr)->len-offset, NULL}
-
-#define StringPtArRIt_declare0(var)  StringPtArRIt var = {0}
-
-static inline bool StringPtArRIt_next(StringPtArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool StringPtArRIt_remove(StringPtArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
-}
-
-static inline void StringPtAr_binInsert(StringPtAr *arr, String *elem) {
-    int (*compare)(String **, String **) = String_cmpPp;
-    Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)compare, false);
-}            
-
-static inline void StringPtAr_binRemove(StringPtAr *arr, String *elem) {
-    int (*compare)(String **, String **) = String_cmpPp;
-    Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)compare, false);
-}        
-
-static inline String **StringPtAr_binSearch(StringPtAr *arr, String *elem) {
-    int (*compare)(String **, String **) = String_cmpPp;
-    return (String **)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, NULL);
-}
-
-static inline String **StringPtAr_pqPeek(StringPtAr *arr) {
-   return (String **)Array_pqPeek((Array*)arr);
-}
-
-static inline bool StringPtAr_pqPop(StringPtAr *arr, String **elem) {
-    int (*compare)(String **, String **) = String_cmpPp;
-   return Array_pqPop((Array*)arr, (char*)elem, (Array_compare)compare);
-}
-
-static inline void StringPtAr_pqPush(StringPtAr *arr, String *elem) {
-    int (*compare)(String **, String **) = String_cmpPp;
-   Array_pqPush((Array*)arr, (char*)&elem, (Array_compare)compare);
-}
-
-static inline void StringPtAr_pqSort(StringPtAr *arr) {
-    int (*compare)(String **, String **) = String_cmpPp;
-   Array_pqSort((Array*)arr, (Array_compare)compare);
-}
-
-static inline void StringPtAr_sort(StringPtAr *arr) {
-    int (*compare)(String **, String **) = String_cmpPp;
-    Array_sort((Array*)arr, (Array_compare)compare);
-}                
-
-static inline void SymbolPtAr_changeLength(SymbolPtAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
-static inline void SymbolPtAr_clear(SymbolPtAr *arr) {
-    Array_clear((Array*)arr);
-    SymbolPtAr zero = {0};
-    *arr = zero;
-}
-
-#define SymbolPtAr_each(it, arr) for (Symbol ** it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void SymbolPtAr_fit(SymbolPtAr *arr) {
-    Array_fit((Array*)arr);
-}
-
-#define SymbolPtAr_foreach(var, arr)                for (SymbolPtArFIt_declare(var, arr, 0); SymbolPtArFIt_next(&var); )
-#define SymbolPtAr_foreachOffset(var, arr, offset)  for (SymbolPtArFIt_declare(var, arr, offset); SymbolPtArFIt_next(&var); )            
-
-static inline void SymbolPtAr_free(SymbolPtAr *arr) {
-    Array_free((Array*)arr);
-}
-
-static inline Symbol *SymbolPtAr_get(SymbolPtAr *arr, int index, Error *err) {
-    Symbol * v = {0};
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
-}
-
-static inline Symbol **SymbolPtAr_getp(SymbolPtAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (Symbol **)Array_get((Array*)arr, index);
-}
-
-static inline void SymbolPtAr_init(SymbolPtAr *arr, int nelems) {
-   void (*clearer)(Symbol **) = NULL;
-    Array_init((Array*)arr, nelems, sizeof(Symbol *), (Array_clearElement)clearer);
-}
-
-static inline void SymbolPtAr_insert(SymbolPtAr *arr, int index, Symbol *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Symbol * *p = (Symbol **)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void SymbolPtAr_insertp(SymbolPtAr *arr, int index, Symbol **elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Symbol * *p = (Symbol **)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int SymbolPtAr_last(SymbolPtAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
-
-static inline int SymbolPtAr_len(SymbolPtAr *arr) {
-    return Array_len((Array*)arr);
-}
-
-#define SymbolPtAr_loop(var) while (SymbolPtArFIt_next(&var)) 
-
-static inline SymbolPtAr *SymbolPtAr_new(int nelems) {
-    void (*clearer)(Symbol **) = NULL;
-    return (SymbolPtAr*)Array_new(nelems, sizeof(Symbol *), (Array_clearElement)clearer);
-}
-
-static inline void SymbolPtAr_pop(SymbolPtAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
-}
-
-static inline void SymbolPtAr_push(SymbolPtAr *arr, Symbol *elem) {
-    Symbol * *p = (Symbol **)Array_pushN((Array*)arr, 1);
-    *p = elem;
-    return; 
-}            
-
-static inline void SymbolPtAr_pushp(SymbolPtAr *arr, Symbol **elem) {
-    Symbol * *p = (Symbol **)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define SymbolPtAr_reach(it, arr) for (Symbol ** it = arr->data+arr->len-1; it >= arr->data; it--)
-
-static inline void SymbolPtAr_remove(SymbolPtAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void SymbolPtAr_removeN(SymbolPtAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define SymbolPtAr_rforeach(var, arr)                for (SymbolPtArRIt_declare(var, arr, 0); SymbolPtArRIt_next(&var); )
-#define SymbolPtAr_rforeachOffset(var, arr, offset)  for (SymbolPtArRIt_declare(var, arr, offset); SymbolPtArRIt_next(&var); )
-
-#define SymbolPtAr_rloop(var) while (SymbolPtArRIt_next(&var))             
-
-static inline void SymbolPtAr_set(SymbolPtAr *arr, int index, Symbol *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void SymbolPtAr_setp(SymbolPtAr *arr, int index, Symbol **elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
-
-static inline void SymbolPtAr_truncate(SymbolPtAr *arr) {
-    Array_truncate((Array*)arr);
-}
-
-static inline bool SymbolPtArFIt_atEnd(SymbolPtArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
-#define SymbolPtArFIt_declare(var, arr, offset)  SymbolPtArFIt var = {arr, 0, (arr)->len, offset-1, NULL}
-
-#define SymbolPtArFIt_declare0(var)  SymbolPtArFIt var = {0}
-
-static inline bool SymbolPtArFIt_next(SymbolPtArFIt *iterator) {
-    return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
-static inline bool SymbolPtArFIt_remove(SymbolPtArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool SymbolPtArRIt_atEnd(SymbolPtArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define SymbolPtArRIt_declare(var, arr, offset)  SymbolPtArRIt var = {arr, 0, (arr)->len, (arr)->len-offset, NULL}
-
-#define SymbolPtArRIt_declare0(var)  SymbolPtArRIt var = {0}
-
-static inline bool SymbolPtArRIt_next(SymbolPtArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool SymbolPtArRIt_remove(SymbolPtArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
-}
-
-static inline void SymbolPtAr_binInsertUnderlying(SymbolPtAr *arr, Symbol *elem) {
-    int (*compare)(Symbol **, Symbol **) = Symbol_cmpUnderlying;
-    Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)compare, false);
-}            
-
-static inline void SymbolPtAr_binRemoveUnderlying(SymbolPtAr *arr, Symbol *elem) {
-    int (*compare)(Symbol **, Symbol **) = Symbol_cmpUnderlying;
-    Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)compare, false);
-}        
-
-static inline Symbol **SymbolPtAr_binSearchUnderlying(SymbolPtAr *arr, Symbol *elem) {
-    int (*compare)(Symbol **, Symbol **) = Symbol_cmpUnderlying;
-    return (Symbol **)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, NULL);
-}
-
-static inline Symbol **SymbolPtAr_pqPeekUnderlying(SymbolPtAr *arr) {
-   return (Symbol **)Array_pqPeek((Array*)arr);
-}
-
-static inline bool SymbolPtAr_pqPopUnderlying(SymbolPtAr *arr, Symbol **elem) {
-    int (*compare)(Symbol **, Symbol **) = Symbol_cmpUnderlying;
-   return Array_pqPop((Array*)arr, (char*)elem, (Array_compare)compare);
-}
-
-static inline void SymbolPtAr_pqPushUnderlying(SymbolPtAr *arr, Symbol *elem) {
-    int (*compare)(Symbol **, Symbol **) = Symbol_cmpUnderlying;
-   Array_pqPush((Array*)arr, (char*)&elem, (Array_compare)compare);
-}
-
-static inline void SymbolPtAr_pqSortUnderlying(SymbolPtAr *arr) {
-    int (*compare)(Symbol **, Symbol **) = Symbol_cmpUnderlying;
-   Array_pqSort((Array*)arr, (Array_compare)compare);
-}
-
-static inline void SymbolPtAr_sortUnderlying(SymbolPtAr *arr) {
-    int (*compare)(Symbol **, Symbol **) = Symbol_cmpUnderlying;
-    Array_sort((Array*)arr, (Array_compare)compare);
-}                
-
-static inline void SymbolPtrAr_changeLength(SymbolPtrAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
-static inline void SymbolPtrAr_clear(SymbolPtrAr *arr) {
-    Array_clear((Array*)arr);
-    SymbolPtrAr zero = {0};
-    *arr = zero;
-}
-
-#define SymbolPtrAr_each(it, arr) for (Symbol ** it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void SymbolPtrAr_fit(SymbolPtrAr *arr) {
-    Array_fit((Array*)arr);
-}
-
-#define SymbolPtrAr_foreach(var, arr)                for (SymbolPtrArFIt_declare(var, arr, 0); SymbolPtrArFIt_next(&var); )
-#define SymbolPtrAr_foreachOffset(var, arr, offset)  for (SymbolPtrArFIt_declare(var, arr, offset); SymbolPtrArFIt_next(&var); )            
-
-static inline void SymbolPtrAr_free(SymbolPtrAr *arr) {
-    Array_free((Array*)arr);
-}
-
-static inline Symbol *SymbolPtrAr_get(SymbolPtrAr *arr, int index, Error *err) {
-    Symbol * v = {0};
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
-}
-
-static inline Symbol **SymbolPtrAr_getp(SymbolPtrAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (Symbol **)Array_get((Array*)arr, index);
-}
-
-static inline void SymbolPtrAr_init(SymbolPtrAr *arr, int nelems) {
-   void (*clearer)(Symbol **) = NULL;
-    Array_init((Array*)arr, nelems, sizeof(Symbol *), (Array_clearElement)clearer);
-}
-
-static inline void SymbolPtrAr_insert(SymbolPtrAr *arr, int index, Symbol *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Symbol * *p = (Symbol **)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void SymbolPtrAr_insertp(SymbolPtrAr *arr, int index, Symbol **elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Symbol * *p = (Symbol **)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int SymbolPtrAr_last(SymbolPtrAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
-
-static inline int SymbolPtrAr_len(SymbolPtrAr *arr) {
-    return Array_len((Array*)arr);
-}
-
-#define SymbolPtrAr_loop(var) while (SymbolPtrArFIt_next(&var)) 
-
-static inline SymbolPtrAr *SymbolPtrAr_new(int nelems) {
-    void (*clearer)(Symbol **) = NULL;
-    return (SymbolPtrAr*)Array_new(nelems, sizeof(Symbol *), (Array_clearElement)clearer);
-}
-
-static inline void SymbolPtrAr_pop(SymbolPtrAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
-}
-
-static inline void SymbolPtrAr_push(SymbolPtrAr *arr, Symbol *elem) {
-    Symbol * *p = (Symbol **)Array_pushN((Array*)arr, 1);
-    *p = elem;
-    return; 
-}            
-
-static inline void SymbolPtrAr_pushp(SymbolPtrAr *arr, Symbol **elem) {
-    Symbol * *p = (Symbol **)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define SymbolPtrAr_reach(it, arr) for (Symbol ** it = arr->data+arr->len-1; it >= arr->data; it--)
-
-static inline void SymbolPtrAr_remove(SymbolPtrAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void SymbolPtrAr_removeN(SymbolPtrAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define SymbolPtrAr_rforeach(var, arr)                for (SymbolPtrArRIt_declare(var, arr, 0); SymbolPtrArRIt_next(&var); )
-#define SymbolPtrAr_rforeachOffset(var, arr, offset)  for (SymbolPtrArRIt_declare(var, arr, offset); SymbolPtrArRIt_next(&var); )
-
-#define SymbolPtrAr_rloop(var) while (SymbolPtrArRIt_next(&var))             
-
-static inline void SymbolPtrAr_set(SymbolPtrAr *arr, int index, Symbol *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void SymbolPtrAr_setp(SymbolPtrAr *arr, int index, Symbol **elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
-
-static inline void SymbolPtrAr_truncate(SymbolPtrAr *arr) {
-    Array_truncate((Array*)arr);
-}
-
-static inline bool SymbolPtrArFIt_atEnd(SymbolPtrArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
-#define SymbolPtrArFIt_declare(var, arr, offset)  SymbolPtrArFIt var = {arr, 0, (arr)->len, offset-1, NULL}
-
-#define SymbolPtrArFIt_declare0(var)  SymbolPtrArFIt var = {0}
-
-static inline bool SymbolPtrArFIt_next(SymbolPtrArFIt *iterator) {
-    return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
-static inline bool SymbolPtrArFIt_remove(SymbolPtrArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool SymbolPtrArRIt_atEnd(SymbolPtrArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define SymbolPtrArRIt_declare(var, arr, offset)  SymbolPtrArRIt var = {arr, 0, (arr)->len, (arr)->len-offset, NULL}
-
-#define SymbolPtrArRIt_declare0(var)  SymbolPtrArRIt var = {0}
-
-static inline bool SymbolPtrArRIt_next(SymbolPtrArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool SymbolPtrArRIt_remove(SymbolPtrArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
-}
-
-static inline Ticks Timed_time(Timed *self){return self->time;}
-static inline void Timed_setTime(Timed *self, Ticks value){self->time = value;}
-static inline int Timed_version(Timed *self){return self->version;}
-static inline void Timed_setVersion(Timed *self, int value){self->version = value;}
-static inline Sequence *Timed_sequence(Timed *self){return self->sequence;}
-static inline void Timed_setSequence(Timed *self, Sequence *value){self->sequence = value;}
-static inline Ticks TimedOff_time(TimedOff *self){return self->time;}
-static inline void TimedOff_setTime(TimedOff *self, Ticks value){self->time = value;}
-static inline int TimedOff_pitch(TimedOff *self){return self->pitch;}
-static inline void TimedOff_setPitch(TimedOff *self, int value){self->pitch = value;}
-#define TimedOff_declare(name, time, pitch) TimedOff name = {(time), (pitch)}
-static inline void TimedOffAr_changeLength(TimedOffAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
-static inline void TimedOffAr_clear(TimedOffAr *arr) {
-    Array_clear((Array*)arr);
-    TimedOffAr zero = {0};
-    *arr = zero;
-}
-
-#define TimedOffAr_each(it, arr) for (TimedOff* it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void TimedOffAr_fit(TimedOffAr *arr) {
-    Array_fit((Array*)arr);
-}
-
-#define TimedOffAr_foreach(var, arr)                for (TimedOffArFIt_declare(var, arr, 0); TimedOffArFIt_next(&var); )
-#define TimedOffAr_foreachOffset(var, arr, offset)  for (TimedOffArFIt_declare(var, arr, offset); TimedOffArFIt_next(&var); )            
-
-static inline void TimedOffAr_free(TimedOffAr *arr) {
-    Array_free((Array*)arr);
-}
-
-static inline TimedOff TimedOffAr_get(TimedOffAr *arr, int index, Error *err) {
-    TimedOff v = {0};
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
-}
-
-static inline TimedOff *TimedOffAr_getp(TimedOffAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (TimedOff *)Array_get((Array*)arr, index);
-}
-
-static inline void TimedOffAr_init(TimedOffAr *arr, int nelems) {
-   void (*clearer)(TimedOff *) = NULL;
-    Array_init((Array*)arr, nelems, sizeof(TimedOff), (Array_clearElement)clearer);
-}
-
-static inline void TimedOffAr_insert(TimedOffAr *arr, int index, TimedOff elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    TimedOff *p = (TimedOff *)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void TimedOffAr_insertp(TimedOffAr *arr, int index, TimedOff *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    TimedOff *p = (TimedOff *)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int TimedOffAr_last(TimedOffAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
-
-static inline int TimedOffAr_len(TimedOffAr *arr) {
-    return Array_len((Array*)arr);
-}
-
-#define TimedOffAr_loop(var) while (TimedOffArFIt_next(&var)) 
-
-static inline TimedOffAr *TimedOffAr_new(int nelems) {
-    void (*clearer)(TimedOff *) = NULL;
-    return (TimedOffAr*)Array_new(nelems, sizeof(TimedOff), (Array_clearElement)clearer);
-}
-
-static inline void TimedOffAr_pop(TimedOffAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
-}
-
-static inline void TimedOffAr_push(TimedOffAr *arr, TimedOff elem) {
-    TimedOff *p = (TimedOff *)Array_pushN((Array*)arr, 1);
-    *p = elem;
-    return; 
-}            
-
-static inline void TimedOffAr_pushp(TimedOffAr *arr, TimedOff *elem) {
-    TimedOff *p = (TimedOff *)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define TimedOffAr_reach(it, arr) for (TimedOff* it = arr->data+arr->len-1; it >= arr->data; it--)
-
-static inline void TimedOffAr_remove(TimedOffAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void TimedOffAr_removeN(TimedOffAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define TimedOffAr_rforeach(var, arr)                for (TimedOffArRIt_declare(var, arr, 0); TimedOffArRIt_next(&var); )
-#define TimedOffAr_rforeachOffset(var, arr, offset)  for (TimedOffArRIt_declare(var, arr, offset); TimedOffArRIt_next(&var); )
-
-#define TimedOffAr_rloop(var) while (TimedOffArRIt_next(&var))             
-
-static inline void TimedOffAr_set(TimedOffAr *arr, int index, TimedOff elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void TimedOffAr_setp(TimedOffAr *arr, int index, TimedOff *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
-
-static inline void TimedOffAr_truncate(TimedOffAr *arr) {
-    Array_truncate((Array*)arr);
-}
-
-static inline bool TimedOffArFIt_atEnd(TimedOffArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
-#define TimedOffArFIt_declare(var, arr, offset)  TimedOffArFIt var = {arr, 0, (arr)->len, offset-1, NULL}
-
-#define TimedOffArFIt_declare0(var)  TimedOffArFIt var = {0}
-
-static inline bool TimedOffArFIt_next(TimedOffArFIt *iterator) {
-    return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
-static inline bool TimedOffArFIt_remove(TimedOffArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool TimedOffArRIt_atEnd(TimedOffArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define TimedOffArRIt_declare(var, arr, offset)  TimedOffArRIt var = {arr, 0, (arr)->len, (arr)->len-offset, NULL}
-
-#define TimedOffArRIt_declare0(var)  TimedOffArRIt var = {0}
-
-static inline bool TimedOffArRIt_next(TimedOffArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool TimedOffArRIt_remove(TimedOffArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
-}
-
-static inline void TimedOffAr_binInsertTime(TimedOffAr *arr, TimedOff elem) {
-    int (*compare)(TimedOff *, TimedOff *) = TimedOff_cmpTime;
-    Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)compare, true);
-}            
-
-static inline void TimedOffAr_binRemoveTime(TimedOffAr *arr, TimedOff elem) {
-    int (*compare)(TimedOff *, TimedOff *) = TimedOff_cmpTime;
-    Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)compare, true);
-}        
-
-static inline TimedOffArFIt TimedOffAr_binSearchTime(TimedOffAr *arr, TimedOff elem) {
-    int (*compare)(TimedOff *, TimedOff *) = TimedOff_cmpTime;
-    TimedOffArFIt it = {0};
-   if (Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, (ArrayFIt*)&it) != NULL) {
-       return it;
-    }
-   it.index  = arr->len;
-   it.uBound = 0;
-    return it;
-}
-
-static inline TimedOff *TimedOffAr_pqPeekTime(TimedOffAr *arr) {
-   return (TimedOff *)Array_pqPeek((Array*)arr);
-}
-
-static inline bool TimedOffAr_pqPopTime(TimedOffAr *arr, TimedOff *elem) {
-    int (*compare)(TimedOff *, TimedOff *) = TimedOff_cmpTime;
-   return Array_pqPop((Array*)arr, (char*)elem, (Array_compare)compare);
-}
-
-static inline void TimedOffAr_pqPushTime(TimedOffAr *arr, TimedOff elem) {
-    int (*compare)(TimedOff *, TimedOff *) = TimedOff_cmpTime;
-   Array_pqPush((Array*)arr, (char*)&elem, (Array_compare)compare);
-}
-
-static inline void TimedOffAr_pqSortTime(TimedOffAr *arr) {
-    int (*compare)(TimedOff *, TimedOff *) = TimedOff_cmpTime;
-   Array_pqSort((Array*)arr, (Array_compare)compare);
-}
-
-static inline void TimedOffAr_sortTime(TimedOffAr *arr) {
-    int (*compare)(TimedOff *, TimedOff *) = TimedOff_cmpTime;
-    Array_sort((Array*)arr, (Array_compare)compare);
-}                
-
-static inline void TimedPq_changeLength(TimedPq *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
-static inline void TimedPq_clear(TimedPq *arr) {
-    Array_clear((Array*)arr);
-    TimedPq zero = {0};
-    *arr = zero;
-}
-
-#define TimedPq_each(it, arr) for (Timed* it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void TimedPq_fit(TimedPq *arr) {
-    Array_fit((Array*)arr);
-}
-
-#define TimedPq_foreach(var, arr)                for (TimedPqFIt_declare(var, arr, 0); TimedPqFIt_next(&var); )
-#define TimedPq_foreachOffset(var, arr, offset)  for (TimedPqFIt_declare(var, arr, offset); TimedPqFIt_next(&var); )            
-
-static inline void TimedPq_free(TimedPq *arr) {
-    Array_free((Array*)arr);
-}
-
-static inline Timed TimedPq_get(TimedPq *arr, int index, Error *err) {
-    Timed v = {0};
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
-}
-
-static inline Timed *TimedPq_getp(TimedPq *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (Timed *)Array_get((Array*)arr, index);
-}
-
-static inline void TimedPq_init(TimedPq *arr, int nelems) {
-   void (*clearer)(Timed *) = NULL;
-    Array_init((Array*)arr, nelems, sizeof(Timed), (Array_clearElement)clearer);
-}
-
-static inline void TimedPq_insert(TimedPq *arr, int index, Timed elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Timed *p = (Timed *)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void TimedPq_insertp(TimedPq *arr, int index, Timed *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Timed *p = (Timed *)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int TimedPq_last(TimedPq *arr) {
-    return Array_len((Array*)arr)-1;
-}            
-
-static inline int TimedPq_len(TimedPq *arr) {
-    return Array_len((Array*)arr);
-}
-
-#define TimedPq_loop(var) while (TimedPqFIt_next(&var)) 
-
-static inline TimedPq *TimedPq_new(int nelems) {
-    void (*clearer)(Timed *) = NULL;
-    return (TimedPq*)Array_new(nelems, sizeof(Timed), (Array_clearElement)clearer);
-}
-
-static inline void TimedPq_pop(TimedPq *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
-}
-
-static inline void TimedPq_push(TimedPq *arr, Timed elem) {
-    Timed *p = (Timed *)Array_pushN((Array*)arr, 1);
-    *p = elem;
-    return; 
-}            
-
-static inline void TimedPq_pushp(TimedPq *arr, Timed *elem) {
-    Timed *p = (Timed *)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define TimedPq_reach(it, arr) for (Timed* it = arr->data+arr->len-1; it >= arr->data; it--)
-
-static inline void TimedPq_remove(TimedPq *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void TimedPq_removeN(TimedPq *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define TimedPq_rforeach(var, arr)                for (TimedPqRIt_declare(var, arr, 0); TimedPqRIt_next(&var); )
-#define TimedPq_rforeachOffset(var, arr, offset)  for (TimedPqRIt_declare(var, arr, offset); TimedPqRIt_next(&var); )
-
-#define TimedPq_rloop(var) while (TimedPqRIt_next(&var))             
-
-static inline void TimedPq_set(TimedPq *arr, int index, Timed elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void TimedPq_setp(TimedPq *arr, int index, Timed *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
-
-static inline void TimedPq_truncate(TimedPq *arr) {
-    Array_truncate((Array*)arr);
-}
-
-static inline bool TimedPqFIt_atEnd(TimedPqFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
-#define TimedPqFIt_declare(var, arr, offset)  TimedPqFIt var = {arr, 0, (arr)->len, offset-1, NULL}
-
-#define TimedPqFIt_declare0(var)  TimedPqFIt var = {0}
-
-static inline bool TimedPqFIt_next(TimedPqFIt *iterator) {
-    return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
-static inline bool TimedPqFIt_remove(TimedPqFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool TimedPqRIt_atEnd(TimedPqRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define TimedPqRIt_declare(var, arr, offset)  TimedPqRIt var = {arr, 0, (arr)->len, (arr)->len-offset, NULL}
-
-#define TimedPqRIt_declare0(var)  TimedPqRIt var = {0}
-
-static inline bool TimedPqRIt_next(TimedPqRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool TimedPqRIt_remove(TimedPqRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
-}
-
-static inline void TimedPq_binInsert(TimedPq *arr, Timed elem) {
-    int (*compare)(Timed *, Timed *) = Timed_cmp;
-    Array_binInsert((Array*)arr, (char*)&elem, (Array_compare)compare, false);
-}            
-
-static inline void TimedPq_binRemove(TimedPq *arr, Timed elem) {
-    int (*compare)(Timed *, Timed *) = Timed_cmp;
-    Array_binRemove((Array*)arr, (char*)&elem, (Array_compare)compare, false);
-}        
-
-static inline Timed *TimedPq_binSearch(TimedPq *arr, Timed elem) {
-    int (*compare)(Timed *, Timed *) = Timed_cmp;
-    return (Timed *)Array_binSearch((Array*)arr, (char*)&elem, (Array_compare)compare, NULL);
-}
-
-static inline Timed *TimedPq_pqPeek(TimedPq *arr) {
-   return (Timed *)Array_pqPeek((Array*)arr);
-}
-
-static inline bool TimedPq_pqPop(TimedPq *arr, Timed *elem) {
-    int (*compare)(Timed *, Timed *) = Timed_cmp;
-   return Array_pqPop((Array*)arr, (char*)elem, (Array_compare)compare);
-}
-
-static inline void TimedPq_pqPush(TimedPq *arr, Timed elem) {
-    int (*compare)(Timed *, Timed *) = Timed_cmp;
-   Array_pqPush((Array*)arr, (char*)&elem, (Array_compare)compare);
-}
-
-static inline void TimedPq_pqSort(TimedPq *arr) {
-    int (*compare)(Timed *, Timed *) = Timed_cmp;
-   Array_pqSort((Array*)arr, (Array_compare)compare);
-}
-
-static inline void TimedPq_sort(TimedPq *arr) {
-    int (*compare)(Timed *, Timed *) = Timed_cmp;
-    Array_sort((Array*)arr, (Array_compare)compare);
-}                
-
-static inline Symbol *Track_name(Track *self){return self->name;}
-static inline void Track_setName(Track *self, Symbol *value){self->name = value;}
-static inline NoteManager *Track_noteManager(Track *self){return self->noteManager;}
-static inline void Track_setNoteManager(Track *self, NoteManager *value){self->noteManager = value;}
-static inline void TrackAr_changeLength(TrackAr *arr, int newLength) {
-    Array_changeLength((Array*)arr, newLength);
-}                        
-
-static inline void TrackAr_clear(TrackAr *arr) {
-    Array_clear((Array*)arr);
-    TrackAr zero = {0};
-    *arr = zero;
-}
-
-#define TrackAr_each(it, arr) for (Track* it = arr->data; it < arr->data + arr->len; it++)
-
-static inline void TrackAr_fit(TrackAr *arr) {
-    Array_fit((Array*)arr);
-}
-
-#define TrackAr_foreach(var, arr)                for (TrackArFIt_declare(var, arr, 0); TrackArFIt_next(&var); )
-#define TrackAr_foreachOffset(var, arr, offset)  for (TrackArFIt_declare(var, arr, offset); TrackArFIt_next(&var); )            
-
-static inline void TrackAr_free(TrackAr *arr) {
-    Array_free((Array*)arr);
-}
-
-static inline Track TrackAr_get(TrackAr *arr, int index, Error *err) {
-    Track v = {0};
-    Array_getCheck(arr, index, v, err);
-    memmove(&v, Array_get((Array*)arr, index), Array_elemSize((Array*)arr));
-    return v;
-}
-
-static inline Track *TrackAr_getp(TrackAr *arr, int index, Error *err) {
-    Array_getCheck(arr, index, NULL, err);
-    return (Track *)Array_get((Array*)arr, index);
-}
-
-static inline void TrackAr_init(TrackAr *arr, int nelems) {
-   void (*clearer)(Track *) = NULL;
-    Array_init((Array*)arr, nelems, sizeof(Track), (Array_clearElement)clearer);
-}
-
-static inline void TrackAr_insert(TrackAr *arr, int index, Track elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Track *p = (Track *)Array_insertN((Array*)arr, index, 1);
-    *p = elem;
-}
-
-static inline void TrackAr_insertp(TrackAr *arr, int index, Track *elem, Error *err) {
-    Array_insertNCheck(arr, index, 1, err);
-    Track *p = (Track *)Array_insertN((Array*)arr, index, 1);
-    *p = *elem;
-}            
-
-static inline int TrackAr_last(TrackAr *arr) {
-    return Array_len((Array*)arr)-1;
-}            
-
-static inline int TrackAr_len(TrackAr *arr) {
-    return Array_len((Array*)arr);
-}
-
-#define TrackAr_loop(var) while (TrackArFIt_next(&var)) 
-
-static inline TrackAr *TrackAr_new(int nelems) {
-    void (*clearer)(Track *) = NULL;
-    return (TrackAr*)Array_new(nelems, sizeof(Track), (Array_clearElement)clearer);
-}
-
-static inline void TrackAr_pop(TrackAr *arr, Error *err) {
-    Array_popNCheck(arr, 1, err);
-    Array_popN((Array*)arr, 1);
-}
-
-static inline void TrackAr_push(TrackAr *arr, Track elem) {
-    Track *p = (Track *)Array_pushN((Array*)arr, 1);
-    *p = elem;
-    return; 
-}            
-
-static inline void TrackAr_pushp(TrackAr *arr, Track *elem) {
-    Track *p = (Track *)Array_pushN((Array*)arr, 1);
-    *p = *elem;
-    return; 
-}
-
-#define TrackAr_reach(it, arr) for (Track* it = arr->data+arr->len-1; it >= arr->data; it--)
-
-static inline void TrackAr_remove(TrackAr *arr, int index, Error *err) {
-    Array_removeNCheck(arr, index, 1, err);
-    Array_removeN((Array*)arr, index, 1);
-}    
-
-static inline void TrackAr_removeN(TrackAr *arr, int index, int N, Error *err) {
-    Array_removeNCheck(arr, index, N, err);
-    Array_removeN((Array*)arr, index, N);
-}
-
-#define TrackAr_rforeach(var, arr)                for (TrackArRIt_declare(var, arr, 0); TrackArRIt_next(&var); )
-#define TrackAr_rforeachOffset(var, arr, offset)  for (TrackArRIt_declare(var, arr, offset); TrackArRIt_next(&var); )
-
-#define TrackAr_rloop(var) while (TrackArRIt_next(&var))             
-
-static inline void TrackAr_set(TrackAr *arr, int index, Track elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)&elem);
-}
-
-static inline void TrackAr_setp(TrackAr *arr, int index, Track *elem, Error *err) {
-    Array_setCheck(arr, index, err);
-    Array_set((Array*)arr, index, (char*)elem);
-}
-
-static inline void TrackAr_truncate(TrackAr *arr) {
-    Array_truncate((Array*)arr);
-}
-
-static inline bool TrackArFIt_atEnd(TrackArFIt *iterator) {
-    return iterator->index+1 >= iterator->uBound;
-}
-
-#define TrackArFIt_declare(var, arr, offset)  TrackArFIt var = {arr, 0, (arr)->len, offset-1, NULL}
-
-#define TrackArFIt_declare0(var)  TrackArFIt var = {0}
-
-static inline bool TrackArFIt_next(TrackArFIt *iterator) {
-    return ArrayFIt_next((ArrayFIt*)iterator);
-}
-
-static inline bool TrackArFIt_remove(TrackArFIt *iterator) {
-    return ArrayFIt_remove((ArrayFIt*)iterator);
-}
-
-static inline bool TrackArRIt_atEnd(TrackArRIt *iterator) {
-    return iterator->index-1 < iterator->lBound;
-}
-
-#define TrackArRIt_declare(var, arr, offset)  TrackArRIt var = {arr, 0, (arr)->len, (arr)->len-offset, NULL}
-
-#define TrackArRIt_declare0(var)  TrackArRIt var = {0}
-
-static inline bool TrackArRIt_next(TrackArRIt *iterator) {
-    return ArrayRIt_next((ArrayRIt*)iterator);
-}
-
-static inline bool TrackArRIt_remove(TrackArRIt *iterator) {
-    return ArrayRIt_remove((ArrayRIt*)iterator);
-}
-
-static inline TrackAr *TrackList_list(TrackList *self){return &self->list;}
-static inline AtomAr VstOutlet_atoms(VstOutlet *self){return self->atoms;}
-static inline void VstOutlet_setAtoms(VstOutlet *self, AtomAr value){self->atoms = value;}
-static inline Port *VstOutlet_port(VstOutlet *self){return self->port;}
-static inline void VstOutlet_setPort(VstOutlet *self, Port *value){self->port = value;}
-static inline VstOutlet *VstOutlet_castFromOutlet(Outlet *self) {
-    if (self->itype == VstOutlet_itype) {
-        return (VstOutlet*)self;
-    }
-    return NULL;
-}
-static inline Outlet *VstOutlet_castToOutlet(VstOutlet *self) {
-    return (Outlet*)self;
-}
-void Arguments_init(Arguments *self)
-{
-    self->s1 = NULL;
-    self->i1 = 0;
-    self->i2 = 0;
-    self->ivalue = 0;
-    self->inlet = 0;
-    return;
-}
-void Arguments_clear(Arguments *self)
-{
-    return;
-}
-void Arguments_free(Arguments *self)
-{
-   if (self != NULL) {
-        Arguments_clear(self);
-        Mem_free(self);
-   }
-}
 Arguments *Arguments_new()
 {
-    Arguments *self = Mem_malloc(sizeof(Arguments));
-    Arguments_init(self);
-    return self;
+   Arguments *self = Mem_malloc(sizeof(Arguments));
+   self->itype       = Arguments_itype;
+   self->refCount    = 1;
+   self->s1 = 0;
+   self->i1 = 0;
+   self->i2 = 0;
+   self->ivalue = 0;
+   self->inlet = 0;
+   return self;
 }
-void BendOutlet_init(BendOutlet *self)
+void Arguments_incRef(Arguments *self)
 {
-    self->itype = BendOutlet_itype;
-    AtomAr_init(&self->atoms, 0);
-    self->port = Port_new();
-    return;
+    self->refCount++;
 }
-void BendOutlet_clear(BendOutlet *self)
+void Arguments_decRef(Arguments *self)
 {
-    AtomAr_clear(&self->atoms);
-    Port_free(self->port);
-    return;
-}
-void BendOutlet_free(BendOutlet *self)
-{
-   if (self != NULL) {
-        BendOutlet_clear(self);
-        Mem_free(self);
+    self->refCount--;
+    if (self->refCount <= 0) {
    }
+   return;
+}
+JSON_Value *Arguments_toJson(Arguments *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "Arguments") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type Arguments");
+       goto FAIL;
+   }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
+}
+Arguments *Arguments_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "Arguments_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type Arguments");
+           return NULL;
+       } else if (strcmp(s, "Arguments") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'Arguments'", s);
+           return NULL;
+       }
+       
+   }
+
+   Arguments *self = Arguments_new();
+   return self;
+
+   FAIL:
+   Arguments_free(self);
+   return NULL;
+}
+Arguments *Arguments_clone(Arguments *self) {
+   Arguments *other = Arguments_new();
+   other->s1 = self->s1;
+   other->i1 = self->i1;
+   other->i2 = self->i2;
+   other->ivalue = self->ivalue;
+   other->inlet = self->inlet;
+   return self;
+}
+#define AtomAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
+AtomAr *AtomAr_clone(AtomAr *arr);
+void AtomAr_decRef(AtomAr *arr);
+void AtomAr_fit(AtomAr *arr);
+#define AtomAr_foreach(var, arr)               for (AtomArFIt var = {arr, false, 0, NULL};        AtomArFIt_next(&var); )
+#define AtomAr_foreachOffset(var, arr, offset) for (AtomArFIt var = {arr, false, offset-1, NULL}; AtomArFIt_next(&var); )
+AtomAr *AtomAr_fromJson(JSON_Value *jval, Error *err);
+AtomRf *AtomAr_get(AtomAr *arr, int index, Error *err);
+void AtomAr_incRef(AtomAr *arr);
+void AtomAr_insert(AtomAr *arr, int index, AtomRf *elem, Error *err);
+int AtomAr_last(AtomAr *arr);
+int AtomAr_len(AtomAr *arr);
+AtomAr *AtomAr_new();
+void AtomAr_pop(AtomAr *arr, Error *err);
+AtomRf *AtomAr_pop(AtomAr *arr, Error *err);
+void AtomAr_push(AtomAr *arr, AtomRf *elem);
+void AtomAr_remove(AtomAr *arr, int index, Error *err);
+void AtomAr_reserve(AtomAr *arr, int newCap);
+#define AtomAr_rforeach(var, arr)               for (AtomArFIt var = {arr, false, (arr)->len, NULL};        AtomArFIt_next(&var); )
+#define AtomAr_rforeachOffset(var, arr, offset) for (AtomArFIt var = {arr, false, (arr)->len-offset, NULL}; AtomArFIt_next(&var); )
+void AtomAr_set(AtomAr *arr, int index, AtomRf *elem, Error *err);
+JSON_Value *AtomAr_toJson(AtomAr *self, Error *err);
+void AtomAr_truncate(AtomAr *arr, int newLen);
+bool AtomArFIt_next(AtomArFIt *iterator);
+bool AtomArRIt_next(AtomArRIt *iterator);
+#define AtomArAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
+AtomArAr *AtomArAr_clone(AtomArAr *arr);
+void AtomArAr_decRef(AtomArAr *arr);
+void AtomArAr_fit(AtomArAr *arr);
+#define AtomArAr_foreach(var, arr)               for (AtomArArFIt var = {arr, false, 0, NULL};        AtomArArFIt_next(&var); )
+#define AtomArAr_foreachOffset(var, arr, offset) for (AtomArArFIt var = {arr, false, offset-1, NULL}; AtomArArFIt_next(&var); )
+AtomArAr *AtomArAr_fromJson(JSON_Value *jval, Error *err);
+AtomAr *AtomArAr_get(AtomArAr *arr, int index, Error *err);
+void AtomArAr_incRef(AtomArAr *arr);
+void AtomArAr_insert(AtomArAr *arr, int index, AtomAr *elem, Error *err);
+int AtomArAr_last(AtomArAr *arr);
+int AtomArAr_len(AtomArAr *arr);
+AtomArAr *AtomArAr_new();
+void AtomArAr_pop(AtomArAr *arr, Error *err);
+AtomAr *AtomArAr_pop(AtomArAr *arr, Error *err);
+void AtomArAr_push(AtomArAr *arr, AtomAr *elem);
+void AtomArAr_remove(AtomArAr *arr, int index, Error *err);
+void AtomArAr_reserve(AtomArAr *arr, int newCap);
+#define AtomArAr_rforeach(var, arr)               for (AtomArArFIt var = {arr, false, (arr)->len, NULL};        AtomArArFIt_next(&var); )
+#define AtomArAr_rforeachOffset(var, arr, offset) for (AtomArArFIt var = {arr, false, (arr)->len-offset, NULL}; AtomArArFIt_next(&var); )
+void AtomArAr_set(AtomArAr *arr, int index, AtomAr *elem, Error *err);
+JSON_Value *AtomArAr_toJson(AtomArAr *self, Error *err);
+void AtomArAr_truncate(AtomArAr *arr, int newLen);
+bool AtomArArFIt_next(AtomArArFIt *iterator);
+bool AtomArArRIt_next(AtomArArRIt *iterator);
+AtomRf *AtomRf_new()
+{
+   AtomRf *self = Mem_malloc(sizeof(AtomRf));
+   self->itype       = AtomRf_itype;
+   self->refCount    = 1;
+   self->a = 0;
+   return self;
+}
+void AtomRf_incRef(AtomRf *self)
+{
+    self->refCount++;
+}
+void AtomRf_decRef(AtomRf *self)
+{
+    self->refCount--;
+    if (self->refCount <= 0) {
+   }
+   return;
+}
+JSON_Value *AtomRf_toJson(AtomRf *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "AtomRf") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type AtomRf");
+       goto FAIL;
+   }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
+}
+AtomRf *AtomRf_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "AtomRf_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type AtomRf");
+           return NULL;
+       } else if (strcmp(s, "AtomRf") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'AtomRf'", s);
+           return NULL;
+       }
+       
+   }
+
+   AtomRf *self = AtomRf_new();
+   return self;
+
+   FAIL:
+   AtomRf_free(self);
+   return NULL;
+}
+AtomRf *AtomRf_clone(AtomRf *self) {
+   AtomRf *other = AtomRf_new();
+   other->a = self->a;
+   return self;
 }
 BendOutlet *BendOutlet_new()
 {
-    BendOutlet *self = Mem_malloc(sizeof(BendOutlet));
-    BendOutlet_init(self);
-    return self;
+   BendOutlet *self = Mem_malloc(sizeof(BendOutlet));
+   self->itype       = BendOutlet_itype;
+   self->refCount    = 1;
+   self->atoms = AtomAr_new();
+   self->port = Port_new();
+   return self;
 }
-void BinFile_init(BinFile *self)
+void BendOutlet_incRef(BendOutlet *self)
 {
-    self->version = 0;
-    self->filename = String_empty();
-    self->buffer = String_empty();
-    self->stream = NULL;
-    self->payload = BinFilePayload_new();
-    return;
+    self->refCount++;
 }
-void BinFile_clear(BinFile *self)
+void BendOutlet_decRef(BendOutlet *self)
 {
-    BinFile_userClear(self);
-    String_free(self->filename);         
-    String_free(self->buffer);         
-    BinFilePayload_free(self->payload);
-    return;
-}
-void BinFile_free(BinFile *self)
-{
-   if (self != NULL) {
-        BinFile_clear(self);
-        Mem_free(self);
+    self->refCount--;
+    if (self->refCount <= 0) {
+       AtomAr_decRef(self->atoms);        
+       Port_decRef(self->port);        
    }
+   return;
 }
-BinFile *BinFile_new()
-{
-    BinFile *self = Mem_malloc(sizeof(BinFile));
-    BinFile_init(self);
-    return self;
-}
-void BinFilePayload_init(BinFilePayload *self)
-{
-    self->portFind = PortFind_new();
-    return;
-}
-void BinFilePayload_clear(BinFilePayload *self)
-{
-    PortFind_free(self->portFind);
-    return;
-}
-void BinFilePayload_free(BinFilePayload *self)
-{
-   if (self != NULL) {
-        BinFilePayload_clear(self);
-        Mem_free(self);
+JSON_Value *BendOutlet_toJson(BendOutlet *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "BendOutlet") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type BendOutlet");
+       goto FAIL;
    }
-}
-BinFilePayload *BinFilePayload_new()
-{
-    BinFilePayload *self = Mem_malloc(sizeof(BinFilePayload));
-    BinFilePayload_init(self);
-    return self;
-}
-void CcOutlet_init(CcOutlet *self)
-{
-    self->itype = CcOutlet_itype;
-    self->cc = 0;
-    AtomAr_init(&self->atoms, 0);
-    self->port = Port_new();
-    return;
-}
-void CcOutlet_clear(CcOutlet *self)
-{
-    AtomAr_clear(&self->atoms);
-    Port_free(self->port);
-    return;
-}
-void CcOutlet_free(CcOutlet *self)
-{
-   if (self != NULL) {
-        CcOutlet_clear(self);
-        Mem_free(self);
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = AtomAr_toJson(self->atoms, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "atoms", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of atoms on type BendOutlet");
+           goto FAIL;
+       }
    }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = Port_toJson(self->port, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "port", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of port on type BendOutlet");
+           goto FAIL;
+       }
+   }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
 }
+BendOutlet *BendOutlet_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "BendOutlet_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type BendOutlet");
+           return NULL;
+       } else if (strcmp(s, "BendOutlet") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'BendOutlet'", s);
+           return NULL;
+       }
+       
+   }
+
+   BendOutlet *self = BendOutlet_new();
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "atoms");
+       if (target == NULL) {
+           Error_format0(err, "'BendOutlet' json object does not contain a json value for 'atoms'");
+           goto FAIL;
+       }
+       self->atoms = BendOutlet_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "port");
+       if (target == NULL) {
+           Error_format0(err, "'BendOutlet' json object does not contain a json value for 'port'");
+           goto FAIL;
+       }
+       self->port = BendOutlet_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   return self;
+
+   FAIL:
+   BendOutlet_free(self);
+   return NULL;
+}
+BendOutlet *BendOutlet_clone(BendOutlet *self) {
+   BendOutlet *other = BendOutlet_new();
+   other->atoms = AtomAr_clone(self->atoms);
+   other->port = Port_clone(self->port);
+   return self;
+}
+void BendOutlet_setAtoms(BendOutlet *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->atoms;
+                self->atoms = value;
+                AtomAr_incRef(self->atoms);
+                AtomAr_decRef(old);
+            }
+void BendOutlet_setPort(BendOutlet *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->port;
+                self->port = value;
+                Port_incRef(self->port);
+                Port_decRef(old);
+            }
 CcOutlet *CcOutlet_new()
 {
-    CcOutlet *self = Mem_malloc(sizeof(CcOutlet));
-    CcOutlet_init(self);
-    return self;
+   CcOutlet *self = Mem_malloc(sizeof(CcOutlet));
+   self->itype       = CcOutlet_itype;
+   self->refCount    = 1;
+   self->cc = 0;
+   self->atoms = AtomAr_new();
+   self->port = Port_new();
+   return self;
 }
-void DecrementFrameDispatch_init(DecrementFrameDispatch *self)
+void CcOutlet_incRef(CcOutlet *self)
 {
-    self->itype = DecrementFrameDispatch_itype;
-    return;
+    self->refCount++;
 }
-void DecrementFrameDispatch_clear(DecrementFrameDispatch *self)
+void CcOutlet_decRef(CcOutlet *self)
 {
-    return;
-}
-void DecrementFrameDispatch_free(DecrementFrameDispatch *self)
-{
-   if (self != NULL) {
-        DecrementFrameDispatch_clear(self);
-        Mem_free(self);
+    self->refCount--;
+    if (self->refCount <= 0) {
+       AtomAr_decRef(self->atoms);        
+       Port_decRef(self->port);        
    }
+   return;
 }
+JSON_Value *CcOutlet_toJson(CcOutlet *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "CcOutlet") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type CcOutlet");
+       goto FAIL;
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = AtomAr_toJson(self->atoms, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "atoms", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of atoms on type CcOutlet");
+           goto FAIL;
+       }
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = Port_toJson(self->port, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "port", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of port on type CcOutlet");
+           goto FAIL;
+       }
+   }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
+}
+CcOutlet *CcOutlet_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "CcOutlet_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type CcOutlet");
+           return NULL;
+       } else if (strcmp(s, "CcOutlet") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'CcOutlet'", s);
+           return NULL;
+       }
+       
+   }
+
+   CcOutlet *self = CcOutlet_new();
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "atoms");
+       if (target == NULL) {
+           Error_format0(err, "'CcOutlet' json object does not contain a json value for 'atoms'");
+           goto FAIL;
+       }
+       self->atoms = CcOutlet_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "port");
+       if (target == NULL) {
+           Error_format0(err, "'CcOutlet' json object does not contain a json value for 'port'");
+           goto FAIL;
+       }
+       self->port = CcOutlet_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   return self;
+
+   FAIL:
+   CcOutlet_free(self);
+   return NULL;
+}
+CcOutlet *CcOutlet_clone(CcOutlet *self) {
+   CcOutlet *other = CcOutlet_new();
+   other->cc = self->cc;
+   other->atoms = AtomAr_clone(self->atoms);
+   other->port = Port_clone(self->port);
+   return self;
+}
+void CcOutlet_setAtoms(CcOutlet *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->atoms;
+                self->atoms = value;
+                AtomAr_incRef(self->atoms);
+                AtomAr_decRef(old);
+            }
+void CcOutlet_setPort(CcOutlet *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->port;
+                self->port = value;
+                Port_incRef(self->port);
+                Port_decRef(old);
+            }
 DecrementFrameDispatch *DecrementFrameDispatch_new()
 {
-    DecrementFrameDispatch *self = Mem_malloc(sizeof(DecrementFrameDispatch));
-    DecrementFrameDispatch_init(self);
-    return self;
+   DecrementFrameDispatch *self = Mem_malloc(sizeof(DecrementFrameDispatch));
+   self->itype       = DecrementFrameDispatch_itype;
+   self->refCount    = 1;
+   self->selector = 0;
+   self->portId = 0;
+   self->inlet = 0;
+   self->marshal = 0;
+   return self;
 }
-void DropDown_init(DropDown *self)
+void DecrementFrameDispatch_incRef(DecrementFrameDispatch *self)
 {
-    SymbolPtrAr_init(&self->table, 0);
-    self->selected = 0;
-    PortRef_init(&self->portRef);            
-    return;
+    self->refCount++;
 }
-void DropDown_clear(DropDown *self)
+void DecrementFrameDispatch_decRef(DecrementFrameDispatch *self)
 {
-    SymbolPtrAr_clear(&self->table);
-    PortRef_clear(&self->portRef);
-    return;
-}
-void DropDown_free(DropDown *self)
-{
-   if (self != NULL) {
-        DropDown_clear(self);
-        Mem_free(self);
+    self->refCount--;
+    if (self->refCount <= 0) {
    }
+   return;
 }
+JSON_Value *DecrementFrameDispatch_toJson(DecrementFrameDispatch *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "DecrementFrameDispatch") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type DecrementFrameDispatch");
+       goto FAIL;
+   }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
+}
+DecrementFrameDispatch *DecrementFrameDispatch_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "DecrementFrameDispatch_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type DecrementFrameDispatch");
+           return NULL;
+       } else if (strcmp(s, "DecrementFrameDispatch") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'DecrementFrameDispatch'", s);
+           return NULL;
+       }
+       
+   }
+
+   DecrementFrameDispatch *self = DecrementFrameDispatch_new();
+   return self;
+
+   FAIL:
+   DecrementFrameDispatch_free(self);
+   return NULL;
+}
+DecrementFrameDispatch *DecrementFrameDispatch_clone(DecrementFrameDispatch *self) {
+   DecrementFrameDispatch *other = DecrementFrameDispatch_new();
+   other->selector = self->selector;
+   other->portId = self->portId;
+   other->inlet = self->inlet;
+   other->marshal = self->marshal;
+   return self;
+}
+int Dispatch_nthIType(int n, int *itype);
+#define Dispatch_foreachIType(itype) for (int __##itype = 0, itype = 0; Dispatch_nthIType(__##itype, &itype); __##itype++)
+xvoid Dispatch_exec(Dispatch *self, Hub *a1, Arguments *a2, Error * a3, Error *err, Error *err)
+{
+   if (self == NULL) {
+       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_exec");
+       return 0;
+   }
+   switch(self->itype) {
+       case DecrementFrameDispatch_itype:
+           DecrementFrameDispatch_exec((DecrementFrameDispatch*)self, a1, a2, a3, err);
+           return;
+       case IncrementFrameDispatch_itype:
+           IncrementFrameDispatch_exec((IncrementFrameDispatch*)self, a1, a2, a3, err);
+           return;
+       case ManageChokeGroupsDispatch_itype:
+           ManageChokeGroupsDispatch_exec((ManageChokeGroupsDispatch*)self, a1, a2, a3, err);
+           return;
+       case MidiFileDropDispatch_itype:
+           MidiFileDropDispatch_exec((MidiFileDropDispatch*)self, a1, a2, a3, err);
+           return;
+       case SelectNextPushedPadDispatch_itype:
+           SelectNextPushedPadDispatch_exec((SelectNextPushedPadDispatch*)self, a1, a2, a3, err);
+           return;
+       default:
+           Error_format(err, "Failed to resolve interface call in SelectNextPushedPadDispatch_exec: found type %s", Interface_toString(self->itype));
+    }
+    return;
+}
+
+xDispatch *Dispatch_create(int itype, Error *err)
+{
+   if (self == NULL) {
+       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_create");
+       return NULL;
+   }
+   switch(itype) {
+       case DecrementFrameDispatch_itype:
+           return DecrementFrameDispatch_create(itype);
+       case IncrementFrameDispatch_itype:
+           return IncrementFrameDispatch_create(itype);
+       case ManageChokeGroupsDispatch_itype:
+           return ManageChokeGroupsDispatch_create(itype);
+       case MidiFileDropDispatch_itype:
+           return MidiFileDropDispatch_create(itype);
+       case SelectNextPushedPadDispatch_itype:
+           return SelectNextPushedPadDispatch_create(itype);
+       default:
+           Error_format(err, "Failed to resolve interface call in SelectNextPushedPadDispatch_create: found type %s", Interface_toString(itype));
+    }
+    return NULL;
+}
+
+xvoid Dispatch_free(Dispatch *self, Error *err)
+{
+   if (self == NULL) {
+       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_free");
+       return 0;
+   }
+   switch(self->itype) {
+       case DecrementFrameDispatch_itype:
+           Dispatch_freeDefault(self);
+           return;
+       case IncrementFrameDispatch_itype:
+           Dispatch_freeDefault(self);
+           return;
+       case ManageChokeGroupsDispatch_itype:
+           Dispatch_freeDefault(self);
+           return;
+       case MidiFileDropDispatch_itype:
+           Dispatch_freeDefault(self);
+           return;
+       case SelectNextPushedPadDispatch_itype:
+           Dispatch_freeDefault(self);
+           return;
+       default:
+           Error_format(err, "Failed to resolve interface call in SelectNextPushedPadDispatch_free: found type %s", Interface_toString(self->itype));
+    }
+    return;
+}
+
+xvoid Dispatch_initDispatchAr(int itype, DispatchAr *a1, Error * a2, Error *err, Error *err)
+{
+   if (self == NULL) {
+       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_initDispatchAr");
+       return 0;
+   }
+   switch(itype) {
+       case DecrementFrameDispatch_itype:
+           Dispatch_initDispatchArDefault(itype, a1, a2, err);
+           return;
+       case IncrementFrameDispatch_itype:
+           Dispatch_initDispatchArDefault(itype, a1, a2, err);
+           return;
+       case ManageChokeGroupsDispatch_itype:
+           ManageChokeGroupsDispatch_initDispatchAr(itype, a1, a2, err);
+           return;
+       case MidiFileDropDispatch_itype:
+           Dispatch_initDispatchArDefault(itype, a1, a2, err);
+           return;
+       case SelectNextPushedPadDispatch_itype:
+           Dispatch_initDispatchArDefault(itype, a1, a2, err);
+           return;
+       default:
+           Error_format(err, "Failed to resolve interface call in SelectNextPushedPadDispatch_initDispatchAr: found type %s", Interface_toString(itype));
+    }
+    return;
+}
+
+#define DispatchAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
+DispatchAr *DispatchAr_clone(DispatchAr *arr);
+void DispatchAr_decRef(DispatchAr *arr);
+void DispatchAr_fit(DispatchAr *arr);
+#define DispatchAr_foreach(var, arr)               for (DispatchArFIt var = {arr, false, 0, NULL};        DispatchArFIt_next(&var); )
+#define DispatchAr_foreachOffset(var, arr, offset) for (DispatchArFIt var = {arr, false, offset-1, NULL}; DispatchArFIt_next(&var); )
+DispatchAr *DispatchAr_fromJson(JSON_Value *jval, Error *err);
+Dispatch *DispatchAr_get(DispatchAr *arr, int index, Error *err);
+void DispatchAr_incRef(DispatchAr *arr);
+void DispatchAr_insert(DispatchAr *arr, int index, Dispatch *elem, Error *err);
+int DispatchAr_last(DispatchAr *arr);
+int DispatchAr_len(DispatchAr *arr);
+DispatchAr *DispatchAr_new();
+void DispatchAr_pop(DispatchAr *arr, Error *err);
+Dispatch *DispatchAr_pop(DispatchAr *arr, Error *err);
+void DispatchAr_push(DispatchAr *arr, Dispatch *elem);
+void DispatchAr_remove(DispatchAr *arr, int index, Error *err);
+void DispatchAr_reserve(DispatchAr *arr, int newCap);
+#define DispatchAr_rforeach(var, arr)               for (DispatchArFIt var = {arr, false, (arr)->len, NULL};        DispatchArFIt_next(&var); )
+#define DispatchAr_rforeachOffset(var, arr, offset) for (DispatchArFIt var = {arr, false, (arr)->len-offset, NULL}; DispatchArFIt_next(&var); )
+void DispatchAr_set(DispatchAr *arr, int index, Dispatch *elem, Error *err);
+JSON_Value *DispatchAr_toJson(DispatchAr *self, Error *err);
+void DispatchAr_truncate(DispatchAr *arr, int newLen);
+bool DispatchArFIt_next(DispatchArFIt *iterator);
+bool DispatchArRIt_next(DispatchArRIt *iterator);
+void DispatchAr_binInsert(DispatchAr *arr, Dispatch *elem);
+void DispatchAr_binRemove(DispatchAr *arr, Dispatch *elem);
+Dispatch *DispatchAr_binSearch(DispatchAr *arr, Dispatch *elem);
+Dispatch *DispatchAr_pqPeek(DispatchAr *arr);
+void DispatchAr_pqPopDecRef(DispatchAr *arr, Dispatch *elem);
+Dispatch *DispatchAr_pqPop(DispatchAr *arr);
+void DispatchAr_pqPush(DispatchAr *arr, Dispatch *elem);
+void DispatchAr_pqSort(DispatchAr *arr);
+void DispatchAr_sort(DispatchAr *arr);
 DropDown *DropDown_new()
 {
-    DropDown *self = Mem_malloc(sizeof(DropDown));
-    DropDown_init(self);
-    return self;
+   DropDown *self = Mem_malloc(sizeof(DropDown));
+   self->itype       = DropDown_itype;
+   self->refCount    = 1;
+   self->table = SymbolAr_new();
+   self->selected = 0;
+   self->outlet = Outlet_new();
+   return self;
 }
-void FloatEvent_init(FloatEvent *self)
+void DropDown_incRef(DropDown *self)
 {
-    self->stime = 0;
-    self->value = 0;
-    return;
+    self->refCount++;
 }
-void FloatEvent_clear(FloatEvent *self)
+void DropDown_decRef(DropDown *self)
 {
-    return;
-}
-void FloatEvent_free(FloatEvent *self)
-{
-   if (self != NULL) {
-        FloatEvent_clear(self);
-        Mem_free(self);
+    self->refCount--;
+    if (self->refCount <= 0) {
+       SymbolAr_decRef(self->table);        
+       Outlet_decRef(self->outlet);        
    }
+   return;
 }
+JSON_Value *DropDown_toJson(DropDown *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "DropDown") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type DropDown");
+       goto FAIL;
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = SymbolAr_toJson(self->table, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "table", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of table on type DropDown");
+           goto FAIL;
+       }
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = Outlet_toJson(self->outlet, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "outlet", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of outlet on type DropDown");
+           goto FAIL;
+       }
+   }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
+}
+DropDown *DropDown_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "DropDown_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type DropDown");
+           return NULL;
+       } else if (strcmp(s, "DropDown") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'DropDown'", s);
+           return NULL;
+       }
+       
+   }
+
+   DropDown *self = DropDown_new();
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "table");
+       if (target == NULL) {
+           Error_format0(err, "'DropDown' json object does not contain a json value for 'table'");
+           goto FAIL;
+       }
+       self->table = DropDown_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "outlet");
+       if (target == NULL) {
+           Error_format0(err, "'DropDown' json object does not contain a json value for 'outlet'");
+           goto FAIL;
+       }
+       self->outlet = DropDown_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   return self;
+
+   FAIL:
+   DropDown_free(self);
+   return NULL;
+}
+DropDown *DropDown_clone(DropDown *self) {
+   DropDown *other = DropDown_new();
+   other->table = SymbolAr_clone(self->table);
+   other->selected = self->selected;
+   other->outlet = Outlet_clone(self->outlet);
+   return self;
+}
+void DropDown_setTable(DropDown *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->table;
+                self->table = value;
+                SymbolAr_incRef(self->table);
+                SymbolAr_decRef(old);
+            }
+void DropDown_setOutlet(DropDown *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->outlet;
+                self->outlet = value;
+                Outlet_incRef(self->outlet);
+                Outlet_decRef(old);
+            }
 FloatEvent *FloatEvent_new()
 {
-    FloatEvent *self = Mem_malloc(sizeof(FloatEvent));
-    FloatEvent_init(self);
-    return self;
+   FloatEvent *self = Mem_malloc(sizeof(FloatEvent));
+   self->itype       = FloatEvent_itype;
+   self->refCount    = 1;
+   self->stime = 0;
+   self->value = 0;
+   return self;
 }
-void FloatSequence_init(FloatSequence *self)
+void FloatEvent_incRef(FloatEvent *self)
 {
-    self->itype = FloatSequence_itype;
-    self->version = 0;
-    self->startTime = 0;
-    OutletSpecifier_init(&self->outletSpecifier);            
-    self->sequenceLength = 0;
-    self->cursor = 0;
-    self->cycle = 0;
-    self->inEndgroup = 0;
-    self->outlet = NULL;
-    self->recordingSeq = NULL;
-    FloatEventAr_init(&self->events, 0);
-    self->restoreValue = 0;
-    return;
+    self->refCount++;
 }
-void FloatSequence_clear(FloatSequence *self)
+void FloatEvent_decRef(FloatEvent *self)
 {
-    OutletSpecifier_clear(&self->outletSpecifier);
-    FloatEventAr_clear(&self->events);
-    return;
-}
-void FloatSequence_free(FloatSequence *self)
-{
-   if (self != NULL) {
-        FloatSequence_clear(self);
-        Mem_free(self);
+    self->refCount--;
+    if (self->refCount <= 0) {
    }
+   return;
 }
+JSON_Value *FloatEvent_toJson(FloatEvent *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "FloatEvent") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type FloatEvent");
+       goto FAIL;
+   }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
+}
+FloatEvent *FloatEvent_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "FloatEvent_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type FloatEvent");
+           return NULL;
+       } else if (strcmp(s, "FloatEvent") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'FloatEvent'", s);
+           return NULL;
+       }
+       
+   }
+
+   FloatEvent *self = FloatEvent_new();
+   return self;
+
+   FAIL:
+   FloatEvent_free(self);
+   return NULL;
+}
+FloatEvent *FloatEvent_clone(FloatEvent *self) {
+   FloatEvent *other = FloatEvent_new();
+   other->stime = self->stime;
+   other->value = self->value;
+   return self;
+}
+#define FloatEventAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
+FloatEventAr *FloatEventAr_clone(FloatEventAr *arr);
+void FloatEventAr_decRef(FloatEventAr *arr);
+void FloatEventAr_fit(FloatEventAr *arr);
+#define FloatEventAr_foreach(var, arr)               for (FloatEventArFIt var = {arr, false, 0, NULL};        FloatEventArFIt_next(&var); )
+#define FloatEventAr_foreachOffset(var, arr, offset) for (FloatEventArFIt var = {arr, false, offset-1, NULL}; FloatEventArFIt_next(&var); )
+FloatEventAr *FloatEventAr_fromJson(JSON_Value *jval, Error *err);
+FloatEvent *FloatEventAr_get(FloatEventAr *arr, int index, Error *err);
+void FloatEventAr_incRef(FloatEventAr *arr);
+void FloatEventAr_insert(FloatEventAr *arr, int index, FloatEvent *elem, Error *err);
+int FloatEventAr_last(FloatEventAr *arr);
+int FloatEventAr_len(FloatEventAr *arr);
+FloatEventAr *FloatEventAr_new();
+void FloatEventAr_pop(FloatEventAr *arr, Error *err);
+FloatEvent *FloatEventAr_pop(FloatEventAr *arr, Error *err);
+void FloatEventAr_push(FloatEventAr *arr, FloatEvent *elem);
+void FloatEventAr_remove(FloatEventAr *arr, int index, Error *err);
+void FloatEventAr_reserve(FloatEventAr *arr, int newCap);
+#define FloatEventAr_rforeach(var, arr)               for (FloatEventArFIt var = {arr, false, (arr)->len, NULL};        FloatEventArFIt_next(&var); )
+#define FloatEventAr_rforeachOffset(var, arr, offset) for (FloatEventArFIt var = {arr, false, (arr)->len-offset, NULL}; FloatEventArFIt_next(&var); )
+void FloatEventAr_set(FloatEventAr *arr, int index, FloatEvent *elem, Error *err);
+JSON_Value *FloatEventAr_toJson(FloatEventAr *self, Error *err);
+void FloatEventAr_truncate(FloatEventAr *arr, int newLen);
+bool FloatEventArFIt_next(FloatEventArFIt *iterator);
+bool FloatEventArRIt_next(FloatEventArRIt *iterator);
+void FloatEventAr_binInsert(FloatEventAr *arr, FloatEvent *elem);
+void FloatEventAr_binRemove(FloatEventAr *arr, FloatEvent *elem);
+FloatEvent *FloatEventAr_binSearch(FloatEventAr *arr, FloatEvent *elem);
+FloatEvent *FloatEventAr_pqPeek(FloatEventAr *arr);
+void FloatEventAr_pqPopDecRef(FloatEventAr *arr, FloatEvent *elem);
+FloatEvent *FloatEventAr_pqPop(FloatEventAr *arr);
+void FloatEventAr_pqPush(FloatEventAr *arr, FloatEvent *elem);
+void FloatEventAr_pqSort(FloatEventAr *arr);
+void FloatEventAr_sort(FloatEventAr *arr);
 FloatSequence *FloatSequence_new()
 {
-    FloatSequence *self = Mem_malloc(sizeof(FloatSequence));
-    FloatSequence_init(self);
-    return self;
+   FloatSequence *self = Mem_malloc(sizeof(FloatSequence));
+   self->itype       = FloatSequence_itype;
+   self->refCount    = 1;
+   self->version = 0;
+   self->startTime = 0;
+   self->outletSpecifier = OutletSpecifier_new();
+   self->sequenceLength = 0;
+   self->cursor = 0;
+   self->cycle = 0;
+   self->inEndgroup = 0;
+   self->outlet = Outlet_new();
+   self->recordingSeq = 0;
+   self->events = FloatEventAr_new();
+   self->restoreValue = 0;
+   return self;
 }
-void Hub_init(Hub *self)
+void FloatSequence_incRef(FloatSequence *self)
 {
-    self->padList = PadList_new();
-    self->trackList = TrackList_new();
-    self->currBankPort = Port_new();
-    self->currFramePort = Port_new();
-    self->selBankPort = Port_new();
-    self->selFramePort = Port_new();
-    self->selPadPort = Port_new();
-    self->chokeGroupPort = Port_new();
-    DropDown_init(&self->cgLocalGlobalMenu);            
-    DropDown_init(&self->cgInstrumentMenu);            
-    DropDown_init(&self->cgIndexMenu);            
-    self->bank = 0;
-    self->frame = 0;
-    self->grabNextTappedPad = 0;
-    self->selectedPad = 0;
-    Arguments_init(&self->arguments);            
-    DispatchPtAr_init(&self->dispatcher, 0);
-    self->masterClock = 0;
-    return;
+    self->refCount++;
 }
-void Hub_clear(Hub *self)
+void FloatSequence_decRef(FloatSequence *self)
 {
-    PadList_free(self->padList);
-    TrackList_free(self->trackList);
-    Port_free(self->currBankPort);
-    Port_free(self->currFramePort);
-    Port_free(self->selBankPort);
-    Port_free(self->selFramePort);
-    Port_free(self->selPadPort);
-    Port_free(self->chokeGroupPort);
-    DropDown_clear(&self->cgLocalGlobalMenu);
-    DropDown_clear(&self->cgInstrumentMenu);
-    DropDown_clear(&self->cgIndexMenu);
-    Arguments_clear(&self->arguments);
-    DispatchPtAr_clear(&self->dispatcher);
-    return;
-}
-void Hub_free(Hub *self)
-{
-   if (self != NULL) {
-        Hub_clear(self);
-        Mem_free(self);
+    self->refCount--;
+    if (self->refCount <= 0) {
+       OutletSpecifier_decRef(self->outletSpecifier);        
+       Outlet_decRef(self->outlet);        
+       FloatEventAr_decRef(self->events);        
    }
+   return;
 }
+JSON_Value *FloatSequence_toJson(FloatSequence *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "FloatSequence") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type FloatSequence");
+       goto FAIL;
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = OutletSpecifier_toJson(self->outletSpecifier, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "outletSpecifier", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of outletSpecifier on type FloatSequence");
+           goto FAIL;
+       }
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = Outlet_toJson(self->outlet, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "outlet", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of outlet on type FloatSequence");
+           goto FAIL;
+       }
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = FloatEventAr_toJson(self->events, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "events", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of events on type FloatSequence");
+           goto FAIL;
+       }
+   }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
+}
+FloatSequence *FloatSequence_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "FloatSequence_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type FloatSequence");
+           return NULL;
+       } else if (strcmp(s, "FloatSequence") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'FloatSequence'", s);
+           return NULL;
+       }
+       
+   }
+
+   FloatSequence *self = FloatSequence_new();
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "outletSpecifier");
+       if (target == NULL) {
+           Error_format0(err, "'FloatSequence' json object does not contain a json value for 'outletSpecifier'");
+           goto FAIL;
+       }
+       self->outletSpecifier = FloatSequence_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "outlet");
+       if (target == NULL) {
+           Error_format0(err, "'FloatSequence' json object does not contain a json value for 'outlet'");
+           goto FAIL;
+       }
+       self->outlet = FloatSequence_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "events");
+       if (target == NULL) {
+           Error_format0(err, "'FloatSequence' json object does not contain a json value for 'events'");
+           goto FAIL;
+       }
+       self->events = FloatSequence_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   return self;
+
+   FAIL:
+   FloatSequence_free(self);
+   return NULL;
+}
+FloatSequence *FloatSequence_clone(FloatSequence *self) {
+   FloatSequence *other = FloatSequence_new();
+   other->version = self->version;
+   other->startTime = self->startTime;
+   other->outletSpecifier = OutletSpecifier_clone(self->outletSpecifier);
+   other->sequenceLength = self->sequenceLength;
+   other->cursor = self->cursor;
+   other->cycle = self->cycle;
+   other->inEndgroup = self->inEndgroup;
+   other->outlet = Outlet_clone(self->outlet);
+   other->recordingSeq = self->recordingSeq;
+   other->events = FloatEventAr_clone(self->events);
+   other->restoreValue = self->restoreValue;
+   return self;
+}
+void FloatSequence_setOutletSpecifier(FloatSequence *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->outletSpecifier;
+                self->outletSpecifier = value;
+                OutletSpecifier_incRef(self->outletSpecifier);
+                OutletSpecifier_decRef(old);
+            }
+void FloatSequence_setOutlet(FloatSequence *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->outlet;
+                self->outlet = value;
+                Outlet_incRef(self->outlet);
+                Outlet_decRef(old);
+            }
+void FloatSequence_setEvents(FloatSequence *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->events;
+                self->events = value;
+                FloatEventAr_incRef(self->events);
+                FloatEventAr_decRef(old);
+            }
 Hub *Hub_new()
 {
-    Hub *self = Mem_malloc(sizeof(Hub));
-    Hub_init(self);
-    return self;
+   Hub *self = Mem_malloc(sizeof(Hub));
+   self->itype       = Hub_itype;
+   self->refCount    = 1;
+   self->padList = PadAr_new();
+   self->trackList = TrackAr_new();
+   self->currBankPort = Port_new();
+   self->currFramePort = Port_new();
+   self->selBankPort = Port_new();
+   self->selFramePort = Port_new();
+   self->selPadPort = Port_new();
+   self->chokeGroupPort = Port_new();
+   self->cgLocalGlobalMenu = DropDown_new();
+   self->cgInstrumentMenu = DropDown_new();
+   self->cgIndexMenu = DropDown_new();
+   self->bank = 0;
+   self->frame = 0;
+   self->grabNextTappedPad = 0;
+   self->selectedPad = 0;
+   self->arguments = Arguments_new();
+   self->dispatcher = DispatchAr_new();
+   self->masterClock = 0;
+   return self;
 }
-void IncrementFrameDispatch_init(IncrementFrameDispatch *self)
+void Hub_incRef(Hub *self)
 {
-    self->itype = IncrementFrameDispatch_itype;
-    return;
+    self->refCount++;
 }
-void IncrementFrameDispatch_clear(IncrementFrameDispatch *self)
+void Hub_decRef(Hub *self)
 {
-    return;
-}
-void IncrementFrameDispatch_free(IncrementFrameDispatch *self)
-{
-   if (self != NULL) {
-        IncrementFrameDispatch_clear(self);
-        Mem_free(self);
+    self->refCount--;
+    if (self->refCount <= 0) {
+       PadAr_decRef(self->padList);        
+       TrackAr_decRef(self->trackList);        
+       Port_decRef(self->currBankPort);        
+       Port_decRef(self->currFramePort);        
+       Port_decRef(self->selBankPort);        
+       Port_decRef(self->selFramePort);        
+       Port_decRef(self->selPadPort);        
+       Port_decRef(self->chokeGroupPort);        
+       DropDown_decRef(self->cgLocalGlobalMenu);        
+       DropDown_decRef(self->cgInstrumentMenu);        
+       DropDown_decRef(self->cgIndexMenu);        
+       Arguments_decRef(self->arguments);        
+       DispatchAr_decRef(self->dispatcher);        
    }
+   return;
 }
+JSON_Value *Hub_toJson(Hub *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "Hub") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type Hub");
+       goto FAIL;
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = PadAr_toJson(self->padList, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "padList", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of padList on type Hub");
+           goto FAIL;
+       }
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = TrackAr_toJson(self->trackList, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "trackList", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of trackList on type Hub");
+           goto FAIL;
+       }
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = Port_toJson(self->currBankPort, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "currBankPort", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of currBankPort on type Hub");
+           goto FAIL;
+       }
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = Port_toJson(self->currFramePort, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "currFramePort", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of currFramePort on type Hub");
+           goto FAIL;
+       }
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = Port_toJson(self->selBankPort, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "selBankPort", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of selBankPort on type Hub");
+           goto FAIL;
+       }
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = Port_toJson(self->selFramePort, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "selFramePort", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of selFramePort on type Hub");
+           goto FAIL;
+       }
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = Port_toJson(self->selPadPort, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "selPadPort", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of selPadPort on type Hub");
+           goto FAIL;
+       }
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = Port_toJson(self->chokeGroupPort, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "chokeGroupPort", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of chokeGroupPort on type Hub");
+           goto FAIL;
+       }
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = DropDown_toJson(self->cgLocalGlobalMenu, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "cgLocalGlobalMenu", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of cgLocalGlobalMenu on type Hub");
+           goto FAIL;
+       }
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = DropDown_toJson(self->cgInstrumentMenu, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "cgInstrumentMenu", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of cgInstrumentMenu on type Hub");
+           goto FAIL;
+       }
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = DropDown_toJson(self->cgIndexMenu, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "cgIndexMenu", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of cgIndexMenu on type Hub");
+           goto FAIL;
+       }
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = Arguments_toJson(self->arguments, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "arguments", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of arguments on type Hub");
+           goto FAIL;
+       }
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = DispatchAr_toJson(self->dispatcher, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "dispatcher", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of dispatcher on type Hub");
+           goto FAIL;
+       }
+   }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
+}
+Hub *Hub_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "Hub_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type Hub");
+           return NULL;
+       } else if (strcmp(s, "Hub") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'Hub'", s);
+           return NULL;
+       }
+       
+   }
+
+   Hub *self = Hub_new();
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "padList");
+       if (target == NULL) {
+           Error_format0(err, "'Hub' json object does not contain a json value for 'padList'");
+           goto FAIL;
+       }
+       self->padList = Hub_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "trackList");
+       if (target == NULL) {
+           Error_format0(err, "'Hub' json object does not contain a json value for 'trackList'");
+           goto FAIL;
+       }
+       self->trackList = Hub_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "currBankPort");
+       if (target == NULL) {
+           Error_format0(err, "'Hub' json object does not contain a json value for 'currBankPort'");
+           goto FAIL;
+       }
+       self->currBankPort = Hub_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "currFramePort");
+       if (target == NULL) {
+           Error_format0(err, "'Hub' json object does not contain a json value for 'currFramePort'");
+           goto FAIL;
+       }
+       self->currFramePort = Hub_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "selBankPort");
+       if (target == NULL) {
+           Error_format0(err, "'Hub' json object does not contain a json value for 'selBankPort'");
+           goto FAIL;
+       }
+       self->selBankPort = Hub_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "selFramePort");
+       if (target == NULL) {
+           Error_format0(err, "'Hub' json object does not contain a json value for 'selFramePort'");
+           goto FAIL;
+       }
+       self->selFramePort = Hub_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "selPadPort");
+       if (target == NULL) {
+           Error_format0(err, "'Hub' json object does not contain a json value for 'selPadPort'");
+           goto FAIL;
+       }
+       self->selPadPort = Hub_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "chokeGroupPort");
+       if (target == NULL) {
+           Error_format0(err, "'Hub' json object does not contain a json value for 'chokeGroupPort'");
+           goto FAIL;
+       }
+       self->chokeGroupPort = Hub_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "cgLocalGlobalMenu");
+       if (target == NULL) {
+           Error_format0(err, "'Hub' json object does not contain a json value for 'cgLocalGlobalMenu'");
+           goto FAIL;
+       }
+       self->cgLocalGlobalMenu = Hub_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "cgInstrumentMenu");
+       if (target == NULL) {
+           Error_format0(err, "'Hub' json object does not contain a json value for 'cgInstrumentMenu'");
+           goto FAIL;
+       }
+       self->cgInstrumentMenu = Hub_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "cgIndexMenu");
+       if (target == NULL) {
+           Error_format0(err, "'Hub' json object does not contain a json value for 'cgIndexMenu'");
+           goto FAIL;
+       }
+       self->cgIndexMenu = Hub_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "arguments");
+       if (target == NULL) {
+           Error_format0(err, "'Hub' json object does not contain a json value for 'arguments'");
+           goto FAIL;
+       }
+       self->arguments = Hub_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "dispatcher");
+       if (target == NULL) {
+           Error_format0(err, "'Hub' json object does not contain a json value for 'dispatcher'");
+           goto FAIL;
+       }
+       self->dispatcher = Hub_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   return self;
+
+   FAIL:
+   Hub_free(self);
+   return NULL;
+}
+Hub *Hub_clone(Hub *self) {
+   Hub *other = Hub_new();
+   other->padList = PadAr_clone(self->padList);
+   other->trackList = TrackAr_clone(self->trackList);
+   other->currBankPort = Port_clone(self->currBankPort);
+   other->currFramePort = Port_clone(self->currFramePort);
+   other->selBankPort = Port_clone(self->selBankPort);
+   other->selFramePort = Port_clone(self->selFramePort);
+   other->selPadPort = Port_clone(self->selPadPort);
+   other->chokeGroupPort = Port_clone(self->chokeGroupPort);
+   other->cgLocalGlobalMenu = DropDown_clone(self->cgLocalGlobalMenu);
+   other->cgInstrumentMenu = DropDown_clone(self->cgInstrumentMenu);
+   other->cgIndexMenu = DropDown_clone(self->cgIndexMenu);
+   other->bank = self->bank;
+   other->frame = self->frame;
+   other->grabNextTappedPad = self->grabNextTappedPad;
+   other->selectedPad = self->selectedPad;
+   other->arguments = Arguments_clone(self->arguments);
+   other->dispatcher = DispatchAr_clone(self->dispatcher);
+   other->masterClock = self->masterClock;
+   return self;
+}
+void Hub_setPadList(Hub *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->padList;
+                self->padList = value;
+                PadAr_incRef(self->padList);
+                PadAr_decRef(old);
+            }
+void Hub_setTrackList(Hub *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->trackList;
+                self->trackList = value;
+                TrackAr_incRef(self->trackList);
+                TrackAr_decRef(old);
+            }
+void Hub_setCurrBankPort(Hub *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->currBankPort;
+                self->currBankPort = value;
+                Port_incRef(self->currBankPort);
+                Port_decRef(old);
+            }
+void Hub_setCurrFramePort(Hub *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->currFramePort;
+                self->currFramePort = value;
+                Port_incRef(self->currFramePort);
+                Port_decRef(old);
+            }
+void Hub_setSelBankPort(Hub *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->selBankPort;
+                self->selBankPort = value;
+                Port_incRef(self->selBankPort);
+                Port_decRef(old);
+            }
+void Hub_setSelFramePort(Hub *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->selFramePort;
+                self->selFramePort = value;
+                Port_incRef(self->selFramePort);
+                Port_decRef(old);
+            }
+void Hub_setSelPadPort(Hub *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->selPadPort;
+                self->selPadPort = value;
+                Port_incRef(self->selPadPort);
+                Port_decRef(old);
+            }
+void Hub_setChokeGroupPort(Hub *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->chokeGroupPort;
+                self->chokeGroupPort = value;
+                Port_incRef(self->chokeGroupPort);
+                Port_decRef(old);
+            }
+void Hub_setCgLocalGlobalMenu(Hub *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->cgLocalGlobalMenu;
+                self->cgLocalGlobalMenu = value;
+                DropDown_incRef(self->cgLocalGlobalMenu);
+                DropDown_decRef(old);
+            }
+void Hub_setCgInstrumentMenu(Hub *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->cgInstrumentMenu;
+                self->cgInstrumentMenu = value;
+                DropDown_incRef(self->cgInstrumentMenu);
+                DropDown_decRef(old);
+            }
+void Hub_setCgIndexMenu(Hub *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->cgIndexMenu;
+                self->cgIndexMenu = value;
+                DropDown_incRef(self->cgIndexMenu);
+                DropDown_decRef(old);
+            }
+void Hub_setArguments(Hub *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->arguments;
+                self->arguments = value;
+                Arguments_incRef(self->arguments);
+                Arguments_decRef(old);
+            }
+void Hub_setDispatcher(Hub *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->dispatcher;
+                self->dispatcher = value;
+                DispatchAr_incRef(self->dispatcher);
+                DispatchAr_decRef(old);
+            }
 IncrementFrameDispatch *IncrementFrameDispatch_new()
 {
-    IncrementFrameDispatch *self = Mem_malloc(sizeof(IncrementFrameDispatch));
-    IncrementFrameDispatch_init(self);
-    return self;
+   IncrementFrameDispatch *self = Mem_malloc(sizeof(IncrementFrameDispatch));
+   self->itype       = IncrementFrameDispatch_itype;
+   self->refCount    = 1;
+   self->selector = 0;
+   self->portId = 0;
+   self->inlet = 0;
+   self->marshal = 0;
+   return self;
 }
-void IndexedOff_init(IndexedOff *self)
+void IncrementFrameDispatch_incRef(IncrementFrameDispatch *self)
 {
-    self->padIndex = 0;
-    self->pitch = 0;
-    return;
+    self->refCount++;
 }
-void IndexedOff_clear(IndexedOff *self)
+void IncrementFrameDispatch_decRef(IncrementFrameDispatch *self)
 {
-    return;
-}
-void IndexedOff_free(IndexedOff *self)
-{
-   if (self != NULL) {
-        IndexedOff_clear(self);
-        Mem_free(self);
+    self->refCount--;
+    if (self->refCount <= 0) {
    }
+   return;
 }
-IndexedOff *IndexedOff_new()
-{
-    IndexedOff *self = Mem_malloc(sizeof(IndexedOff));
-    IndexedOff_init(self);
-    return self;
-}
-void ManageChokeGroupsDispatch_init(ManageChokeGroupsDispatch *self)
-{
-    self->itype = ManageChokeGroupsDispatch_itype;
-    return;
-}
-void ManageChokeGroupsDispatch_clear(ManageChokeGroupsDispatch *self)
-{
-    return;
-}
-void ManageChokeGroupsDispatch_free(ManageChokeGroupsDispatch *self)
-{
-   if (self != NULL) {
-        ManageChokeGroupsDispatch_clear(self);
-        Mem_free(self);
+JSON_Value *IncrementFrameDispatch_toJson(IncrementFrameDispatch *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "IncrementFrameDispatch") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type IncrementFrameDispatch");
+       goto FAIL;
    }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
 }
+IncrementFrameDispatch *IncrementFrameDispatch_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "IncrementFrameDispatch_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type IncrementFrameDispatch");
+           return NULL;
+       } else if (strcmp(s, "IncrementFrameDispatch") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'IncrementFrameDispatch'", s);
+           return NULL;
+       }
+       
+   }
+
+   IncrementFrameDispatch *self = IncrementFrameDispatch_new();
+   return self;
+
+   FAIL:
+   IncrementFrameDispatch_free(self);
+   return NULL;
+}
+IncrementFrameDispatch *IncrementFrameDispatch_clone(IncrementFrameDispatch *self) {
+   IncrementFrameDispatch *other = IncrementFrameDispatch_new();
+   other->selector = self->selector;
+   other->portId = self->portId;
+   other->inlet = self->inlet;
+   other->marshal = self->marshal;
+   return self;
+}
+Int *Int_new()
+{
+   Int *self = Mem_malloc(sizeof(Int));
+   self->itype       = Int_itype;
+   self->refCount    = 1;
+   self->i = 0;
+   return self;
+}
+void Int_incRef(Int *self)
+{
+    self->refCount++;
+}
+void Int_decRef(Int *self)
+{
+    self->refCount--;
+    if (self->refCount <= 0) {
+   }
+   return;
+}
+JSON_Value *Int_toJson(Int *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "Int") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type Int");
+       goto FAIL;
+   }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
+}
+Int *Int_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "Int_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type Int");
+           return NULL;
+       } else if (strcmp(s, "Int") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'Int'", s);
+           return NULL;
+       }
+       
+   }
+
+   Int *self = Int_new();
+   return self;
+
+   FAIL:
+   Int_free(self);
+   return NULL;
+}
+Int *Int_clone(Int *self) {
+   Int *other = Int_new();
+   other->i = self->i;
+   return self;
+}
+#define IntAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
+IntAr *IntAr_clone(IntAr *arr);
+void IntAr_decRef(IntAr *arr);
+void IntAr_fit(IntAr *arr);
+#define IntAr_foreach(var, arr)               for (IntArFIt var = {arr, false, 0, NULL};        IntArFIt_next(&var); )
+#define IntAr_foreachOffset(var, arr, offset) for (IntArFIt var = {arr, false, offset-1, NULL}; IntArFIt_next(&var); )
+IntAr *IntAr_fromJson(JSON_Value *jval, Error *err);
+Int *IntAr_get(IntAr *arr, int index, Error *err);
+void IntAr_incRef(IntAr *arr);
+void IntAr_insert(IntAr *arr, int index, Int *elem, Error *err);
+int IntAr_last(IntAr *arr);
+int IntAr_len(IntAr *arr);
+IntAr *IntAr_new();
+void IntAr_pop(IntAr *arr, Error *err);
+Int *IntAr_pop(IntAr *arr, Error *err);
+void IntAr_push(IntAr *arr, Int *elem);
+void IntAr_remove(IntAr *arr, int index, Error *err);
+void IntAr_reserve(IntAr *arr, int newCap);
+#define IntAr_rforeach(var, arr)               for (IntArFIt var = {arr, false, (arr)->len, NULL};        IntArFIt_next(&var); )
+#define IntAr_rforeachOffset(var, arr, offset) for (IntArFIt var = {arr, false, (arr)->len-offset, NULL}; IntArFIt_next(&var); )
+void IntAr_set(IntAr *arr, int index, Int *elem, Error *err);
+JSON_Value *IntAr_toJson(IntAr *self, Error *err);
+void IntAr_truncate(IntAr *arr, int newLen);
+bool IntArFIt_next(IntArFIt *iterator);
+bool IntArRIt_next(IntArRIt *iterator);
+void IntAr_binInsert(IntAr *arr, Int *elem);
+void IntAr_binRemove(IntAr *arr, Int *elem);
+Int *IntAr_binSearch(IntAr *arr, Int *elem);
+Int *IntAr_pqPeek(IntAr *arr);
+void IntAr_pqPopDecRef(IntAr *arr, Int *elem);
+Int *IntAr_pqPop(IntAr *arr);
+void IntAr_pqPush(IntAr *arr, Int *elem);
+void IntAr_pqSort(IntAr *arr);
+void IntAr_sort(IntAr *arr);
 ManageChokeGroupsDispatch *ManageChokeGroupsDispatch_new()
 {
-    ManageChokeGroupsDispatch *self = Mem_malloc(sizeof(ManageChokeGroupsDispatch));
-    ManageChokeGroupsDispatch_init(self);
-    return self;
+   ManageChokeGroupsDispatch *self = Mem_malloc(sizeof(ManageChokeGroupsDispatch));
+   self->itype       = ManageChokeGroupsDispatch_itype;
+   self->refCount    = 1;
+   self->selector = 0;
+   self->portId = 0;
+   self->inlet = 0;
+   self->marshal = 0;
+   return self;
 }
-void MarshalSi_init(MarshalSi *self)
+void ManageChokeGroupsDispatch_incRef(ManageChokeGroupsDispatch *self)
 {
-    self->itype = MarshalSi_itype;
-    return;
+    self->refCount++;
 }
-void MarshalSi_clear(MarshalSi *self)
+void ManageChokeGroupsDispatch_decRef(ManageChokeGroupsDispatch *self)
 {
-    return;
-}
-void MarshalSi_free(MarshalSi *self)
-{
-   if (self != NULL) {
-        MarshalSi_clear(self);
-        Mem_free(self);
+    self->refCount--;
+    if (self->refCount <= 0) {
    }
+   return;
 }
+JSON_Value *ManageChokeGroupsDispatch_toJson(ManageChokeGroupsDispatch *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "ManageChokeGroupsDispatch") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type ManageChokeGroupsDispatch");
+       goto FAIL;
+   }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
+}
+ManageChokeGroupsDispatch *ManageChokeGroupsDispatch_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "ManageChokeGroupsDispatch_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type ManageChokeGroupsDispatch");
+           return NULL;
+       } else if (strcmp(s, "ManageChokeGroupsDispatch") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'ManageChokeGroupsDispatch'", s);
+           return NULL;
+       }
+       
+   }
+
+   ManageChokeGroupsDispatch *self = ManageChokeGroupsDispatch_new();
+   return self;
+
+   FAIL:
+   ManageChokeGroupsDispatch_free(self);
+   return NULL;
+}
+ManageChokeGroupsDispatch *ManageChokeGroupsDispatch_clone(ManageChokeGroupsDispatch *self) {
+   ManageChokeGroupsDispatch *other = ManageChokeGroupsDispatch_new();
+   other->selector = self->selector;
+   other->portId = self->portId;
+   other->inlet = self->inlet;
+   other->marshal = self->marshal;
+   return self;
+}
+int Marshal_nthIType(int n, int *itype);
+#define Marshal_foreachIType(itype) for (int __##itype = 0, itype = 0; Marshal_nthIType(__##itype, &itype); __##itype++)
+xvoid Marshal_process(Marshal *self, Arguments *a1, long a2, Atom * a3, Error * a4, Error *err, Error *err)
+{
+   if (self == NULL) {
+       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_process");
+       return 0;
+   }
+   switch(self->itype) {
+       case MarshalSi_itype:
+           MarshalSi_process((MarshalSi*)self, a1, a2, a3, a4, err);
+           return;
+       case MarshalSii_itype:
+           MarshalSii_process((MarshalSii*)self, a1, a2, a3, a4, err);
+           return;
+       case MarshalSs_itype:
+           MarshalSs_process((MarshalSs*)self, a1, a2, a3, a4, err);
+           return;
+       default:
+           Error_format(err, "Failed to resolve interface call in MarshalSs_process: found type %s", Interface_toString(self->itype));
+    }
+    return;
+}
+
+xvoid Marshal_zeroArgs(Marshal *self, Arguments *a1, Error *err)
+{
+   if (self == NULL) {
+       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_zeroArgs");
+       return 0;
+   }
+   switch(self->itype) {
+       case MarshalSi_itype:
+           MarshalSi_zeroArgs((MarshalSi*)self, a1);
+           return;
+       case MarshalSii_itype:
+           MarshalSii_zeroArgs((MarshalSii*)self, a1);
+           return;
+       case MarshalSs_itype:
+           MarshalSs_zeroArgs((MarshalSs*)self, a1);
+           return;
+       default:
+           Error_format(err, "Failed to resolve interface call in MarshalSs_zeroArgs: found type %s", Interface_toString(self->itype));
+    }
+    return;
+}
+
 MarshalSi *MarshalSi_new()
 {
-    MarshalSi *self = Mem_malloc(sizeof(MarshalSi));
-    MarshalSi_init(self);
-    return self;
+   MarshalSi *self = Mem_malloc(sizeof(MarshalSi));
+   self->itype       = MarshalSi_itype;
+   self->refCount    = 1;
+   self->selector = 0;
+   self->portId = 0;
+   self->inlet = 0;
+   return self;
 }
-void MarshalSii_init(MarshalSii *self)
+void MarshalSi_incRef(MarshalSi *self)
 {
-    self->itype = MarshalSii_itype;
-    return;
+    self->refCount++;
 }
-void MarshalSii_clear(MarshalSii *self)
+void MarshalSi_decRef(MarshalSi *self)
 {
-    return;
-}
-void MarshalSii_free(MarshalSii *self)
-{
-   if (self != NULL) {
-        MarshalSii_clear(self);
-        Mem_free(self);
+    self->refCount--;
+    if (self->refCount <= 0) {
    }
+   return;
+}
+JSON_Value *MarshalSi_toJson(MarshalSi *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "MarshalSi") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type MarshalSi");
+       goto FAIL;
+   }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
+}
+MarshalSi *MarshalSi_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "MarshalSi_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type MarshalSi");
+           return NULL;
+       } else if (strcmp(s, "MarshalSi") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'MarshalSi'", s);
+           return NULL;
+       }
+       
+   }
+
+   MarshalSi *self = MarshalSi_new();
+   return self;
+
+   FAIL:
+   MarshalSi_free(self);
+   return NULL;
+}
+MarshalSi *MarshalSi_clone(MarshalSi *self) {
+   MarshalSi *other = MarshalSi_new();
+   other->selector = self->selector;
+   other->portId = self->portId;
+   other->inlet = self->inlet;
+   return self;
 }
 MarshalSii *MarshalSii_new()
 {
-    MarshalSii *self = Mem_malloc(sizeof(MarshalSii));
-    MarshalSii_init(self);
-    return self;
+   MarshalSii *self = Mem_malloc(sizeof(MarshalSii));
+   self->itype       = MarshalSii_itype;
+   self->refCount    = 1;
+   self->selector = 0;
+   self->portId = 0;
+   self->inlet = 0;
+   return self;
 }
-void MarshalSs_init(MarshalSs *self)
+void MarshalSii_incRef(MarshalSii *self)
 {
-    self->itype = MarshalSs_itype;
-    return;
+    self->refCount++;
 }
-void MarshalSs_clear(MarshalSs *self)
+void MarshalSii_decRef(MarshalSii *self)
 {
-    return;
-}
-void MarshalSs_free(MarshalSs *self)
-{
-   if (self != NULL) {
-        MarshalSs_clear(self);
-        Mem_free(self);
+    self->refCount--;
+    if (self->refCount <= 0) {
    }
+   return;
+}
+JSON_Value *MarshalSii_toJson(MarshalSii *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "MarshalSii") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type MarshalSii");
+       goto FAIL;
+   }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
+}
+MarshalSii *MarshalSii_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "MarshalSii_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type MarshalSii");
+           return NULL;
+       } else if (strcmp(s, "MarshalSii") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'MarshalSii'", s);
+           return NULL;
+       }
+       
+   }
+
+   MarshalSii *self = MarshalSii_new();
+   return self;
+
+   FAIL:
+   MarshalSii_free(self);
+   return NULL;
+}
+MarshalSii *MarshalSii_clone(MarshalSii *self) {
+   MarshalSii *other = MarshalSii_new();
+   other->selector = self->selector;
+   other->portId = self->portId;
+   other->inlet = self->inlet;
+   return self;
 }
 MarshalSs *MarshalSs_new()
 {
-    MarshalSs *self = Mem_malloc(sizeof(MarshalSs));
-    MarshalSs_init(self);
-    return self;
+   MarshalSs *self = Mem_malloc(sizeof(MarshalSs));
+   self->itype       = MarshalSs_itype;
+   self->refCount    = 1;
+   self->selector = 0;
+   self->portId = 0;
+   self->inlet = 0;
+   return self;
 }
-void MidiFileDropDispatch_init(MidiFileDropDispatch *self)
+void MarshalSs_incRef(MarshalSs *self)
 {
-    self->itype = MidiFileDropDispatch_itype;
-    return;
+    self->refCount++;
 }
-void MidiFileDropDispatch_clear(MidiFileDropDispatch *self)
+void MarshalSs_decRef(MarshalSs *self)
 {
-    return;
-}
-void MidiFileDropDispatch_free(MidiFileDropDispatch *self)
-{
-   if (self != NULL) {
-        MidiFileDropDispatch_clear(self);
-        Mem_free(self);
+    self->refCount--;
+    if (self->refCount <= 0) {
    }
+   return;
+}
+JSON_Value *MarshalSs_toJson(MarshalSs *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "MarshalSs") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type MarshalSs");
+       goto FAIL;
+   }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
+}
+MarshalSs *MarshalSs_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "MarshalSs_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type MarshalSs");
+           return NULL;
+       } else if (strcmp(s, "MarshalSs") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'MarshalSs'", s);
+           return NULL;
+       }
+       
+   }
+
+   MarshalSs *self = MarshalSs_new();
+   return self;
+
+   FAIL:
+   MarshalSs_free(self);
+   return NULL;
+}
+MarshalSs *MarshalSs_clone(MarshalSs *self) {
+   MarshalSs *other = MarshalSs_new();
+   other->selector = self->selector;
+   other->portId = self->portId;
+   other->inlet = self->inlet;
+   return self;
 }
 MidiFileDropDispatch *MidiFileDropDispatch_new()
 {
-    MidiFileDropDispatch *self = Mem_malloc(sizeof(MidiFileDropDispatch));
-    MidiFileDropDispatch_init(self);
-    return self;
+   MidiFileDropDispatch *self = Mem_malloc(sizeof(MidiFileDropDispatch));
+   self->itype       = MidiFileDropDispatch_itype;
+   self->refCount    = 1;
+   self->selector = 0;
+   self->portId = 0;
+   self->inlet = 0;
+   self->marshal = 0;
+   return self;
 }
-void Midiseq_init(Midiseq *self)
+void MidiFileDropDispatch_incRef(MidiFileDropDispatch *self)
 {
-    self->useMasterClock = 0;
-    self->sequenceLength = 0;
-    MEventAr_init(&self->events, 0);
-    self->startTime = 0;
-    self->ptr = 0;
-    Midiseq_userInit(self);
-    return;
+    self->refCount++;
 }
-void Midiseq_clear(Midiseq *self)
+void MidiFileDropDispatch_decRef(MidiFileDropDispatch *self)
 {
-    MEventAr_clear(&self->events);
-    return;
-}
-void Midiseq_free(Midiseq *self)
-{
-   if (self != NULL) {
-        Midiseq_clear(self);
-        Mem_free(self);
+    self->refCount--;
+    if (self->refCount <= 0) {
    }
+   return;
 }
-Midiseq *Midiseq_new()
-{
-    Midiseq *self = Mem_malloc(sizeof(Midiseq));
-    Midiseq_init(self);
-    return self;
-}
-void MusicalContext_init(MusicalContext *self)
-{
-    self->ticksPerQuarterNote = 0;
-    self->quarterNotesPerMeasure = 0;
-    return;
-}
-void MusicalContext_clear(MusicalContext *self)
-{
-    return;
-}
-void MusicalContext_free(MusicalContext *self)
-{
-   if (self != NULL) {
-        MusicalContext_clear(self);
-        Mem_free(self);
+JSON_Value *MidiFileDropDispatch_toJson(MidiFileDropDispatch *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "MidiFileDropDispatch") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type MidiFileDropDispatch");
+       goto FAIL;
    }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
+}
+MidiFileDropDispatch *MidiFileDropDispatch_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "MidiFileDropDispatch_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type MidiFileDropDispatch");
+           return NULL;
+       } else if (strcmp(s, "MidiFileDropDispatch") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'MidiFileDropDispatch'", s);
+           return NULL;
+       }
+       
+   }
+
+   MidiFileDropDispatch *self = MidiFileDropDispatch_new();
+   return self;
+
+   FAIL:
+   MidiFileDropDispatch_free(self);
+   return NULL;
+}
+MidiFileDropDispatch *MidiFileDropDispatch_clone(MidiFileDropDispatch *self) {
+   MidiFileDropDispatch *other = MidiFileDropDispatch_new();
+   other->selector = self->selector;
+   other->portId = self->portId;
+   other->inlet = self->inlet;
+   other->marshal = self->marshal;
+   return self;
 }
 MusicalContext *MusicalContext_new()
 {
-    MusicalContext *self = Mem_malloc(sizeof(MusicalContext));
-    MusicalContext_init(self);
-    return self;
+   MusicalContext *self = Mem_malloc(sizeof(MusicalContext));
+   self->itype       = MusicalContext_itype;
+   self->refCount    = 1;
+   self->ticksPerQuarterNote = 0;
+   self->quarterNotesPerMeasure = 0;
+   return self;
 }
-void NoteEvent_init(NoteEvent *self)
+void MusicalContext_incRef(MusicalContext *self)
 {
-    self->pitch = 0;
-    self->velocity = 0;
-    self->stime = 0;
-    self->duration = 0;
-    return;
+    self->refCount++;
 }
-void NoteEvent_clear(NoteEvent *self)
+void MusicalContext_decRef(MusicalContext *self)
 {
-    return;
-}
-void NoteEvent_free(NoteEvent *self)
-{
-   if (self != NULL) {
-        NoteEvent_clear(self);
-        Mem_free(self);
+    self->refCount--;
+    if (self->refCount <= 0) {
    }
+   return;
+}
+JSON_Value *MusicalContext_toJson(MusicalContext *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "MusicalContext") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type MusicalContext");
+       goto FAIL;
+   }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
+}
+MusicalContext *MusicalContext_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "MusicalContext_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type MusicalContext");
+           return NULL;
+       } else if (strcmp(s, "MusicalContext") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'MusicalContext'", s);
+           return NULL;
+       }
+       
+   }
+
+   MusicalContext *self = MusicalContext_new();
+   return self;
+
+   FAIL:
+   MusicalContext_free(self);
+   return NULL;
+}
+MusicalContext *MusicalContext_clone(MusicalContext *self) {
+   MusicalContext *other = MusicalContext_new();
+   other->ticksPerQuarterNote = self->ticksPerQuarterNote;
+   other->quarterNotesPerMeasure = self->quarterNotesPerMeasure;
+   return self;
 }
 NoteEvent *NoteEvent_new()
 {
-    NoteEvent *self = Mem_malloc(sizeof(NoteEvent));
-    NoteEvent_init(self);
-    return self;
+   NoteEvent *self = Mem_malloc(sizeof(NoteEvent));
+   self->itype       = NoteEvent_itype;
+   self->refCount    = 1;
+   self->pitch = 0;
+   self->velocity = 0;
+   self->stime = 0;
+   self->duration = 0;
+   return self;
 }
-void NoteManager_init(NoteManager *self)
+void NoteEvent_incRef(NoteEvent *self)
 {
-    TimedOffAr_init(&self->pending, 0);
-    IndexedOffAr_init(&self->endgroups, 0);
-    self->output = Port_new();
-    self->atoms = NULL;
-    NoteManager_userInit(self);
-    return;
+    self->refCount++;
 }
-void NoteManager_clear(NoteManager *self)
+void NoteEvent_decRef(NoteEvent *self)
 {
-    NoteManager_userClear(self);
-    TimedOffAr_clear(&self->pending);
-    IndexedOffAr_clear(&self->endgroups);
-    Port_free(self->output);
-    return;
-}
-void NoteManager_free(NoteManager *self)
-{
-   if (self != NULL) {
-        NoteManager_clear(self);
-        Mem_free(self);
+    self->refCount--;
+    if (self->refCount <= 0) {
    }
+   return;
 }
-NoteManager *NoteManager_new()
-{
-    NoteManager *self = Mem_malloc(sizeof(NoteManager));
-    NoteManager_init(self);
-    return self;
-}
-void NoteOutlet_init(NoteOutlet *self)
-{
-    self->itype = NoteOutlet_itype;
-    AtomAr_init(&self->atoms, 0);
-    self->port = Port_new();
-    return;
-}
-void NoteOutlet_clear(NoteOutlet *self)
-{
-    AtomAr_clear(&self->atoms);
-    Port_free(self->port);
-    return;
-}
-void NoteOutlet_free(NoteOutlet *self)
-{
-   if (self != NULL) {
-        NoteOutlet_clear(self);
-        Mem_free(self);
+JSON_Value *NoteEvent_toJson(NoteEvent *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "NoteEvent") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type NoteEvent");
+       goto FAIL;
    }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
 }
+NoteEvent *NoteEvent_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "NoteEvent_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type NoteEvent");
+           return NULL;
+       } else if (strcmp(s, "NoteEvent") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'NoteEvent'", s);
+           return NULL;
+       }
+       
+   }
+
+   NoteEvent *self = NoteEvent_new();
+   return self;
+
+   FAIL:
+   NoteEvent_free(self);
+   return NULL;
+}
+NoteEvent *NoteEvent_clone(NoteEvent *self) {
+   NoteEvent *other = NoteEvent_new();
+   other->pitch = self->pitch;
+   other->velocity = self->velocity;
+   other->stime = self->stime;
+   other->duration = self->duration;
+   return self;
+}
+#define NoteEventAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
+NoteEventAr *NoteEventAr_clone(NoteEventAr *arr);
+void NoteEventAr_decRef(NoteEventAr *arr);
+void NoteEventAr_fit(NoteEventAr *arr);
+#define NoteEventAr_foreach(var, arr)               for (NoteEventArFIt var = {arr, false, 0, NULL};        NoteEventArFIt_next(&var); )
+#define NoteEventAr_foreachOffset(var, arr, offset) for (NoteEventArFIt var = {arr, false, offset-1, NULL}; NoteEventArFIt_next(&var); )
+NoteEventAr *NoteEventAr_fromJson(JSON_Value *jval, Error *err);
+NoteEvent *NoteEventAr_get(NoteEventAr *arr, int index, Error *err);
+void NoteEventAr_incRef(NoteEventAr *arr);
+void NoteEventAr_insert(NoteEventAr *arr, int index, NoteEvent *elem, Error *err);
+int NoteEventAr_last(NoteEventAr *arr);
+int NoteEventAr_len(NoteEventAr *arr);
+NoteEventAr *NoteEventAr_new();
+void NoteEventAr_pop(NoteEventAr *arr, Error *err);
+NoteEvent *NoteEventAr_pop(NoteEventAr *arr, Error *err);
+void NoteEventAr_push(NoteEventAr *arr, NoteEvent *elem);
+void NoteEventAr_remove(NoteEventAr *arr, int index, Error *err);
+void NoteEventAr_reserve(NoteEventAr *arr, int newCap);
+#define NoteEventAr_rforeach(var, arr)               for (NoteEventArFIt var = {arr, false, (arr)->len, NULL};        NoteEventArFIt_next(&var); )
+#define NoteEventAr_rforeachOffset(var, arr, offset) for (NoteEventArFIt var = {arr, false, (arr)->len-offset, NULL}; NoteEventArFIt_next(&var); )
+void NoteEventAr_set(NoteEventAr *arr, int index, NoteEvent *elem, Error *err);
+JSON_Value *NoteEventAr_toJson(NoteEventAr *self, Error *err);
+void NoteEventAr_truncate(NoteEventAr *arr, int newLen);
+bool NoteEventArFIt_next(NoteEventArFIt *iterator);
+bool NoteEventArRIt_next(NoteEventArRIt *iterator);
+void NoteEventAr_binInsert(NoteEventAr *arr, NoteEvent *elem);
+void NoteEventAr_binRemove(NoteEventAr *arr, NoteEvent *elem);
+NoteEvent *NoteEventAr_binSearch(NoteEventAr *arr, NoteEvent *elem);
+NoteEvent *NoteEventAr_pqPeek(NoteEventAr *arr);
+void NoteEventAr_pqPopDecRef(NoteEventAr *arr, NoteEvent *elem);
+NoteEvent *NoteEventAr_pqPop(NoteEventAr *arr);
+void NoteEventAr_pqPush(NoteEventAr *arr, NoteEvent *elem);
+void NoteEventAr_pqSort(NoteEventAr *arr);
+void NoteEventAr_sort(NoteEventAr *arr);
 NoteOutlet *NoteOutlet_new()
 {
-    NoteOutlet *self = Mem_malloc(sizeof(NoteOutlet));
-    NoteOutlet_init(self);
-    return self;
+   NoteOutlet *self = Mem_malloc(sizeof(NoteOutlet));
+   self->itype       = NoteOutlet_itype;
+   self->refCount    = 1;
+   self->atoms = AtomAr_new();
+   self->port = Port_new();
+   return self;
 }
-void NoteSequence_init(NoteSequence *self)
+void NoteOutlet_incRef(NoteOutlet *self)
 {
-    self->itype = NoteSequence_itype;
-    self->version = 0;
-    self->startTime = 0;
-    OutletSpecifier_init(&self->outletSpecifier);            
-    self->sequenceLength = 0;
-    self->cursor = 0;
-    self->cycle = 0;
-    self->nextOffEvent = 0;
-    self->nextOnEvent = 0;
-    self->inEndgroup = 0;
-    self->outlet = NULL;
-    self->recordingSeq = NULL;
-    TimedOffAr_init(&self->offs, 0);
-    NoteEventAr_init(&self->events, 0);
-    return;
+    self->refCount++;
 }
-void NoteSequence_clear(NoteSequence *self)
+void NoteOutlet_decRef(NoteOutlet *self)
 {
-    OutletSpecifier_clear(&self->outletSpecifier);
-    TimedOffAr_clear(&self->offs);
-    NoteEventAr_clear(&self->events);
-    return;
-}
-void NoteSequence_free(NoteSequence *self)
-{
-   if (self != NULL) {
-        NoteSequence_clear(self);
-        Mem_free(self);
+    self->refCount--;
+    if (self->refCount <= 0) {
+       AtomAr_decRef(self->atoms);        
+       Port_decRef(self->port);        
    }
+   return;
 }
+JSON_Value *NoteOutlet_toJson(NoteOutlet *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "NoteOutlet") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type NoteOutlet");
+       goto FAIL;
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = AtomAr_toJson(self->atoms, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "atoms", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of atoms on type NoteOutlet");
+           goto FAIL;
+       }
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = Port_toJson(self->port, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "port", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of port on type NoteOutlet");
+           goto FAIL;
+       }
+   }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
+}
+NoteOutlet *NoteOutlet_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "NoteOutlet_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type NoteOutlet");
+           return NULL;
+       } else if (strcmp(s, "NoteOutlet") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'NoteOutlet'", s);
+           return NULL;
+       }
+       
+   }
+
+   NoteOutlet *self = NoteOutlet_new();
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "atoms");
+       if (target == NULL) {
+           Error_format0(err, "'NoteOutlet' json object does not contain a json value for 'atoms'");
+           goto FAIL;
+       }
+       self->atoms = NoteOutlet_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "port");
+       if (target == NULL) {
+           Error_format0(err, "'NoteOutlet' json object does not contain a json value for 'port'");
+           goto FAIL;
+       }
+       self->port = NoteOutlet_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   return self;
+
+   FAIL:
+   NoteOutlet_free(self);
+   return NULL;
+}
+NoteOutlet *NoteOutlet_clone(NoteOutlet *self) {
+   NoteOutlet *other = NoteOutlet_new();
+   other->atoms = AtomAr_clone(self->atoms);
+   other->port = Port_clone(self->port);
+   return self;
+}
+void NoteOutlet_setAtoms(NoteOutlet *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->atoms;
+                self->atoms = value;
+                AtomAr_incRef(self->atoms);
+                AtomAr_decRef(old);
+            }
+void NoteOutlet_setPort(NoteOutlet *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->port;
+                self->port = value;
+                Port_incRef(self->port);
+                Port_decRef(old);
+            }
 NoteSequence *NoteSequence_new()
 {
-    NoteSequence *self = Mem_malloc(sizeof(NoteSequence));
-    NoteSequence_init(self);
-    return self;
+   NoteSequence *self = Mem_malloc(sizeof(NoteSequence));
+   self->itype       = NoteSequence_itype;
+   self->refCount    = 1;
+   self->version = 0;
+   self->startTime = 0;
+   self->outletSpecifier = OutletSpecifier_new();
+   self->sequenceLength = 0;
+   self->cursor = 0;
+   self->cycle = 0;
+   self->nextOffEvent = 0;
+   self->nextOnEvent = 0;
+   self->inEndgroup = 0;
+   self->outlet = Outlet_new();
+   self->recordingSeq = 0;
+   self->offs = TimedOffAr_new();
+   self->events = NoteEventAr_new();
+   return self;
 }
-void NullOutlet_init(NullOutlet *self)
+void NoteSequence_incRef(NoteSequence *self)
 {
-    self->itype = NullOutlet_itype;
-    self->unused = 0;
-    return;
+    self->refCount++;
 }
-void NullOutlet_clear(NullOutlet *self)
+void NoteSequence_decRef(NoteSequence *self)
 {
-    return;
-}
-void NullOutlet_free(NullOutlet *self)
-{
-   if (self != NULL) {
-        NullOutlet_clear(self);
-        Mem_free(self);
+    self->refCount--;
+    if (self->refCount <= 0) {
+       OutletSpecifier_decRef(self->outletSpecifier);        
+       Outlet_decRef(self->outlet);        
+       TimedOffAr_decRef(self->offs);        
+       NoteEventAr_decRef(self->events);        
    }
+   return;
 }
+JSON_Value *NoteSequence_toJson(NoteSequence *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "NoteSequence") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type NoteSequence");
+       goto FAIL;
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = OutletSpecifier_toJson(self->outletSpecifier, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "outletSpecifier", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of outletSpecifier on type NoteSequence");
+           goto FAIL;
+       }
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = Outlet_toJson(self->outlet, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "outlet", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of outlet on type NoteSequence");
+           goto FAIL;
+       }
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = TimedOffAr_toJson(self->offs, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "offs", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of offs on type NoteSequence");
+           goto FAIL;
+       }
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = NoteEventAr_toJson(self->events, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "events", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of events on type NoteSequence");
+           goto FAIL;
+       }
+   }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
+}
+NoteSequence *NoteSequence_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "NoteSequence_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type NoteSequence");
+           return NULL;
+       } else if (strcmp(s, "NoteSequence") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'NoteSequence'", s);
+           return NULL;
+       }
+       
+   }
+
+   NoteSequence *self = NoteSequence_new();
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "outletSpecifier");
+       if (target == NULL) {
+           Error_format0(err, "'NoteSequence' json object does not contain a json value for 'outletSpecifier'");
+           goto FAIL;
+       }
+       self->outletSpecifier = NoteSequence_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "outlet");
+       if (target == NULL) {
+           Error_format0(err, "'NoteSequence' json object does not contain a json value for 'outlet'");
+           goto FAIL;
+       }
+       self->outlet = NoteSequence_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "offs");
+       if (target == NULL) {
+           Error_format0(err, "'NoteSequence' json object does not contain a json value for 'offs'");
+           goto FAIL;
+       }
+       self->offs = NoteSequence_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "events");
+       if (target == NULL) {
+           Error_format0(err, "'NoteSequence' json object does not contain a json value for 'events'");
+           goto FAIL;
+       }
+       self->events = NoteSequence_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   return self;
+
+   FAIL:
+   NoteSequence_free(self);
+   return NULL;
+}
+NoteSequence *NoteSequence_clone(NoteSequence *self) {
+   NoteSequence *other = NoteSequence_new();
+   other->version = self->version;
+   other->startTime = self->startTime;
+   other->outletSpecifier = OutletSpecifier_clone(self->outletSpecifier);
+   other->sequenceLength = self->sequenceLength;
+   other->cursor = self->cursor;
+   other->cycle = self->cycle;
+   other->nextOffEvent = self->nextOffEvent;
+   other->nextOnEvent = self->nextOnEvent;
+   other->inEndgroup = self->inEndgroup;
+   other->outlet = Outlet_clone(self->outlet);
+   other->recordingSeq = self->recordingSeq;
+   other->offs = TimedOffAr_clone(self->offs);
+   other->events = NoteEventAr_clone(self->events);
+   return self;
+}
+void NoteSequence_setOutletSpecifier(NoteSequence *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->outletSpecifier;
+                self->outletSpecifier = value;
+                OutletSpecifier_incRef(self->outletSpecifier);
+                OutletSpecifier_decRef(old);
+            }
+void NoteSequence_setOutlet(NoteSequence *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->outlet;
+                self->outlet = value;
+                Outlet_incRef(self->outlet);
+                Outlet_decRef(old);
+            }
+void NoteSequence_setOffs(NoteSequence *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->offs;
+                self->offs = value;
+                TimedOffAr_incRef(self->offs);
+                TimedOffAr_decRef(old);
+            }
+void NoteSequence_setEvents(NoteSequence *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->events;
+                self->events = value;
+                NoteEventAr_incRef(self->events);
+                NoteEventAr_decRef(old);
+            }
 NullOutlet *NullOutlet_new()
 {
-    NullOutlet *self = Mem_malloc(sizeof(NullOutlet));
-    NullOutlet_init(self);
-    return self;
+   NullOutlet *self = Mem_malloc(sizeof(NullOutlet));
+   self->itype       = NullOutlet_itype;
+   self->refCount    = 1;
+   self->unused = 0;
+   return self;
 }
-void OutletSpecifier_init(OutletSpecifier *self)
+void NullOutlet_incRef(NullOutlet *self)
 {
-    self->track = NULL;
-    self->pluginIndex = 0;
-    self->parameter = NULL;
-    self->paramIndex = 0;
-    return;
+    self->refCount++;
 }
-void OutletSpecifier_clear(OutletSpecifier *self)
+void NullOutlet_decRef(NullOutlet *self)
 {
-    return;
-}
-void OutletSpecifier_free(OutletSpecifier *self)
-{
-   if (self != NULL) {
-        OutletSpecifier_clear(self);
-        Mem_free(self);
+    self->refCount--;
+    if (self->refCount <= 0) {
    }
+   return;
 }
+JSON_Value *NullOutlet_toJson(NullOutlet *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "NullOutlet") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type NullOutlet");
+       goto FAIL;
+   }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
+}
+NullOutlet *NullOutlet_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "NullOutlet_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type NullOutlet");
+           return NULL;
+       } else if (strcmp(s, "NullOutlet") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'NullOutlet'", s);
+           return NULL;
+       }
+       
+   }
+
+   NullOutlet *self = NullOutlet_new();
+   return self;
+
+   FAIL:
+   NullOutlet_free(self);
+   return NULL;
+}
+NullOutlet *NullOutlet_clone(NullOutlet *self) {
+   NullOutlet *other = NullOutlet_new();
+   other->unused = self->unused;
+   return self;
+}
+int Outlet_nthIType(int n, int *itype);
+#define Outlet_foreachIType(itype) for (int __##itype = 0, itype = 0; Outlet_nthIType(__##itype, &itype); __##itype++)
+xvoid Outlet_sendNote(Outlet *self, uint8_t a1, uint8_t a2, Error *err)
+{
+   if (self == NULL) {
+       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_sendNote");
+       return 0;
+   }
+   switch(self->itype) {
+       case BendOutlet_itype:
+           return;
+       case CcOutlet_itype:
+           return;
+       case NoteOutlet_itype:
+           NoteOutlet_sendNote((NoteOutlet*)self, a1, a2);
+           return;
+       case NullOutlet_itype:
+           return;
+       case VstOutlet_itype:
+           return;
+       default:
+           Error_format(err, "Failed to resolve interface call in VstOutlet_sendNote: found type %s", Interface_toString(self->itype));
+    }
+    return;
+}
+
+xvoid Outlet_sendFloat(Outlet *self, double a1, Error *err)
+{
+   if (self == NULL) {
+       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_sendFloat");
+       return 0;
+   }
+   switch(self->itype) {
+       case BendOutlet_itype:
+           BendOutlet_sendFloat((BendOutlet*)self, a1);
+           return;
+       case CcOutlet_itype:
+           CcOutlet_sendFloat((CcOutlet*)self, a1);
+           return;
+       case NoteOutlet_itype:
+           return;
+       case NullOutlet_itype:
+           return;
+       case VstOutlet_itype:
+           VstOutlet_sendFloat((VstOutlet*)self, a1);
+           return;
+       default:
+           Error_format(err, "Failed to resolve interface call in VstOutlet_sendFloat: found type %s", Interface_toString(self->itype));
+    }
+    return;
+}
+
 OutletSpecifier *OutletSpecifier_new()
 {
-    OutletSpecifier *self = Mem_malloc(sizeof(OutletSpecifier));
-    OutletSpecifier_init(self);
-    return self;
+   OutletSpecifier *self = Mem_malloc(sizeof(OutletSpecifier));
+   self->itype       = OutletSpecifier_itype;
+   self->refCount    = 1;
+   self->track = 0;
+   self->pluginIndex = 0;
+   self->parameter = 0;
+   self->paramIndex = 0;
+   return self;
 }
-void Pad_init(Pad *self)
+void OutletSpecifier_incRef(OutletSpecifier *self)
 {
-    self->trackName = NULL;
-    self->padIndex = 0;
-    self->sequence = Midiseq_new();
-    self->chokeGroupGlobal = 0;
-    self->chokeGroupInstrument = 0;
-    self->chokeGroupIndex = 0;
-    self->chokeGroup = 0;
-    self->noteReleasePending = 0;
-    self->inEndgroup = 0;
-    self->track = Track_new();
-    self->useMasterClock = 0;
-    return;
+    self->refCount++;
 }
-void Pad_clear(Pad *self)
+void OutletSpecifier_decRef(OutletSpecifier *self)
 {
-    Midiseq_free(self->sequence);
-    Track_free(self->track);
-    return;
-}
-void Pad_free(Pad *self)
-{
-   if (self != NULL) {
-        Pad_clear(self);
-        Mem_free(self);
+    self->refCount--;
+    if (self->refCount <= 0) {
    }
+   return;
+}
+JSON_Value *OutletSpecifier_toJson(OutletSpecifier *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "OutletSpecifier") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type OutletSpecifier");
+       goto FAIL;
+   }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
+}
+OutletSpecifier *OutletSpecifier_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "OutletSpecifier_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type OutletSpecifier");
+           return NULL;
+       } else if (strcmp(s, "OutletSpecifier") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'OutletSpecifier'", s);
+           return NULL;
+       }
+       
+   }
+
+   OutletSpecifier *self = OutletSpecifier_new();
+   return self;
+
+   FAIL:
+   OutletSpecifier_free(self);
+   return NULL;
+}
+OutletSpecifier *OutletSpecifier_clone(OutletSpecifier *self) {
+   OutletSpecifier *other = OutletSpecifier_new();
+   other->track = self->track;
+   other->pluginIndex = self->pluginIndex;
+   other->parameter = self->parameter;
+   other->paramIndex = self->paramIndex;
+   return self;
 }
 Pad *Pad_new()
 {
-    Pad *self = Mem_malloc(sizeof(Pad));
-    Pad_init(self);
-    return self;
+   Pad *self = Mem_malloc(sizeof(Pad));
+   self->itype       = Pad_itype;
+   self->refCount    = 1;
+   self->trackName = 0;
+   self->padIndex = 0;
+   self->SequenceAr = Sequence_new();
+   self->chokeGroupGlobal = 0;
+   self->chokeGroupInstrument = 0;
+   self->chokeGroupIndex = 0;
+   self->chokeGroup = 0;
+   self->noteReleasePending = 0;
+   self->inEndgroup = 0;
+   self->track = Track_new();
+   self->useMasterClock = 0;
+   return self;
 }
-void PadList_init(PadList *self)
+void Pad_incRef(Pad *self)
 {
-    PadAr_init(&self->pads, 0);
-    PadPtrAr_init(&self->running, 0);
-    return;
+    self->refCount++;
 }
-void PadList_clear(PadList *self)
+void Pad_decRef(Pad *self)
 {
-    PadAr_clear(&self->pads);
-    PadPtrAr_clear(&self->running);
-    return;
-}
-void PadList_free(PadList *self)
-{
-   if (self != NULL) {
-        PadList_clear(self);
-        Mem_free(self);
+    self->refCount--;
+    if (self->refCount <= 0) {
+       Sequence_decRef(self->SequenceAr);        
+       Track_decRef(self->track);        
    }
+   return;
 }
-PadList *PadList_new()
-{
-    PadList *self = Mem_malloc(sizeof(PadList));
-    PadList_init(self);
-    return self;
-}
-void PortFind_init(PortFind *self)
-{
-    PortFindCellAr_init(&self->objects, 0);
-    self->hub = NULL;
-    self->anythingDispatch = 0;
-    self->intDispatch = 0;
-    return;
-}
-void PortFind_clear(PortFind *self)
-{
-    PortFindCellAr_clear(&self->objects);
-    return;
-}
-void PortFind_free(PortFind *self)
-{
-   if (self != NULL) {
-        PortFind_clear(self);
-        Mem_free(self);
+JSON_Value *Pad_toJson(Pad *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "Pad") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type Pad");
+       goto FAIL;
    }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = Sequence_toJson(self->SequenceAr, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "SequenceAr", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of SequenceAr on type Pad");
+           goto FAIL;
+       }
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = Track_toJson(self->track, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "track", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of track on type Pad");
+           goto FAIL;
+       }
+   }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
 }
+Pad *Pad_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "Pad_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type Pad");
+           return NULL;
+       } else if (strcmp(s, "Pad") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'Pad'", s);
+           return NULL;
+       }
+       
+   }
+
+   Pad *self = Pad_new();
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "SequenceAr");
+       if (target == NULL) {
+           Error_format0(err, "'Pad' json object does not contain a json value for 'SequenceAr'");
+           goto FAIL;
+       }
+       self->SequenceAr = Pad_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "track");
+       if (target == NULL) {
+           Error_format0(err, "'Pad' json object does not contain a json value for 'track'");
+           goto FAIL;
+       }
+       self->track = Pad_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   return self;
+
+   FAIL:
+   Pad_free(self);
+   return NULL;
+}
+Pad *Pad_clone(Pad *self) {
+   Pad *other = Pad_new();
+   other->trackName = self->trackName;
+   other->padIndex = self->padIndex;
+   other->SequenceAr = Sequence_clone(self->SequenceAr);
+   other->chokeGroupGlobal = self->chokeGroupGlobal;
+   other->chokeGroupInstrument = self->chokeGroupInstrument;
+   other->chokeGroupIndex = self->chokeGroupIndex;
+   other->chokeGroup = self->chokeGroup;
+   other->noteReleasePending = self->noteReleasePending;
+   other->inEndgroup = self->inEndgroup;
+   other->track = Track_clone(self->track);
+   other->useMasterClock = self->useMasterClock;
+   return self;
+}
+void Pad_setSequenceAr(Pad *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->SequenceAr;
+                self->SequenceAr = value;
+                Sequence_incRef(self->SequenceAr);
+                Sequence_decRef(old);
+            }
+void Pad_setTrack(Pad *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->track;
+                self->track = value;
+                Track_incRef(self->track);
+                Track_decRef(old);
+            }
+#define PadAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
+PadAr *PadAr_clone(PadAr *arr);
+void PadAr_decRef(PadAr *arr);
+void PadAr_fit(PadAr *arr);
+#define PadAr_foreach(var, arr)               for (PadArFIt var = {arr, false, 0, NULL};        PadArFIt_next(&var); )
+#define PadAr_foreachOffset(var, arr, offset) for (PadArFIt var = {arr, false, offset-1, NULL}; PadArFIt_next(&var); )
+PadAr *PadAr_fromJson(JSON_Value *jval, Error *err);
+Pad *PadAr_get(PadAr *arr, int index, Error *err);
+void PadAr_incRef(PadAr *arr);
+void PadAr_insert(PadAr *arr, int index, Pad *elem, Error *err);
+int PadAr_last(PadAr *arr);
+int PadAr_len(PadAr *arr);
+PadAr *PadAr_new();
+void PadAr_pop(PadAr *arr, Error *err);
+Pad *PadAr_pop(PadAr *arr, Error *err);
+void PadAr_push(PadAr *arr, Pad *elem);
+void PadAr_remove(PadAr *arr, int index, Error *err);
+void PadAr_reserve(PadAr *arr, int newCap);
+#define PadAr_rforeach(var, arr)               for (PadArFIt var = {arr, false, (arr)->len, NULL};        PadArFIt_next(&var); )
+#define PadAr_rforeachOffset(var, arr, offset) for (PadArFIt var = {arr, false, (arr)->len-offset, NULL}; PadArFIt_next(&var); )
+void PadAr_set(PadAr *arr, int index, Pad *elem, Error *err);
+JSON_Value *PadAr_toJson(PadAr *self, Error *err);
+void PadAr_truncate(PadAr *arr, int newLen);
+bool PadArFIt_next(PadArFIt *iterator);
+bool PadArRIt_next(PadArRIt *iterator);
+void Port_setProxy(Port *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->proxy;
+                self->proxy = value;
+                PtrAr_incRef(self->proxy);
+                PtrAr_decRef(old);
+            }
+void Port_setOutlet(Port *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->outlet;
+                self->outlet = value;
+                PtrAr_incRef(self->outlet);
+                PtrAr_decRef(old);
+            }
 PortFind *PortFind_new()
 {
-    PortFind *self = Mem_malloc(sizeof(PortFind));
-    PortFind_init(self);
-    return self;
+   PortFind *self = Mem_malloc(sizeof(PortFind));
+   self->itype       = PortFind_itype;
+   self->refCount    = 1;
+   self->objects = PortFindCellAr_new();
+   self->hub = 0;
+   self->anythingDispatch = 0;
+   self->intDispatch = 0;
+   return self;
 }
-void PortFindCell_init(PortFindCell *self)
+void PortFind_incRef(PortFind *self)
 {
-    self->reciever = Port_new();
-    self->varname = NULL;
-    return;
+    self->refCount++;
 }
-void PortFindCell_clear(PortFindCell *self)
+void PortFind_decRef(PortFind *self)
 {
-    Port_free(self->reciever);
-    return;
-}
-void PortFindCell_free(PortFindCell *self)
-{
-   if (self != NULL) {
-        PortFindCell_clear(self);
-        Mem_free(self);
+    self->refCount--;
+    if (self->refCount <= 0) {
+       PortFindCellAr_decRef(self->objects);        
    }
+   return;
 }
+JSON_Value *PortFind_toJson(PortFind *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "PortFind") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type PortFind");
+       goto FAIL;
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = PortFindCellAr_toJson(self->objects, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "objects", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of objects on type PortFind");
+           goto FAIL;
+       }
+   }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
+}
+PortFind *PortFind_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "PortFind_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type PortFind");
+           return NULL;
+       } else if (strcmp(s, "PortFind") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'PortFind'", s);
+           return NULL;
+       }
+       
+   }
+
+   PortFind *self = PortFind_new();
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "objects");
+       if (target == NULL) {
+           Error_format0(err, "'PortFind' json object does not contain a json value for 'objects'");
+           goto FAIL;
+       }
+       self->objects = PortFind_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   return self;
+
+   FAIL:
+   PortFind_free(self);
+   return NULL;
+}
+PortFind *PortFind_clone(PortFind *self) {
+   PortFind *other = PortFind_new();
+   other->objects = PortFindCellAr_clone(self->objects);
+   other->hub = self->hub;
+   other->anythingDispatch = self->anythingDispatch;
+   other->intDispatch = self->intDispatch;
+   return self;
+}
+void PortFind_setObjects(PortFind *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->objects;
+                self->objects = value;
+                PortFindCellAr_incRef(self->objects);
+                PortFindCellAr_decRef(old);
+            }
 PortFindCell *PortFindCell_new()
 {
-    PortFindCell *self = Mem_malloc(sizeof(PortFindCell));
-    PortFindCell_init(self);
-    return self;
+   PortFindCell *self = Mem_malloc(sizeof(PortFindCell));
+   self->itype       = PortFindCell_itype;
+   self->refCount    = 1;
+   self->reciever = 0;
+   self->varname = 0;
+   return self;
 }
-void PortRef_init(PortRef *self)
+void PortFindCell_incRef(PortFindCell *self)
 {
-    self->port = NULL;
-    self->outlet = 0;
-    return;
+    self->refCount++;
 }
-void PortRef_clear(PortRef *self)
+void PortFindCell_decRef(PortFindCell *self)
 {
-    return;
-}
-void PortRef_free(PortRef *self)
-{
-   if (self != NULL) {
-        PortRef_clear(self);
-        Mem_free(self);
+    self->refCount--;
+    if (self->refCount <= 0) {
    }
+   return;
 }
+JSON_Value *PortFindCell_toJson(PortFindCell *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "PortFindCell") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type PortFindCell");
+       goto FAIL;
+   }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
+}
+PortFindCell *PortFindCell_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "PortFindCell_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type PortFindCell");
+           return NULL;
+       } else if (strcmp(s, "PortFindCell") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'PortFindCell'", s);
+           return NULL;
+       }
+       
+   }
+
+   PortFindCell *self = PortFindCell_new();
+   return self;
+
+   FAIL:
+   PortFindCell_free(self);
+   return NULL;
+}
+PortFindCell *PortFindCell_clone(PortFindCell *self) {
+   PortFindCell *other = PortFindCell_new();
+   other->reciever = self->reciever;
+   other->varname = self->varname;
+   return self;
+}
+#define PortFindCellAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
+PortFindCellAr *PortFindCellAr_clone(PortFindCellAr *arr);
+void PortFindCellAr_decRef(PortFindCellAr *arr);
+void PortFindCellAr_fit(PortFindCellAr *arr);
+#define PortFindCellAr_foreach(var, arr)               for (PortFindCellArFIt var = {arr, false, 0, NULL};        PortFindCellArFIt_next(&var); )
+#define PortFindCellAr_foreachOffset(var, arr, offset) for (PortFindCellArFIt var = {arr, false, offset-1, NULL}; PortFindCellArFIt_next(&var); )
+PortFindCellAr *PortFindCellAr_fromJson(JSON_Value *jval, Error *err);
+PortFindCell *PortFindCellAr_get(PortFindCellAr *arr, int index, Error *err);
+void PortFindCellAr_incRef(PortFindCellAr *arr);
+void PortFindCellAr_insert(PortFindCellAr *arr, int index, PortFindCell *elem, Error *err);
+int PortFindCellAr_last(PortFindCellAr *arr);
+int PortFindCellAr_len(PortFindCellAr *arr);
+PortFindCellAr *PortFindCellAr_new();
+void PortFindCellAr_pop(PortFindCellAr *arr, Error *err);
+PortFindCell *PortFindCellAr_pop(PortFindCellAr *arr, Error *err);
+void PortFindCellAr_push(PortFindCellAr *arr, PortFindCell *elem);
+void PortFindCellAr_remove(PortFindCellAr *arr, int index, Error *err);
+void PortFindCellAr_reserve(PortFindCellAr *arr, int newCap);
+#define PortFindCellAr_rforeach(var, arr)               for (PortFindCellArFIt var = {arr, false, (arr)->len, NULL};        PortFindCellArFIt_next(&var); )
+#define PortFindCellAr_rforeachOffset(var, arr, offset) for (PortFindCellArFIt var = {arr, false, (arr)->len-offset, NULL}; PortFindCellArFIt_next(&var); )
+void PortFindCellAr_set(PortFindCellAr *arr, int index, PortFindCell *elem, Error *err);
+JSON_Value *PortFindCellAr_toJson(PortFindCellAr *self, Error *err);
+void PortFindCellAr_truncate(PortFindCellAr *arr, int newLen);
+bool PortFindCellArFIt_next(PortFindCellArFIt *iterator);
+bool PortFindCellArRIt_next(PortFindCellArRIt *iterator);
 PortRef *PortRef_new()
 {
-    PortRef *self = Mem_malloc(sizeof(PortRef));
-    PortRef_init(self);
-    return self;
+   PortRef *self = Mem_malloc(sizeof(PortRef));
+   self->itype       = PortRef_itype;
+   self->refCount    = 1;
+   self->port = 0;
+   self->outlet = 0;
+   return self;
 }
-void RecordBuffer_init(RecordBuffer *self)
+void PortRef_incRef(PortRef *self)
 {
-    self->recordStart = 0;
-    SequenceAr_init(&self->sequences, 0);
-    return;
+    self->refCount++;
 }
-void RecordBuffer_clear(RecordBuffer *self)
+void PortRef_decRef(PortRef *self)
 {
-    SequenceAr_clear(&self->sequences);
-    return;
-}
-void RecordBuffer_free(RecordBuffer *self)
-{
-   if (self != NULL) {
-        RecordBuffer_clear(self);
-        Mem_free(self);
+    self->refCount--;
+    if (self->refCount <= 0) {
    }
+   return;
 }
+JSON_Value *PortRef_toJson(PortRef *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "PortRef") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type PortRef");
+       goto FAIL;
+   }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
+}
+PortRef *PortRef_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "PortRef_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type PortRef");
+           return NULL;
+       } else if (strcmp(s, "PortRef") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'PortRef'", s);
+           return NULL;
+       }
+       
+   }
+
+   PortRef *self = PortRef_new();
+   return self;
+
+   FAIL:
+   PortRef_free(self);
+   return NULL;
+}
+PortRef *PortRef_clone(PortRef *self) {
+   PortRef *other = PortRef_new();
+   other->port = self->port;
+   other->outlet = self->outlet;
+   return self;
+}
+Ptr *Ptr_new()
+{
+   Ptr *self = Mem_malloc(sizeof(Ptr));
+   self->itype       = Ptr_itype;
+   self->refCount    = 1;
+   self->p = 0;
+   return self;
+}
+void Ptr_incRef(Ptr *self)
+{
+    self->refCount++;
+}
+void Ptr_decRef(Ptr *self)
+{
+    self->refCount--;
+    if (self->refCount <= 0) {
+   }
+   return;
+}
+JSON_Value *Ptr_toJson(Ptr *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "Ptr") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type Ptr");
+       goto FAIL;
+   }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
+}
+Ptr *Ptr_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "Ptr_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type Ptr");
+           return NULL;
+       } else if (strcmp(s, "Ptr") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'Ptr'", s);
+           return NULL;
+       }
+       
+   }
+
+   Ptr *self = Ptr_new();
+   return self;
+
+   FAIL:
+   Ptr_free(self);
+   return NULL;
+}
+Ptr *Ptr_clone(Ptr *self) {
+   Ptr *other = Ptr_new();
+   other->p = self->p;
+   return self;
+}
+#define PtrAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
+PtrAr *PtrAr_clone(PtrAr *arr);
+void PtrAr_decRef(PtrAr *arr);
+void PtrAr_fit(PtrAr *arr);
+#define PtrAr_foreach(var, arr)               for (PtrArFIt var = {arr, false, 0, NULL};        PtrArFIt_next(&var); )
+#define PtrAr_foreachOffset(var, arr, offset) for (PtrArFIt var = {arr, false, offset-1, NULL}; PtrArFIt_next(&var); )
+PtrAr *PtrAr_fromJson(JSON_Value *jval, Error *err);
+Ptr *PtrAr_get(PtrAr *arr, int index, Error *err);
+void PtrAr_incRef(PtrAr *arr);
+void PtrAr_insert(PtrAr *arr, int index, Ptr *elem, Error *err);
+int PtrAr_last(PtrAr *arr);
+int PtrAr_len(PtrAr *arr);
+PtrAr *PtrAr_new();
+void PtrAr_pop(PtrAr *arr, Error *err);
+Ptr *PtrAr_pop(PtrAr *arr, Error *err);
+void PtrAr_push(PtrAr *arr, Ptr *elem);
+void PtrAr_remove(PtrAr *arr, int index, Error *err);
+void PtrAr_reserve(PtrAr *arr, int newCap);
+#define PtrAr_rforeach(var, arr)               for (PtrArFIt var = {arr, false, (arr)->len, NULL};        PtrArFIt_next(&var); )
+#define PtrAr_rforeachOffset(var, arr, offset) for (PtrArFIt var = {arr, false, (arr)->len-offset, NULL}; PtrArFIt_next(&var); )
+void PtrAr_set(PtrAr *arr, int index, Ptr *elem, Error *err);
+JSON_Value *PtrAr_toJson(PtrAr *self, Error *err);
+void PtrAr_truncate(PtrAr *arr, int newLen);
+bool PtrArFIt_next(PtrArFIt *iterator);
+bool PtrArRIt_next(PtrArRIt *iterator);
 RecordBuffer *RecordBuffer_new()
 {
-    RecordBuffer *self = Mem_malloc(sizeof(RecordBuffer));
-    RecordBuffer_init(self);
-    return self;
+   RecordBuffer *self = Mem_malloc(sizeof(RecordBuffer));
+   self->itype       = RecordBuffer_itype;
+   self->refCount    = 1;
+   self->recordStart = 0;
+   self->sequences = SequenceAr_new();
+   return self;
 }
-void SelectNextPushedPadDispatch_init(SelectNextPushedPadDispatch *self)
+void RecordBuffer_incRef(RecordBuffer *self)
 {
-    self->itype = SelectNextPushedPadDispatch_itype;
-    return;
+    self->refCount++;
 }
-void SelectNextPushedPadDispatch_clear(SelectNextPushedPadDispatch *self)
+void RecordBuffer_decRef(RecordBuffer *self)
 {
-    return;
-}
-void SelectNextPushedPadDispatch_free(SelectNextPushedPadDispatch *self)
-{
-   if (self != NULL) {
-        SelectNextPushedPadDispatch_clear(self);
-        Mem_free(self);
+    self->refCount--;
+    if (self->refCount <= 0) {
+       SequenceAr_decRef(self->sequences);        
    }
+   return;
 }
+JSON_Value *RecordBuffer_toJson(RecordBuffer *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "RecordBuffer") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type RecordBuffer");
+       goto FAIL;
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = SequenceAr_toJson(self->sequences, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "sequences", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of sequences on type RecordBuffer");
+           goto FAIL;
+       }
+   }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
+}
+RecordBuffer *RecordBuffer_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "RecordBuffer_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type RecordBuffer");
+           return NULL;
+       } else if (strcmp(s, "RecordBuffer") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'RecordBuffer'", s);
+           return NULL;
+       }
+       
+   }
+
+   RecordBuffer *self = RecordBuffer_new();
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "sequences");
+       if (target == NULL) {
+           Error_format0(err, "'RecordBuffer' json object does not contain a json value for 'sequences'");
+           goto FAIL;
+       }
+       self->sequences = RecordBuffer_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   return self;
+
+   FAIL:
+   RecordBuffer_free(self);
+   return NULL;
+}
+RecordBuffer *RecordBuffer_clone(RecordBuffer *self) {
+   RecordBuffer *other = RecordBuffer_new();
+   other->recordStart = self->recordStart;
+   other->sequences = SequenceAr_clone(self->sequences);
+   return self;
+}
+void RecordBuffer_setSequences(RecordBuffer *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->sequences;
+                self->sequences = value;
+                SequenceAr_incRef(self->sequences);
+                SequenceAr_decRef(old);
+            }
 SelectNextPushedPadDispatch *SelectNextPushedPadDispatch_new()
 {
-    SelectNextPushedPadDispatch *self = Mem_malloc(sizeof(SelectNextPushedPadDispatch));
-    SelectNextPushedPadDispatch_init(self);
-    return self;
+   SelectNextPushedPadDispatch *self = Mem_malloc(sizeof(SelectNextPushedPadDispatch));
+   self->itype       = SelectNextPushedPadDispatch_itype;
+   self->refCount    = 1;
+   self->selector = 0;
+   self->portId = 0;
+   self->inlet = 0;
+   self->marshal = 0;
+   return self;
 }
-void Timed_init(Timed *self)
+void SelectNextPushedPadDispatch_incRef(SelectNextPushedPadDispatch *self)
 {
-    self->time = 0;
-    self->version = 0;
-    self->sequence = NULL;
-    return;
+    self->refCount++;
 }
-void Timed_clear(Timed *self)
+void SelectNextPushedPadDispatch_decRef(SelectNextPushedPadDispatch *self)
 {
-    return;
-}
-void Timed_free(Timed *self)
-{
-   if (self != NULL) {
-        Timed_clear(self);
-        Mem_free(self);
+    self->refCount--;
+    if (self->refCount <= 0) {
    }
+   return;
 }
+JSON_Value *SelectNextPushedPadDispatch_toJson(SelectNextPushedPadDispatch *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "SelectNextPushedPadDispatch") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type SelectNextPushedPadDispatch");
+       goto FAIL;
+   }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
+}
+SelectNextPushedPadDispatch *SelectNextPushedPadDispatch_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "SelectNextPushedPadDispatch_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type SelectNextPushedPadDispatch");
+           return NULL;
+       } else if (strcmp(s, "SelectNextPushedPadDispatch") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'SelectNextPushedPadDispatch'", s);
+           return NULL;
+       }
+       
+   }
+
+   SelectNextPushedPadDispatch *self = SelectNextPushedPadDispatch_new();
+   return self;
+
+   FAIL:
+   SelectNextPushedPadDispatch_free(self);
+   return NULL;
+}
+SelectNextPushedPadDispatch *SelectNextPushedPadDispatch_clone(SelectNextPushedPadDispatch *self) {
+   SelectNextPushedPadDispatch *other = SelectNextPushedPadDispatch_new();
+   other->selector = self->selector;
+   other->portId = self->portId;
+   other->inlet = self->inlet;
+   other->marshal = self->marshal;
+   return self;
+}
+int Sequence_nthIType(int n, int *itype);
+#define Sequence_foreachIType(itype) for (int __##itype = 0, itype = 0; Sequence_nthIType(__##itype, &itype); __##itype++)
+xvoid Sequence_start(Sequence *self, Ticks a1, Ticks a2, TimedPq *a3, RecordBuffer *a4, Error * *a5, Error *err, Error *err)
+{
+   if (self == NULL) {
+       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_start");
+       return 0;
+   }
+   switch(self->itype) {
+       case FloatSequence_itype:
+           FloatSequence_start((FloatSequence*)self, a1, a2, a3, a4, a5, err);
+           return;
+       case NoteSequence_itype:
+           NoteSequence_start((NoteSequence*)self, a1, a2, a3, a4, a5, err);
+           return;
+       default:
+           Error_format(err, "Failed to resolve interface call in NoteSequence_start: found type %s", Interface_toString(self->itype));
+    }
+    return;
+}
+
+xvoid Sequence_drive(Sequence *self, Ticks a1, TimedPq *a2, Error * a3, Error *err, Error *err)
+{
+   if (self == NULL) {
+       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_drive");
+       return 0;
+   }
+   switch(self->itype) {
+       case FloatSequence_itype:
+           FloatSequence_drive((FloatSequence*)self, a1, a2, a3, err);
+           return;
+       case NoteSequence_itype:
+           NoteSequence_drive((NoteSequence*)self, a1, a2, a3, err);
+           return;
+       default:
+           Error_format(err, "Failed to resolve interface call in NoteSequence_drive: found type %s", Interface_toString(self->itype));
+    }
+    return;
+}
+
+xvoid Sequence_stop(Sequence *self, Ticks a1, Error * a2, Error *err, Error *err)
+{
+   if (self == NULL) {
+       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_stop");
+       return 0;
+   }
+   switch(self->itype) {
+       case FloatSequence_itype:
+           FloatSequence_stop((FloatSequence*)self, a1, a2, err);
+           return;
+       case NoteSequence_itype:
+           NoteSequence_stop((NoteSequence*)self, a1, a2, err);
+           return;
+       default:
+           Error_format(err, "Failed to resolve interface call in NoteSequence_stop: found type %s", Interface_toString(self->itype));
+    }
+    return;
+}
+
+xvoid Sequence_padNoteOff(Sequence *self, Ticks a1, Error * a2, Error *err, Error *err)
+{
+   if (self == NULL) {
+       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_padNoteOff");
+       return 0;
+   }
+   switch(self->itype) {
+       case FloatSequence_itype:
+           FloatSequence_padNoteOff((FloatSequence*)self, a1, a2, err);
+           return;
+       case NoteSequence_itype:
+           NoteSequence_padNoteOff((NoteSequence*)self, a1, a2, err);
+           return;
+       default:
+           Error_format(err, "Failed to resolve interface call in NoteSequence_padNoteOff: found type %s", Interface_toString(self->itype));
+    }
+    return;
+}
+
+xvoid Sequence_setCycle(Sequence *self, bool a1, Error *err)
+{
+   if (self == NULL) {
+       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_setCycle");
+       return 0;
+   }
+   switch(self->itype) {
+       case FloatSequence_itype:
+           FloatSequence_setCycle((FloatSequence*)self, a1);
+           return;
+       case NoteSequence_itype:
+           NoteSequence_setCycle((NoteSequence*)self, a1);
+           return;
+       default:
+           Error_format(err, "Failed to resolve interface call in NoteSequence_setCycle: found type %s", Interface_toString(self->itype));
+    }
+    return;
+}
+
+xvoid Sequence_free(Sequence *self, Error *err)
+{
+   if (self == NULL) {
+       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_free");
+       return 0;
+   }
+   switch(self->itype) {
+       case FloatSequence_itype:
+           FloatSequence_free((FloatSequence*)self);
+           return;
+       case NoteSequence_itype:
+           NoteSequence_free((NoteSequence*)self);
+           return;
+       default:
+           Error_format(err, "Failed to resolve interface call in NoteSequence_free: found type %s", Interface_toString(self->itype));
+    }
+    return;
+}
+
+xSequence *Sequence_compactNew(Sequence *self, Ticks a1, Error *err)
+{
+   if (self == NULL) {
+       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_compactNew");
+       return NULL;
+   }
+   switch(self->itype) {
+       case FloatSequence_itype:
+           return FloatSequence_compactNew((FloatSequence*)self, a1);
+       case NoteSequence_itype:
+           return NoteSequence_compactNew((NoteSequence*)self, a1);
+       default:
+           Error_format(err, "Failed to resolve interface call in NoteSequence_compactNew: found type %s", Interface_toString(self->itype));
+    }
+    return NULL;
+}
+
+xvoid Sequence_compactConcat(Sequence *self, Sequence *a1, Error * a2, Error *err, Error *err)
+{
+   if (self == NULL) {
+       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_compactConcat");
+       return 0;
+   }
+   switch(self->itype) {
+       case FloatSequence_itype:
+           FloatSequence_compactConcat((FloatSequence*)self, a1, a2, err);
+           return;
+       case NoteSequence_itype:
+           NoteSequence_compactConcat((NoteSequence*)self, a1, a2, err);
+           return;
+       default:
+           Error_format(err, "Failed to resolve interface call in NoteSequence_compactConcat: found type %s", Interface_toString(self->itype));
+    }
+    return;
+}
+
+xvoid Sequence_compactSortEvents(Sequence *self, Error *err)
+{
+   if (self == NULL) {
+       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_compactSortEvents");
+       return 0;
+   }
+   switch(self->itype) {
+       case FloatSequence_itype:
+           FloatSequence_compactSortEvents((FloatSequence*)self);
+           return;
+       case NoteSequence_itype:
+           NoteSequence_compactSortEvents((NoteSequence*)self);
+           return;
+       default:
+           Error_format(err, "Failed to resolve interface call in NoteSequence_compactSortEvents: found type %s", Interface_toString(self->itype));
+    }
+    return;
+}
+
+xTicks Sequence_compactComputeSequenceLength(Sequence *self, Error *err)
+{
+   if (self == NULL) {
+       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_compactComputeSequenceLength");
+       return 0;
+   }
+   switch(self->itype) {
+       case FloatSequence_itype:
+           return FloatSequence_compactComputeSequenceLength((FloatSequence*)self);
+       case NoteSequence_itype:
+           return NoteSequence_compactComputeSequenceLength((NoteSequence*)self);
+       default:
+           Error_format(err, "Failed to resolve interface call in NoteSequence_compactComputeSequenceLength: found type %s", Interface_toString(self->itype));
+    }
+    return 0;
+}
+
+xvoid Sequence_compactFinish(Sequence *self, Ticks a1, Ticks a2, Error * a3, Error *err, Error *err)
+{
+   if (self == NULL) {
+       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_compactFinish");
+       return 0;
+   }
+   switch(self->itype) {
+       case FloatSequence_itype:
+           FloatSequence_compactFinish((FloatSequence*)self, a1, a2, a3, err);
+           return;
+       case NoteSequence_itype:
+           NoteSequence_compactFinish((NoteSequence*)self, a1, a2, a3, err);
+           return;
+       default:
+           Error_format(err, "Failed to resolve interface call in NoteSequence_compactFinish: found type %s", Interface_toString(self->itype));
+    }
+    return;
+}
+
+#define SequenceAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
+SequenceAr *SequenceAr_clone(SequenceAr *arr);
+void SequenceAr_decRef(SequenceAr *arr);
+void SequenceAr_fit(SequenceAr *arr);
+#define SequenceAr_foreach(var, arr)               for (SequenceArFIt var = {arr, false, 0, NULL};        SequenceArFIt_next(&var); )
+#define SequenceAr_foreachOffset(var, arr, offset) for (SequenceArFIt var = {arr, false, offset-1, NULL}; SequenceArFIt_next(&var); )
+SequenceAr *SequenceAr_fromJson(JSON_Value *jval, Error *err);
+Sequence *SequenceAr_get(SequenceAr *arr, int index, Error *err);
+void SequenceAr_incRef(SequenceAr *arr);
+void SequenceAr_insert(SequenceAr *arr, int index, Sequence *elem, Error *err);
+int SequenceAr_last(SequenceAr *arr);
+int SequenceAr_len(SequenceAr *arr);
+SequenceAr *SequenceAr_new();
+void SequenceAr_pop(SequenceAr *arr, Error *err);
+Sequence *SequenceAr_pop(SequenceAr *arr, Error *err);
+void SequenceAr_push(SequenceAr *arr, Sequence *elem);
+void SequenceAr_remove(SequenceAr *arr, int index, Error *err);
+void SequenceAr_reserve(SequenceAr *arr, int newCap);
+#define SequenceAr_rforeach(var, arr)               for (SequenceArFIt var = {arr, false, (arr)->len, NULL};        SequenceArFIt_next(&var); )
+#define SequenceAr_rforeachOffset(var, arr, offset) for (SequenceArFIt var = {arr, false, (arr)->len-offset, NULL}; SequenceArFIt_next(&var); )
+void SequenceAr_set(SequenceAr *arr, int index, Sequence *elem, Error *err);
+JSON_Value *SequenceAr_toJson(SequenceAr *self, Error *err);
+void SequenceAr_truncate(SequenceAr *arr, int newLen);
+bool SequenceArFIt_next(SequenceArFIt *iterator);
+bool SequenceArRIt_next(SequenceArRIt *iterator);
+void SequenceAr_binInsert(SequenceAr *arr, Sequence *elem);
+void SequenceAr_binRemove(SequenceAr *arr, Sequence *elem);
+Sequence *SequenceAr_binSearch(SequenceAr *arr, Sequence *elem);
+Sequence *SequenceAr_pqPeek(SequenceAr *arr);
+void SequenceAr_pqPopDecRef(SequenceAr *arr, Sequence *elem);
+Sequence *SequenceAr_pqPop(SequenceAr *arr);
+void SequenceAr_pqPush(SequenceAr *arr, Sequence *elem);
+void SequenceAr_pqSort(SequenceAr *arr);
+void SequenceAr_sort(SequenceAr *arr);
+void SequenceAr_binInsertPointer(SequenceAr *arr, Sequence *elem);
+void SequenceAr_binRemovePointer(SequenceAr *arr, Sequence *elem);
+Sequence *SequenceAr_binSearchPointer(SequenceAr *arr, Sequence *elem);
+Sequence *SequenceAr_pqPeekPointer(SequenceAr *arr);
+void SequenceAr_pqPopDecRefPointer(SequenceAr *arr, Sequence *elem);
+Sequence *SequenceAr_pqPopPointer(SequenceAr *arr);
+void SequenceAr_pqPushPointer(SequenceAr *arr, Sequence *elem);
+void SequenceAr_pqSortPointer(SequenceAr *arr);
+void SequenceAr_sortPointer(SequenceAr *arr);
+#define StringAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
+StringAr *StringAr_clone(StringAr *arr);
+void StringAr_decRef(StringAr *arr);
+void StringAr_fit(StringAr *arr);
+#define StringAr_foreach(var, arr)               for (StringArFIt var = {arr, false, 0, NULL};        StringArFIt_next(&var); )
+#define StringAr_foreachOffset(var, arr, offset) for (StringArFIt var = {arr, false, offset-1, NULL}; StringArFIt_next(&var); )
+StringAr *StringAr_fromJson(JSON_Value *jval, Error *err);
+String *StringAr_get(StringAr *arr, int index, Error *err);
+void StringAr_incRef(StringAr *arr);
+void StringAr_insert(StringAr *arr, int index, String *elem, Error *err);
+int StringAr_last(StringAr *arr);
+int StringAr_len(StringAr *arr);
+StringAr *StringAr_new();
+void StringAr_pop(StringAr *arr, Error *err);
+String *StringAr_pop(StringAr *arr, Error *err);
+void StringAr_push(StringAr *arr, String *elem);
+void StringAr_remove(StringAr *arr, int index, Error *err);
+void StringAr_reserve(StringAr *arr, int newCap);
+#define StringAr_rforeach(var, arr)               for (StringArFIt var = {arr, false, (arr)->len, NULL};        StringArFIt_next(&var); )
+#define StringAr_rforeachOffset(var, arr, offset) for (StringArFIt var = {arr, false, (arr)->len-offset, NULL}; StringArFIt_next(&var); )
+void StringAr_set(StringAr *arr, int index, String *elem, Error *err);
+JSON_Value *StringAr_toJson(StringAr *self, Error *err);
+void StringAr_truncate(StringAr *arr, int newLen);
+bool StringArFIt_next(StringArFIt *iterator);
+bool StringArRIt_next(StringArRIt *iterator);
+void StringAr_binInsert(StringAr *arr, String *elem);
+void StringAr_binRemove(StringAr *arr, String *elem);
+String *StringAr_binSearch(StringAr *arr, String *elem);
+String *StringAr_pqPeek(StringAr *arr);
+void StringAr_pqPopDecRef(StringAr *arr, String *elem);
+String *StringAr_pqPop(StringAr *arr);
+void StringAr_pqPush(StringAr *arr, String *elem);
+void StringAr_pqSort(StringAr *arr);
+void StringAr_sort(StringAr *arr);
+#define SymbolAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
+SymbolAr *SymbolAr_clone(SymbolAr *arr);
+void SymbolAr_decRef(SymbolAr *arr);
+void SymbolAr_fit(SymbolAr *arr);
+#define SymbolAr_foreach(var, arr)               for (SymbolArFIt var = {arr, false, 0, NULL};        SymbolArFIt_next(&var); )
+#define SymbolAr_foreachOffset(var, arr, offset) for (SymbolArFIt var = {arr, false, offset-1, NULL}; SymbolArFIt_next(&var); )
+SymbolAr *SymbolAr_fromJson(JSON_Value *jval, Error *err);
+Symbol *SymbolAr_get(SymbolAr *arr, int index, Error *err);
+void SymbolAr_incRef(SymbolAr *arr);
+void SymbolAr_insert(SymbolAr *arr, int index, Symbol *elem, Error *err);
+int SymbolAr_last(SymbolAr *arr);
+int SymbolAr_len(SymbolAr *arr);
+SymbolAr *SymbolAr_new();
+void SymbolAr_pop(SymbolAr *arr, Error *err);
+Symbol *SymbolAr_pop(SymbolAr *arr, Error *err);
+void SymbolAr_push(SymbolAr *arr, Symbol *elem);
+void SymbolAr_remove(SymbolAr *arr, int index, Error *err);
+void SymbolAr_reserve(SymbolAr *arr, int newCap);
+#define SymbolAr_rforeach(var, arr)               for (SymbolArFIt var = {arr, false, (arr)->len, NULL};        SymbolArFIt_next(&var); )
+#define SymbolAr_rforeachOffset(var, arr, offset) for (SymbolArFIt var = {arr, false, (arr)->len-offset, NULL}; SymbolArFIt_next(&var); )
+void SymbolAr_set(SymbolAr *arr, int index, Symbol *elem, Error *err);
+JSON_Value *SymbolAr_toJson(SymbolAr *self, Error *err);
+void SymbolAr_truncate(SymbolAr *arr, int newLen);
+bool SymbolArFIt_next(SymbolArFIt *iterator);
+bool SymbolArRIt_next(SymbolArRIt *iterator);
+void SymbolAr_binInsertUnderlying(SymbolAr *arr, Symbol *elem);
+void SymbolAr_binRemoveUnderlying(SymbolAr *arr, Symbol *elem);
+Symbol *SymbolAr_binSearchUnderlying(SymbolAr *arr, Symbol *elem);
+Symbol *SymbolAr_pqPeekUnderlying(SymbolAr *arr);
+void SymbolAr_pqPopDecRefUnderlying(SymbolAr *arr, Symbol *elem);
+Symbol *SymbolAr_pqPopUnderlying(SymbolAr *arr);
+void SymbolAr_pqPushUnderlying(SymbolAr *arr, Symbol *elem);
+void SymbolAr_pqSortUnderlying(SymbolAr *arr);
+void SymbolAr_sortUnderlying(SymbolAr *arr);
+#define SymbolAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
+SymbolAr *SymbolAr_clone(SymbolAr *arr);
+void SymbolAr_decRef(SymbolAr *arr);
+void SymbolAr_fit(SymbolAr *arr);
+#define SymbolAr_foreach(var, arr)               for (SymbolArFIt var = {arr, false, 0, NULL};        SymbolArFIt_next(&var); )
+#define SymbolAr_foreachOffset(var, arr, offset) for (SymbolArFIt var = {arr, false, offset-1, NULL}; SymbolArFIt_next(&var); )
+SymbolAr *SymbolAr_fromJson(JSON_Value *jval, Error *err);
+Symbol *SymbolAr_get(SymbolAr *arr, int index, Error *err);
+void SymbolAr_incRef(SymbolAr *arr);
+void SymbolAr_insert(SymbolAr *arr, int index, Symbol *elem, Error *err);
+int SymbolAr_last(SymbolAr *arr);
+int SymbolAr_len(SymbolAr *arr);
+SymbolAr *SymbolAr_new();
+void SymbolAr_pop(SymbolAr *arr, Error *err);
+Symbol *SymbolAr_pop(SymbolAr *arr, Error *err);
+void SymbolAr_push(SymbolAr *arr, Symbol *elem);
+void SymbolAr_remove(SymbolAr *arr, int index, Error *err);
+void SymbolAr_reserve(SymbolAr *arr, int newCap);
+#define SymbolAr_rforeach(var, arr)               for (SymbolArFIt var = {arr, false, (arr)->len, NULL};        SymbolArFIt_next(&var); )
+#define SymbolAr_rforeachOffset(var, arr, offset) for (SymbolArFIt var = {arr, false, (arr)->len-offset, NULL}; SymbolArFIt_next(&var); )
+void SymbolAr_set(SymbolAr *arr, int index, Symbol *elem, Error *err);
+JSON_Value *SymbolAr_toJson(SymbolAr *self, Error *err);
+void SymbolAr_truncate(SymbolAr *arr, int newLen);
+bool SymbolArFIt_next(SymbolArFIt *iterator);
+bool SymbolArRIt_next(SymbolArRIt *iterator);
 Timed *Timed_new()
 {
-    Timed *self = Mem_malloc(sizeof(Timed));
-    Timed_init(self);
-    return self;
+   Timed *self = Mem_malloc(sizeof(Timed));
+   self->itype       = Timed_itype;
+   self->refCount    = 1;
+   self->time = 0;
+   self->version = 0;
+   self->sequence = Sequence_new();
+   return self;
 }
-void TimedOff_init(TimedOff *self)
+void Timed_incRef(Timed *self)
 {
-    self->time = 0;
-    self->pitch = 0;
-    return;
+    self->refCount++;
 }
-void TimedOff_clear(TimedOff *self)
+void Timed_decRef(Timed *self)
 {
-    return;
-}
-void TimedOff_free(TimedOff *self)
-{
-   if (self != NULL) {
-        TimedOff_clear(self);
-        Mem_free(self);
+    self->refCount--;
+    if (self->refCount <= 0) {
+       Sequence_decRef(self->sequence);        
    }
+   return;
 }
+JSON_Value *Timed_toJson(Timed *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "Timed") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type Timed");
+       goto FAIL;
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = Sequence_toJson(self->sequence, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "sequence", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of sequence on type Timed");
+           goto FAIL;
+       }
+   }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
+}
+Timed *Timed_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "Timed_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type Timed");
+           return NULL;
+       } else if (strcmp(s, "Timed") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'Timed'", s);
+           return NULL;
+       }
+       
+   }
+
+   Timed *self = Timed_new();
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "sequence");
+       if (target == NULL) {
+           Error_format0(err, "'Timed' json object does not contain a json value for 'sequence'");
+           goto FAIL;
+       }
+       self->sequence = Timed_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   return self;
+
+   FAIL:
+   Timed_free(self);
+   return NULL;
+}
+Timed *Timed_clone(Timed *self) {
+   Timed *other = Timed_new();
+   other->time = self->time;
+   other->version = self->version;
+   other->sequence = Sequence_clone(self->sequence);
+   return self;
+}
+void Timed_setSequence(Timed *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->sequence;
+                self->sequence = value;
+                Sequence_incRef(self->sequence);
+                Sequence_decRef(old);
+            }
 TimedOff *TimedOff_new()
 {
-    TimedOff *self = Mem_malloc(sizeof(TimedOff));
-    TimedOff_init(self);
-    return self;
+   TimedOff *self = Mem_malloc(sizeof(TimedOff));
+   self->itype       = TimedOff_itype;
+   self->refCount    = 1;
+   self->time = 0;
+   self->pitch = 0;
+   return self;
 }
-void Track_init(Track *self)
+void TimedOff_incRef(TimedOff *self)
 {
-    self->name = NULL;
-    self->noteManager = NoteManager_new();
-    return;
+    self->refCount++;
 }
-void Track_clear(Track *self)
+void TimedOff_decRef(TimedOff *self)
 {
-    NoteManager_free(self->noteManager);
-    return;
-}
-void Track_free(Track *self)
-{
-   if (self != NULL) {
-        Track_clear(self);
-        Mem_free(self);
+    self->refCount--;
+    if (self->refCount <= 0) {
    }
+   return;
 }
+JSON_Value *TimedOff_toJson(TimedOff *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "TimedOff") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type TimedOff");
+       goto FAIL;
+   }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
+}
+TimedOff *TimedOff_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "TimedOff_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type TimedOff");
+           return NULL;
+       } else if (strcmp(s, "TimedOff") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'TimedOff'", s);
+           return NULL;
+       }
+       
+   }
+
+   TimedOff *self = TimedOff_new();
+   return self;
+
+   FAIL:
+   TimedOff_free(self);
+   return NULL;
+}
+TimedOff *TimedOff_clone(TimedOff *self) {
+   TimedOff *other = TimedOff_new();
+   other->time = self->time;
+   other->pitch = self->pitch;
+   return self;
+}
+#define TimedOffAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
+TimedOffAr *TimedOffAr_clone(TimedOffAr *arr);
+void TimedOffAr_decRef(TimedOffAr *arr);
+void TimedOffAr_fit(TimedOffAr *arr);
+#define TimedOffAr_foreach(var, arr)               for (TimedOffArFIt var = {arr, false, 0, NULL};        TimedOffArFIt_next(&var); )
+#define TimedOffAr_foreachOffset(var, arr, offset) for (TimedOffArFIt var = {arr, false, offset-1, NULL}; TimedOffArFIt_next(&var); )
+TimedOffAr *TimedOffAr_fromJson(JSON_Value *jval, Error *err);
+TimedOff *TimedOffAr_get(TimedOffAr *arr, int index, Error *err);
+void TimedOffAr_incRef(TimedOffAr *arr);
+void TimedOffAr_insert(TimedOffAr *arr, int index, TimedOff *elem, Error *err);
+int TimedOffAr_last(TimedOffAr *arr);
+int TimedOffAr_len(TimedOffAr *arr);
+TimedOffAr *TimedOffAr_new();
+void TimedOffAr_pop(TimedOffAr *arr, Error *err);
+TimedOff *TimedOffAr_pop(TimedOffAr *arr, Error *err);
+void TimedOffAr_push(TimedOffAr *arr, TimedOff *elem);
+void TimedOffAr_remove(TimedOffAr *arr, int index, Error *err);
+void TimedOffAr_reserve(TimedOffAr *arr, int newCap);
+#define TimedOffAr_rforeach(var, arr)               for (TimedOffArFIt var = {arr, false, (arr)->len, NULL};        TimedOffArFIt_next(&var); )
+#define TimedOffAr_rforeachOffset(var, arr, offset) for (TimedOffArFIt var = {arr, false, (arr)->len-offset, NULL}; TimedOffArFIt_next(&var); )
+void TimedOffAr_set(TimedOffAr *arr, int index, TimedOff *elem, Error *err);
+JSON_Value *TimedOffAr_toJson(TimedOffAr *self, Error *err);
+void TimedOffAr_truncate(TimedOffAr *arr, int newLen);
+bool TimedOffArFIt_next(TimedOffArFIt *iterator);
+bool TimedOffArRIt_next(TimedOffArRIt *iterator);
+void TimedOffAr_binInsertTime(TimedOffAr *arr, TimedOff *elem);
+void TimedOffAr_binRemoveTime(TimedOffAr *arr, TimedOff *elem);
+TimedOff *TimedOffAr_binSearchTime(TimedOffAr *arr, TimedOff *elem);
+TimedOff *TimedOffAr_pqPeekTime(TimedOffAr *arr);
+void TimedOffAr_pqPopDecRefTime(TimedOffAr *arr, TimedOff *elem);
+TimedOff *TimedOffAr_pqPopTime(TimedOffAr *arr);
+void TimedOffAr_pqPushTime(TimedOffAr *arr, TimedOff *elem);
+void TimedOffAr_pqSortTime(TimedOffAr *arr);
+void TimedOffAr_sortTime(TimedOffAr *arr);
+#define TimedPq_at(arr, index) ((arr)->data[index*sizeof(void*)])
+TimedPq *TimedPq_clone(TimedPq *arr);
+void TimedPq_decRef(TimedPq *arr);
+void TimedPq_fit(TimedPq *arr);
+#define TimedPq_foreach(var, arr)               for (TimedPqFIt var = {arr, false, 0, NULL};        TimedPqFIt_next(&var); )
+#define TimedPq_foreachOffset(var, arr, offset) for (TimedPqFIt var = {arr, false, offset-1, NULL}; TimedPqFIt_next(&var); )
+TimedPq *TimedPq_fromJson(JSON_Value *jval, Error *err);
+Timed *TimedPq_get(TimedPq *arr, int index, Error *err);
+void TimedPq_incRef(TimedPq *arr);
+void TimedPq_insert(TimedPq *arr, int index, Timed *elem, Error *err);
+int TimedPq_last(TimedPq *arr);
+int TimedPq_len(TimedPq *arr);
+TimedPq *TimedPq_new();
+void TimedPq_pop(TimedPq *arr, Error *err);
+Timed *TimedPq_pop(TimedPq *arr, Error *err);
+void TimedPq_push(TimedPq *arr, Timed *elem);
+void TimedPq_remove(TimedPq *arr, int index, Error *err);
+void TimedPq_reserve(TimedPq *arr, int newCap);
+#define TimedPq_rforeach(var, arr)               for (TimedPqFIt var = {arr, false, (arr)->len, NULL};        TimedPqFIt_next(&var); )
+#define TimedPq_rforeachOffset(var, arr, offset) for (TimedPqFIt var = {arr, false, (arr)->len-offset, NULL}; TimedPqFIt_next(&var); )
+void TimedPq_set(TimedPq *arr, int index, Timed *elem, Error *err);
+JSON_Value *TimedPq_toJson(TimedPq *self, Error *err);
+void TimedPq_truncate(TimedPq *arr, int newLen);
+bool TimedPqFIt_next(TimedPqFIt *iterator);
+bool TimedPqRIt_next(TimedPqRIt *iterator);
+void TimedPq_binInsert(TimedPq *arr, Timed *elem);
+void TimedPq_binRemove(TimedPq *arr, Timed *elem);
+Timed *TimedPq_binSearch(TimedPq *arr, Timed *elem);
+Timed *TimedPq_pqPeek(TimedPq *arr);
+void TimedPq_pqPopDecRef(TimedPq *arr, Timed *elem);
+Timed *TimedPq_pqPop(TimedPq *arr);
+void TimedPq_pqPush(TimedPq *arr, Timed *elem);
+void TimedPq_pqSort(TimedPq *arr);
+void TimedPq_sort(TimedPq *arr);
 Track *Track_new()
 {
-    Track *self = Mem_malloc(sizeof(Track));
-    Track_init(self);
-    return self;
+   Track *self = Mem_malloc(sizeof(Track));
+   self->itype       = Track_itype;
+   self->refCount    = 1;
+   self->name = 0;
+   return self;
 }
-void TrackList_init(TrackList *self)
+void Track_incRef(Track *self)
 {
-    TrackAr_init(&self->list, 0);
-    return;
+    self->refCount++;
 }
-void TrackList_clear(TrackList *self)
+void Track_decRef(Track *self)
 {
-    TrackAr_clear(&self->list);
-    return;
-}
-void TrackList_free(TrackList *self)
-{
-   if (self != NULL) {
-        TrackList_clear(self);
-        Mem_free(self);
+    self->refCount--;
+    if (self->refCount <= 0) {
    }
+   return;
 }
-TrackList *TrackList_new()
-{
-    TrackList *self = Mem_malloc(sizeof(TrackList));
-    TrackList_init(self);
-    return self;
-}
-void VstOutlet_init(VstOutlet *self)
-{
-    self->itype = VstOutlet_itype;
-    AtomAr_init(&self->atoms, 0);
-    self->port = Port_new();
-    return;
-}
-void VstOutlet_clear(VstOutlet *self)
-{
-    AtomAr_clear(&self->atoms);
-    Port_free(self->port);
-    return;
-}
-void VstOutlet_free(VstOutlet *self)
-{
-   if (self != NULL) {
-        VstOutlet_clear(self);
-        Mem_free(self);
+JSON_Value *Track_toJson(Track *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "Track") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type Track");
+       goto FAIL;
    }
+   return jval;
+
+   FAIL:
+   json_value_free(jval);
+   return NULL;
 }
+Track *Track_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "Track_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type Track");
+           return NULL;
+       } else if (strcmp(s, "Track") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'Track'", s);
+           return NULL;
+       }
+       
+   }
+
+   Track *self = Track_new();
+   return self;
+
+   FAIL:
+   Track_free(self);
+   return NULL;
+}
+Track *Track_clone(Track *self) {
+   Track *other = Track_new();
+   other->name = self->name;
+   return self;
+}
+#define TrackAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
+TrackAr *TrackAr_clone(TrackAr *arr);
+void TrackAr_decRef(TrackAr *arr);
+void TrackAr_fit(TrackAr *arr);
+#define TrackAr_foreach(var, arr)               for (TrackArFIt var = {arr, false, 0, NULL};        TrackArFIt_next(&var); )
+#define TrackAr_foreachOffset(var, arr, offset) for (TrackArFIt var = {arr, false, offset-1, NULL}; TrackArFIt_next(&var); )
+TrackAr *TrackAr_fromJson(JSON_Value *jval, Error *err);
+Track *TrackAr_get(TrackAr *arr, int index, Error *err);
+void TrackAr_incRef(TrackAr *arr);
+void TrackAr_insert(TrackAr *arr, int index, Track *elem, Error *err);
+int TrackAr_last(TrackAr *arr);
+int TrackAr_len(TrackAr *arr);
+TrackAr *TrackAr_new();
+void TrackAr_pop(TrackAr *arr, Error *err);
+Track *TrackAr_pop(TrackAr *arr, Error *err);
+void TrackAr_push(TrackAr *arr, Track *elem);
+void TrackAr_remove(TrackAr *arr, int index, Error *err);
+void TrackAr_reserve(TrackAr *arr, int newCap);
+#define TrackAr_rforeach(var, arr)               for (TrackArFIt var = {arr, false, (arr)->len, NULL};        TrackArFIt_next(&var); )
+#define TrackAr_rforeachOffset(var, arr, offset) for (TrackArFIt var = {arr, false, (arr)->len-offset, NULL}; TrackArFIt_next(&var); )
+void TrackAr_set(TrackAr *arr, int index, Track *elem, Error *err);
+JSON_Value *TrackAr_toJson(TrackAr *self, Error *err);
+void TrackAr_truncate(TrackAr *arr, int newLen);
+bool TrackArFIt_next(TrackArFIt *iterator);
+bool TrackArRIt_next(TrackArRIt *iterator);
 VstOutlet *VstOutlet_new()
 {
-    VstOutlet *self = Mem_malloc(sizeof(VstOutlet));
-    VstOutlet_init(self);
-    return self;
+   VstOutlet *self = Mem_malloc(sizeof(VstOutlet));
+   self->itype       = VstOutlet_itype;
+   self->refCount    = 1;
+   self->atoms = AtomAr_new();
+   self->port = Port_new();
+   return self;
 }
-#define Hub_padsPerFrame           24
-#define Hub_framesPerBank           8
-#define Hub_padsPerBank            (Hub_padsPerFrame*Hub_framesPerBank)
-#define Hub_firstMidiNote          48
-
-#define hub_padIndexToBank(index)         (index / Hub_padsPerBank)
-#define hub_padIndexToFrame(index)        (index / Hub_framesPerBank)
-#define hub_padIndexToRelativePad(index)  (index % Hub_padsPerFrame)
-
-#define Hub_selectedBank(hub)        hub_padIndexToBank(Hub_selectedPad(hub))
-#define Hub_selectedFrame(hub)       hub_padIndexToFrame(Hub_selectedPad(hub))
-#define Hub_relativeSelectedPad(hub) hub_padIndexToRelativePad(Hub_selectedPad(hub))
-
-#define Hub_padIndexFromInNote(hub, inputNote) (Hub_bank(hub)*Hub_padsPerBank + Hub_frame(hub)*Hub_padsPerFrame + (inputNote - Hub_firstMidiNote))
-
-void Dispatch_exec(Dispatch *self, Hub *a1, Arguments *a2, Error *err)
+void VstOutlet_incRef(VstOutlet *self)
 {
-    switch(self->itype) {
-        case DecrementFrameDispatch_itype:
-            DecrementFrameDispatch_exec((DecrementFrameDispatch*)self, a1, a2, err);
-            return;
-        case IncrementFrameDispatch_itype:
-            IncrementFrameDispatch_exec((IncrementFrameDispatch*)self, a1, a2, err);
-            return;
-        case ManageChokeGroupsDispatch_itype:
-            ManageChokeGroupsDispatch_exec((ManageChokeGroupsDispatch*)self, a1, a2, err);
-            return;
-        case MidiFileDropDispatch_itype:
-            MidiFileDropDispatch_exec((MidiFileDropDispatch*)self, a1, a2, err);
-            return;
-        case SelectNextPushedPadDispatch_itype:
-            SelectNextPushedPadDispatch_exec((SelectNextPushedPadDispatch*)self, a1, a2, err);
-            return;
-       default:
-            Error_format(err, "Failed to resolve interface call in SelectNextPushedPadDispatch_exec: found type %s", Interface_toString(self->itype));
-    }
-    return;
+    self->refCount++;
 }
-
-Dispatch *Dispatch_create(int itype, Error *err)
+void VstOutlet_decRef(VstOutlet *self)
 {
-    switch(itype) {
-        case DecrementFrameDispatch_itype:
-            return DecrementFrameDispatch_create(itype);
-        case IncrementFrameDispatch_itype:
-            return IncrementFrameDispatch_create(itype);
-        case ManageChokeGroupsDispatch_itype:
-            return ManageChokeGroupsDispatch_create(itype);
-        case MidiFileDropDispatch_itype:
-            return MidiFileDropDispatch_create(itype);
-        case SelectNextPushedPadDispatch_itype:
-            return SelectNextPushedPadDispatch_create(itype);
-        default:
-            Error_format(err, "Failed to resolve interface call in SelectNextPushedPadDispatch_create: found type %s", Interface_toString(itype));
-    }
-    return NULL;
+    self->refCount--;
+    if (self->refCount <= 0) {
+       AtomAr_decRef(self->atoms);        
+       Port_decRef(self->port);        
+   }
+   return;
 }
+JSON_Value *VstOutlet_toJson(VstOutlet *self, Error *err) {
+   JSON_Value *jval  = json_value_init_object();
+   JSON_Object *jobj = json_value_get_object(jval);
+   
+   if (json_object_set_string(jobj, "*type", "VstOutlet") != JSONSuccess) {
+       Error_format0(err, "toJson failed to set_string (typename) on type VstOutlet");
+       goto FAIL;
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = AtomAr_toJson(self->atoms, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "atoms", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of atoms on type VstOutlet");
+           goto FAIL;
+       }
+   }
+   {   
+       // NOTE: json_object_set_value TAKES target, it doesn't copy it.
+       JSON_Value *target = Port_toJson(self->port, err);
+       Error_gotoLabelOnError(err, FAIL);
+       if (json_object_set_value(jobj, "port", target) != JSONSuccess) {
+           json_value_free(target);
+           Error_format0(err, "toJson failed to set_value (reference) of port on type VstOutlet");
+           goto FAIL;
+       }
+   }
+   return jval;
 
-void Dispatch_free(Dispatch *self, Error *err)
-{
-    switch(self->itype) {
-        case DecrementFrameDispatch_itype:
-            Dispatch_freeDefault(self);
-            return;
-        case IncrementFrameDispatch_itype:
-            Dispatch_freeDefault(self);
-            return;
-        case ManageChokeGroupsDispatch_itype:
-            Dispatch_freeDefault(self);
-            return;
-        case MidiFileDropDispatch_itype:
-            Dispatch_freeDefault(self);
-            return;
-        case SelectNextPushedPadDispatch_itype:
-            Dispatch_freeDefault(self);
-            return;
-       default:
-            Error_format(err, "Failed to resolve interface call in SelectNextPushedPadDispatch_free: found type %s", Interface_toString(self->itype));
-    }
-    return;
+   FAIL:
+   json_value_free(jval);
+   return NULL;
 }
+VstOutlet *VstOutlet_fromJson(JSON_Value *jval, Error *err) {
+   JSON_Object *jobj = json_value_get_object(jval);
+   if (jobj == NULL) {
+       Error_format0(err, "VstOutlet_fromJson passed non-object");
+       return NULL;
+   }
+   {
+       const char *s = json_object_get_string(jobj, "*type");
+       if (s == NULL) {
+           Error_format0(err, "fromJson object does not contain *type on type VstOutlet");
+           return NULL;
+       } else if (strcmp(s, "VstOutlet") != 0) {
+           Error_format0(err, "fromJson *type mismatch: found '%s' expected 'VstOutlet'", s);
+           return NULL;
+       }
+       
+   }
 
-void Dispatch_initDispatchPtAr(int itype, DispatchPtAr *a1, Error *err)
-{
-    switch(itype) {
-        case DecrementFrameDispatch_itype:
-            Dispatch_initDispatchPtArDefault(itype, a1, err);
-            return;
-        case IncrementFrameDispatch_itype:
-            Dispatch_initDispatchPtArDefault(itype, a1, err);
-            return;
-        case ManageChokeGroupsDispatch_itype:
-            ManageChokeGroupsDispatch_initDispatchPtAr(itype, a1, err);
-            return;
-        case MidiFileDropDispatch_itype:
-            Dispatch_initDispatchPtArDefault(itype, a1, err);
-            return;
-        case SelectNextPushedPadDispatch_itype:
-            Dispatch_initDispatchPtArDefault(itype, a1, err);
-            return;
-       default:
-            Error_format(err, "Failed to resolve interface call in SelectNextPushedPadDispatch_initDispatchPtAr: found type %s", Interface_toString(itype));
-    }
-    return;
-}
+   VstOutlet *self = VstOutlet_new();
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "atoms");
+       if (target == NULL) {
+           Error_format0(err, "'VstOutlet' json object does not contain a json value for 'atoms'");
+           goto FAIL;
+       }
+       self->atoms = VstOutlet_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   {   
+       JSON_Value *target = json_object_get_value(jobj, "port");
+       if (target == NULL) {
+           Error_format0(err, "'VstOutlet' json object does not contain a json value for 'port'");
+           goto FAIL;
+       }
+       self->port = VstOutlet_fromJson(target, err);
+       Error_gotoLabelOnError(err, FAIL);
+   }
+   return self;
 
-void Marshal_process(Marshal *self, Arguments *a1, long a2, Atom *a3, Error *err)
-{
-    switch(self->itype) {
-        case MarshalSi_itype:
-            MarshalSi_process((MarshalSi*)self, a1, a2, a3, err);
-            return;
-        case MarshalSii_itype:
-            MarshalSii_process((MarshalSii*)self, a1, a2, a3, err);
-            return;
-        case MarshalSs_itype:
-            MarshalSs_process((MarshalSs*)self, a1, a2, a3, err);
-            return;
-       default:
-            Error_format(err, "Failed to resolve interface call in MarshalSs_process: found type %s", Interface_toString(self->itype));
-    }
-    return;
+   FAIL:
+   VstOutlet_free(self);
+   return NULL;
 }
-
-void Marshal_zeroArgs(Marshal *self, Arguments *a1, Error *err)
-{
-    switch(self->itype) {
-        case MarshalSi_itype:
-            MarshalSi_zeroArgs((MarshalSi*)self, a1);
-            return;
-        case MarshalSii_itype:
-            MarshalSii_zeroArgs((MarshalSii*)self, a1);
-            return;
-        case MarshalSs_itype:
-            MarshalSs_zeroArgs((MarshalSs*)self, a1);
-            return;
-       default:
-            Error_format(err, "Failed to resolve interface call in MarshalSs_zeroArgs: found type %s", Interface_toString(self->itype));
-    }
-    return;
+VstOutlet *VstOutlet_clone(VstOutlet *self) {
+   VstOutlet *other = VstOutlet_new();
+   other->atoms = AtomAr_clone(self->atoms);
+   other->port = Port_clone(self->port);
+   return self;
 }
-
-void Outlet_sendNote(Outlet *self, uint8_t a1, uint8_t a2, Error *err)
-{
-    switch(self->itype) {
-        case BendOutlet_itype:
-            return;
-        case CcOutlet_itype:
-            return;
-        case NoteOutlet_itype:
-            NoteOutlet_sendNote((NoteOutlet*)self, a1, a2);
-            return;
-        case NullOutlet_itype:
-            return;
-        case VstOutlet_itype:
-            return;
-       default:
-            Error_format(err, "Failed to resolve interface call in VstOutlet_sendNote: found type %s", Interface_toString(self->itype));
-    }
-    return;
-}
-
-void Outlet_sendFloat(Outlet *self, double a1, Error *err)
-{
-    switch(self->itype) {
-        case BendOutlet_itype:
-            BendOutlet_sendFloat((BendOutlet*)self, a1);
-            return;
-        case CcOutlet_itype:
-            CcOutlet_sendFloat((CcOutlet*)self, a1);
-            return;
-        case NoteOutlet_itype:
-            return;
-        case NullOutlet_itype:
-            return;
-        case VstOutlet_itype:
-            VstOutlet_sendFloat((VstOutlet*)self, a1);
-            return;
-       default:
-            Error_format(err, "Failed to resolve interface call in VstOutlet_sendFloat: found type %s", Interface_toString(self->itype));
-    }
-    return;
-}
-
-void Sequence_start(Sequence *self, Ticks a1, Ticks a2, TimedPq *a3, RecordBuffer *a4, Error *err)
-{
-    switch(self->itype) {
-        case FloatSequence_itype:
-            FloatSequence_start((FloatSequence*)self, a1, a2, a3, a4, err);
-            return;
-        case NoteSequence_itype:
-            NoteSequence_start((NoteSequence*)self, a1, a2, a3, a4, err);
-            return;
-       default:
-            Error_format(err, "Failed to resolve interface call in NoteSequence_start: found type %s", Interface_toString(self->itype));
-    }
-    return;
-}
-
-void Sequence_drive(Sequence *self, Ticks a1, TimedPq *a2, Error *err)
-{
-    switch(self->itype) {
-        case FloatSequence_itype:
-            FloatSequence_drive((FloatSequence*)self, a1, a2, err);
-            return;
-        case NoteSequence_itype:
-            NoteSequence_drive((NoteSequence*)self, a1, a2, err);
-            return;
-       default:
-            Error_format(err, "Failed to resolve interface call in NoteSequence_drive: found type %s", Interface_toString(self->itype));
-    }
-    return;
-}
-
-void Sequence_stop(Sequence *self, Ticks a1, Error *err)
-{
-    switch(self->itype) {
-        case FloatSequence_itype:
-            FloatSequence_stop((FloatSequence*)self, a1, err);
-            return;
-        case NoteSequence_itype:
-            NoteSequence_stop((NoteSequence*)self, a1, err);
-            return;
-       default:
-            Error_format(err, "Failed to resolve interface call in NoteSequence_stop: found type %s", Interface_toString(self->itype));
-    }
-    return;
-}
-
-void Sequence_padNoteOff(Sequence *self, int a1, Ticks a2, Error *err)
-{
-    switch(self->itype) {
-        case FloatSequence_itype:
-            FloatSequence_padNoteOff((FloatSequence*)self, a1, a2, err);
-            return;
-        case NoteSequence_itype:
-            NoteSequence_padNoteOff((NoteSequence*)self, a1, a2, err);
-            return;
-       default:
-            Error_format(err, "Failed to resolve interface call in NoteSequence_padNoteOff: found type %s", Interface_toString(self->itype));
-    }
-    return;
-}
-
-void Sequence_setCycle(Sequence *self, bool a1, Error *err)
-{
-    switch(self->itype) {
-        case FloatSequence_itype:
-            FloatSequence_setCycle((FloatSequence*)self, a1);
-            return;
-        case NoteSequence_itype:
-            NoteSequence_setCycle((NoteSequence*)self, a1);
-            return;
-       default:
-            Error_format(err, "Failed to resolve interface call in NoteSequence_setCycle: found type %s", Interface_toString(self->itype));
-    }
-    return;
-}
-
-void Sequence_free(Sequence *self, Error *err)
-{
-    switch(self->itype) {
-        case FloatSequence_itype:
-            FloatSequence_free((FloatSequence*)self);
-            return;
-        case NoteSequence_itype:
-            NoteSequence_free((NoteSequence*)self);
-            return;
-       default:
-            Error_format(err, "Failed to resolve interface call in NoteSequence_free: found type %s", Interface_toString(self->itype));
-    }
-    return;
-}
-
-Sequence *Sequence_compactNew(Sequence *self, Error *err)
-{
-    switch(self->itype) {
-        case FloatSequence_itype:
-            return NULL;
-        case NoteSequence_itype:
-            return NoteSequence_compactNew((NoteSequence*)self);
-        default:
-            Error_format(err, "Failed to resolve interface call in NoteSequence_compactNew: found type %s", Interface_toString(self->itype));
-    }
-    return NULL;
-}
-
-Sequence *Sequence_compactConcat(Sequence *self, Sequence *a1, Error *err)
-{
-    switch(self->itype) {
-        case FloatSequence_itype:
-            return NULL;
-        case NoteSequence_itype:
-            return NoteSequence_compactConcat((NoteSequence*)self, a1);
-        default:
-            Error_format(err, "Failed to resolve interface call in NoteSequence_compactConcat: found type %s", Interface_toString(self->itype));
-    }
-    return NULL;
-}
-
-void Sequence_compactFinish(Sequence *self, Error *err)
-{
-    switch(self->itype) {
-        case FloatSequence_itype:
-            return;
-        case NoteSequence_itype:
-            return;
-       default:
-            Error_format(err, "Failed to resolve interface call in NoteSequence_compactFinish: found type %s", Interface_toString(self->itype));
-    }
-    return;
-}
-
-const char *Interface_toString(int itype)
-{
-    switch(itype) {
-        case Undefined_itype:
-            return "Undefined";
-        case BendOutlet_itype:
-            return "BendOutlet";
-        case CcOutlet_itype:
-            return "CcOutlet";
-        case DecrementFrameDispatch_itype:
-            return "DecrementFrameDispatch";
-        case FloatSequence_itype:
-            return "FloatSequence";
-        case IncrementFrameDispatch_itype:
-            return "IncrementFrameDispatch";
-        case ManageChokeGroupsDispatch_itype:
-            return "ManageChokeGroupsDispatch";
-        case MarshalSi_itype:
-            return "MarshalSi";
-        case MarshalSii_itype:
-            return "MarshalSii";
-        case MarshalSs_itype:
-            return "MarshalSs";
-        case MidiFileDropDispatch_itype:
-            return "MidiFileDropDispatch";
-        case NoteOutlet_itype:
-            return "NoteOutlet";
-        case NoteSequence_itype:
-            return "NoteSequence";
-        case NullOutlet_itype:
-            return "NullOutlet";
-        case SelectNextPushedPadDispatch_itype:
-            return "SelectNextPushedPadDispatch";
-        case VstOutlet_itype:
-            return "VstOutlet";
-    }
-    return "Unknown";
-}
+void VstOutlet_setAtoms(VstOutlet *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->atoms;
+                self->atoms = value;
+                AtomAr_incRef(self->atoms);
+                AtomAr_decRef(old);
+            }
+void VstOutlet_setPort(VstOutlet *self, <EXPAND_FAIL> *value) {
+                <EXPAND_FAIL> *old = self->port;
+                self->port = value;
+                Port_incRef(self->port);
+                Port_decRef(old);
+            }
 #line 1 "src/dispatch.in.c"
 
 #line 15 "src/dispatch.in.c"
 
-#line 34 "src/dispatch.in.c"
+#line 35 "src/dispatch.in.c"
 
-#line 42 "src/dispatch.in.c"
+#line 56 "src/dispatch.in.c"
 
-#line 50 "src/dispatch.in.c"
+#line 77 "src/dispatch.in.c"
 
-#line 58 "src/dispatch.in.c"
-
-#line 120 "src/dispatch.in.c"
-
-#line 128 "src/dispatch.in.c"
-
-#line 136 "src/dispatch.in.c"
+#line 98 "src/dispatch.in.c"
 
 #line 144 "src/dispatch.in.c"
 
-#line 152 "src/dispatch.in.c"
+#line 169 "src/dispatch.in.c"
 
-#line 160 "src/dispatch.in.c"
+#line 194 "src/dispatch.in.c"
+
+#line 219 "src/dispatch.in.c"
+
+#line 244 "src/dispatch.in.c"
+
+#line 269 "src/dispatch.in.c"
 
 
 
@@ -7024,11 +7055,11 @@ APIF Dispatch *ManageChokeGroupsDispatch_create(int itype) {
    return self;
 }
 
-APIF void ManageChokeGroupsDispatch_initDispatchPtAr(int itype, DispatchPtAr *disPtAr, Error *ignored) {
+APIF void ManageChokeGroupsDispatch_initDispatchAr(int itype, DispatchAr *disPtAr, Error *ignored) {
    for (int i = 0; i < 3; i++) {
       Dispatch *dis = ManageChokeGroupsDispatch_create(itype);
       dis->inlet    = i;
-      DispatchPtAr_push(disPtAr, dis);
+      DispatchAr_push(disPtAr, dis);
    }
    return;
 }
@@ -7084,19 +7115,19 @@ APIF void Dispatch_freeDefault(Dispatch *d) {
    Mem_free(d);
 }
 
-APIF void Dispatch_initDispatchPtArDefault(int itype, DispatchPtAr *disPtAr, Error *err) {
+APIF void Dispatch_initDispatchArDefault(int itype, DispatchAr *disPtAr, Error *err) {
    Dispatch *dis = Dispatch_create(itype, err);
    Error_returnVoidOnError(err);
-   DispatchPtAr_push(disPtAr, dis);
+   DispatchAr_push(disPtAr, dis);
 }
 
-APIF void DispatchPtAr_populate(DispatchPtAr *self, Error *err) {
-   DispatchPtAr_truncate(self);
+APIF void DispatchAr_populate(DispatchAr *self, Error *err) {
+   DispatchAr_truncate(self);
    Dispatch_foreachIType(itype) {
-      Dispatch_initDispatchPtAr(itype, self, err);
+      Dispatch_initDispatchAr(itype, self, err);
       Error_maypost(err);
    }
-   DispatchPtAr_sort(self);
+   DispatchAr_sort(self);
 }
 
 
@@ -7105,7 +7136,7 @@ APIF void DispatchPtAr_populate(DispatchPtAr *self, Error *err) {
 #define APIF /**/
 String *stripBaseName(const char *path);
 
-#line 17 "src/midiseq.in.c"
+#line 16 "src/midiseq.in.c"
 
 APIF void String_split(String *src, const char *delim, StringPtAr *stringPtAr)
 {
@@ -7129,11 +7160,11 @@ APIF void String_split(String *src, const char *delim, StringPtAr *stringPtAr)
     return;
 }
 
-#line 50 "src/midiseq.in.c"
+#line 49 "src/midiseq.in.c"
 
-APIF int Symbol_cmpUnderlying(Symbol **left, Symbol **right) 
+APIF int Symbol_cmpUnderlying(Symbol *left, Symbol *right) 
 {
-    return strcmp(Symbol_cstr(*left), Symbol_cstr(*right)); 
+    return strcmp(Symbol_cstr(left), Symbol_cstr(right)); 
 }
 
 #ifdef TEST_BUILD
@@ -7142,7 +7173,7 @@ SymbolPtAr *gSymbols = NULL;
 APIF Symbol *Symbol_gen(const char *word) 
 {
     if (gSymbols == NULL) {
-        gSymbols = SymbolPtAr_new(0);
+        gSymbols = SymbolAr_new();
     }
     Symbol s  = {word};
     Symbol **rp = SymbolPtAr_binSearchUnderlying(gSymbols, &s);
@@ -7167,9 +7198,11 @@ APIF void Symbol_freeAll()
 
 #line 92 "src/midiseq.in.c"
 
-#line 101 "src/midiseq.in.c"
+#line 100 "src/midiseq.in.c"
 
-#line 121 "src/midiseq.in.c"
+#line 108 "src/midiseq.in.c"
+
+#line 128 "src/midiseq.in.c"
 
 
 Port Port_nullImpl =
@@ -7266,55 +7299,32 @@ APIF void Port_sendInteger(Port *self, int outlet, long value, Error *err)
 #endif
 }
 
-#line 224 "src/midiseq.in.c"
-
 #line 232 "src/midiseq.in.c"
 
 #line 240 "src/midiseq.in.c"
 
 #line 248 "src/midiseq.in.c"
 
+#line 257 "src/midiseq.in.c"
+APIF int Int_cmp(Int *left, Int *right)
+{
+    if (left->i < right->i) {
+        return -1;
+    } else if (left->i > right->i) {
+        return 1;
+    }
+    return 0;
+}
 
+#line 277 "src/midiseq.in.c"
 
-#line 264 "src/midiseq.in.c"
+#line 332 "src/midiseq.in.c"
 
-#line 294 "src/midiseq.in.c"
-#define BinFile_nullLengthFieldSizeStr "11"
-#define BinFile_maxLength              2147483647
-#define BinFileFlag_tag                1
-#define BinFile_writeBackLength(bf, location, err) BinFile_writeBackLengthFlags(bf, location, -1, err)
-#define BinFile_readLength(bf, err) BinFile_readLengthFlags(bf, NULL, err)
-#define BinFile_writeLength(bf, length, err) BinFile_writeLengthFlags(bf, length, -1, err)
-NOCOVER static inline PortFind *BinFile_portFindPayload(BinFile *self){ return (self->payload == NULL ? NULL : self->payload->portFind); }
-NOCOVER static inline void BinFile_setPayload(BinFile *self, BinFilePayload *payload) { self->payload = payload;}
+#line 359 "src/midiseq.in.c"
 
-const int Midiseq_notetype   = 1;
-const int Midiseq_bendtype   = 2;
-const int Midiseq_cctype     = 3;
-const int Midiseq_cycletype  = 4;
-const int Midiseq_endgrptype = 5;
+#line 378 "src/midiseq.in.c"
 
-#line 341 "src/midiseq.in.c"
-
-
-#line 407 "src/midiseq.in.c"
-
-
-#line 435 "src/midiseq.in.c"
-
-#line 462 "src/midiseq.in.c"
-
-#line 486 "src/midiseq.in.c"
-
-
-#line 507 "src/midiseq.in.c"
-
-#line 532 "src/midiseq.in.c"
-
-
-#line 547 "src/midiseq.in.c"
-
-#line 564 "src/midiseq.in.c"
+#line 394 "src/midiseq.in.c"
 
 #define PortRef_declare(name, port, outlet)    PortRef _##name = {port, outlet}; PortRef *name = &_##name
 COVER static inline void PortRef_set(PortRef *pr, Port *port, int outlet) {
@@ -7347,33 +7357,24 @@ APIF int PortRef_cmp(PortRef *left, PortRef *right)
 
 
 
-#line 620 "src/midiseq.in.c"
-
-COVER static inline PortRef *DropDown_portRef(DropDown *dd) {
-    return &dd->portRef;
-}
-
-COVER static inline void DropDown_setPortRef(DropDown *dd, PortRef *pr) {
-   dd->portRef = *pr;
-}
+#line 445 "src/midiseq.in.c"
 
 //
 // D R O P   D O W N
 //
 
-APIF void DropDown_build(DropDown *dd, const char **table, PortRef *pr) {
-    SymbolPtrAr_init(&dd->table, 0);
+APIF void DropDown_build(DropDown *self, const char **table, Outlet *outlet) {
     const char **ptr = table;
     while (*ptr) {
         Symbol *s = Symbol_gen(*ptr);
-        SymbolPtrAr_push(&dd->table, s);
+        SymbolAr_push(self->table, s);
         ptr++;
     }
-    DropDown_setPortRef(dd, pr);
+    DropDown_setOutlet(self, outlet);
     return;
 }
 
-APIF void DropDown_buildCGLocalGlobal(DropDown *dd, PortRef *pr) {
+APIF DropDown *DropDown_newCGLocalGlobal(Outlet *outlet) {
     Coverage_off;
     const char *t[] = {
         "local",
@@ -7381,10 +7382,12 @@ APIF void DropDown_buildCGLocalGlobal(DropDown *dd, PortRef *pr) {
         NULL
     };
     Coverage_on;
-    DropDown_build(dd, t, pr);
+    DropDown *self = DropDown_new();
+    DropDown_build(self, t, outlet);
+    return self;
 }
 
-APIF void DropDown_buildCGInstrument(DropDown *dd, PortRef *pr) {
+APIF DropDown *DropDown_newCGInstrument(Outlet *outlet) {
     Coverage_off;
     const char *t[] = {
         "none",
@@ -7396,10 +7399,12 @@ APIF void DropDown_buildCGInstrument(DropDown *dd, PortRef *pr) {
         NULL,
     };
     Coverage_on;
-    DropDown_build(dd, t, pr);
+    DropDown *self = DropDown_new();
+    DropDown_build(self, t, outlet);
+    return self;
 }
 
-APIF void DropDown_buildCGIndex(DropDown *dd, PortRef *pr) {
+APIF DropDown *DropDown_newCGIndex(DropDown *dd, Outlet *outlet) {
     Coverage_off;
     const char *t[] = {
         "none",
@@ -7422,7 +7427,9 @@ APIF void DropDown_buildCGIndex(DropDown *dd, PortRef *pr) {
         NULL
     };
     Coverage_on;
-    DropDown_build(dd, t, pr);
+    DropDown *self = DropDown_new();
+    DropDown_build(self, t, outlet);
+    return self;
 }
 
 // APIF void DropDown_clear(DropDown *dd) {
@@ -7434,15 +7441,15 @@ APIF void DropDown_buildCGIndex(DropDown *dd, PortRef *pr) {
 //     Mem_free(dd);
 // }
 
-APIF void DropDown_updateSelected(DropDown *dd, Error *err) {
+APIF DropDown *DropDown_updateSelected(DropDown *dd, Error *err) {
     Symbol *s = SymbolPtrAr_get(&dd->table, dd->selected, err);
     Error_returnVoidOnError(err);
 
     Atom a[2] = {Atom_fromSymbol(Symbol_gen("set")), Atom_fromSymbol(s)};
-    PortRef_send(DropDown_portRef(dd), 2, a, err);
+    // PortRef_send(DropDown_portRef(dd), 2, a, err);
 }
 
-APIF void DropDown_setSelected(DropDown *dd, int selected, Error *err) {
+APIF DropDown *DropDown_setSelected(DropDown *dd, int selected, Error *err) {
     if (selected < 0 || selected >= SymbolPtrAr_len(&dd->table)) {
         Error_format(err, "Index out of range (%d, %d)", selected, SymbolPtrAr_len(&dd->table));
         return;
@@ -7450,657 +7457,81 @@ APIF void DropDown_setSelected(DropDown *dd, int selected, Error *err) {
     dd->selected = selected;
 }
 
-APIF void DropDown_initializeMenu(DropDown *dd, Error *err) {
+APIF DropDown *DropDown_initializeMenu(DropDown *dd, Error *err) {
     Atom clear = Atom_fromSymbol(Symbol_gen("clear"));
     Atom append = Atom_fromSymbol(Symbol_gen("append"));
 
-    PortRef_send(&dd->portRef, 1, &clear, err);
+    // PortRef_send(&dd->portRef, 1, &clear, err);
     Error_returnVoidOnError(err);
 
-    SymbolPtrAr_foreach(it, &dd->table) {
+    SymbolAr_foreach(it, &dd->table) {
         Atom a[2] = {append, Atom_fromSymbol(*it.var)};
-        PortRef_send(&dd->portRef, 2, a, err);
+        // PortRef_send(&dd->portRef, 2, a, err);
         Error_returnVoidOnError(err);        
     }
 }
-#line 847 "src/midiseq.in.c"
+#line 639 "src/midiseq.in.c"
 
-#line 865 "src/midiseq.in.c"
-
-//
-// Memory allocation Notes. These are the functions that are used in sdsalloc.h
-//
-
-// malloc
-//          t_ptr sysmem_newptr	(long size)
-// realloc
-//          t_ptr sysmem_resizeptr	(void *ptr, long newsize)
-// calloc
-//          t_ptr sysmem_newptrclear(long size)
-// free
-//          void sysmem_freeptr	(	void * 	ptr	)
+#line 657 "src/midiseq.in.c"
 
 //
 // U t i l i t y
 //
-APIF int Midiseq_convertIntFileLine(const char *src, Error *err, const char *function, const char *file, int line)
-{
-    errno = 0;
-    long v = strtol(src, NULL, 10);
-    if (errno != 0) {
-        Coverage_off;
-        Error_formatFileLine(err, function, file, line, String_fmt("Failed to convert int error code %s", 
-          (errno == EINVAL ? "EINVAL" : errno == ERANGE ? "ERANGE" : "Unknown")));
-        Coverage_on;
 
-    }
-    return v;
-}
+// APIF int Midiseq_convertIntFileLine(const char *src, Error *err, const char *function, const char *file, int line)
+// {
+//     errno = 0;
+//     long v = strtol(src, NULL, 10);
+//     if (errno != 0) {
+//         Coverage_off;
+//         Error_formatFileLine(err, function, file, line, String_fmt("Failed to convert int error code %s", 
+//           (errno == EINVAL ? "EINVAL" : errno == ERANGE ? "ERANGE" : "Unknown")));
+//         Coverage_on;
+
+//     }
+//     return v;
+// }
 
 
 #define Midiseq_convertInt(src, err) Midiseq_convertIntFileLine(src, err, __func__, __FILE__, __LINE__)
 
-//
-// M I D I S E Q
-//
-#define Midiseq_maxLineLength 1024
+// APIF Midiseq *Midiseq_newNote(int pitch)
+// {
+//     Midiseq *mseq = Midiseq_new();
+//     MEventAr_truncate(&mseq->events);
 
-// Create new empty midi sequence
-
-APIF void Midiseq_userInit(Midiseq *self)
-{
-    self->sequenceLength = 480*4;
-
-    MEvent cell = {0};
-    cell.t = 0;
-    cell.type = Midiseq_endgrptype;
-    MEventAr_push(&self->events, cell);
+//     mseq->sequenceLength = 480*4;
     
-    cell.t = self->sequenceLength;
-    cell.type = Midiseq_cycletype;
-    MEventAr_push(&self->events, cell);
-
-    MEventAr_fit(&self->events);
-}
-
-
-
-APIF void Midiseq_toBinFile(Midiseq *mseq, BinFile *bf, Error *err) {
-    BinFile_writeTag(bf, "midiseq", err);
-    Error_returnVoidOnError(err);
-
-    BinFile_writeBool(bf, Midiseq_useMasterClock(mseq), err);
-    Error_returnVoidOnError(err);
-
-    BinFile_writeTicks(bf, Midiseq_sequenceLength(mseq), err);
-    Error_returnVoidOnError(err);
-
-    BinFile_writeInteger(bf, MEventAr_len(&mseq->events), err);
-    Error_returnVoidOnError(err);
-
-    BinFile_writeTag(bf, "midiseq_start_data", err);
-    Error_returnVoidOnError(err);
-
-    MEventAr_foreach(it, &mseq->events) {
-        MEvent cell = *it.var;
-        if (fprintf(BinFile_stream(bf), " %u %u %lld", MEvent_type(cell), MEvent_bendValue(cell), MEvent_t(cell)) < 0) {
-            Error_format(err, "Midiseq_toBinFile failed at fprintf[1] while writing %s", BinFile_filename(bf));
-            return;
-        }
-
-        if (MEvent_type(cell) == Midiseq_notetype) {
-            if (fprintf(BinFile_stream(bf), " %lld", MEvent_noteDuration(cell)) < 0) {
-                Error_format(err, "Midiseq_toBinFile failed at fprintf[2] while writing %s", BinFile_filename(bf));
-                return;       
-            }
-        }
-    }
-    BinFile_writeTag(bf, "midiseq_end_data", err);
-    Error_returnVoidOnError(err);
-}
-
-
-APIF Midiseq *Midiseq_fromBinFile(BinFile *bf, Error *err) {
-    Midiseq *mseq = Midiseq_new();
-    Midiseq_fromBinFileUnititialized(mseq, bf, err);
-    if (Error_iserror(err)) {
-        Mem_free(mseq);
-        return NULL;
-    }
-    return mseq;
-}
-
-APIF void Midiseq_fromBinFileUnititialized(Midiseq *mseq, BinFile *bf, Error *err) {
-    BinFile_verifyTag(bf, "midiseq", err);
-    Error_returnVoidOnError(err);
-
-    Midiseq_setUseMasterClock(mseq, BinFile_readBool(bf, err));
-    Error_returnVoidOnError(err);
-
-    Midiseq_setSequenceLength(mseq, BinFile_readTicks(bf,  err));
-    Error_returnVoidOnError(err);
-
-    long length = BinFile_readInteger(bf, err);
-    Error_returnVoidOnError(err);
-
-    BinFile_verifyTag(bf, "midiseq_start_data", err);
-    Error_returnVoidOnError(err);
-
-    MEventAr_init(&mseq->events, 0);
-    for (int i = 0; i < length; i++) {
-        MEvent cell = {0};
-        unsigned int type = 0, bendVal = 0;
-        if (fscanf(BinFile_stream(bf), " %u %u %lld", &type, &bendVal, &MEvent_t(cell)) != 3) {
-            Error_format(err, "Midiseq_fromBinFile failed at fscanf[1] while reading %s", BinFile_filename(bf));
-            goto END;
-        }
-        MEvent_type(cell)      = type;
-        MEvent_bendValue(cell) = bendVal;
-
-        if (MEvent_type(cell) == Midiseq_notetype) {
-            if (fscanf(BinFile_stream(bf), " %lld", &MEvent_noteDuration(cell)) != 1) {
-                Error_format(err, "Midiseq_fromBinFile failed at fscanf[2] while reading %s", BinFile_filename(bf));
-                goto END;
-            }
-        }
-        MEventAr_push(&mseq->events, cell);
-    }
-    MEventAr_fit(&mseq->events);
-    BinFile_verifyTag(bf, "midiseq_end_data", err);
-    Error_gotoLabelOnError(err, END);
-    return;
-
-  END:
-    MEventAr_clear(&mseq->events);
-    return;
-}
-
-APIF Midiseq *Midiseq_newNote(int pitch)
-{
-    Midiseq *mseq = Midiseq_new();
-    MEventAr_truncate(&mseq->events);
-
-    mseq->sequenceLength = 480*4;
-    
-    MEvent zero = {0}, cell = {0};
-
-    MEvent_t(cell)    = 0;
-    MEvent_type(cell) = Midiseq_endgrptype;
-    MEventAr_push(&mseq->events, cell);
-
-    cell = zero;
-    MEvent_t(cell)            = 0;
-    MEvent_type(cell)         = Midiseq_notetype;
-    MEvent_notePitch(cell)    = pitch;
-    MEvent_noteVelocity(cell) = 90;
-    MEvent_noteDuration(cell) = 480;
-    MEventAr_push(&mseq->events, cell);
-
-    cell              = zero;
-    MEvent_t(cell)    = mseq->sequenceLength;
-    MEvent_type(cell) = Midiseq_cycletype;
-    MEventAr_push(&mseq->events, cell);
-
-    MEventAr_fit(&mseq->events);
-
-    return mseq;
-}
-
-APIF int Midiseq_len(Midiseq *mseq)
-{
-    // REMEMBER: because of cycle and endgroup, every midi sequence has at least 2 elements.
-    return MEventAr_len(&mseq->events);
-}
-
-
-APIF void Midiseq_push(Midiseq *mseq, MEvent cell)
-{
-    MEventAr_push(&mseq->events, cell);
-}
-
-
-APIF MEvent *Midiseq_get(Midiseq *mseq, int index, Error *err)
-{
-    return MEventAr_getp(&mseq->events, index, err);
-}
-
-
-bool Midiseq_pathsAllocated = false;
-String *Midiseq_midiCsvExecPath = NULL;
-String *Midiseq_csvMidiExecPath = NULL;
-
-APIF void Midiseq_setMidicsvExecPath()
-{
-    if (!Midiseq_pathsAllocated) {
-        Midiseq_midiCsvExecPath = String_fmt("%s/packages/midicsv-1.1/midicsv", CSEQ_HOME);
-        Midiseq_csvMidiExecPath = String_fmt("%s/packages/midicsv-1.1/csvmidi", CSEQ_HOME);
-        Midiseq_pathsAllocated = true;
-    }
-}
-
-
-APIF void Midiseq_dblog(Midiseq *mseq)
-{
-    dblog("Midiseq %p", mseq);
-    MEventAr_foreach(it, &mseq->events) {
-        MEvent cell = *it.var;
-        switch (MEvent_type(cell)) {
-            case Midiseq_notetype:
-                dblog("    %15lld note %15ld %15ld %15ld", MEvent_t(cell), (long)MEvent_notePitch(cell), (long)MEvent_noteVelocity(cell), (long)MEvent_noteDuration(cell));
-                break;
-            case Midiseq_bendtype:
-                dblog("    %15lld bend", MEvent_t(cell));
-                break;
-            case Midiseq_cctype:
-                dblog("    %15lld cc", MEvent_t(cell));
-                break;
-            case Midiseq_endgrptype:
-                dblog("    %15lld endgroup", MEvent_t(cell));
-                break;
-            case Midiseq_cycletype:
-                dblog("    %15lld cycle", MEvent_t(cell));
-                break;
-        }
-    }
-    return;
-}
-
-//
-// F R O M     F I L E
-//
-APIF int midiseq_tokenize(FILE *fd, StringPtAr **ret, Error *err)
-{
-    static String *buffer       = NULL;
-    static StringPtAr *arBuffer = NULL;
-    if (buffer == NULL) {
-        buffer   = String_empty();
-        arBuffer = StringPtAr_new(0);
-    }
-    if (!String_readline(&buffer, fd, err)) {
-        return 0;
-    }
-    String_split(buffer, ",", arBuffer);
-    StringPtAr_foreach(it, arBuffer) {
-        String_trim(it.var);
-    }
-    *ret = arBuffer;
-    return 1;
-}
-
-
-APIF int Midiseq_assignLength(Midiseq *mseq)
-{
-    const long ppqn = 480;
-    const long measureLength = ppqn*4;
-    if (Midiseq_len(mseq) == 0) {
-        mseq->sequenceLength = measureLength;
-        return 0;
-    }
-
-    Ticks end = 0;
-    MEventAr_foreach(it, &mseq->events) {
-        long t = it.var->t;
-        if (it.var->type == Midiseq_notetype) {
-            t += it.var->duration;
-        }
-        if (t > end) {
-            end = t;
-        }
-    }
-
-    mseq->sequenceLength = (end/measureLength)*measureLength + (end % measureLength == 0 ? 0 : measureLength);
-    return 0;
-}
-
-
-APIF int Midiseq_insertCell(Midiseq *mseq, MEvent cell, int index, Error *err)
-{
-    MEventAr_insert(&mseq->events, index, cell, err);
-    if (Error_iserror(err)) {
-        return 1;
-    }
-    return 0;
-}
-
-
-APIF void Midiseq_insertEndgroup(Midiseq *mseq, Error *err)
-{
-    MEvent cell = {0};
-    cell.type = Midiseq_endgrptype;
-
-    if (MEventAr_len(&mseq->events) < 2) {
-        cell.t = mseq->sequenceLength;
-        MEventAr_rforeach(it, &mseq->events) {
-            if (it.var->type == Midiseq_notetype) {
-                cell.t = it.var->t;
-                MEventAr_insert(&mseq->events, 0, cell, err);
-                return;   
-            }
-        }
-        MEventAr_push(&mseq->events, cell);
-        return;
-    }
-
-    MEventAr_rforeach(it, &mseq->events) {
-        if (it.var->type == Midiseq_notetype) {
-            cell.t = it.var->t;
-            int index = it.index;
-            while (MEventArRIt_next(&it)) {
-                if (cell.t != it.var->t) {
-                    break;
-                }
-                index++;
-            }
-            if (index < 0) {
-                index = 0;
-            }
-            Midiseq_insertCell(mseq, cell, index, err);
-            return;
-        }
-    }
-
-    MEvent e = MEventAr_get(&mseq->events, 0, err);
-    Error_returnVoidOnError(err);
-    cell.t = e.t;
-    Midiseq_insertCell(mseq, cell, 0, err);
-    Error_returnVoidOnError(err);
-    return;
-}
-
-
-APIF int Midiseq_start(Midiseq *mseq, Ticks startTime, Ticks currentTime, bool useMasterClock, Error *err)
-{
-    if (startTime > currentTime) {
-        Error_format0(err, "INTERNAL ERROR");
-        return 1;
-    }
-    Ticks adj            = mseq->sequenceLength*((currentTime-startTime)/mseq->sequenceLength);
-    mseq->startTime      = startTime + adj;
-    mseq->useMasterClock = useMasterClock;
-    mseq->ptr            = 0;
-    if (useMasterClock) {
-        if (Midiseq_fastfwrd(mseq, currentTime, err)) {
-            return 1;
-        }
-    }
-    return 0;
-}
-
-
-APIF void Midiseq_stop(Midiseq *mseq)
-{
-    mseq->startTime = 0;
-    return;
-}
-
-
-enum
-{
-    Midiseq_nextEventErrored  = 1,
-    Midiseq_nextEventComplete = 2,
-    Midiseq_nextEventContinue = 3,
-    Midiseq_nextEventBreak    = 4,
-};
-
-// Midiseq_nextevent always writes the current cell into the cell pointer. If the event
-// stored in cell happened before until, then (a) the sequence is advanced and (b) the
-// function returns 1. Otherwise 0 is returned and the sequence is left alone.
-APIF int Midiseq_nextevent(Midiseq *mseq, Ticks until, MEvent *cell, Error *err)
-{
-    if (mseq->startTime == 0) {
-        Error_format0(err, "Called nextevent on stoped sequence");
-        return Midiseq_nextEventErrored;
-    }
-    if (mseq->ptr >= Midiseq_len(mseq)) {
-        // This is the case when the entire sequence has been played, and this
-        // is NOT a useMasterClock sequence. If useMasterClock is true mseq->ptr should
-        // never satisfy the if criterion.
-        *cell = MEventAr_get(&mseq->events, MEventAr_last(&mseq->events), err);
-        if (Error_iserror(err)) {
-            return Midiseq_nextEventErrored;
-        }
-        return Midiseq_nextEventComplete;
-    }
-
-    MEvent c = MEventAr_get(&mseq->events, mseq->ptr, err);
-    if (Error_iserror(err)) {
-        return Midiseq_nextEventErrored;
-    }
-
-    Ticks t = c.t + mseq->startTime;
-    Ticks diff = t-until >= 0 ? t-until : until-t;
-
-    if ( (diff-1)/mseq->sequenceLength > 0) {
-        Error_format(err, "INTERNAL ERROR %lld %lld %lld", diff, mseq->sequenceLength, diff/mseq->sequenceLength);
-        return Midiseq_nextEventErrored;
-    }
-
-    *cell = c;
-    cell->t = t;
-    if (t > until) {
-        return Midiseq_nextEventBreak;
-    }
-
-    mseq->ptr++;
-    if (mseq->ptr >= Midiseq_len(mseq) && mseq->useMasterClock) {
-        mseq->ptr        = 0;
-        mseq->startTime += mseq->sequenceLength;
-    }
-    return Midiseq_nextEventContinue;
-}
-
-
-APIF int Midiseq_fastfwrd(Midiseq *mseq, long t, Error *err)
-{
-    if (mseq->startTime == 0) {
-        return 1;
-    }
-
-    MEventAr_foreach(it, &mseq->events) {
-        if (it.var->t + mseq->startTime >= t) {
-            mseq->ptr = it.index;
-            return 0;
-        }
-    }
-
-    mseq->ptr = 0;
-    return 0;
-}
-
-
-APIF Midiseq *Midiseq_fromfile(const char *fullpath, Error *err)
-{
-    char tempfile[] = "/tmp/MidiseqMaxMSPXXXXXX";
-    FILE *fd = NULL;
-    bool allOK = false;
-    Midiseq *mseq = (Midiseq*)Mem_calloc(sizeof(Midiseq));
-    Midiseq_init(mseq);
-    MEventAr_truncate(&mseq->events);
-
-    // Call midicsv. To do this we create a new destination file, then route our output to it
-    String *buffer = NULL;
-    int tempFd = mkstemp(tempfile);
-    if (tempFd < 0) {
-        Error_format0(err, "Failed to create temp file");
-        goto END;
-    }
-    close(tempFd);
-
-    buffer = String_fmt("'%s' '%s' > '%s'", Midiseq_midiCsvExecPath, fullpath, tempfile);    
-    int exitCode = system(buffer);
-    if (exitCode != 0) {
-        Error_format(err, "Failed '%s' with exit code %d", buffer, exitCode);
-        goto END;
-    }
-
-    // Open the result file and parse away
-    fd = fopen(tempfile, "r");
-    if (fd == NULL) {
-        Error_format(err, "Failed to open temp file '%s'", tempfile);
-        goto END;
-    }
-
-    int desiredPPQN = 480;
-    float tickFactor = 1.0;
-
-    // ons[i] holds the index-1 of the last note-on of pitch i. Or zero if there is no pending note-on
-    int ons[128] = {0};
-    int linenum = 0;
-    while (true) {
-        StringPtAr *fieldsAr = NULL;
-        if (!midiseq_tokenize(fd, &fieldsAr, err)) {
-            if (Error_iserror(err)) {
-                goto END;
-            }
-            break;
-        }
-        linenum++;
-
-        if (StringPtAr_len(fieldsAr) < 3) {
-            Error_format(err, "Not enough fields in midicsv file '%s' line %d", tempfile, linenum);
-            goto END;
-        }
-
-        int nfields   = StringPtAr_len(fieldsAr);
-
-        // THIS IS AWEFUL. IMPORTANT you can't touch fields after you call _push or any other method that might reallocate.
-        char **fields = (char**)fieldsAr->data;
-        if (Error_iserror(err)) {
-            goto END;
-        }
-
-        MEvent cell = {0};
-        cell.t = (long)(tickFactor*Midiseq_convertInt(fields[1], err));
-        if (Error_iserror(err)) {
-            goto END;
-        }
-
-        const char *typ = fields[2];
-
-        bool isOn = strcmp(typ, "Note_on_c") == 0;
-        bool isOff = strcmp(typ, "Note_off_c") == 0;
-        if ( isOn || isOff ) {
-            if (nfields < 6) {
-                Error_format(err, "Bad Note_on_c file '%s' line %d", tempfile, linenum);
-                goto END;
-            }
-            long pitch    = Midiseq_convertInt(fields[4], err);
-            long velocity = Midiseq_convertInt(fields[5], err);
-            if (Error_iserror(err)) {
-                goto END;
-            }
-            if (velocity == 0) {
-                isOn = false;
-                isOff = true;
-            }
-
-            if (isOn) {
-                cell.type = Midiseq_notetype;
-                cell.b.b[0]  = (uint8_t)pitch;
-                cell.b.b[1]  = (uint8_t)velocity;
-                if (ons[pitch] != 0) {
-                    Error_format(err, "Found an unbalanced NOTE-ON: while working on` file '%s' line %d", tempfile, linenum);
-                    goto END;
-                }
-                Midiseq_push(mseq, cell);
-                ons[pitch] = Midiseq_len(mseq);
-            } else {
-                if (ons[pitch] == 0) {
-                    Error_format(err, "Found an unmatched note-off: while working on` file '%s' line %d", tempfile, linenum);
-                    goto END;
-                }
-                int index = ons[pitch]-1;
-                if (index >= Midiseq_len(mseq)) {
-                    Error_format0(err, "INTERNAL ERROR");
-                    goto END;
-                }
-                MEvent *c = Midiseq_get(mseq, index, err);
-                if (Error_iserror(err)) {
-                    goto END;
-                }
-                c->duration = cell.t - c->t;
-                ons[pitch] = 0;
-            }
-        } else if (strcmp(typ, "Pitch_bend_c") == 0) {
-            if (nfields < 5) {
-                Error_format(err, "Bad Pitch_bend_c file '%s' line %d", tempfile, linenum);
-                goto END;
-            }
-            long value = Midiseq_convertInt(fields[4], err);
-            if (Error_iserror(err)) {
-                goto END;
-            }
-            cell.type   = Midiseq_bendtype;
-            cell.b.bend = value;
-            Midiseq_push(mseq, cell);
-        } else if (strcmp(typ, "Control_c") == 0) {
-            if (nfields < 5) {
-                Error_format(err, "Bad Control_c file '%s' line %d", tempfile, linenum);
-                goto END;
-            }
-            long cc = Midiseq_convertInt(fields[4], err);
-            long val  = Midiseq_convertInt(fields[5], err);
-            if (Error_iserror(err)) {
-                goto END;
-            }
-            cell.type = Midiseq_cctype;
-            cell.b.b[0]  = (uint8_t)cc;
-            cell.b.b[1]  = (uint8_t)val;
-            Midiseq_push(mseq, cell);
-        } else if (strcmp(typ, "Header") == 0) {
-            if (nfields < 6) {
-                Error_format(err, "Bad Header file '%s' line %d", tempfile, linenum);
-                goto END;
-            }
-            long ppqn = Midiseq_convertInt(fields[5], err);
-            if (Error_iserror(err)) {
-                goto END;
-            }
-            tickFactor = (float)(desiredPPQN)/(float)(ppqn);
-        }
-        fields = NULL;
-        nfields = 0;
-    }
-
-    // Compute length and install cycle and end group
-    Midiseq_assignLength(mseq);
-    MEvent cycle = {0};
-    cycle.t = mseq->sequenceLength;
-    cycle.type = Midiseq_cycletype;
-    Midiseq_push(mseq, cycle);
-    Midiseq_insertEndgroup(mseq, err);
-    if (Error_iserror(err)) {
-        Error_clear(err);
-        goto END;
-    }
-    allOK = true;
-
-    END:
-    if (buffer != NULL) {
-        String_free(buffer);
-    }
-    if (fd != NULL) {
-        fclose(fd);
-    }
-    
-    unlink(tempfile);
-
-    if (allOK) {
-        return mseq;
-    }
-
-
-    // Error state
-    Midiseq_free(mseq);
-    return NULL;
-}
+//     MEvent zero = {0}, cell = {0};
+
+//     MEvent_t(cell)    = 0;
+//     MEvent_type(cell) = Midiseq_endgrptype;
+//     MEventAr_push(&mseq->events, cell);
+
+//     cell = zero;
+//     MEvent_t(cell)            = 0;
+//     MEvent_type(cell)         = Midiseq_notetype;
+//     MEvent_notePitch(cell)    = pitch;
+//     MEvent_noteVelocity(cell) = 90;
+//     MEvent_noteDuration(cell) = 480;
+//     MEventAr_push(&mseq->events, cell);
+
+//     cell              = zero;
+//     MEvent_t(cell)    = mseq->sequenceLength;
+//     MEvent_type(cell) = Midiseq_cycletype;
+//     MEventAr_push(&mseq->events, cell);
+
+//     MEventAr_fit(&mseq->events);
+
+//     return mseq;
+// }
 
 //
 // P A T C H E R    F I N D
 //
-#line 1519 "src/midiseq.in.c"
+#line 735 "src/midiseq.in.c"
 
-#line 1543 "src/midiseq.in.c"
+#line 759 "src/midiseq.in.c"
 
 #define PortFind_declare(name) PortFind _##name; PortFind *name = &_##name; memset(name, 0, sizeof(PortFind)); PortFind_init(name)        
 
@@ -8236,64 +7667,6 @@ APIF Outlet *PortFind_createOutlet(PortFind *self, OutletSpecifier *spec)
 // P A D
 //
 
-APIF void Pad_setSequence(Pad *pad, Midiseq *midi)
-{
-    if (Pad_sequence(pad) != NULL) {
-        Midiseq_free(Pad_sequence(pad));
-    }
-    pad->sequence = midi;
-}
-
-APIF void Pad_toBinFile(Pad *pad, BinFile *bf, Error *err) {
-    BinFile_writeSymbol(bf, Pad_trackName(pad), err);
-    Error_returnVoidOnError(err);    
-
-    BinFile_writeInteger(bf, Pad_padIndex(pad), err);
-    Error_returnVoidOnError(err);    
-
-    Midiseq_toBinFile(Pad_sequence(pad), bf, err);
-    Error_returnVoidOnError(err);
-
-    BinFile_writeBool(bf, Pad_chokeGroupGlobal(pad), err);
-    Error_returnVoidOnError(err);
-
-    BinFile_writeInteger(bf, Pad_chokeGroupInstrument(pad), err);
-    Error_returnVoidOnError(err);
-
-    BinFile_writeInteger(bf, Pad_chokeGroupIndex(pad), err);
-    Error_returnVoidOnError(err);
-}
-
-APIF Pad *Pad_fromBinFile(BinFile *bf, Error *err) {
-    Pad *pad = Pad_new();
-    Pad_fromBinFileUninitialized(pad, bf, err);
-    if (Error_iserror(err)) {
-        Mem_free(pad);
-        return NULL;
-    }
-    return pad;
-}
-
-APIF void Pad_fromBinFileUninitialized(Pad *pad, BinFile *bf, Error *err) {
-    Pad_setTrackName(pad, BinFile_readSymbol(bf, err));
-    Error_returnVoidOnError(err);
-
-    Pad_setPadIndex(pad, BinFile_readInteger(bf, err));
-    Error_returnVoidOnError(err);
-
-    Pad_setSequence(pad, Midiseq_fromBinFile(bf, err));
-    Error_returnVoidOnError(err);    
-
-    Pad_setChokeGroupGlobal(pad, BinFile_readBool(bf, err));
-    Error_returnVoidOnError(err);
-
-    Pad_setChokeGroupInstrument(pad, BinFile_readInteger(bf, err));
-    Error_returnVoidOnError(err);
-
-    Pad_setChokeGroupIndex(pad, BinFile_readInteger(bf, err));
-    Error_returnVoidOnError(err);
-}
-
 APIF void Pad_computeChokeGroup(Pad *pad) {
     if (!Pad_chokeGroupGlobal(pad) && Pad_chokeGroupInstrument(pad) == 0 && Pad_chokeGroupIndex(pad) == 0) {
         Pad_setChokeGroup(pad, 0);
@@ -8381,129 +7754,6 @@ APIF void PadList_assignTrack(PadList *pl, TrackList *tl)
     }
 }
 
-APIF void PadList_toBinFile(PadList *pl, BinFile *bf, Error *err) {
-    BinFile_writeTag(bf, "padlist_start", err);
-    Error_returnVoidOnError(err);
-
-    BinFile_writeInteger(bf, PadAr_len(&pl->pads), err);
-    Error_returnVoidOnError(err);
-
-    PadAr_foreach(it, &pl->pads) {
-        Pad_toBinFile(it.var, bf, err);
-        Error_returnVoidOnError(err);                
-    }
-
-    BinFile_writeTag(bf, "padlist_end", err);
-    Error_returnVoidOnError(err);
-}
-
-APIF PadList *PadList_fromBinFile(BinFile *bf, Error *err) {
-    PadList *pl = PadList_newN(0);
-    PadList_fromBinFileInitialized(pl, bf, err);
-    if (Error_iserror(err)) {
-        PadList_free(pl);
-        return NULL;
-    }
-    return pl;
-}
-
-// Remember the rul is that if there is an error, the PadList passed in remains uninitialized.
-APIF void PadList_fromBinFileInitialized(PadList *pl, BinFile *bf, Error *err) {
-    BinFile_verifyTag(bf, "padlist_start", err);
-    Error_returnVoidOnError(err);
-
-    long len = BinFile_readInteger(bf, err);
-    Error_returnVoidOnError(err);
-            
-    for (int i = 0; i < len; i++) {
-        Pad pad = {0};
-        Pad_fromBinFileUninitialized(&pad, bf, err);
-        Error_returnVoidOnError(err);
-        PadAr_push(&pl->pads, pad);
-    }
-    BinFile_verifyTag(bf, "padlist_end", err);
-    PadAr_fit(&pl->pads);
-}
-
-//
-// T R A C K
-//
-
-APIF TrackList *TrackList_newBuild(PortFind *pf)
-{
-    TrackList *tl = TrackList_new();
-    TrackList_build(tl, pf);
-    return tl;
-}
-
-APIF void TrackList_build(TrackList *tl, PortFind *pf) {
-
-    {
-        // Insert the null track at position 1 of the tracklist
-        Track t = {0};
-        t.name  = Symbol_gen("null");
-        t.noteManager = NoteManager_newFromPort(Port_null);
-        TrackAr_push(&tl->list, t);
-    }
-
-    Error_declare(err);
-    for (int i = 0; i < PortFind_portCount(pf); i++) {
-        // Notice I don't handle any error that occures. I assume none do since I bound findByIndex by portCount
-        Port *p = PortFind_findByIndex(pf, i, err);
-        if (Error_maypost(err)) {
-            continue;
-        }
-        Track t = {0};
-        Track_setName(&t, Port_track(p));
-        Track_setNoteManager(&t, NoteManager_newFromPort(p));
-        TrackAr_push(&tl->list, t);
-    }
-    Error_clear(err);
-    return;
-}
-
-APIF Track *TrackList_findTrackByName(TrackList *tl, Symbol *name)
-{
-    TrackAr_foreach(it, &tl->list) {
-        if (it.var->name == name) {
-            return it.var;
-        }
-    }
-
-    // Always return the Null track if didn't find.
-    Error_declare(err);
-    Track *t = TrackAr_getp(&tl->list, 0, err);
-    Error_clear(err);
-    return t;        
-}
-
-
-APIF int TrackList_count(TrackList *tl)
-{
-    return TrackAr_len(&tl->list);
-}
-
-
-APIF Track *TrackList_findTrackByIndex(TrackList *tl, int index, Error *err)
-{
-    return TrackAr_getp(&tl->list, index, err);
-}
-
-// NOTE: currently nothing is actually stored in the output file. The complete tracklist comes from a port find payload in the BinFile instance.
-APIF TrackList *TrackList_fromBinFile(BinFile *bf, Error *err)
-{
-    PortFind *pf = BinFile_portFindPayload(bf);
-    if (pf == NULL) {
-        Error_format0(err, "Expected portFindPayload on BinFile, but didn't see one");
-        return NULL;
-    }
-
-    return TrackList_newBuild(pf);
-}
-
-APIF void TrackList_toBinFile(TrackList *tl, BinFile *bf, Error *err) {
-    // NO-op since nothing in the tracklist is written to file.
-}
 
 
 
@@ -8529,170 +7779,6 @@ APIF int TimedOff_cmpTime(TimedOff *left, TimedOff *right) {
     return 0;   
 }
 
-
-
-//
-// N O T E   M A N A G E R
-//
-
-const int NoteManager_atomcount = 4;
-
-
-APIF NoteManager *NoteManager_newFromPort(Port *port)
-{
-    NoteManager *self = NoteManager_new();
-    self->output      = port;
-    return self;
-}
-
-APIF void NoteManager_userInit(NoteManager *self)
-{
-    self->atoms = Mem_calloc(sizeof(Atom) * NoteManager_atomcount);    
-}
-
-APIF void NoteManager_userClear(NoteManager *self) 
-{
-    Mem_free(self->atoms);
-    self->atoms = NULL;
-}
-
-// insert a note off, and remove any single pitch that is already there. Return true if a note-off was removed
-APIF bool NoteManager_insertNoteOff(NoteManager *manager, Ticks timestamp, int pitch, int padIndexForEndgroup)
-{
-    Error_declare(ignored);
-    bool q = false;
-    IndexedOffAr_foreach(it, &manager->endgroups) {
-        if (it.var->pitch == pitch) {
-            IndexedOffAr_remove(&manager->endgroups, it.index, ignored);
-            q = true;
-            break;
-        }
-    }
-
-    TimedOffAr_foreach(it, &manager->pending) {
-        if (it.var->pitch == pitch) {
-            TimedOffAr_remove(&manager->pending, it.index, ignored);
-            q = true;
-            break;
-        }   
-    }
-
-
-    if (padIndexForEndgroup >= 0) {
-        // Mark this pitch as endgroup
-        IndexedOff_declare(off, padIndexForEndgroup, pitch);
-        IndexedOffAr_binInsertPadIndex(&manager->endgroups, off);
-    } else {
-        TimedOff_declare(off, timestamp, pitch);
-        TimedOffAr_binInsertTime(&manager->pending, off);
-    }
-
-    Error_maypost(ignored);
-
-    return q;
-}
-
-
-// This is 10010000 which is a note-on (1001), on channel 0 (0000)
-const int NOTEON_COMMAND = 144;
-
-APIF void NoteManager_sendNoteOn(NoteManager *manager, int pitch, int velocity)
-{
-    Atom *av = manager->atoms;
-    av[0] = Atom_fromSymbol(Symbol_gen("midievent"));
-    av[1] = Atom_fromInteger(NOTEON_COMMAND);
-    av[2] = Atom_fromInteger(pitch);
-    av[3] = Atom_fromInteger(velocity);
-    Error_declare(err);
-    Port_send(manager->output, 0, 4, av, err);
-    Error_maypost(err);
-}
-
-
-APIF void NoteManager_flushOffs(NoteManager *manager)
-{
-    IndexedOffAr_foreach(it, &manager->endgroups) {
-        NoteManager_sendNoteOn(manager, it.var->pitch, 0);
-    }
-    IndexedOffAr_truncate(&manager->endgroups);
-
-    TimedOffAr_foreach(it, &manager->pending) {
-        NoteManager_sendNoteOn(manager, it.var->pitch, 0);   
-    }
-    TimedOffAr_truncate(&manager->pending);
-}
-
-APIF void NoteManager_allOff(NoteManager *manager)
-{
-    for (int i = 0; i < 128; i++) {
-        NoteManager_sendNoteOn(manager, i, 0);      
-    }
-}
-
-APIF void NoteManager_dblogPending(NoteManager *manager, Ticks current)
-{
-    dblog("dbPending %lld:", current);
-    TimedOffAr_foreach(it, &manager->pending) {
-        dblog("  %lld %d", it.var->time-current, it.var->pitch); 
-    }
-}
-
-
-APIF Ticks NoteManager_scheduleOffs(NoteManager *manager, Ticks current)
-{
-    Error_declare(err);
-    int count = 0;
-    TimedOffAr_foreach(it, &manager->pending) {
-        if (it.var->time > current) {
-            break;
-        }
-        NoteManager_sendNoteOn(manager, it.var->pitch , 0);
-        count++;
-    }
-    if (count > 0) {
-        TimedOffAr_removeN(&manager->pending, 0, count, err);
-        Error_maypost(err);
-    }
-    
-    TimedOffAr_foreach(it, &manager->pending) {
-        return it.var->time-current;
-    }
-
-    return -1;
-}
-
-
-// padIndexForEndgroup should be -1 if this cell is not in an endgroup
-APIF void NoteManager_midievent(NoteManager *manager, MEvent cell, int padIndexForEndgroup)
-{
-    if (MEvent_type(cell) == Midiseq_notetype) {
-        int pitch     = MEvent_notePitch(cell);
-        int velocity  = MEvent_noteVelocity(cell);
-        Ticks offtime = MEvent_t(cell) + MEvent_noteDuration(cell);
-
-        if (NoteManager_insertNoteOff(manager, offtime, pitch, padIndexForEndgroup)) {
-            NoteManager_sendNoteOn(manager, pitch, 0);
-        }
-        NoteManager_sendNoteOn(manager, pitch, velocity);
-    }
-}
-
-
-APIF void NoteManager_padNoteOff(NoteManager *manager, int padIndex)
-{
-    IndexedOff_declare(off, padIndex, 0);
-    IndexedOffArFIt_declare0(slice);
-    slice = IndexedOffAr_binSearchPadIndex(&manager->endgroups, off);
-    if (IndexedOffArFIt_atEnd(&slice)) {
-        return;
-    }
-    IndexedOffAr_loop(slice) {
-        NoteManager_sendNoteOn(manager, slice.var->pitch, 0);
-    }
-    IndexedOffAr_binRemovePadIndex(&manager->endgroups, off);
-    return;
-}
-
 //
 // H U B
 //
@@ -8714,11 +7800,12 @@ APIF void Hub_build(Hub *hub, PortFind *pf, Error *err) {
     Hub_setSelFramePort(hub, PortFind_findById(pf, Symbol_gen("selFrame")));
     Hub_setSelPadPort(hub, PortFind_findById(pf, Symbol_gen("selPad")));
 
-    Port *cg = PortFind_findById(pf, Symbol_gen("chokeGroup"));
-    PortRef_declare(portRef, cg, 0);
-    DropDown_buildCGLocalGlobal(Hub_cgLocalGlobalMenu(hub), portRef);
+    /*
+    Outlet *broken = NULL;
+    // Port *cg = PortFind_findById(pf, Symbol_gen("chokeGroup"));
+    Hub_setCgLogcalGlobalMenu(hub, DropDown_newCGLocalGlobal(broken));
+    Hub_setCgInstru(hub, DropDown_newCGInstrument(broken));
 
-    PortRef_set(portRef, cg, 1);
     DropDown_buildCGInstrument(Hub_cgInstrumentMenu(hub), portRef);
 
     PortRef_set(portRef, cg, 2);
@@ -8752,6 +7839,7 @@ APIF void Hub_build(Hub *hub, PortFind *pf, Error *err) {
     DispatchPtAr_init(&hub->dispatcher, 0);
     DispatchPtAr_populate(&hub->dispatcher, err);
     Error_returnVoidOnError(err);
+    */
 }
 
 APIF void Hub_updateGuiCurrentCoordinates(Hub *hub) 
@@ -8846,451 +7934,7 @@ APIF void Hub_intDispatch(Hub *hub, Port *port, long value, long inlet)
     }
     Arguments_setIvalue(&hub->arguments, 0);
     Arguments_setInlet(&hub->arguments, 0);
-
-    /*
-    Hub *hub = (Hub*)hub_in;
-    int ev = port_parseEvSymbol(Port_id(port));
-    if (ev >= 0) {
-        dblog("Ev sent to %d: inlet %ld", ev, inlet);
-    } else if (Port_id(port) == Symbol_gen("chokeGroup")) {
-        Error_declare(err);
-        Hub_manageChokeGroups(hub, value, inlet, err);
-        if (Error_maypost(err)) {
-            // Reset pad b/c the drop down is now not consistent with the Pad
-            Hub_changeSelectedPad(hub, Hub_selectedPad(hub), err);
-            Error_maypost(err);
-        }
-    }
-    */
 }
-
-APIF void Hub_toBinFile(Hub *hub, BinFile *bf, Error *err) {
-    BinFile_writeTag(bf, "hub_start", err);
-    Error_returnVoidOnError(err);
-
-    PadList_toBinFile(Hub_padList(hub), bf, err);
-    Error_returnVoidOnError(err);
-
-    TrackList_toBinFile(Hub_trackList(hub), bf, err);
-    Error_returnVoidOnError(err);
-
-    BinFile_writeTag(bf, "hub_end", err);    
-    Error_returnVoidOnError(err);
-}
-
-APIF Hub *Hub_fromBinFile(BinFile *bf, Error *err) {
-    // Hub *hub = Hub_newUninitialized();
-    // Hub_fromBinFileUninitialized(hub, bf, err);
-    // if (Error_iserror(err)) {
-    //     Hub_free(hub);
-    //     return NULL;
-    // }
-    // return hub;
-    return NULL;
-}
-
-APIF void Hub_fromBinFileUninitialized(Hub *hub, BinFile *bf, Error *err) {
-    BinFile_verifyTag(bf, "hub_start", err);
-    Error_returnVoidOnError(err);
-
-    Hub_setPadList(hub, PadList_fromBinFile(bf, err));
-    Error_returnVoidOnError(err);
-    
-    Hub_setTrackList(hub, TrackList_fromBinFile(bf, err));
-    Error_returnVoidOnError(err);
-
-    BinFile_verifyTag(bf, "hub_end", err);    
-    Error_returnVoidOnError(err);
-}
-
-
-//
-// B I N    F I L E
-//
-
-// APIF BinFile *BinFile_new() {
-//     BinFile *bf = Mem_calloc(sizeof(BinFile));
-//     bf->filename = String_empty();
-//     bf->buffer   = String_empty();
-//     return bf;
-// }
-
-APIF BinFile *BinFile_newWriter(const char *file, Error *err) {
-    BinFile *bf =  BinFile_new();
-    BinFile_setStream(bf, fopen(file, "w"));
-    if (BinFile_stream(bf) == NULL) {
-        Error_format(err, "Failed to open file %s", file);
-        BinFile_free(bf);
-        return NULL;
-    }
-    String_free(bf->filename);
-    bf->filename = String_fmt("%s", file);
-
-    if (fprintf(BinFile_stream(bf), "%d ", BinFile_version(bf)) < 0) {
-        Error_format(err, "Failed to write version number to file %s", file);
-        BinFile_free(bf);
-        return NULL;
-    }
-
-    return bf;
-}
-
-APIF BinFile *BinFile_newReader(const char *file, Error *err) {
-    BinFile *bf =  BinFile_new();
-    BinFile_setStream(bf, fopen(file, "r"));
-    if (BinFile_stream(bf) == NULL) {
-        Error_format(err, "Failed to open file %s", file);
-        BinFile_free(bf);
-        return NULL;
-    }
-    bf->filename = String_fmt("%s", file);
-    if (fscanf(BinFile_stream(bf), "%d ", &bf->version)) {
-        Error_format(err, "Failed to read version number from file  %s", file);
-        BinFile_free(bf);
-        return NULL;
-    }
-    return bf;
-}
-
-// APIF void BinFile_free(BinFile *bf) {
-//     if (BinFile_stream(bf) != NULL) {
-//         fclose(BinFile_stream(bf));
-//         BinFile_setStream(bf, NULL);
-//     }
-//     String_free(bf->filename);
-//     String_free(bf->buffer);
-//     Mem_free(bf);
-// }
-
-APIF void BinFile_userClear(BinFile *bf) {
-    if (BinFile_stream(bf) != NULL) {
-        fclose(BinFile_stream(bf));
-        BinFile_setStream(bf, NULL);
-    }
-}
-
-
-APIF int binFile_hexDigitToInt(char hex) {
-    switch (hex) {
-        case '0': return 0;
-        case '1': return 1;
-        case '2': return 2;
-        case '3': return 3;
-        case '4': return 4;
-        case '5': return 5;
-        case '6': return 6;
-        case '7': return 7;
-        case '8': return 8;
-        case '9': return 9;
-        case 'a': return 10;
-        case 'b': return 11;
-        case 'c': return 12;
-        case 'd': return 13;
-        case 'e': return 14;
-        case 'f': return 15;
-    }
-    return 0;
-}
-APIF char binFile_intToHexDigit(int digit) {
-    switch (digit) {
-        case 0: return '0';
-        case 1: return '1';
-        case 2: return '2';
-        case 3: return '3';
-        case 4: return '4';
-        case 5: return '5';
-        case 6: return '6';
-        case 7: return '7';
-        case 8: return '8';
-        case 9: return '9';
-        case 10: return 'a';
-        case 11: return 'b';
-        case 12: return 'c';
-        case 13: return 'd';
-        case 14: return 'e';
-        case 15: return 'f';
-    }
-    return 0;
-}
-
-APIF off_t BinFile_writeNullLength(BinFile *bf, bool spaceForFlags, Error *err) {
-    errno = 0;
-    off_t start = BinFile_tell(bf, err);
-    Error_returnZeroOnError(err);
-
-    const char *format = ("%" BinFile_nullLengthFieldSizeStr "s ");
-    if (fprintf(BinFile_stream(bf), format, "") < 0) {
-        Error_format(err, "Failed fprintf while writing %s", BinFile_filename(bf));
-        return 0;
-    }
-    if (spaceForFlags) {
-        if (fprintf(BinFile_stream(bf), "0000 ") < 0) {
-            Error_format(err, "Failed fprintf while writing %s", BinFile_filename(bf));
-            return 0;
-        }
-    }
-    return start;
-} 
-
-APIF void BinFile_writeFlags(BinFile *bf, long flags, Error *err) {
-    Coverage_off;
-    char hex[4] = {
-        binFile_intToHexDigit((flags)       & 0xFF),
-        binFile_intToHexDigit((flags >> 8)  & 0xFF),
-        binFile_intToHexDigit((flags >> 16) & 0xFF),
-        binFile_intToHexDigit((flags >> 24) & 0xFF),
-    };
-    Coverage_on;
-    if (fprintf(BinFile_stream(bf), "%c%c%c%c ", hex[0], hex[1], hex[2], hex[3]) < 0) {
-        Error_format(err, "Failed fprintf while writing %s", BinFile_filename(bf));
-        return;
-    }
-}
-
-APIF void BinFile_writeBackLengthFlags(BinFile *bf, off_t location, long flags, Error *err) {
-    off_t end = BinFile_tell(bf, err);
-    Error_returnVoidOnError(err);
-
-    long length = (long)(end-location);
-    if (length > BinFile_maxLength) {
-        Error_format(err, "Length is too large (%ld) while writing %s", length, BinFile_filename(bf));
-        return;
-    }
-    if (fseeko(BinFile_stream(bf), location, SEEK_SET) != 0){
-        Error_format(err, "Failed fseeko[1] while writing %s", BinFile_filename(bf));
-        return;
-    }
-
-    if (flags >= 0) {
-        length = -length;
-    }
-
-    const char *format = ("%" BinFile_nullLengthFieldSizeStr "ld ");
-    if (fprintf(BinFile_stream(bf), format, length) < 0) {
-        Error_format(err, "Failed fprintf while writing %s", BinFile_filename(bf));
-        return;
-    }
-
-    if (flags >= 0) {
-        BinFile_writeFlags(bf, flags, err);
-    }
-
-    if (fseeko(BinFile_stream(bf), end, SEEK_SET) != 0){
-        Error_format(err, "Failed fseeko[2] while writing %s", BinFile_filename(bf));
-        return;
-    }
-    
-    return;
-}
-
-APIF void BinFile_writeLengthFlags(BinFile *bf, long length, long flags, Error *err) {
-    if (length > BinFile_maxLength) {
-        Error_format(err, "Length is too large (%ld) while writing %s", length, BinFile_filename(bf));
-        return;
-    }
-    if (flags >= 0) {
-        length = -length;
-    }
-    if (fprintf(BinFile_stream(bf), "%ld ", length) < 0) {
-        Error_format(err, "Failed fprintf while writing %s", BinFile_filename(bf));
-        return;
-    }
-    if (flags >= 0) {
-        BinFile_writeFlags(bf, flags, err);
-    }
-
-}
-
-APIF long BinFile_readLengthFlags(BinFile *bf, long *flags, Error *err) {
-    long length;
-    char space;
-    if (fscanf(BinFile_stream(bf), " %ld%c", &length, &space) != 2 || space != ' ') {
-        Error_format(err, "Failed sscanf[1] while reading %s", BinFile_filename(bf));
-        return 0;   
-    }
-    if (length < 0) {
-        length = -length;
-        char f[4] = "\0\0\0\0";
-        if (fscanf(BinFile_stream(bf), "%c%c%c%c%c", f+0, f+1, f+2, f+3, &space) != 5 || space != ' ') {
-            Error_format(err, "Failed sscanf[2] while reading %s", BinFile_filename(bf));
-            return 0;   
-        }   
-        if (flags != NULL) {
-            *flags = 0;
-            for (int i = 0; i < 4; i++) {
-                int v = binFile_hexDigitToInt(f[i]) << i*8;
-                *flags = *flags | v;
-            }
-        }
-    }
-    return length;
-}
-
-APIF off_t BinFile_tell(BinFile *bf, Error *err) {
-    errno = 0;
-    off_t location = ftello(BinFile_stream(bf));
-    if (errno != 0) {
-        Error_format(err, "Failed ftello while working with %s", BinFile_filename(bf));
-        return 0;
-    }
-    return location;
-}
-
-APIF void BinFile_fillBuffer(BinFile *bf, long size, Error *err) {
-    // Want buffer to contain size+1 characters INCLUDING the null byte
-    if (String_len(bf->buffer) < size) {
-        // NOTE: I verified that this call DOES NOT shrink the buffer.
-        // NOTE: sdsMakeRoomFor always allocates sdslen()+1 bytes  
-        String_resize(&bf->buffer, size);
-    }
-    
-    if (fread((char*)bf->buffer, size, 1, BinFile_stream(bf)) != size) {
-        Error_format(err, "Failed fread while working with %s", BinFile_filename(bf));
-        return;   
-    }
-    // NOTE: this means that the buffer can be used like a string in the correct context. IT DOES NOT say that there aren't
-    // other nulls embedded in the string. I think that the way I'm preparing this string, there might be 2 nulls at the end
-    // of it. 
-    char *p = (char*)bf->buffer;
-    p[size] = '\0';
-}
-
-APIF void BinFile_writeInteger(BinFile *bf, long value, Error *err) {
-    // XXX: BORKEN
-    // sdsclear(BinFile_buffer(bf));
-    // sdscatprintf(BinFile_buffer(bf), "%ld", value);
-    
-
-
-    BinFile_writeLength(bf, String_len(BinFile_buffer(bf)), err);
-    Error_returnVoidOnError(err);
-
-    if (fwrite(BinFile_buffer(bf), String_len(BinFile_buffer(bf)), 0, BinFile_stream(bf)) != String_len(BinFile_buffer(bf))) {
-        Error_format(err, "Failed fwrite while writing %s", BinFile_filename(bf));
-        return;
-    }
-}
-
-APIF long BinFile_readInteger(BinFile *bf, Error *err) {
-    long length = BinFile_readLength(bf, err);
-    Error_returnZeroOnError(err);
-    
-    BinFile_fillBuffer(bf, length, err);
-    Error_returnZeroOnError(err);
-    
-    long value = 0;
-    if (sscanf(BinFile_buffer(bf), "%ld", &value) != 1) {
-        Error_format(err, "Failed sscanf while reading %s", BinFile_filename(bf));
-        return 0;
-    }
-    return value;
-}
-
-APIF void BinFile_writeString(BinFile *bf, String *value, Error *err) {
-    BinFile_writeLength(bf, String_len(value), err);
-    Error_returnVoidOnError(err);
-
-    if (fwrite(BinFile_buffer(bf), String_len(BinFile_buffer(bf)), 1, BinFile_stream(bf)) != String_len(BinFile_buffer(bf))) {
-        Error_format(err, "Failed fprintf while writing %s", BinFile_filename(bf));
-        return;
-    }
-
-}
-
-// must call sdsfree on any non-NULL return value
-APIF String *BinFile_readString(BinFile *bf, Error *err) {
-    uint32_t length = BinFile_readLength(bf, err);
-    Error_returnNullOnError(err);
-
-    BinFile_fillBuffer(bf, length, err);
-    Error_returnNullOnError(err);    
-    
-    return String_dup(BinFile_buffer(bf));
-}
-
-APIF void BinFile_writeSymbol(BinFile *bf, Symbol *value, Error *err) {
-    BinFile_writeString(bf, Symbol_cstr(value), err);
-    return;
-}
-
-APIF Symbol *BinFile_readSymbol(BinFile *bf, Error *err) {
-    long length = BinFile_readLength(bf, err);
-    Error_returnNullOnError(err);
-
-    BinFile_fillBuffer(bf, length, err);
-    Error_returnNullOnError(err);
-    
-    return Symbol_gen(BinFile_buffer(bf));
-}
-
-APIF void BinFile_writeTicks(BinFile *bf, Ticks value, Error *err) {
-    // XXX: BORKEN
-    // sdsclear(BinFile_buffer(bf));
-    // sdscatprintf(BinFile_buffer(bf), "%lld", value);
-
-    BinFile_writeLength(bf, String_len(BinFile_buffer(bf)), err);
-    Error_returnVoidOnError(err);
-
-    if (fwrite(BinFile_buffer(bf), String_len(BinFile_buffer(bf)), 1, BinFile_stream(bf)) != String_len(BinFile_buffer(bf))) {
-        Error_format(err, "Failed fprintf while writing %s", BinFile_filename(bf));
-        return;
-    }
-}
-
-APIF Ticks BinFile_readTicks(BinFile *bf, Error *err) {
-    uint32_t length = BinFile_readLength(bf, err);
-    Error_returnZeroOnError(err);
-    
-    BinFile_fillBuffer(bf, length, err);
-    Error_returnZeroOnError(err);
-    
-    Ticks value = 0;
-    if (sscanf(BinFile_buffer(bf), "%lld", &value) != 1) {
-        Error_format(err, "Failed sscanf while reading %s", BinFile_filename(bf));
-        return 0;
-    }
-    return value;
-}
-
-APIF void BinFile_writeBool(BinFile *bf, bool value, Error *err) {
-    BinFile_writeInteger(bf, value ? 1 : 0, err);
-}
-
-APIF bool BinFile_readBool(BinFile *bf, Error *err) {
-    return BinFile_readInteger(bf, err) ? true : false;
-}
-
-APIF void BinFile_writeTag(BinFile *bf, const char *tag, Error *err) {
-    int len = strlen(tag);
-    BinFile_writeLengthFlags(bf, len, BinFileFlag_tag, err);
-    Error_returnVoidOnError(err);
-
-    if (fwrite(tag, len, 1, BinFile_stream(bf)) != len) {
-        Error_format(err, "Failed fwrite while writing %s", BinFile_filename(bf));
-        return;
-    }
-}
-
-APIF void BinFile_verifyTag(BinFile *bf, const char *tag, Error *err) {
-    long flags  = 0;
-    long length = BinFile_readLengthFlags(bf, &flags, err);
-    Error_returnVoidOnError(err);
-    if (flags & BinFileFlag_tag) {
-        Error_format0(err, "Expected flag marked with BinFileFlag_tag");
-        return;
-    }
-    BinFile_fillBuffer(bf, length, err);
-    if (strcmp(tag, BinFile_buffer(bf)) != 0) {
-        Error_format(err, "Expected tag '%s', but found '%s'", tag, BinFile_buffer(bf));
-        return;
-    }
-    return;
-}
-
-
-
-
-
 #line 1 "src/sequence.in.c"
 
 #line 17 "src/sequence.in.c"
@@ -9433,6 +8077,11 @@ APIF void VstOutlet_sendFloat(VstOutlet *self, double value)
 
 #line 260 "src/sequence.in.c"
 
+COVER void OutletSpecifier_dbPrint(OutletSpecifier *self)
+{
+    printf("OutletSpecifier %s %d %s %d\n", Symbol_cstr(self->track), self->pluginIndex, Symbol_cstr(self->parameter), self->paramIndex);
+}
+
 COVER OutletSpecifier OutletSpecifier_makeCC(Symbol *track, int cc) {
     OutletSpecifier selfValue = {0}, *self = &selfValue;
     OutletSpecifier_init(self);
@@ -9473,8 +8122,19 @@ COVER OutletSpecifier OutletSpecifier_makeVst(Symbol *track, int pluginIndex, Sy
     return selfValue;
 }
 
+COVER OutletSpecifier OutletSpecifier_makeAudio() {
+    // Every audio sequence sorts equal. So every audio sequence shares the same config for OutletSpecifier
+    OutletSpecifier selfValue = {0}, *self = &selfValue;
+    OutletSpecifier_init(self);
+    self->track       = Symbol_gen("*audio");
+    self->pluginIndex = 0;
+    self->parameter   = Symbol_gen("*audio");
+    self->paramIndex  = 0;
+    return selfValue;
+}
 
-#line 322 "src/sequence.in.c"
+
+#line 338 "src/sequence.in.c"
 
 APIF int Timed_cmp(Timed *left, Timed *right)
 {
@@ -9528,7 +8188,7 @@ APIF void TimedPq_invalidateSequence(TimedPq *self, SequenceAr *removes)
 
 
 
-#line 397 "src/sequence.in.c"
+#line 413 "src/sequence.in.c"
 
 Ticks NoteSequence_cycleDuration   = -1;
 Ticks NoteSequence_endgDuration    = -2;
@@ -9565,10 +8225,10 @@ APIF int NoteEvent_cmp(NoteEvent *left, NoteEvent *right)
     return 0;
 }
 
-#line 495 "src/sequence.in.c"
+#line 511 "src/sequence.in.c"
 
 #define NoteSequence_isMarkerValue(v) (v < 0)
-#define NoteSequence_minSequenceLength 5
+#define Sequence_minSequenceLength 5
 
 APIF NoteSequence *NoteSequence_newTrack(Symbol *track, PortFind *portFind)
 {
@@ -9654,15 +8314,13 @@ COVER static inline void NoteSequence_playEvents(NoteSequence *self, Ticks curre
             } 
 
             if (self->recordingSeq != NULL && !NoteSequence_isMarkerValue(ne->duration)) {
-                NoteEvent e = *ne;
-                e.stime     = self->recordingSeq->startTime + ne->stime;
-                NoteEventAr_push(&self->recordingSeq->events, e);
+                NoteEventAr_push(&self->recordingSeq->events, *ne);
             }
             self->cursor++;
         }
         if (self->cycle) {
-            if (self->sequenceLength <= NoteSequence_minSequenceLength) {
-               self->sequenceLength = NoteSequence_minSequenceLength;
+            if (self->sequenceLength <= Sequence_minSequenceLength) {
+               self->sequenceLength = Sequence_minSequenceLength;
             }
             self->startTime += self->sequenceLength;
             self->cursor     = 0;
@@ -9710,8 +8368,8 @@ APIF void NoteSequence_start(NoteSequence *self, Ticks clockStart, Ticks current
     self->inEndgroup   = false;
     Ticks nextEvent    = 0;
     if (self->cycle) {
-        if (self->sequenceLength <= NoteSequence_minSequenceLength) {
-            self->sequenceLength = NoteSequence_minSequenceLength;
+        if (self->sequenceLength <= Sequence_minSequenceLength) {
+            self->sequenceLength = Sequence_minSequenceLength;
         }
         while (current - self->startTime > self->sequenceLength) {
             self->startTime += self->sequenceLength;
@@ -9736,11 +8394,13 @@ APIF void NoteSequence_start(NoteSequence *self, Ticks clockStart, Ticks current
     }
     self->recordingSeq = NULL;
     if (recordBuffer != NULL) {
-        NoteSequence *other = NoteSequence_compactNew(self);
+        NoteSequence *other = NoteSequence_castFromSequence(NoteSequence_compactNew(self, self->startTime));
         self->recordingSeq  = other; 
         RecordBuffer_push(recordBuffer, NoteSequence_castToSequence(other));
     }
-    TimedPq_enqueue(queue, nextEvent, NoteSequence_castToSequence(self));
+    if (nextEvent != 0) {
+        TimedPq_enqueue(queue, nextEvent, NoteSequence_castToSequence(self));
+    }
 }
 
 APIF void NoteSequence_stop(NoteSequence *self, Ticks current, Error *err) {
@@ -9752,7 +8412,11 @@ APIF void NoteSequence_stop(NoteSequence *self, Ticks current, Error *err) {
         TimedOffAr_foreach(offIt, &self->offs) {
             NoteEventAr_rforeach(noteIt, &self->recordingSeq->events) {
                 if (noteIt.var->pitch == offIt.var->pitch) {
-                    noteIt.var->duration = current - noteIt.var->stime;
+                    noteIt.var->duration = current - (self->startTime + noteIt.var->stime);
+                    if (noteIt.var->duration <= 0) {
+                        // Silently ignore this condition
+                        NoteEventArRIt_remove(&noteIt);
+                    }
                     break;
                 }
             }
@@ -9773,16 +8437,11 @@ APIF void NoteSequence_drive(NoteSequence *self, Ticks current, TimedPq *queue, 
     }
 }
 
-APIF void NoteSequence_padNoteOff(NoteSequence *self, int padIndex, Ticks current, Error *err) 
+APIF void NoteSequence_padNoteOff(NoteSequence *self, Ticks current, Error *err) 
 {
     if (self->inEndgroup && !self->cycle) {
         NoteSequence_stop(self, current, err);
     }
-}
-
-APIF OutletSpecifier *NoteSequence_outSpec(NoteSequence *self)
-{
-    return &self->outletSpecifier;
 }
 
 APIF void NoteSequence_makeConsistent(NoteSequence *self, Error *err)
@@ -9825,11 +8484,12 @@ APIF void NoteSequence_makeConsistent(NoteSequence *self, Error *err)
     return;
 }
 
-APIF Sequence *NoteSequence_compactNew(NoteSequence *self)
+APIF Sequence *NoteSequence_compactNew(NoteSequence *self, Ticks recordStart)
 {
     NoteSequence *other    = NoteSequence_new();
-    other->startTime       = self->startTime;
-    other->outletSpecifier = self->outletSpecifier
+    // WHen we create a compact sequence, we always set it's startTime to the recordStart which is <= than all the startTimes in the RecordBuffer
+    other->startTime       = recordStart;
+    other->outletSpecifier = self->outletSpecifier;
     other->outlet          = self->outlet;
     return NoteSequence_castToSequence(other);
 }
@@ -9838,11 +8498,93 @@ APIF void NoteSequence_compactConcat(NoteSequence *self, Sequence *otherSeq, Err
 {
     NoteSequence *other = NoteSequence_castFromSequence(otherSeq);
     if (other == NULL) {
-        Error_format0(err, "NoteSequence_compactConcat was passed a sequence of type %s", Interface_toString(otherSeq->itype));
+        Error_format(err, "NoteSequence_compactConcat was passed a sequence of type %s", Interface_toString(Interface_itype(otherSeq)));
+        return;
+    }
+    NoteEventAr_foreach(it, &other->events) {
+        NoteEvent e = *it.var;
+        if (NoteSequence_isMarkerValue(e.duration)) {
+            continue;
+        }
+        // Rememver in RecordBuffer_compact we're gauranteed that self->startTime < other->startTime
+        e.stime += (other->startTime - self->startTime);
+        NoteEventAr_push(&self->events, e); 
     }
 }
 
-#line 791 "src/sequence.in.c"
+APIF void NoteSequence_compactSortEvents(NoteSequence *self)
+{
+    NoteEventAr_sort(&self->events);
+}
+
+// Return the time that endgroup should be inserted, or -1 if no endgroup applies.
+// Note we return absolute time.
+APIF Ticks NoteSequence_computeEndgroupTime(NoteSequence *self)
+{
+    // Endgroup is the 
+    Ticks endgroupTime = -1;
+    NoteEventAr_rforeach(it, &self->events) {
+        if (NoteSequence_isMarkerValue(it.var->duration)) {
+            continue;
+        }
+        endgroupTime = self->startTime + it.var->stime;
+        break;
+    }
+    return endgroupTime;
+}
+
+APIF Ticks NoteSequence_compactComputeSequenceLength(NoteSequence *self)
+{
+    Ticks lastTime = Sequence_minSequenceLength;
+    NoteEventAr_rforeach(it, &self->events) {
+        if (NoteSequence_isMarkerValue(it.var->duration)) {
+            continue;
+        }
+        Ticks end = it.var->stime + it.var->duration;
+        if (end > lastTime) {
+            lastTime = end;
+        }
+    }
+
+    MusicalContext_declareDefault(musicalContext);
+    Ticks mlen   = musicalContext.quarterNotesPerMeasure*musicalContext.ticksPerQuarterNote;
+    Ticks seqLen = (lastTime/mlen)*mlen + (lastTime % mlen == 0 ? 0 : mlen);
+    if (seqLen < Sequence_minSequenceLength) {
+        seqLen = Sequence_minSequenceLength;
+    }
+
+    return seqLen;
+}
+
+APIF void NoteSequence_compactFinish(NoteSequence *self, Ticks endgroupTime, Ticks sequenceLength, Error *err)
+{
+    if (endgroupTime >= 0) {
+        int index = NoteEventAr_len(&self->events) > 0 ? 0 : -1;
+        NoteEventAr_rforeach(it, &self->events) {
+            if (NoteSequence_isMarkerValue(it.var->duration)) {
+                continue;
+            }
+            if (self->startTime + it.var->stime < endgroupTime) {
+                index = it.index + 1;
+                break;
+            }
+        }
+        if (index >= 0) {
+            NoteEvent newEv = {.stime = endgroupTime, .duration = NoteSequence_endgDuration, .pitch = 0, .velocity = 0};
+            NoteEventAr_insert(&self->events, index, newEv, err);
+            Error_returnVoidOnError(err);
+        }
+    }
+
+
+    self->sequenceLength = sequenceLength;
+    NoteEvent newEv = {.stime = sequenceLength, .duration = NoteSequence_cycleDuration, .pitch = 0, .velocity = 0};
+    NoteEventAr_push(&self->events, newEv);
+    NoteSequence_makeConsistent(self, err);
+    return;
+}
+
+#line 889 "src/sequence.in.c"
 
 APIF int FloatEvent_cmp(FloatEvent *left, FloatEvent *right)
 {
@@ -9854,7 +8596,7 @@ APIF int FloatEvent_cmp(FloatEvent *left, FloatEvent *right)
     return 0;
 }
 
-#line 855 "src/sequence.in.c"
+#line 953 "src/sequence.in.c"
 
 APIF FloatSequence *FloatSequence_newCc(Symbol *track, int cc, PortFind *portFind) 
 {
@@ -9891,7 +8633,7 @@ APIF FloatSequence *FloatSequence_newFromEvents(Symbol *track, int ccOrNegForBen
 
 double FloatSequence_endgMarker  = -1.0e40;
 double FloatSequence_cycleMarker = -1.0e41;
-#define FloatSequence_isMarkerValue(v) (v < 1e10)
+#define FloatSequence_isMarkerValue(v) (v < -1.0e10)
 
 APIF void FloatSequence_start(FloatSequence *self, Ticks clockStart, Ticks current, TimedPq *queue, RecordBuffer *recordBuffer, Error *err) {
     int nevents = FloatEventAr_len(&self->events);
@@ -9904,8 +8646,8 @@ APIF void FloatSequence_start(FloatSequence *self, Ticks clockStart, Ticks curre
     self->inEndgroup   = false;
     Ticks nextEvent    = 0;
     if (self->cycle) {
-        if (self->sequenceLength <= NoteSequence_minSequenceLength) {
-            self->sequenceLength = NoteSequence_minSequenceLength;
+        if (self->sequenceLength <= Sequence_minSequenceLength) {
+            self->sequenceLength = Sequence_minSequenceLength;
         }
         while (current-self->startTime > self->sequenceLength) {
             self->startTime += self->sequenceLength;
@@ -9932,19 +8674,12 @@ APIF void FloatSequence_start(FloatSequence *self, Ticks clockStart, Ticks curre
 
     self->recordingSeq = NULL;
     if (recordBuffer != NULL) {
-        FloatSequence *other = FloatSequence_recordClone(self);
-        other->startTime    = self->startTime;
+        FloatSequence *other = FloatSequence_castFromSequence(FloatSequence_compactNew(self, self->startTime));        
         self->recordingSeq  = other;    
         RecordBuffer_push(recordBuffer, FloatSequence_castToSequence(other));
     }
 
     TimedPq_enqueue(queue, nextEvent, FloatSequence_castToSequence(self));
-}
-
-APIF void FloatSequence_stop(FloatSequence *self, Ticks current, Error *err) {
-    self->cursor       = FloatEventAr_len(&self->events);
-    self->recordingSeq = NULL;
-    Outlet_sendFloat(self->outlet, self->restoreValue, err);
 }
 
 APIF void FloatSequence_drive(FloatSequence *self, Ticks current, TimedPq *queue, Error *err) {
@@ -9972,8 +8707,8 @@ APIF void FloatSequence_drive(FloatSequence *self, Ticks current, TimedPq *queue
             self->cursor++;
         }
         if (self->cycle) {
-            if (self->sequenceLength <= NoteSequence_minSequenceLength) {
-                self->sequenceLength = NoteSequence_minSequenceLength;
+            if (self->sequenceLength <= Sequence_minSequenceLength) {
+                self->sequenceLength = Sequence_minSequenceLength;
             }
             self->startTime += self->sequenceLength;
             self->cursor     = 0;
@@ -9987,23 +8722,17 @@ APIF void FloatSequence_drive(FloatSequence *self, Ticks current, TimedPq *queue
     }
 }
 
-APIF void FloatSequence_padNoteOff(FloatSequence *self, int padIndex, Ticks current, Error *err) {
-    if (self->inEndgroup) {
-        Outlet_sendFloat(self->outlet, self->restoreValue, err);
+APIF void FloatSequence_stop(FloatSequence *self, Ticks current, Error *err) {
+    self->cursor       = FloatEventAr_len(&self->events);
+    self->version++;
+    self->recordingSeq = NULL;
+    Outlet_sendFloat(self->outlet, self->restoreValue, err);
+}
+
+APIF void FloatSequence_padNoteOff(FloatSequence *self, Ticks current, Error *err) {
+    if (self->inEndgroup && !self->cycle) {
+        FloatSequence_stop(self, current, err);
     }
-}
-
-APIF OutletSpecifier *FloatSequence_outSpec(FloatSequence *self)
-{
-    return &self->outletSpecifier;
-}
-
-APIF FloatSequence *FloatSequence_recordClone(FloatSequence *self)
-{
-    FloatSequence *other   = FloatSequence_new();
-    other->outletSpecifier = self->outletSpecifier;
-    other->outlet          = NullOutlet_castToOutlet(NullOutlet_new());
-    return other;
 }
 
 APIF void FloatSequence_makeConsistent(FloatSequence *self)
@@ -10018,8 +8747,84 @@ APIF void FloatSequence_makeConsistent(FloatSequence *self)
     }
 }
 
+APIF Sequence *FloatSequence_compactNew(FloatSequence *self, Ticks recordStart)
+{
+    FloatSequence *other   = FloatSequence_new();
+    other->startTime       = recordStart;
+    other->outletSpecifier = self->outletSpecifier;
+    other->outlet          = self->outlet;
+    return FloatSequence_castToSequence(other);
+}
 
-#line 1116 "src/sequence.in.c"
+APIF void FloatSequence_compactConcat(FloatSequence *self, Sequence *otherSeq, Error *err)
+{
+    FloatSequence *other = FloatSequence_castFromSequence(otherSeq);
+    if (other == NULL) {
+        Error_format(err, "FloatSequence_compactConcat was passed a sequence of type %s", Interface_toString(Interface_itype(otherSeq)));
+        return;
+    }
+    FloatEventAr_foreach(it, &other->events) {
+        FloatEvent e = *it.var;
+        if (FloatSequence_isMarkerValue(e.value)) {
+            continue;
+        }
+        // Remember that self->startTime == recordStart
+        e.stime += (other->startTime - self->startTime);
+        FloatEventAr_push(&self->events, e); 
+    }
+    return;
+}
+
+APIF void FloatSequence_compactSortEvents(FloatSequence *self)
+{
+    FloatSequence_makeConsistent(self);
+}
+
+APIF Ticks FloatSequence_compactComputeSequenceLength(FloatSequence *self)
+{
+    Ticks lastTime = -1;
+    FloatEventAr_rforeach(it, &self->events) {
+        lastTime = it.var->stime;
+        break;
+    }
+
+    MusicalContext_declareDefault(musicalContext);
+    Ticks mlen   = musicalContext.quarterNotesPerMeasure*musicalContext.ticksPerQuarterNote;
+    Ticks seqLen = (lastTime/mlen)*mlen + (lastTime % mlen == 0 ? 0 : mlen);
+    if (seqLen < Sequence_minSequenceLength) {
+        seqLen = Sequence_minSequenceLength;
+    }
+    return seqLen;
+}
+
+APIF void FloatSequence_compactFinish(FloatSequence *self, Ticks endgroupTime, Ticks sequenceLength, Error *err)
+{
+    if (endgroupTime >= 0) {
+        int index = FloatEventAr_len(&self->events) > 0 ? 0 : -1;
+        FloatEventAr_rforeach(it, &self->events) {
+            if (FloatSequence_isMarkerValue(it.var->value)) {
+                continue;
+            }
+            if (self->startTime + it.var->stime < endgroupTime) {
+                index = it.index + 1;
+                break;
+            }
+        }
+        if (index >= 0) {
+            FloatEvent newEv = {.stime = endgroupTime, .value = FloatSequence_endgMarker};
+            FloatEventAr_insert(&self->events, index, newEv, err);
+            Error_returnVoidOnError(err);
+        }
+    }
+
+    self->sequenceLength = sequenceLength;
+    FloatEvent newEv = {.stime = sequenceLength, .value = FloatSequence_cycleMarker};
+    FloatEventAr_push(&self->events, newEv);
+    FloatSequence_makeConsistent(self);
+    return;
+}
+
+#line 1301 "src/sequence.in.c"
 
 // APIF void SequenceAr_truncateNoClear(SequenceAr *self) {
 //     SequenceAr_foreach(it, self) {
@@ -10035,12 +8840,25 @@ APIF void Sequence_freePpErrless(Sequence **s)
     Error_maypost(err);
 }
 
-APIF int Sequence_cmp(Sequence *leftSeq, Sequence *rightSeq) {
-    int q = Symbol_cmp(OutletSpecifier_track(leftSeq->outletSpecifier), OutletSpecifier_track(rightSeq->outletSpecifier));
+// Sort into unique OutletSpecifiers, and sort by startTime within the same OutletSpecifier.
+APIF int Sequence_cmp(Sequence *leftSeq, Sequence *rightSeq) 
+{
+    OutletSpecifier *left  = &leftSeq->outletSpecifier;
+    OutletSpecifier *right = &rightSeq->outletSpecifier;
+    int q = Symbol_cmp(OutletSpecifier_track(left), OutletSpecifier_track(right));
     if (q) {
         return q;
     }
 
+    // Want to sort NoteSequence to the front of the array. We could do this by looking for *note in parameter name, but I like this better.
+    bool noteLeft  = Interface_itype(leftSeq)  == NoteSequence_itype;
+    bool noteRight = Interface_itype(rightSeq) == NoteSequence_itype;
+    if (noteLeft && !noteRight) {
+        return -1;
+    } else if (!noteLeft && noteRight) {
+        return 1;
+    }
+    
     int leftPi  = OutletSpecifier_pluginIndex(left);
     int rightPi = OutletSpecifier_pluginIndex(right);
     if (leftPi < rightPi) {
@@ -10088,7 +8906,13 @@ APIF void Sequence_incVersion(Sequence *seq) {
     seq->version++;
 }
 
-#line 1204 "src/sequence.in.c"
+#line 1404 "src/sequence.in.c"
+APIF RecordBuffer *RecordBuffer_newStart(Ticks recordStart)
+{
+    RecordBuffer *self = RecordBuffer_new();
+    self->recordStart = recordStart;
+    return self;
+}
 
 APIF void RecordBuffer_push(RecordBuffer *self, Sequence *sequence)
 {
@@ -10099,18 +8923,48 @@ APIF void RecordBuffer_compact(RecordBuffer *self, SequenceAr *output, Error *er
 {
     SequenceAr_sort(&self->sequences);
     SequenceAr_truncate(output);
+
+    // Compact all the sequences we can
     Sequence *current = NULL;
     SequenceAr_foreach(it, &self->sequences) {
         if (current == NULL || Sequence_cmp(*it.var, current) != 0) {
-            current = Sequence_compactNew(*it.var, err);
+            current = Sequence_compactNew(*it.var, self->recordStart, err);
             Error_gotoLabelOnError(err, END);
             SequenceAr_push(output, current);
         } 
         Sequence_compactConcat(current, *it.var, err);
         Error_gotoLabelOnError(err, END); 
     }
+
+    Ticks sequenceLength = -1;
     SequenceAr_foreach(it, output) {
-        Sequence_compactFinish(current, self->recordStart, err);
+        Sequence *s = *it.var;
+        Sequence_compactSortEvents(s, err);
+        Error_gotoLabelOnError(err, END); 
+        Ticks len = Sequence_compactComputeSequenceLength(s, err);
+        Error_gotoLabelOnError(err, END);
+        if (len > sequenceLength) {
+            sequenceLength = len;
+        }
+    }
+
+    // We assign the endgroup for a collection of sequences by looking at the first and only noteSequence for a given track. If no noteSequence
+    // exists for this track, endgroup is unassigned.
+    Ticks currentEndgroupTime = -1;
+    Symbol *track = NULL;
+    SequenceAr_foreach(it, output) {
+        Sequence *s = *it.var;
+
+        if (track != s->outletSpecifier.track) {
+            track = s->outletSpecifier.track;
+            NoteSequence *ns = NoteSequence_castFromSequence(s);
+            if (ns == NULL) {
+                currentEndgroupTime = -1;
+            } else {
+                currentEndgroupTime = NoteSequence_computeEndgroupTime(ns);
+            }
+        }
+        Sequence_compactFinish(s, currentEndgroupTime, sequenceLength, err);
         Error_gotoLabelOnError(err, END);
     }
 
@@ -10301,135 +9155,48 @@ APIF void Midi_fromfile(const char *midiFilePath, SequenceAr *output, Symbol *de
     //
     // Try and compute endgroup
     //
-    Ticks endGroupTime = 0;
+    Ticks endgroupTime = -1;
     if (noteSeq != NULL) {
-        NoteEventAr_rforeach(it, &noteSeq->events) {
-            if (it.var->duration == NoteSequence_noteOffDuration) {
-                Error_format(err, "Unpaired note-on at %lld", it.var->stime);
-                goto END;
-            }
-        }
-
-        // Install endgroup
-        Ticks endTime = -1;
-        int endIndex  = -1;
-        NoteEventAr_rforeach(it, &noteSeq->events) {
-            if (endTime < 0) {
-                endTime  = it.var->stime;
-                endIndex = it.index;
-                continue;
-            } else if (it.var->stime != endTime) {
-                break;
-            } else {
-                endIndex = it.index;
-            }
-        }
-        if (endTime >= 0) {
-            NoteEvent newEv = {.stime = endTime, .duration = NoteSequence_endgDuration, .pitch = 0, .velocity = 0};
-            NoteEventAr_insert(&noteSeq->events, endIndex, newEv, err);
-            Error_gotoLabelOnError(err, END);
-            endGroupTime = endTime;
-        } 
+        endgroupTime = NoteSequence_computeEndgroupTime(noteSeq);  
     }
-
-    
-    if (bendSeq != NULL) {
-        int insertIndex = 0;
-        FloatEventAr_rforeach(it, &bendSeq->events) {
-            if (it.var->stime > endGroupTime) {
-                insertIndex = it.index;
-            } else {
-                break;
-            }
-        }
-        FloatEvent newEv = {.stime = endGroupTime, .value = FloatSequence_endgMarker};
-        FloatEventAr_insert(&bendSeq->events, insertIndex, newEv, err);
-    }
-    for (int i = 0; i < 128; i++) {
-        if (ccSeqs[i] != NULL) {
-            int insertIndex = 0;
-            FloatEventAr_rforeach(it, &bendSeq->events) {
-                if (it.var->stime > endGroupTime) {
-                    insertIndex = it.index;
-                } else {
-                    break;
-                }
-            }
-            FloatEvent newEv = {.stime = endGroupTime, .value = FloatSequence_endgMarker};
-            FloatEventAr_insert(&(ccSeqs[i]->events), insertIndex, newEv, err);
-            Error_gotoLabelOnError(err, END);       
-        }
-    }
-
 
     //
     // Compute length
     //
-    Ticks lastTime = 0;
+    Ticks sequenceLength = -1;
     if (noteSeq != NULL) {
-        NoteEventAr_rforeach(it, &noteSeq->events) {
-            if (it.var->stime > lastTime) {
-                lastTime = it.var->stime;
-            }
-            break;
-        }
+        sequenceLength = NoteSequence_compactComputeSequenceLength(noteSeq);
     }
     if (bendSeq != NULL) {
-        FloatEventAr_rforeach(it, &bendSeq->events) {
-            if (it.var->stime > lastTime) {
-                lastTime = it.var->stime;
-            }
-            break;
+        Ticks len = FloatSequence_compactComputeSequenceLength(bendSeq);
+        if (sequenceLength < len) {
+            sequenceLength = len;
         }
     }
     for (int i = 0; i < 128; i++) {
         if (ccSeqs[i] != NULL) {
-            FloatEventAr_rforeach(it, &(ccSeqs[i]->events)) {
-                if (it.var->stime > lastTime) {
-                    lastTime = it.var->stime;
-                }
-                break;
+            Ticks len = FloatSequence_compactComputeSequenceLength(ccSeqs[i]);
+            if (sequenceLength < len) {
+                sequenceLength = len;
             }       
         }
     }
 
-    Ticks mlen   = musicalContext.quarterNotesPerMeasure*musicalContext.ticksPerQuarterNote;
-    Ticks seqLen = (lastTime/mlen)*mlen + (lastTime % mlen == 0 ? 0 : mlen);
-    if (seqLen < NoteSequence_minSequenceLength) {
-        seqLen = NoteSequence_minSequenceLength;
-    }
     //
-    // Set each sequence length
+    // Finish sequences off
     //
     if (noteSeq != NULL) {
-        noteSeq->sequenceLength = seqLen;
-        NoteEvent newEv = {.stime = seqLen, .duration = NoteSequence_cycleDuration, .pitch = 0, .velocity = 0};
-        NoteEventAr_push(&noteSeq->events, newEv);
-    }
-    if (bendSeq != NULL) {
-        bendSeq->sequenceLength = seqLen;
-        FloatEvent newEv = {.stime = seqLen, .value = FloatSequence_cycleMarker};
-        FloatEventAr_push(&bendSeq->events, newEv);
-    }
-    for (int i = 0; i < 128; i++) {
-        if (ccSeqs[i] != NULL) {
-            ccSeqs[i]->sequenceLength = seqLen;
-            FloatEvent newEv = {.stime = seqLen, .value = FloatSequence_cycleMarker};
-            FloatEventAr_push(&(ccSeqs[i]->events), newEv);       
-        }
-    }
-
-    // Make all the sequences consistent
-    if (noteSeq != NULL) {
-        NoteSequence_makeConsistent(noteSeq, err);
+        NoteSequence_compactFinish(noteSeq, endgroupTime, sequenceLength, err);
         Error_gotoLabelOnError(err, END);
     }
     if (bendSeq != NULL) {
-        FloatSequence_makeConsistent(bendSeq);
+        FloatSequence_compactFinish(bendSeq, endgroupTime, sequenceLength, err);
+        Error_gotoLabelOnError(err, END);
     }
     for (int i = 0; i < 128; i++) {
         if (ccSeqs[i] != NULL) {
-            FloatSequence_makeConsistent(ccSeqs[i]);  
+            FloatSequence_compactFinish(ccSeqs[i], endgroupTime, sequenceLength, err);
+            Error_gotoLabelOnError(err, END);
         }
     }
 
@@ -10530,25 +9297,25 @@ APIF void Frontend_stop(Hub *hub) {
 #line 1 "**coverage**" 
 void Coverage_initialize()
 {
-    Coverage_array = Mem_calloc(sizeof(const char *) * 0);    
+   Coverage_array = Mem_calloc(sizeof(const char *) * 0);   
 }
 
 void Coverage_finalize(const char *file)
 {
-    String *coverFile = Coverage_createCoverageFile(file);
-    FILE *out = fopen(coverFile, "w");
-    if (!out) {
-        Error_declare(err);
-        Error_format(err, "Failed to open coverage file %s", coverFile);
-        Error_maypost(err);
-        exit(1);
-    }
-    fprintf(out, "*totalSize %d\n", 0);
-    for (int i = 0; i < 0; i++) {
-        if (Coverage_array[i] != NULL) {
-            fprintf(out, "%s\n", Coverage_array[i]);
-        }
-    }
-    fclose(out);
-    String_free(coverFile);
+   String *coverFile = Coverage_createCoverageFile(file);
+   FILE *out = fopen(coverFile, "w");
+   if (!out) {
+       Error_declare(err);
+       Error_format(err, "Failed to open coverage file %s", coverFile);
+       Error_maypost(err);
+       exit(1);
+   }
+   fprintf(out, "*totalSize %d\n", 0);
+   for (int i = 0; i < 0; i++) {
+       if (Coverage_array[i] != NULL) {
+           fprintf(out, "%s\n", Coverage_array[i]);
+       }
+   }
+   fclose(out);
+   String_free(coverFile);
 }

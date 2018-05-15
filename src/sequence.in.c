@@ -4,11 +4,11 @@
     "typeName": "MusicalContext",
     "fields": [
         {
-            "name": "ticksPerQuarterNote",
+            "valName": "ticksPerQuarterNote",
             "type": "Ticks"       
         },
         {
-            "name": "quarterNotesPerMeasure",
+            "valName": "quarterNotesPerMeasure",
             "type": "Ticks"       
         }
     ]
@@ -22,12 +22,12 @@
     "typeName": "NoteOutlet",
     "fields": [
         {
-            "name": "atoms",
+            "refName": "atoms",
             "type": "AtomAr"       
         },       
         {
-            "name": "port",
-            "type": "Port *"
+            "refName": "port",
+            "type": "Port"
         }
     ],
     "implements": ["Outlet"]
@@ -69,16 +69,16 @@ APIF NoteOutlet *NoteOutlet_newBuild(Port *port)
     "typeName": "CcOutlet",
     "fields": [
         {
-            "name": "cc",
+            "valName": "cc",
             "type": "int"
         },
         {
-            "name": "atoms",
-            "type": "AtomAr"       
+            "refName": "atoms",
+            "type":    "AtomAr"       
         },       
         {
-            "name": "port",
-            "type": "Port *"
+            "refName": "port",
+            "type": "Port"
         }
     ],
     "implements": ["Outlet"]
@@ -133,12 +133,12 @@ APIF CcOutlet *CcOutlet_newBuild(Port *port, int cc)
     "typeName": "BendOutlet",
     "fields": [
         {
-            "name": "atoms",
+            "refName": "atoms",
             "type": "AtomAr"       
         },       
         {
-            "name": "port",
-            "type": "Port *"
+            "refName": "port",
+            "type": "Port"
         }
     ],
     "implements": ["Outlet"]
@@ -194,12 +194,12 @@ APIF BendOutlet *BendOutlet_newBuild(Port *port)
     "typeName": "VstOutlet",
     "fields": [
         {
-            "name": "atoms",
+            "refName": "atoms",
             "type": "AtomAr"       
         },       
         {
-            "name": "port",
-            "type": "Port *"
+            "refName": "port",
+            "type": "Port"
         }
     ],
     "implements": ["Outlet"]
@@ -215,7 +215,7 @@ APIF void VstOutlet_sendFloat(VstOutlet *self, double value)
     "typeName": "NullOutlet",
     "fields": [
         {
-            "name": "unused",
+            "valName": "unused",
             "type": "int"
         }
     ],
@@ -226,20 +226,20 @@ APIF void VstOutlet_sendFloat(VstOutlet *self, double value)
 
 @interface 
 {
-    "typeName": "Outlet",
-    "fields": [
-    ],       
+    "typeName": "Outlet",       
     "methods": [
         {
             "name": "sendNote",
-            "retVal": "void",
-            "args": ["uint8_t", "uint8_t"],
+            "valReturn": "void",
+            // "args": ["uint8_t", "uint8_t"],
+            "args": [["val", "uint8_t"], ["val", "uint8_t"]],
             "absentOk": true
         },
         {
             "name": "sendFloat",
-            "retVal": "void",
-            "args": ["double"],
+            "valReturn": "void",
+            // "args": ["double"],
+            "args": [["val", "double"]],
             "absentOk": true
         }
     ]
@@ -250,10 +250,10 @@ APIF void VstOutlet_sendFloat(VstOutlet *self, double value)
 {
     "typeName": "OutletSpecifier",
     "fields": [
-        {"name": "track",        "type": "Symbol *"},
-        {"name": "pluginIndex",  "type": "int"},
-        {"name": "parameter",    "type": "Symbol *"},
-        {"name": "paramIndex",   "type": "int"}
+        {"valName": "track",        "type": "Symbol *"},
+        {"valName": "pluginIndex",  "type": "int"},
+        {"valName": "parameter",    "type": "Symbol *"},
+        {"valName": "paramIndex",   "type": "int"}
     ]
 }
 @end
@@ -319,15 +319,15 @@ COVER OutletSpecifier OutletSpecifier_makeAudio() {
 {
   "typeName": "Timed",
   "fields": [
-       {"name": "time", "type": "Ticks"},
-       {"name": "version", "type": "int"},
-       {"name": "sequence", "type": "Sequence *"}
+       {"valName": "time", "type": "Ticks"},
+       {"valName": "version", "type": "int"},
+       {"refName": "sequence", "type": "Sequence"}
    ],       
   "containers": [
        {
             "type": "array", 
             "typeName": "TimedPq", 
-            "elemName": "Timed",
+            "refName": "Timed",
             "binarySearch": [
                 {"compare": "Timed_cmp"}
             ]
@@ -393,16 +393,16 @@ APIF void TimedPq_invalidateSequence(TimedPq *self, SequenceAr *removes)
     "typeName": "NoteEvent",
     // DO NOT change order of these fields! This b/c we use argDeclare
     "fields": [
-       {"name": "pitch", "type": "uint8_t"},
-       {"name": "velocity", "type": "uint8_t"},
-       {"name": "stime", "type": "Ticks"},
-       {"name": "duration", "type": "Ticks"}
+       {"valName": "pitch",    "type": "uint8_t"},
+       {"valName": "velocity", "type": "uint8_t"},
+       {"valName": "stime",    "type": "Ticks"},
+       {"valName": "duration", "type": "Ticks"}
     ], 
     "containers": [
         {
             "type": "array", 
             "typeName": "NoteEventAr", 
-            "elemName": "NoteEvent", 
+            "refName": "NoteEvent", 
             "binarySearch": [
                 {"compare": "NoteEvent_cmp"}
             ]
@@ -451,57 +451,57 @@ APIF int NoteEvent_cmp(NoteEvent *left, NoteEvent *right)
     "typeName": "NoteSequence",
     "fields":[  
         {
-            "name": "version", 
+            "valName": "version", 
             "type": "long"
         },
         {  
-            "name":"startTime",
+            "valName":"startTime",
             "type":"Ticks"
         },
         {  
-            "name":"outletSpecifier",
+            "refName":"outletSpecifier",
             "type":"OutletSpecifier"
         },
         {  
-            "name":"sequenceLength",
+            "valName":"sequenceLength",
             "type":"Ticks"
         },
         {  
-            "name":"cursor",
+            "valName":"cursor",
             "type":"int"
         },
         {  
-            "name":"cycle",
+            "valName":"cycle",
             "type":"bool"
         },
         {  
-            "name":"nextOffEvent",
+            "valName":"nextOffEvent",
             "type":"Ticks"
         },
         {  
-            "name":"nextOnEvent",
+            "valName":"nextOnEvent",
             "type":"Ticks"
         },
         {  
-            "name":"inEndgroup",
+            "valName":"inEndgroup",
             "type":"bool"
         },
         
         {  
-            "name":"outlet",
-            "type":"Outlet *"
+            "refName":"outlet",
+            "type":"Outlet"
         },
         {  
-            "name":"recordingSeq",
+            "valName":"recordingSeq",
             "type":"NoteSequence *",
-            "lifecycle": "unmanaged"
+            "lifecycle": "noSerial"
         },
         {  
-            "name":"offs",
+            "refName":"offs",
             "type":"TimedOffAr"
         },
         {  
-            "name":"events",
+            "refName":"events",
             "type":"NoteEventAr"
         }
     ],
@@ -871,14 +871,14 @@ APIF void NoteSequence_compactFinish(NoteSequence *self, Ticks endgroupTime, Tic
     "typeName": "FloatEvent",
     // DO NOT change order of these fields! This b/c we use argDeclare
     "fields": [
-       {"name": "stime", "type": "Ticks"},
-       {"name": "value", "type": "double"}
+       {"valName": "stime", "type": "Ticks"},
+       {"valName": "value", "type": "double"}
     ],
     "containers": [
         {
             "type": "array", 
             "typeName": "FloatEventAr", 
-            "elemName": "FloatEvent",
+            "refName": "FloatEvent",
             "binarySearch": [
                 {"compare": "FloatEvent_cmp"}
             ]
@@ -902,48 +902,48 @@ APIF int FloatEvent_cmp(FloatEvent *left, FloatEvent *right)
     "typeName": "FloatSequence",
     "fields":[  
         {
-            "name": "version", 
+            "valName": "version", 
             "type": "long"
         },
         {  
-            "name":"startTime",
+            "valName":"startTime",
             "type":"Ticks"
         },
         {  
-            "name":"outletSpecifier",
+            "refName":"outletSpecifier",
             "type":"OutletSpecifier"
         },
         {  
-            "name":"sequenceLength",
+            "valName":"sequenceLength",
             "type":"Ticks"
         },
         {  
-            "name":"cursor",
+            "valName":"cursor",
             "type":"int"
         },
         {  
-            "name":"cycle",
+            "valName":"cycle",
             "type":"bool"
         },
         {  
-            "name":"inEndgroup",
+            "valName":"inEndgroup",
             "type":"bool"
         },
         {  
-            "name":"outlet",
-            "type":"Outlet *"
+            "refName":"outlet",
+            "type":"Outlet"
         },
         {  
-            "name":"recordingSeq",
+            "valName":"recordingSeq",
             "type":"FloatSequence *",
-            "lifecycle": "unmanaged"
+            "lifecycle": "noSerial"
         },
         {  
-            "name":"events",
+            "refName":"events",
             "type":"FloatEventAr"
         },
         {
-            "name": "restoreValue",
+            "valName": "restoreValue",
             "type": "double"
         }
     ], 
@@ -1200,30 +1200,34 @@ APIF void FloatSequence_compactFinish(FloatSequence *self, Ticks endgroupTime, T
         {
             "name": "start",
             "valReturn": "void",
-            "args": ["Ticks", "Ticks", "TimedPq *", "RecordBuffer *", "Error *"]
-            //"args": [["val", "Ticks"], ["val", "Ticks"], ["ref", "TimedPq"], ["ref", "RecordBuffer"], ["ref", "Error *"]],
+            // "args": ["Ticks", "Ticks", "TimedPq *", "RecordBuffer *", "Error *"]
+            "args": [["val", "Ticks"], ["val", "Ticks"], ["ref", "TimedPq"], ["ref", "RecordBuffer"], ["ref", "Error *"]]
         },
         {
             "name": "drive",
             "valReturn": "void",
-            "args": ["Ticks", "TimedPq *", "Error *"]
+            // "args": ["Ticks", "TimedPq *", "Error *"]
+            "args": [["val", "Ticks"], ["ref", "TimedPq"], ["val", "Error *"]]
         },
         {
             "name": "stop",
             "valReturn": "void",
-            "args": ["Ticks", "Error *"]
+            // "args": ["Ticks", "Error *"]
+            "args": [["val", "Ticks"], ["val", "Error *"]]
         },
         {
             "name": "padNoteOff",
             "valReturn": "void",
-            "args": ["Ticks", "Error *"]
+            // "args": ["Ticks", "Error *"]
+            "args": [["val", "Ticks"], ["val", "Error *"]]
         },
 
         // Configure sequence
         {
             "name": "setCycle",
             "valReturn": "void",
-            "args": ["bool"]
+            // "args": ["bool"]
+            "args": [["val", "bool"]]
         },
 
         // Lifecycle
@@ -1237,7 +1241,8 @@ APIF void FloatSequence_compactFinish(FloatSequence *self, Ticks endgroupTime, T
         {
             "name": "compactNew",
             "refReturn": "Sequence",
-            "args": ["Ticks"],
+            // "args": ["Ticks"],
+            "args": [["val", "Ticks"]],
 
             // This is temporary
             "absentOk": true
@@ -1245,7 +1250,8 @@ APIF void FloatSequence_compactFinish(FloatSequence *self, Ticks endgroupTime, T
         {
             "name": "compactConcat",
             "valReturn": "void",
-            "args": ["Sequence *", "Error *"],
+            // "args": ["Sequence *", "Error *"],
+            "args": [["ref", "Sequence"], ["val", "Error *"]],
 
             // This is temporary
             "absentOk": true
@@ -1269,7 +1275,8 @@ APIF void FloatSequence_compactFinish(FloatSequence *self, Ticks endgroupTime, T
         {
             "name": "compactFinish",
             "valReturn": "void",
-            "args": ["Ticks", "Ticks", "Error *"],
+            // "args": ["Ticks", "Ticks", "Error *"],
+            "args": [["val", "Ticks"], ["val", "Ticks"], ["val", "Error *"]],
 
             // This is temporary
             "absentOk": true
@@ -1281,7 +1288,7 @@ APIF void FloatSequence_compactFinish(FloatSequence *self, Ticks endgroupTime, T
         {
             "type": "array", 
             "typeName": "SequenceAr", 
-            "elemName": "Sequence *",
+            "refName": "Sequence",
             "clearer": "Sequence_freePpErrless",
             "binarySearch": [
                 {"compare": "Sequence_cmpPp"},
@@ -1382,16 +1389,14 @@ APIF void Sequence_incVersion(Sequence *seq) {
             //    (2) The stime fields in the sequences are relative to that sequences startTime ALWAYS
             //    (3) All startTimes in sequences are absolute time WHILE RECORDING
             //        - This means that after record is done all members of sequences have to have their startTimes adjusted
-            "name": "recordStart", 
+            "valName": "recordStart", 
             "type": "Ticks"
         },
         {
             // During a recording session, each sequence that is playing will record all of the events that it plays during a given 
             // Sequence_start/Sequence_stop pair. The resulting events are pushed onto this sequence array.
-            "name": "sequences", 
-            "type": "SequenceAr",
-            "getterReturn":"pointer",
-            "setter": "none"
+            "refName": "sequences", 
+            "type": "SequenceAr"
         }
     ]
 }
