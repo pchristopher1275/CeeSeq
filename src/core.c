@@ -698,3 +698,4 @@ struct Port_t;
 typedef struct Port_t Port;
 typedef void (*Port_anythingDispatchFunc)(void *hub, struct Port_t *port, Symbol *msg, long argc, Atom *argv);
 typedef void (*Port_intDispatchFunc)(void *hub, struct Port_t *port, long value, long inlet);
+void PooledType_init();

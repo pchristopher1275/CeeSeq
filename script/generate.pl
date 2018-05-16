@@ -89,19 +89,19 @@ ENDxxxxxxxxxx
         key =>    'Type:setterReference',
         symbol => '${TYPENAME}_${SETNAME}',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @void ${TYPENAME}_${SETNAME}(${TYPENAME} *self, ${REFNAME} *value) {
-                ${REFNAME} *old = self->${FIELDNAME};
-                self->${FIELDNAME} = value;
-                ${FIELDTYPE}_incRef(self->${FIELDNAME});
-                ${FIELDTYPE}_decRef(old);
-            }
+            @void ${TYPENAME}_${SETNAME}(${TYPENAME} *self, ${FIELDTYPE} *value) {
+            @   ${FIELDTYPE} *old = self->${FIELDNAME};
+            @   self->${FIELDNAME} = value;
+            @   ${FIELDTYPE}_incRef(self->${FIELDNAME});
+            @   ${FIELDTYPE}_decRef(old);
+            @}
 ENDxxxxxxxxxx
     },
     {
         key =>    'Type:setterReferenceProto',
         symbol => '${TYPENAME}_${SETNAME}',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @void ${TYPENAME}_${SETNAME}(${TYPENAME} *self, ${REFNAME} *value);
+            @void ${TYPENAME}_${SETNAME}(${TYPENAME} *self, ${FIELDTYPE} *value);
 ENDxxxxxxxxxx
     },
 
@@ -900,7 +900,7 @@ ENDxxxxxxxxxx
         tmpl   => <<'ENDxxxxxxxxxx', 
             @{
             @   if (self == NULL) {
-            @       Error_format0(err, "Undefined interface passed to ${TYPENAME}_${METHODNAME}");
+            @       Error_format0(err, "Undefined interface passed to ${IFCNAME}_${METHODNAME}");
             @       return ${DEFRET};
             @   }
             @   switch(${SWITCHTARGET}) {
@@ -1066,8 +1066,8 @@ ENDxxxxxxxxxx
             @${TYPENAME} *${TYPENAME}_new()
             @{
             @   ${TYPENAME} *self = Mem_malloc(sizeof(${TYPENAME}));
-            @   self->itype       = ${TYPENAME}_itype;
-            @   self->refCount    = 1;
+            @   self->itype = ${TYPENAME}_itype;
+            @   self->refCount = 1;
 ENDxxxxxxxxxx
     },
 
@@ -1075,20 +1075,20 @@ ENDxxxxxxxxxx
         key =>    'Lifecycle:newStartPooled',
         symbol => '',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @Array ${TYPENAME}_pool    = {-1, 1};
-            @int ${TYPENAME}_poolMiss  = 0;
+            @Array ${TYPENAME}_pool     = {-1, 1};
+            @int ${TYPENAME}_poolSize   = ${POOLSIZE};
+            @int ${TYPENAME}_poolMiss   = 0;
             @${TYPENAME} *${TYPENAME}_new()
             @{
             @   ${TYPENAME} *self = NULL;
             @   if (Array_len(&${TYPENAME}_pool) > 0) {
-            @       self = Mem_malloc(sizeof(${TYPENAME}));
             @       Array_popN(&${TYPENAME}_pool, 1, &self, NULL, sizeof(void *));
             @   } else {
             @       self = Mem_malloc(sizeof(${TYPENAME}));
             @       ${TYPENAME}_poolMiss++;
             @   }
-            @   self->itype       = ${TYPENAME}_itype;
-            @   self->refCount    = 1;
+            @   self->itype = ${TYPENAME}_itype;
+            @   self->refCount = 1;
 ENDxxxxxxxxxx
     },
 
@@ -1148,8 +1148,8 @@ ENDxxxxxxxxxx
         tmpl   => <<'ENDxxxxxxxxxx', 
             @void ${TYPENAME}_decRef(${TYPENAME} *self)
             @{
-            @    self->refCount--;
-            @    if (self->refCount <= 0) {
+            @   self->refCount--;
+            @   if (self->refCount <= 0) {
 ENDxxxxxxxxxx
     },
 
@@ -1164,9 +1164,25 @@ ENDxxxxxxxxxx
     },
 
     {
+        key =>    'Lifecycle:decRefEndPooled',
+        symbol => '',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @   if (Array_len(&${TYPENAME}_pool) < ${TYPENAME}_poolSize) {
+            @       memset(self, 0, sizeof(${TYPENAME}));
+            @       Array_pushN(&${TYPENAME}_pool, 1, &self, NULL, sizeof(void *));
+            @   } else {
+            @       Mem_free(self);
+            @   }
+            @   return;
+            @}
+ENDxxxxxxxxxx
+    },
+
+    {
         key =>    'Lifecycle:decRefEnd',
         symbol => '',
         tmpl   => <<'ENDxxxxxxxxxx', 
+            @       Mem_free(self);
             @   }
             @   return;
             @}
@@ -1317,7 +1333,7 @@ ENDxxxxxxxxxx
             @           Error_format0(err, "'${TYPENAME}' json object does not contain a json value for '${FIELDNAME}'");
             @           goto FAIL;
             @       }
-            @       self->${FIELDNAME} = ${TYPENAME}_fromJson(target, err);
+            @       self->${FIELDNAME} = ${FIELDTYPE}_fromJson(target, err);
             @       Error_gotoLabelOnError(err, FAIL);
             @   }
 ENDxxxxxxxxxx
@@ -1444,6 +1460,32 @@ ENDxxxxxxxxxx
     },
 
 
+    {
+        key =>    'Lifecycle:initPooledStart',
+        symbol => '',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @void PooledType_init() {
+ENDxxxxxxxxxx
+    },
+
+    {
+        key =>    'Lifecycle:initPooledType',
+        symbol => '',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @   for (int i = 0; i < ${TYPENAME}_poolSize; i++) {
+            @       ${TYPENAME} *self = ${TYPENAME}_new();
+            @       ${TYPENAME}_decRef(self);
+            @   }
+ENDxxxxxxxxxx
+    },
+
+    {
+        key =>    'Lifecycle:initPooledEnd',
+        symbol => '',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @}
+ENDxxxxxxxxxx
+    },
 
     {
         key =>    'Coverage:preamble',
@@ -1640,6 +1682,11 @@ sub ClassArtifact_emitLifecycle {
         return;
     }
 
+    my $poolSize = $self->{lifecyclePool};
+    if (!defined($poolSize) || $poolSize <= 0) {
+        $poolSize = undef;
+    }
+
     my %builtinTypes = (
         int        => "Number",
         long       => "Number",
@@ -1650,15 +1697,25 @@ sub ClassArtifact_emitLifecycle {
     );
     my $selfTypeName = $self->{typeName};
     for my $t (qw/new decRef toJson fromJson clone/) {
+
+        ## decRef first exports incRef
         if ($t eq 'decRef') {
             Expand_emit($out, ["Lifecycle:incRef"], {TYPENAME=>$selfTypeName});     
         }
 
-        Expand_emit($out, ["Lifecycle:${t}Start"], {TYPENAME=>$selfTypeName});
+        ## emit start-of-function
+        if (defined($poolSize) && $t eq 'new') {
+            Expand_emit($out, ["Lifecycle:${t}StartPooled"], {TYPENAME=>$selfTypeName, POOLSIZE=>$poolSize});
+        } else {
+            Expand_emit($out, ["Lifecycle:${t}Start"], {TYPENAME=>$selfTypeName});
+        }
+
+        ## emit userClear if needed
         if ($t eq 'decRef' && Api_definedCall($api, $self->{typeName}, "userClear")) {
             Expand_emit($out, ["Lifecycle:userClear"], {TYPENAME=>$selfTypeName});
         } 
 
+        ## emit each field
         for my $field (@{$self->{fields}}) {
             my $refName   = $field->{refName};
             my $valName   = $field->{valName};
@@ -1725,10 +1782,17 @@ sub ClassArtifact_emitLifecycle {
             }
         }
 
-        if ($t eq 'init' && Api_definedCall($api, $self->{typeName}, "userInit")) {
+        ## userInit
+        if ($t eq 'new' && Api_definedCall($api, $self->{typeName}, "userInit")) {
             Expand_emit($out, ["Lifecycle:userInit"], {TYPENAME=>$self->{typeName}});
         } 
-        Expand_emit($out, ["Lifecycle:${t}End"], {TYPENAME=>$self->{typeName}});
+
+        ## emit end-of-function
+        if (defined($poolSize) && $t eq 'decRef') {
+            Expand_emit($out, ["Lifecycle:${t}EndPooled"], {TYPENAME=>$self->{typeName}});
+        } else {
+            Expand_emit($out, ["Lifecycle:${t}End"], {TYPENAME=>$self->{typeName}});
+        }
     }
 }
 
@@ -2394,7 +2458,12 @@ sub ArtifactList_emitInterfacePreamble {
 
     ## Write toString
     Expand_emit($out, ['Interface:protoToString'], {});
-    Expand_emit($out, ['Interface:startFunction'], {SWITCHTARGET => "itype"});
+    Expand_emit($out, ['Interface:startFunction'], {
+        SWITCHTARGET => "itype", 
+        METHODNAME=>"toString", 
+        IFCNAME=>"Interface", 
+        DEFRET=>"NULL"
+    });
     for my $artifact (@{$self->{artifacts}}) {
         next unless ClassArtifact_isa($artifact);
         Expand_emit($out, ['Interface:caseToString'], {TYPENAME => $artifact->{typeName}});
@@ -2445,6 +2514,17 @@ sub ArtifactList_emitFunctions {
         die "Bad artifact passed to ArtifactList_emitStruct '$artifact->{itype}'" unless defined($f);
         $f->($artifact, $out, $api, $self->{artifactMap});
     }
+}
+
+sub ArtifactList_emitPooledTypeInit {
+    my ($self, $out) = @_;
+    
+    Expand_emit($out, ['Lifecycle:initPooledStart'], {});
+    for my $artifact (@{$self->{artifacts}}) {
+        next unless ClassArtifact_isa($artifact) && defined($artifact->{lifecyclePool}) && $artifact->{lifecyclePool} > 0;
+        Expand_emit($out, ['Lifecycle:initPooledType'], {TYPENAME => $artifact->{typeName}});
+    }   
+    Expand_emit($out, ['Lifecycle:initPooledEnd'], {});
 }
 
 ##
@@ -2704,6 +2784,8 @@ sub Main_main {
         my $templateFile = TemplateFile_new($tFile);
         TemplateFile_copyUserCode($templateFile, $out, $coverage);
     }
+
+    ArtifactList_emitPooledTypeInit($artifactList, $out);
 
     ## Resolve coverage
     Coverage_writeFinalize($coverage, $out);

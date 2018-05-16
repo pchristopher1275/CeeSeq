@@ -391,6 +391,7 @@ APIF void TimedPq_invalidateSequence(TimedPq *self, SequenceAr *removes)
 @type 
 {
     "typeName": "NoteEvent",
+    "lifecyclePool": 1000,
     // DO NOT change order of these fields! This b/c we use argDeclare
     "fields": [
        {"valName": "pitch",    "type": "uint8_t"},
@@ -414,6 +415,16 @@ APIF void TimedPq_invalidateSequence(TimedPq *self, SequenceAr *removes)
 Ticks NoteSequence_cycleDuration   = -1;
 Ticks NoteSequence_endgDuration    = -2;
 Ticks NoteSequence_noteOffDuration = -3;
+
+APIF NoteEvent *NoteEvent_newValue(Ticks stime, int pitch, int velocity, Ticks duration)
+{
+    NoteEvent *self = NoteEvent_new();
+    self->stime = stime;
+    self->pitch = (uint8_t)pitch;
+    self->velocity = (uint8_t)velocity;
+    self->duration = duration;
+    return self;
+}
 
 APIF int NoteEvent_cmp(NoteEvent *left, NoteEvent *right)
 {
@@ -529,20 +540,20 @@ APIF NoteSequence *NoteSequence_newFromEvents(Symbol *track, PortFind *portFind,
     }
 
     NoteSequence *self = NoteSequence_newTrack(track, portFind);
-    NoteEventAr_truncate(&self->events);
+    NoteEventAr_truncate(self->events, 0);
     for (int i = 0; i < argc; i++) {
-        NoteEventAr_push(&self->events, argv[i]);
+        NoteEventAr_push(self->events, argv[i]);
     }
-    NoteEventAr_sort(&self->events);
+    NoteEventAr_sort(self->events);
 
-    NoteEvent last = NoteEventAr_get(&self->events, NoteEventAr_last(&self->events), err);
+    NoteEvent *last = NoteEventAr_get(self->events, NoteEventAr_len(self->events)-1, err);
     Error_returnNullOnError(err);
 
-    if (last.duration != NoteSequence_cycleDuration) {
+    if (last->duration != NoteSequence_cycleDuration) {
         Error_format0(err, "Called newFromEvents without proper cycle marker");
         goto END;
     }
-    self->sequenceLength = last.stime;
+    self->sequenceLength = last->stime;
     NoteSequence_makeConsistent(self, err);
 
   END:
@@ -557,7 +568,7 @@ COVER static inline void NoteSequence_playNoteOffs(NoteSequence *self, Ticks cur
 {
     self->nextOffEvent = Ticks_maxTime;
     int nremoves = 0;
-    TimedOffAr_foreach(it, &self->offs) {
+    TimedOffAr_foreach(it, self->offs) {
         if (it.var->time > current) {
             self->nextOffEvent = it.var->time;
             break;
@@ -566,7 +577,7 @@ COVER static inline void NoteSequence_playNoteOffs(NoteSequence *self, Ticks cur
         nremoves++;
     }
     if (nremoves > 0) {
-        TimedOffAr_removeN(&self->offs, 0, nremoves, err);
+        TimedOffAr_removeN(self->offs, 0, nremoves, err);
         Error_maypost(err);
     }
 }
@@ -584,7 +595,7 @@ COVER static inline void NoteSequence_playEvents(NoteSequence *self, Ticks curre
             if (!NoteSequence_isMarkerValue(ne->duration)) {
                 // Queue the note off
                 TimedOff off = {.time = self->startTime + ne->stime + ne->duration, .pitch = ne->pitch};
-                TimedOffAr_binInsertTime(&self->offs, off);
+                TimedOffAr_binInsertTime(self->offs, off);
                 if (self->nextOffEvent > off.time) {
                     self->nextOffEvent = off.time;
                 }
@@ -686,13 +697,13 @@ APIF void NoteSequence_start(NoteSequence *self, Ticks clockStart, Ticks current
 }
 
 APIF void NoteSequence_stop(NoteSequence *self, Ticks current, Error *err) {
-    self->cursor       = NoteEventAr_len(&self->events);
+    self->cursor       = NoteEventAr_len(self->events);
     self->version++;
 
     if (self->recordingSeq != NULL) {
         // In the recording sequence Adjust the duration of all the pending note-offs
-        TimedOffAr_foreach(offIt, &self->offs) {
-            NoteEventAr_rforeach(noteIt, &self->recordingSeq->events) {
+        TimedOffAr_foreach(offIt, self->offs) {
+            NoteEventAr_rforeach(noteIt, self->recordingSeq->events) {
                 if (noteIt.var->pitch == offIt.var->pitch) {
                     noteIt.var->duration = current - (self->startTime + noteIt.var->stime);
                     if (noteIt.var->duration <= 0) {
@@ -728,22 +739,22 @@ APIF void NoteSequence_padNoteOff(NoteSequence *self, Ticks current, Error *err)
 
 APIF void NoteSequence_makeConsistent(NoteSequence *self, Error *err)
 {
-    if (NoteEventAr_len(&self->events) < 1) {
+    if (NoteEventAr_len(self->events) < 1) {
         Error_format0(err, "Called makeConsistent on empty sequence");
         return;
     }
 
-    NoteEventAr_sort(&self->events);
+    NoteEventAr_sort(self->events);
 
-    NoteEvent last = NoteEventAr_get(&self->events, NoteEventAr_last(&self->events), err);
+    NoteEvent last = NoteEventAr_get(self->events, NoteEventAr_len(self->events)-1, err);
     Error_returnVoidOnError(err);
 
-    if (last.duration != NoteSequence_cycleDuration) {
+    if (last->duration != NoteSequence_cycleDuration) {
         Error_format0(err, "Called makeConsistent without proper cycle marker");
         return;
     }
 
-    if (last.stime != self->sequenceLength) {
+    if (last->stime != self->sequenceLength) {
         Error_format0(err, "Called cycle marker and sequenceLength are inconsistent");
         return;
     }
@@ -752,7 +763,7 @@ APIF void NoteSequence_makeConsistent(NoteSequence *self, Error *err)
     for (int i = 0; i < 128; i++) {
         timeNextNoteStart[i] = INT_MAX;
     }
-    NoteEventAr_rforeach(it, &self->events) {
+    NoteEventAr_rforeach(it, self->events) {
         if (it.var->stime + it.var->duration > timeNextNoteStart[it.var->pitch]) {
             it.var->duration = timeNextNoteStart[it.var->pitch] - it.var->stime;
             if (it.var->duration <= 0) {
@@ -783,20 +794,20 @@ APIF void NoteSequence_compactConcat(NoteSequence *self, Sequence *otherSeq, Err
         Error_format(err, "NoteSequence_compactConcat was passed a sequence of type %s", Interface_toString(Interface_itype(otherSeq)));
         return;
     }
-    NoteEventAr_foreach(it, &other->events) {
+    NoteEventAr_foreach(it, other->events) {
         NoteEvent e = *it.var;
         if (NoteSequence_isMarkerValue(e.duration)) {
             continue;
         }
         // Rememver in RecordBuffer_compact we're gauranteed that self->startTime < other->startTime
         e.stime += (other->startTime - self->startTime);
-        NoteEventAr_push(&self->events, e); 
+        NoteEventAr_push(self->events, e); 
     }
 }
 
 APIF void NoteSequence_compactSortEvents(NoteSequence *self)
 {
-    NoteEventAr_sort(&self->events);
+    NoteEventAr_sort(self->events);
 }
 
 // Return the time that endgroup should be inserted, or -1 if no endgroup applies.
@@ -805,7 +816,7 @@ APIF Ticks NoteSequence_computeEndgroupTime(NoteSequence *self)
 {
     // Endgroup is the 
     Ticks endgroupTime = -1;
-    NoteEventAr_rforeach(it, &self->events) {
+    NoteEventAr_rforeach(it, self->events) {
         if (NoteSequence_isMarkerValue(it.var->duration)) {
             continue;
         }
@@ -818,7 +829,7 @@ APIF Ticks NoteSequence_computeEndgroupTime(NoteSequence *self)
 APIF Ticks NoteSequence_compactComputeSequenceLength(NoteSequence *self)
 {
     Ticks lastTime = Sequence_minSequenceLength;
-    NoteEventAr_rforeach(it, &self->events) {
+    NoteEventAr_rforeach(it, self->events) {
         if (NoteSequence_isMarkerValue(it.var->duration)) {
             continue;
         }
@@ -841,8 +852,8 @@ APIF Ticks NoteSequence_compactComputeSequenceLength(NoteSequence *self)
 APIF void NoteSequence_compactFinish(NoteSequence *self, Ticks endgroupTime, Ticks sequenceLength, Error *err)
 {
     if (endgroupTime >= 0) {
-        int index = NoteEventAr_len(&self->events) > 0 ? 0 : -1;
-        NoteEventAr_rforeach(it, &self->events) {
+        int index = NoteEventAr_len(self->events) > 0 ? 0 : -1;
+        NoteEventAr_rforeach(it, self->events) {
             if (NoteSequence_isMarkerValue(it.var->duration)) {
                 continue;
             }
@@ -853,7 +864,7 @@ APIF void NoteSequence_compactFinish(NoteSequence *self, Ticks endgroupTime, Tic
         }
         if (index >= 0) {
             NoteEvent newEv = {.stime = endgroupTime, .duration = NoteSequence_endgDuration, .pitch = 0, .velocity = 0};
-            NoteEventAr_insert(&self->events, index, newEv, err);
+            NoteEventAr_insert(self->events, index, newEv, err);
             Error_returnVoidOnError(err);
         }
     }
@@ -861,7 +872,7 @@ APIF void NoteSequence_compactFinish(NoteSequence *self, Ticks endgroupTime, Tic
 
     self->sequenceLength = sequenceLength;
     NoteEvent newEv = {.stime = sequenceLength, .duration = NoteSequence_cycleDuration, .pitch = 0, .velocity = 0};
-    NoteEventAr_push(&self->events, newEv);
+    NoteEventAr_push(self->events, newEv);
     NoteSequence_makeConsistent(self, err);
     return;
 }
@@ -975,9 +986,9 @@ APIF FloatSequence *FloatSequence_newFromEvents(Symbol *track, int ccOrNegForBen
     } else {
         self = FloatSequence_newBend(track, portFind);
     }
-    FloatEventAr_truncate(&self->events);
+    FloatEventAr_truncate(self->events);
     for (int i = 0; i < argc; i++) {
-        FloatEventAr_push(&self->events, argv[i]);
+        FloatEventAr_push(self->events, argv[i]);
     }
     FloatSequence_makeConsistent(self);
     return self;
@@ -989,7 +1000,7 @@ double FloatSequence_cycleMarker = -1.0e41;
 #define FloatSequence_isMarkerValue(v) (v < -1.0e10)
 
 APIF void FloatSequence_start(FloatSequence *self, Ticks clockStart, Ticks current, TimedPq *queue, RecordBuffer *recordBuffer, Error *err) {
-    int nevents = FloatEventAr_len(&self->events);
+    int nevents = FloatEventAr_len(self->events);
     if (nevents <= 0) {
         return;
     }
@@ -1006,7 +1017,7 @@ APIF void FloatSequence_start(FloatSequence *self, Ticks clockStart, Ticks curre
             self->startTime += self->sequenceLength;
         }
 
-        FloatEventAr_foreach(it, &self->events) {
+        FloatEventAr_foreach(it, self->events) {
             if (it.var->stime + self->startTime > current) {
                 nextEvent = it.var->stime + self->startTime;
                 break;
@@ -1019,7 +1030,7 @@ APIF void FloatSequence_start(FloatSequence *self, Ticks clockStart, Ticks curre
             self->cursor     = 0;
         }
     } else {
-        FloatEventAr_foreach(it, &self->events) {
+        FloatEventAr_foreach(it, self->events) {
             nextEvent = it.var->stime + self->startTime;
             break;
         }
@@ -1038,7 +1049,7 @@ APIF void FloatSequence_start(FloatSequence *self, Ticks clockStart, Ticks curre
 APIF void FloatSequence_drive(FloatSequence *self, Ticks current, TimedPq *queue, Error *err) {
     Ticks nextEvent = -1;
     for (;;) {
-        FloatEventAr_foreachOffset(it, &self->events, self->cursor) {
+        FloatEventAr_foreachOffset(it, self->events, self->cursor) {
             FloatEvent *fe = it.var;
             if (fe->stime + self->startTime > current) {
                 nextEvent = fe->stime + self->startTime;
@@ -1055,7 +1066,7 @@ APIF void FloatSequence_drive(FloatSequence *self, Ticks current, TimedPq *queue
             if (self->recordingSeq != NULL && !FloatSequence_isMarkerValue(fe->value)) {
                 FloatEvent e = *fe;
                 e.stime      = self->recordingSeq->startTime + fe->stime;
-                FloatEventAr_push(&self->recordingSeq->events, e);
+                FloatEventAr_push(self->recordingSeq->events, e);
             }
             self->cursor++;
         }
@@ -1076,7 +1087,7 @@ APIF void FloatSequence_drive(FloatSequence *self, Ticks current, TimedPq *queue
 }
 
 APIF void FloatSequence_stop(FloatSequence *self, Ticks current, Error *err) {
-    self->cursor       = FloatEventAr_len(&self->events);
+    self->cursor       = FloatEventAr_len(self->events);
     self->version++;
     self->recordingSeq = NULL;
     Outlet_sendFloat(self->outlet, self->restoreValue, err);
@@ -1090,9 +1101,9 @@ APIF void FloatSequence_padNoteOff(FloatSequence *self, Ticks current, Error *er
 
 APIF void FloatSequence_makeConsistent(FloatSequence *self)
 {
-    FloatEventAr_sort(&self->events);
+    FloatEventAr_sort(self->events);
     double seen = -1;
-    FloatEventAr_rforeach(it, &self->events) {
+    FloatEventAr_rforeach(it, self->events) {
         if (seen == it.var->stime) {
             FloatEventArRIt_remove(&it);
         }
@@ -1116,14 +1127,14 @@ APIF void FloatSequence_compactConcat(FloatSequence *self, Sequence *otherSeq, E
         Error_format(err, "FloatSequence_compactConcat was passed a sequence of type %s", Interface_toString(Interface_itype(otherSeq)));
         return;
     }
-    FloatEventAr_foreach(it, &other->events) {
+    FloatEventAr_foreach(it, other->events) {
         FloatEvent e = *it.var;
         if (FloatSequence_isMarkerValue(e.value)) {
             continue;
         }
         // Remember that self->startTime == recordStart
         e.stime += (other->startTime - self->startTime);
-        FloatEventAr_push(&self->events, e); 
+        FloatEventAr_push(self->events, e); 
     }
     return;
 }
@@ -1136,7 +1147,7 @@ APIF void FloatSequence_compactSortEvents(FloatSequence *self)
 APIF Ticks FloatSequence_compactComputeSequenceLength(FloatSequence *self)
 {
     Ticks lastTime = -1;
-    FloatEventAr_rforeach(it, &self->events) {
+    FloatEventAr_rforeach(it, self->events) {
         lastTime = it.var->stime;
         break;
     }
@@ -1153,8 +1164,8 @@ APIF Ticks FloatSequence_compactComputeSequenceLength(FloatSequence *self)
 APIF void FloatSequence_compactFinish(FloatSequence *self, Ticks endgroupTime, Ticks sequenceLength, Error *err)
 {
     if (endgroupTime >= 0) {
-        int index = FloatEventAr_len(&self->events) > 0 ? 0 : -1;
-        FloatEventAr_rforeach(it, &self->events) {
+        int index = FloatEventAr_len(self->events) > 0 ? 0 : -1;
+        FloatEventAr_rforeach(it, self->events) {
             if (FloatSequence_isMarkerValue(it.var->value)) {
                 continue;
             }
@@ -1165,14 +1176,14 @@ APIF void FloatSequence_compactFinish(FloatSequence *self, Ticks endgroupTime, T
         }
         if (index >= 0) {
             FloatEvent newEv = {.stime = endgroupTime, .value = FloatSequence_endgMarker};
-            FloatEventAr_insert(&self->events, index, newEv, err);
+            FloatEventAr_insert(self->events, index, newEv, err);
             Error_returnVoidOnError(err);
         }
     }
 
     self->sequenceLength = sequenceLength;
     FloatEvent newEv = {.stime = sequenceLength, .value = FloatSequence_cycleMarker};
-    FloatEventAr_push(&self->events, newEv);
+    FloatEventAr_push(self->events, newEv);
     FloatSequence_makeConsistent(self);
     return;
 }
@@ -1600,7 +1611,7 @@ APIF void Midi_fromfile(const char *midiFilePath, SequenceAr *output, Symbol *de
                 }
                 if (ev.arg2 == 0) {
                     bool found = false;
-                    NoteEventAr_rforeach(it, &noteSeq->events) {
+                    NoteEventAr_rforeach(it, noteSeq->events) {
                         if (it.var->pitch == ev.arg1) {
                             if (it.var->duration != NoteSequence_noteOffDuration) {
                                 Error_format(err, "Found unpaired note-off at %lld", ev.time);
@@ -1617,7 +1628,7 @@ APIF void Midi_fromfile(const char *midiFilePath, SequenceAr *output, Symbol *de
                     }
                 } else {
                     NoteEvent newEv = {.pitch = ev.arg1, .velocity = ev.arg2, .stime = ev.time, .duration = NoteSequence_noteOffDuration};
-                    NoteEventAr_push(&noteSeq->events, newEv);
+                    NoteEventAr_push(noteSeq->events, newEv);
                 }
                 break;
             }
@@ -1626,7 +1637,7 @@ APIF void Midi_fromfile(const char *midiFilePath, SequenceAr *output, Symbol *de
                     bendSeq = FloatSequence_newBend(defaultTrack, portFind);
                 }
                 FloatEvent newEv = {.stime = ev.time, .value = (double)ev.arg1};
-                FloatEventAr_push(&bendSeq->events, newEv);
+                FloatEventAr_push(bendSeq->events, newEv);
                 break;
             }
             case Midi_ccEventType: {
@@ -1634,7 +1645,7 @@ APIF void Midi_fromfile(const char *midiFilePath, SequenceAr *output, Symbol *de
                     ccSeqs[ev.arg1] = FloatSequence_newCc(defaultTrack, ev.arg1, portFind);
                 }
                 FloatEvent newEv = {.stime = ev.time, .value = (double)ev.arg2};
-                FloatEventAr_push(&(ccSeqs[ev.arg1])->events, newEv);
+                FloatEventAr_push((ccSeqs[ev.arg1])->events, newEv);
                 break;
             }
             case Midi_headerEventType: {

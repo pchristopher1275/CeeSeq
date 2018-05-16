@@ -1,13 +1,13 @@
-// *** DO NOT MODIFY THIS FILE generated 05/15/2018 15:45:21 ***
-// *** DO NOT MODIFY THIS FILE generated 05/15/2018 15:45:21 ***
-// *** DO NOT MODIFY THIS FILE generated 05/15/2018 15:45:21 ***
-// *** DO NOT MODIFY THIS FILE generated 05/15/2018 15:45:21 ***
-// *** DO NOT MODIFY THIS FILE generated 05/15/2018 15:45:21 ***
-// *** DO NOT MODIFY THIS FILE generated 05/15/2018 15:45:21 ***
-// *** DO NOT MODIFY THIS FILE generated 05/15/2018 15:45:21 ***
-// *** DO NOT MODIFY THIS FILE generated 05/15/2018 15:45:21 ***
-// *** DO NOT MODIFY THIS FILE generated 05/15/2018 15:45:21 ***
-// *** DO NOT MODIFY THIS FILE generated 05/15/2018 15:45:21 ***
+// *** DO NOT MODIFY THIS FILE generated 05/16/2018 14:33:48 ***
+// *** DO NOT MODIFY THIS FILE generated 05/16/2018 14:33:48 ***
+// *** DO NOT MODIFY THIS FILE generated 05/16/2018 14:33:48 ***
+// *** DO NOT MODIFY THIS FILE generated 05/16/2018 14:33:48 ***
+// *** DO NOT MODIFY THIS FILE generated 05/16/2018 14:33:48 ***
+// *** DO NOT MODIFY THIS FILE generated 05/16/2018 14:33:48 ***
+// *** DO NOT MODIFY THIS FILE generated 05/16/2018 14:33:48 ***
+// *** DO NOT MODIFY THIS FILE generated 05/16/2018 14:33:48 ***
+// *** DO NOT MODIFY THIS FILE generated 05/16/2018 14:33:48 ***
+// *** DO NOT MODIFY THIS FILE generated 05/16/2018 14:33:48 ***
 const bool Coverage_activated = false;
 const char **Coverage_array   = NULL;
 struct Array_t;
@@ -1416,8 +1416,8 @@ struct VstOutlet_t
 const char *Interface_toString(int itype)
 {
    if (self == NULL) {
-       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_<EXPAND_FAIL>");
-       return <EXPAND_FAIL>;
+       Error_format0(err, "Undefined interface passed to Interface_toString");
+       return NULL;
    }
    switch(itype) {
        case Arguments_itype:
@@ -1572,9 +1572,9 @@ BendOutlet *BendOutlet_fromJson(JSON_Value *jvalue, Error *err);
 JSON_Value *BendOutlet_toJson(BendOutlet *self, Error *err);
 BendOutlet *BendOutlet_clone(BendOutlet *self);
 static inline AtomAr *BendOutlet_atoms(BendOutlet *self){return self->atoms;}
-void BendOutlet_setAtoms(BendOutlet *self, <EXPAND_FAIL> *value);
+void BendOutlet_setAtoms(BendOutlet *self, AtomAr *value);
 static inline Port *BendOutlet_port(BendOutlet *self){return self->port;}
-void BendOutlet_setPort(BendOutlet *self, <EXPAND_FAIL> *value);
+void BendOutlet_setPort(BendOutlet *self, Port *value);
 static inline BendOutlet *BendOutlet_castFromOutlet(Outlet *self) {
    if (self->itype == BendOutlet_itype) {
        return (BendOutlet*)self;
@@ -1593,9 +1593,9 @@ CcOutlet *CcOutlet_clone(CcOutlet *self);
 static inline int CcOutlet_cc(CcOutlet *self){return self->cc;}
 static inline void CcOutlet_setCc(CcOutlet *self, int value){self->cc = value;}
 static inline AtomAr *CcOutlet_atoms(CcOutlet *self){return self->atoms;}
-void CcOutlet_setAtoms(CcOutlet *self, <EXPAND_FAIL> *value);
+void CcOutlet_setAtoms(CcOutlet *self, AtomAr *value);
 static inline Port *CcOutlet_port(CcOutlet *self){return self->port;}
-void CcOutlet_setPort(CcOutlet *self, <EXPAND_FAIL> *value);
+void CcOutlet_setPort(CcOutlet *self, Port *value);
 static inline CcOutlet *CcOutlet_castFromOutlet(Outlet *self) {
    if (self->itype == CcOutlet_itype) {
        return (CcOutlet*)self;
@@ -1630,10 +1630,10 @@ static inline Dispatch *DecrementFrameDispatch_castToDispatch(DecrementFrameDisp
 }
 int Dispatch_nthIType(int n, int *itype);
 #define Dispatch_foreachIType(itype) for (int __##itype = 0, itype = 0; Dispatch_nthIType(__##itype, &itype); __##itype++)
-xvoid Dispatch_exec(Dispatch *self, Hub *a1, Arguments *a2, Error * a3, Error *err, Error *err);
-xDispatch *Dispatch_create(int itype, Error *err);
-xvoid Dispatch_free(Dispatch *self, Error *err);
-xvoid Dispatch_initDispatchAr(int itype, DispatchAr *a1, Error * a2, Error *err, Error *err);
+void Dispatch_exec(Dispatch *self, Hub *a1, Arguments *a2, Error * a3, Error *err, Error *err);
+Dispatch *Dispatch_create(int itype, Error *err);
+void Dispatch_free(Dispatch *self, Error *err);
+void Dispatch_initDispatchAr(int itype, DispatchAr *a1, Error * a2, Error *err, Error *err);
 #define DispatchAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
 DispatchAr *DispatchAr_clone(DispatchAr *arr);
 void DispatchAr_decRef(DispatchAr *arr);
@@ -1676,11 +1676,11 @@ DropDown *DropDown_fromJson(JSON_Value *jvalue, Error *err);
 JSON_Value *DropDown_toJson(DropDown *self, Error *err);
 DropDown *DropDown_clone(DropDown *self);
 static inline SymbolAr *DropDown_table(DropDown *self){return self->table;}
-void DropDown_setTable(DropDown *self, <EXPAND_FAIL> *value);
+void DropDown_setTable(DropDown *self, SymbolAr *value);
 static inline int DropDown_selected(DropDown *self){return self->selected;}
 static inline void DropDown_setSelected(DropDown *self, int value){self->selected = value;}
 static inline Outlet *DropDown_outlet(DropDown *self){return self->outlet;}
-void DropDown_setOutlet(DropDown *self, <EXPAND_FAIL> *value);
+void DropDown_setOutlet(DropDown *self, Outlet *value);
 FloatEvent *FloatEvent_new();
 void FloatEvent_incRef(FloatEvent *self);
 void FloatEvent_decRef(FloatEvent *self);
@@ -1737,7 +1737,7 @@ static inline void FloatSequence_setVersion(FloatSequence *self, long value){sel
 static inline Ticks FloatSequence_startTime(FloatSequence *self){return self->startTime;}
 static inline void FloatSequence_setStartTime(FloatSequence *self, Ticks value){self->startTime = value;}
 static inline OutletSpecifier *FloatSequence_outletSpecifier(FloatSequence *self){return self->outletSpecifier;}
-void FloatSequence_setOutletSpecifier(FloatSequence *self, <EXPAND_FAIL> *value);
+void FloatSequence_setOutletSpecifier(FloatSequence *self, OutletSpecifier *value);
 static inline Ticks FloatSequence_sequenceLength(FloatSequence *self){return self->sequenceLength;}
 static inline void FloatSequence_setSequenceLength(FloatSequence *self, Ticks value){self->sequenceLength = value;}
 static inline int FloatSequence_cursor(FloatSequence *self){return self->cursor;}
@@ -1747,11 +1747,11 @@ static inline void FloatSequence_setCycle(FloatSequence *self, bool value){self-
 static inline bool FloatSequence_inEndgroup(FloatSequence *self){return self->inEndgroup;}
 static inline void FloatSequence_setInEndgroup(FloatSequence *self, bool value){self->inEndgroup = value;}
 static inline Outlet *FloatSequence_outlet(FloatSequence *self){return self->outlet;}
-void FloatSequence_setOutlet(FloatSequence *self, <EXPAND_FAIL> *value);
+void FloatSequence_setOutlet(FloatSequence *self, Outlet *value);
 static inline FloatSequence * FloatSequence_recordingSeq(FloatSequence *self){return self->recordingSeq;}
 static inline void FloatSequence_setRecordingSeq(FloatSequence *self, FloatSequence * value){self->recordingSeq = value;}
 static inline FloatEventAr *FloatSequence_events(FloatSequence *self){return self->events;}
-void FloatSequence_setEvents(FloatSequence *self, <EXPAND_FAIL> *value);
+void FloatSequence_setEvents(FloatSequence *self, FloatEventAr *value);
 static inline double FloatSequence_restoreValue(FloatSequence *self){return self->restoreValue;}
 static inline void FloatSequence_setRestoreValue(FloatSequence *self, double value){self->restoreValue = value;}
 static inline FloatSequence *FloatSequence_castFromSequence(Sequence *self) {
@@ -1770,27 +1770,27 @@ Hub *Hub_fromJson(JSON_Value *jvalue, Error *err);
 JSON_Value *Hub_toJson(Hub *self, Error *err);
 Hub *Hub_clone(Hub *self);
 static inline PadAr *Hub_padList(Hub *self){return self->padList;}
-void Hub_setPadList(Hub *self, <EXPAND_FAIL> *value);
+void Hub_setPadList(Hub *self, PadAr *value);
 static inline TrackAr *Hub_trackList(Hub *self){return self->trackList;}
-void Hub_setTrackList(Hub *self, <EXPAND_FAIL> *value);
+void Hub_setTrackList(Hub *self, TrackAr *value);
 static inline Port *Hub_currBankPort(Hub *self){return self->currBankPort;}
-void Hub_setCurrBankPort(Hub *self, <EXPAND_FAIL> *value);
+void Hub_setCurrBankPort(Hub *self, Port *value);
 static inline Port *Hub_currFramePort(Hub *self){return self->currFramePort;}
-void Hub_setCurrFramePort(Hub *self, <EXPAND_FAIL> *value);
+void Hub_setCurrFramePort(Hub *self, Port *value);
 static inline Port *Hub_selBankPort(Hub *self){return self->selBankPort;}
-void Hub_setSelBankPort(Hub *self, <EXPAND_FAIL> *value);
+void Hub_setSelBankPort(Hub *self, Port *value);
 static inline Port *Hub_selFramePort(Hub *self){return self->selFramePort;}
-void Hub_setSelFramePort(Hub *self, <EXPAND_FAIL> *value);
+void Hub_setSelFramePort(Hub *self, Port *value);
 static inline Port *Hub_selPadPort(Hub *self){return self->selPadPort;}
-void Hub_setSelPadPort(Hub *self, <EXPAND_FAIL> *value);
+void Hub_setSelPadPort(Hub *self, Port *value);
 static inline Port *Hub_chokeGroupPort(Hub *self){return self->chokeGroupPort;}
-void Hub_setChokeGroupPort(Hub *self, <EXPAND_FAIL> *value);
+void Hub_setChokeGroupPort(Hub *self, Port *value);
 static inline DropDown *Hub_cgLocalGlobalMenu(Hub *self){return self->cgLocalGlobalMenu;}
-void Hub_setCgLocalGlobalMenu(Hub *self, <EXPAND_FAIL> *value);
+void Hub_setCgLocalGlobalMenu(Hub *self, DropDown *value);
 static inline DropDown *Hub_cgInstrumentMenu(Hub *self){return self->cgInstrumentMenu;}
-void Hub_setCgInstrumentMenu(Hub *self, <EXPAND_FAIL> *value);
+void Hub_setCgInstrumentMenu(Hub *self, DropDown *value);
 static inline DropDown *Hub_cgIndexMenu(Hub *self){return self->cgIndexMenu;}
-void Hub_setCgIndexMenu(Hub *self, <EXPAND_FAIL> *value);
+void Hub_setCgIndexMenu(Hub *self, DropDown *value);
 static inline int Hub_bank(Hub *self){return self->bank;}
 static inline void Hub_setBank(Hub *self, int value){self->bank = value;}
 static inline int Hub_frame(Hub *self){return self->frame;}
@@ -1800,9 +1800,9 @@ static inline void Hub_setGrabNextTappedPad(Hub *self, bool value){self->grabNex
 static inline int Hub_selectedPad(Hub *self){return self->selectedPad;}
 static inline void Hub_setSelectedPad(Hub *self, int value){self->selectedPad = value;}
 static inline Arguments *Hub_arguments(Hub *self){return self->arguments;}
-void Hub_setArguments(Hub *self, <EXPAND_FAIL> *value);
+void Hub_setArguments(Hub *self, Arguments *value);
 static inline DispatchAr *Hub_dispatcher(Hub *self){return self->dispatcher;}
-void Hub_setDispatcher(Hub *self, <EXPAND_FAIL> *value);
+void Hub_setDispatcher(Hub *self, DispatchAr *value);
 static inline Ticks Hub_masterClock(Hub *self){return self->masterClock;}
 static inline void Hub_setMasterClock(Hub *self, Ticks value){self->masterClock = value;}
 IncrementFrameDispatch *IncrementFrameDispatch_new();
@@ -1896,8 +1896,8 @@ static inline Dispatch *ManageChokeGroupsDispatch_castToDispatch(ManageChokeGrou
 }
 int Marshal_nthIType(int n, int *itype);
 #define Marshal_foreachIType(itype) for (int __##itype = 0, itype = 0; Marshal_nthIType(__##itype, &itype); __##itype++)
-xvoid Marshal_process(Marshal *self, Arguments *a1, long a2, Atom * a3, Error * a4, Error *err, Error *err);
-xvoid Marshal_zeroArgs(Marshal *self, Arguments *a1, Error *err);
+void Marshal_process(Marshal *self, Arguments *a1, long a2, Atom * a3, Error * a4, Error *err, Error *err);
+void Marshal_zeroArgs(Marshal *self, Arguments *a1, Error *err);
 MarshalSi *MarshalSi_new();
 void MarshalSi_incRef(MarshalSi *self);
 void MarshalSi_decRef(MarshalSi *self);
@@ -2050,9 +2050,9 @@ NoteOutlet *NoteOutlet_fromJson(JSON_Value *jvalue, Error *err);
 JSON_Value *NoteOutlet_toJson(NoteOutlet *self, Error *err);
 NoteOutlet *NoteOutlet_clone(NoteOutlet *self);
 static inline AtomAr *NoteOutlet_atoms(NoteOutlet *self){return self->atoms;}
-void NoteOutlet_setAtoms(NoteOutlet *self, <EXPAND_FAIL> *value);
+void NoteOutlet_setAtoms(NoteOutlet *self, AtomAr *value);
 static inline Port *NoteOutlet_port(NoteOutlet *self){return self->port;}
-void NoteOutlet_setPort(NoteOutlet *self, <EXPAND_FAIL> *value);
+void NoteOutlet_setPort(NoteOutlet *self, Port *value);
 static inline NoteOutlet *NoteOutlet_castFromOutlet(Outlet *self) {
    if (self->itype == NoteOutlet_itype) {
        return (NoteOutlet*)self;
@@ -2073,7 +2073,7 @@ static inline void NoteSequence_setVersion(NoteSequence *self, long value){self-
 static inline Ticks NoteSequence_startTime(NoteSequence *self){return self->startTime;}
 static inline void NoteSequence_setStartTime(NoteSequence *self, Ticks value){self->startTime = value;}
 static inline OutletSpecifier *NoteSequence_outletSpecifier(NoteSequence *self){return self->outletSpecifier;}
-void NoteSequence_setOutletSpecifier(NoteSequence *self, <EXPAND_FAIL> *value);
+void NoteSequence_setOutletSpecifier(NoteSequence *self, OutletSpecifier *value);
 static inline Ticks NoteSequence_sequenceLength(NoteSequence *self){return self->sequenceLength;}
 static inline void NoteSequence_setSequenceLength(NoteSequence *self, Ticks value){self->sequenceLength = value;}
 static inline int NoteSequence_cursor(NoteSequence *self){return self->cursor;}
@@ -2087,13 +2087,13 @@ static inline void NoteSequence_setNextOnEvent(NoteSequence *self, Ticks value){
 static inline bool NoteSequence_inEndgroup(NoteSequence *self){return self->inEndgroup;}
 static inline void NoteSequence_setInEndgroup(NoteSequence *self, bool value){self->inEndgroup = value;}
 static inline Outlet *NoteSequence_outlet(NoteSequence *self){return self->outlet;}
-void NoteSequence_setOutlet(NoteSequence *self, <EXPAND_FAIL> *value);
+void NoteSequence_setOutlet(NoteSequence *self, Outlet *value);
 static inline NoteSequence * NoteSequence_recordingSeq(NoteSequence *self){return self->recordingSeq;}
 static inline void NoteSequence_setRecordingSeq(NoteSequence *self, NoteSequence * value){self->recordingSeq = value;}
 static inline TimedOffAr *NoteSequence_offs(NoteSequence *self){return self->offs;}
-void NoteSequence_setOffs(NoteSequence *self, <EXPAND_FAIL> *value);
+void NoteSequence_setOffs(NoteSequence *self, TimedOffAr *value);
 static inline NoteEventAr *NoteSequence_events(NoteSequence *self){return self->events;}
-void NoteSequence_setEvents(NoteSequence *self, <EXPAND_FAIL> *value);
+void NoteSequence_setEvents(NoteSequence *self, NoteEventAr *value);
 static inline NoteSequence *NoteSequence_castFromSequence(Sequence *self) {
    if (self->itype == NoteSequence_itype) {
        return (NoteSequence*)self;
@@ -2122,8 +2122,8 @@ static inline Outlet *NullOutlet_castToOutlet(NullOutlet *self) {
 }
 int Outlet_nthIType(int n, int *itype);
 #define Outlet_foreachIType(itype) for (int __##itype = 0, itype = 0; Outlet_nthIType(__##itype, &itype); __##itype++)
-xvoid Outlet_sendNote(Outlet *self, uint8_t a1, uint8_t a2, Error *err);
-xvoid Outlet_sendFloat(Outlet *self, double a1, Error *err);
+void Outlet_sendNote(Outlet *self, uint8_t a1, uint8_t a2, Error *err);
+void Outlet_sendFloat(Outlet *self, double a1, Error *err);
 OutletSpecifier *OutletSpecifier_new();
 void OutletSpecifier_incRef(OutletSpecifier *self);
 void OutletSpecifier_decRef(OutletSpecifier *self);
@@ -2149,7 +2149,7 @@ static inline void Pad_setTrackName(Pad *self, Symbol * value){self->trackName =
 static inline int Pad_padIndex(Pad *self){return self->padIndex;}
 static inline void Pad_setPadIndex(Pad *self, int value){self->padIndex = value;}
 static inline Sequence *Pad_SequenceAr(Pad *self){return self->SequenceAr;}
-void Pad_setSequenceAr(Pad *self, <EXPAND_FAIL> *value);
+void Pad_setSequenceAr(Pad *self, Sequence *value);
 static inline bool Pad_chokeGroupGlobal(Pad *self){return self->chokeGroupGlobal;}
 static inline void Pad_setChokeGroupGlobal(Pad *self, bool value){self->chokeGroupGlobal = value;}
 static inline int Pad_chokeGroupInstrument(Pad *self){return self->chokeGroupInstrument;}
@@ -2163,7 +2163,7 @@ static inline void Pad_setNoteReleasePending(Pad *self, bool value){self->noteRe
 static inline bool Pad_inEndgroup(Pad *self){return self->inEndgroup;}
 static inline void Pad_setInEndgroup(Pad *self, bool value){self->inEndgroup = value;}
 static inline Track *Pad_track(Pad *self){return self->track;}
-void Pad_setTrack(Pad *self, <EXPAND_FAIL> *value);
+void Pad_setTrack(Pad *self, Track *value);
 static inline bool Pad_useMasterClock(Pad *self){return self->useMasterClock;}
 static inline void Pad_setUseMasterClock(Pad *self, bool value){self->useMasterClock = value;}
 #define PadAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
@@ -2196,9 +2196,9 @@ static inline void Port_setObj(Port *self, MaxObject value){self->obj = value;}
 static inline long Port_inletnum(Port *self){return self->inletnum;}
 static inline void Port_setInletnum(Port *self, long value){self->inletnum = value;}
 static inline PtrAr *Port_proxy(Port *self){return self->proxy;}
-void Port_setProxy(Port *self, <EXPAND_FAIL> *value);
+void Port_setProxy(Port *self, PtrAr *value);
 static inline PtrAr *Port_outlet(Port *self){return self->outlet;}
-void Port_setOutlet(Port *self, <EXPAND_FAIL> *value);
+void Port_setOutlet(Port *self, PtrAr *value);
 static inline Symbol * Port_track(Port *self){return self->track;}
 static inline void Port_setTrack(Port *self, Symbol * value){self->track = value;}
 static inline Symbol * Port_id(Port *self){return self->id;}
@@ -2220,7 +2220,7 @@ PortFind *PortFind_fromJson(JSON_Value *jvalue, Error *err);
 JSON_Value *PortFind_toJson(PortFind *self, Error *err);
 PortFind *PortFind_clone(PortFind *self);
 static inline PortFindCellAr *PortFind_objects(PortFind *self){return self->objects;}
-void PortFind_setObjects(PortFind *self, <EXPAND_FAIL> *value);
+void PortFind_setObjects(PortFind *self, PortFindCellAr *value);
 static inline void * PortFind_hub(PortFind *self){return self->hub;}
 static inline void PortFind_setHub(PortFind *self, void * value){self->hub = value;}
 static inline Port_anythingDispatchFunc PortFind_anythingDispatch(PortFind *self){return self->anythingDispatch;}
@@ -2314,7 +2314,7 @@ RecordBuffer *RecordBuffer_clone(RecordBuffer *self);
 static inline Ticks RecordBuffer_recordStart(RecordBuffer *self){return self->recordStart;}
 static inline void RecordBuffer_setRecordStart(RecordBuffer *self, Ticks value){self->recordStart = value;}
 static inline SequenceAr *RecordBuffer_sequences(RecordBuffer *self){return self->sequences;}
-void RecordBuffer_setSequences(RecordBuffer *self, <EXPAND_FAIL> *value);
+void RecordBuffer_setSequences(RecordBuffer *self, SequenceAr *value);
 SelectNextPushedPadDispatch *SelectNextPushedPadDispatch_new();
 void SelectNextPushedPadDispatch_incRef(SelectNextPushedPadDispatch *self);
 void SelectNextPushedPadDispatch_decRef(SelectNextPushedPadDispatch *self);
@@ -2340,17 +2340,17 @@ static inline Dispatch *SelectNextPushedPadDispatch_castToDispatch(SelectNextPus
 }
 int Sequence_nthIType(int n, int *itype);
 #define Sequence_foreachIType(itype) for (int __##itype = 0, itype = 0; Sequence_nthIType(__##itype, &itype); __##itype++)
-xvoid Sequence_start(Sequence *self, Ticks a1, Ticks a2, TimedPq *a3, RecordBuffer *a4, Error * *a5, Error *err, Error *err);
-xvoid Sequence_drive(Sequence *self, Ticks a1, TimedPq *a2, Error * a3, Error *err, Error *err);
-xvoid Sequence_stop(Sequence *self, Ticks a1, Error * a2, Error *err, Error *err);
-xvoid Sequence_padNoteOff(Sequence *self, Ticks a1, Error * a2, Error *err, Error *err);
-xvoid Sequence_setCycle(Sequence *self, bool a1, Error *err);
-xvoid Sequence_free(Sequence *self, Error *err);
-xSequence *Sequence_compactNew(Sequence *self, Ticks a1, Error *err);
-xvoid Sequence_compactConcat(Sequence *self, Sequence *a1, Error * a2, Error *err, Error *err);
-xvoid Sequence_compactSortEvents(Sequence *self, Error *err);
-xTicks Sequence_compactComputeSequenceLength(Sequence *self, Error *err);
-xvoid Sequence_compactFinish(Sequence *self, Ticks a1, Ticks a2, Error * a3, Error *err, Error *err);
+void Sequence_start(Sequence *self, Ticks a1, Ticks a2, TimedPq *a3, RecordBuffer *a4, Error * *a5, Error *err, Error *err);
+void Sequence_drive(Sequence *self, Ticks a1, TimedPq *a2, Error * a3, Error *err, Error *err);
+void Sequence_stop(Sequence *self, Ticks a1, Error * a2, Error *err, Error *err);
+void Sequence_padNoteOff(Sequence *self, Ticks a1, Error * a2, Error *err, Error *err);
+void Sequence_setCycle(Sequence *self, bool a1, Error *err);
+void Sequence_free(Sequence *self, Error *err);
+Sequence *Sequence_compactNew(Sequence *self, Ticks a1, Error *err);
+void Sequence_compactConcat(Sequence *self, Sequence *a1, Error * a2, Error *err, Error *err);
+void Sequence_compactSortEvents(Sequence *self, Error *err);
+Ticks Sequence_compactComputeSequenceLength(Sequence *self, Error *err);
+void Sequence_compactFinish(Sequence *self, Ticks a1, Ticks a2, Error * a3, Error *err, Error *err);
 #define SequenceAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
 SequenceAr *SequenceAr_clone(SequenceAr *arr);
 void SequenceAr_decRef(SequenceAr *arr);
@@ -2502,7 +2502,7 @@ static inline void Timed_setTime(Timed *self, Ticks value){self->time = value;}
 static inline int Timed_version(Timed *self){return self->version;}
 static inline void Timed_setVersion(Timed *self, int value){self->version = value;}
 static inline Sequence *Timed_sequence(Timed *self){return self->sequence;}
-void Timed_setSequence(Timed *self, <EXPAND_FAIL> *value);
+void Timed_setSequence(Timed *self, Sequence *value);
 TimedOff *TimedOff_new();
 void TimedOff_incRef(TimedOff *self);
 void TimedOff_decRef(TimedOff *self);
@@ -2623,9 +2623,9 @@ VstOutlet *VstOutlet_fromJson(JSON_Value *jvalue, Error *err);
 JSON_Value *VstOutlet_toJson(VstOutlet *self, Error *err);
 VstOutlet *VstOutlet_clone(VstOutlet *self);
 static inline AtomAr *VstOutlet_atoms(VstOutlet *self){return self->atoms;}
-void VstOutlet_setAtoms(VstOutlet *self, <EXPAND_FAIL> *value);
+void VstOutlet_setAtoms(VstOutlet *self, AtomAr *value);
 static inline Port *VstOutlet_port(VstOutlet *self){return self->port;}
-void VstOutlet_setPort(VstOutlet *self, <EXPAND_FAIL> *value);
+void VstOutlet_setPort(VstOutlet *self, Port *value);
 static inline VstOutlet *VstOutlet_castFromOutlet(Outlet *self) {
    if (self->itype == VstOutlet_itype) {
        return (VstOutlet*)self;
@@ -2717,6 +2717,7 @@ int Timed_cmp(Timed *left, Timed *right);
 void TimedPq_enqueue(TimedPq *self, Ticks time, Sequence *s);
 Sequence *TimedPq_dequeue(TimedPq *self, Ticks current);
 void TimedPq_invalidateSequence(TimedPq *self, SequenceAr *removes);
+NoteEvent *NoteEvent_newValue(Ticks stime, int pitch, int velocity, Ticks duration);
 int NoteEvent_cmp(NoteEvent *left, NoteEvent *right);
 NoteSequence *NoteSequence_newTrack(Symbol *track, PortFind *portFind);
 NoteSequence *NoteSequence_newFromEvents(Symbol *track, PortFind *portFind, int argc, NoteEvent *argv, Error *err);
@@ -2761,8 +2762,8 @@ void Frontend_stop(Hub *hub);
 Arguments *Arguments_new()
 {
    Arguments *self = Mem_malloc(sizeof(Arguments));
-   self->itype       = Arguments_itype;
-   self->refCount    = 1;
+   self->itype = Arguments_itype;
+   self->refCount = 1;
    self->s1 = 0;
    self->i1 = 0;
    self->i2 = 0;
@@ -2776,8 +2777,9 @@ void Arguments_incRef(Arguments *self)
 }
 void Arguments_decRef(Arguments *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
+       Mem_free(self);
    }
    return;
 }
@@ -2882,8 +2884,8 @@ bool AtomArArRIt_next(AtomArArRIt *iterator);
 AtomRf *AtomRf_new()
 {
    AtomRf *self = Mem_malloc(sizeof(AtomRf));
-   self->itype       = AtomRf_itype;
-   self->refCount    = 1;
+   self->itype = AtomRf_itype;
+   self->refCount = 1;
    self->a = 0;
    return self;
 }
@@ -2893,8 +2895,9 @@ void AtomRf_incRef(AtomRf *self)
 }
 void AtomRf_decRef(AtomRf *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
+       Mem_free(self);
    }
    return;
 }
@@ -2945,8 +2948,8 @@ AtomRf *AtomRf_clone(AtomRf *self) {
 BendOutlet *BendOutlet_new()
 {
    BendOutlet *self = Mem_malloc(sizeof(BendOutlet));
-   self->itype       = BendOutlet_itype;
-   self->refCount    = 1;
+   self->itype = BendOutlet_itype;
+   self->refCount = 1;
    self->atoms = AtomAr_new();
    self->port = Port_new();
    return self;
@@ -2957,10 +2960,11 @@ void BendOutlet_incRef(BendOutlet *self)
 }
 void BendOutlet_decRef(BendOutlet *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
        AtomAr_decRef(self->atoms);        
        Port_decRef(self->port);        
+       Mem_free(self);
    }
    return;
 }
@@ -3023,7 +3027,7 @@ BendOutlet *BendOutlet_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'BendOutlet' json object does not contain a json value for 'atoms'");
            goto FAIL;
        }
-       self->atoms = BendOutlet_fromJson(target, err);
+       self->atoms = AtomAr_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    {   
@@ -3032,7 +3036,7 @@ BendOutlet *BendOutlet_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'BendOutlet' json object does not contain a json value for 'port'");
            goto FAIL;
        }
-       self->port = BendOutlet_fromJson(target, err);
+       self->port = Port_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    return self;
@@ -3047,23 +3051,23 @@ BendOutlet *BendOutlet_clone(BendOutlet *self) {
    other->port = Port_clone(self->port);
    return self;
 }
-void BendOutlet_setAtoms(BendOutlet *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->atoms;
-                self->atoms = value;
-                AtomAr_incRef(self->atoms);
-                AtomAr_decRef(old);
-            }
-void BendOutlet_setPort(BendOutlet *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->port;
-                self->port = value;
-                Port_incRef(self->port);
-                Port_decRef(old);
-            }
+void BendOutlet_setAtoms(BendOutlet *self, AtomAr *value) {
+   AtomAr *old = self->atoms;
+   self->atoms = value;
+   AtomAr_incRef(self->atoms);
+   AtomAr_decRef(old);
+}
+void BendOutlet_setPort(BendOutlet *self, Port *value) {
+   Port *old = self->port;
+   self->port = value;
+   Port_incRef(self->port);
+   Port_decRef(old);
+}
 CcOutlet *CcOutlet_new()
 {
    CcOutlet *self = Mem_malloc(sizeof(CcOutlet));
-   self->itype       = CcOutlet_itype;
-   self->refCount    = 1;
+   self->itype = CcOutlet_itype;
+   self->refCount = 1;
    self->cc = 0;
    self->atoms = AtomAr_new();
    self->port = Port_new();
@@ -3075,10 +3079,11 @@ void CcOutlet_incRef(CcOutlet *self)
 }
 void CcOutlet_decRef(CcOutlet *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
        AtomAr_decRef(self->atoms);        
        Port_decRef(self->port);        
+       Mem_free(self);
    }
    return;
 }
@@ -3141,7 +3146,7 @@ CcOutlet *CcOutlet_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'CcOutlet' json object does not contain a json value for 'atoms'");
            goto FAIL;
        }
-       self->atoms = CcOutlet_fromJson(target, err);
+       self->atoms = AtomAr_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    {   
@@ -3150,7 +3155,7 @@ CcOutlet *CcOutlet_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'CcOutlet' json object does not contain a json value for 'port'");
            goto FAIL;
        }
-       self->port = CcOutlet_fromJson(target, err);
+       self->port = Port_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    return self;
@@ -3166,23 +3171,23 @@ CcOutlet *CcOutlet_clone(CcOutlet *self) {
    other->port = Port_clone(self->port);
    return self;
 }
-void CcOutlet_setAtoms(CcOutlet *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->atoms;
-                self->atoms = value;
-                AtomAr_incRef(self->atoms);
-                AtomAr_decRef(old);
-            }
-void CcOutlet_setPort(CcOutlet *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->port;
-                self->port = value;
-                Port_incRef(self->port);
-                Port_decRef(old);
-            }
+void CcOutlet_setAtoms(CcOutlet *self, AtomAr *value) {
+   AtomAr *old = self->atoms;
+   self->atoms = value;
+   AtomAr_incRef(self->atoms);
+   AtomAr_decRef(old);
+}
+void CcOutlet_setPort(CcOutlet *self, Port *value) {
+   Port *old = self->port;
+   self->port = value;
+   Port_incRef(self->port);
+   Port_decRef(old);
+}
 DecrementFrameDispatch *DecrementFrameDispatch_new()
 {
    DecrementFrameDispatch *self = Mem_malloc(sizeof(DecrementFrameDispatch));
-   self->itype       = DecrementFrameDispatch_itype;
-   self->refCount    = 1;
+   self->itype = DecrementFrameDispatch_itype;
+   self->refCount = 1;
    self->selector = 0;
    self->portId = 0;
    self->inlet = 0;
@@ -3195,8 +3200,9 @@ void DecrementFrameDispatch_incRef(DecrementFrameDispatch *self)
 }
 void DecrementFrameDispatch_decRef(DecrementFrameDispatch *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
+       Mem_free(self);
    }
    return;
 }
@@ -3249,10 +3255,10 @@ DecrementFrameDispatch *DecrementFrameDispatch_clone(DecrementFrameDispatch *sel
 }
 int Dispatch_nthIType(int n, int *itype);
 #define Dispatch_foreachIType(itype) for (int __##itype = 0, itype = 0; Dispatch_nthIType(__##itype, &itype); __##itype++)
-xvoid Dispatch_exec(Dispatch *self, Hub *a1, Arguments *a2, Error * a3, Error *err, Error *err)
+void Dispatch_exec(Dispatch *self, Hub *a1, Arguments *a2, Error * a3, Error *err, Error *err)
 {
    if (self == NULL) {
-       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_exec");
+       Error_format0(err, "Undefined interface passed to Dispatch_exec");
        return 0;
    }
    switch(self->itype) {
@@ -3277,10 +3283,10 @@ xvoid Dispatch_exec(Dispatch *self, Hub *a1, Arguments *a2, Error * a3, Error *e
     return;
 }
 
-xDispatch *Dispatch_create(int itype, Error *err)
+Dispatch *Dispatch_create(int itype, Error *err)
 {
    if (self == NULL) {
-       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_create");
+       Error_format0(err, "Undefined interface passed to Dispatch_create");
        return NULL;
    }
    switch(itype) {
@@ -3300,10 +3306,10 @@ xDispatch *Dispatch_create(int itype, Error *err)
     return NULL;
 }
 
-xvoid Dispatch_free(Dispatch *self, Error *err)
+void Dispatch_free(Dispatch *self, Error *err)
 {
    if (self == NULL) {
-       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_free");
+       Error_format0(err, "Undefined interface passed to Dispatch_free");
        return 0;
    }
    switch(self->itype) {
@@ -3328,10 +3334,10 @@ xvoid Dispatch_free(Dispatch *self, Error *err)
     return;
 }
 
-xvoid Dispatch_initDispatchAr(int itype, DispatchAr *a1, Error * a2, Error *err, Error *err)
+void Dispatch_initDispatchAr(int itype, DispatchAr *a1, Error * a2, Error *err, Error *err)
 {
    if (self == NULL) {
-       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_initDispatchAr");
+       Error_format0(err, "Undefined interface passed to Dispatch_initDispatchAr");
        return 0;
    }
    switch(itype) {
@@ -3393,8 +3399,8 @@ void DispatchAr_sort(DispatchAr *arr);
 DropDown *DropDown_new()
 {
    DropDown *self = Mem_malloc(sizeof(DropDown));
-   self->itype       = DropDown_itype;
-   self->refCount    = 1;
+   self->itype = DropDown_itype;
+   self->refCount = 1;
    self->table = SymbolAr_new();
    self->selected = 0;
    self->outlet = Outlet_new();
@@ -3406,10 +3412,11 @@ void DropDown_incRef(DropDown *self)
 }
 void DropDown_decRef(DropDown *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
        SymbolAr_decRef(self->table);        
        Outlet_decRef(self->outlet);        
+       Mem_free(self);
    }
    return;
 }
@@ -3472,7 +3479,7 @@ DropDown *DropDown_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'DropDown' json object does not contain a json value for 'table'");
            goto FAIL;
        }
-       self->table = DropDown_fromJson(target, err);
+       self->table = SymbolAr_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    {   
@@ -3481,7 +3488,7 @@ DropDown *DropDown_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'DropDown' json object does not contain a json value for 'outlet'");
            goto FAIL;
        }
-       self->outlet = DropDown_fromJson(target, err);
+       self->outlet = Outlet_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    return self;
@@ -3497,23 +3504,23 @@ DropDown *DropDown_clone(DropDown *self) {
    other->outlet = Outlet_clone(self->outlet);
    return self;
 }
-void DropDown_setTable(DropDown *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->table;
-                self->table = value;
-                SymbolAr_incRef(self->table);
-                SymbolAr_decRef(old);
-            }
-void DropDown_setOutlet(DropDown *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->outlet;
-                self->outlet = value;
-                Outlet_incRef(self->outlet);
-                Outlet_decRef(old);
-            }
+void DropDown_setTable(DropDown *self, SymbolAr *value) {
+   SymbolAr *old = self->table;
+   self->table = value;
+   SymbolAr_incRef(self->table);
+   SymbolAr_decRef(old);
+}
+void DropDown_setOutlet(DropDown *self, Outlet *value) {
+   Outlet *old = self->outlet;
+   self->outlet = value;
+   Outlet_incRef(self->outlet);
+   Outlet_decRef(old);
+}
 FloatEvent *FloatEvent_new()
 {
    FloatEvent *self = Mem_malloc(sizeof(FloatEvent));
-   self->itype       = FloatEvent_itype;
-   self->refCount    = 1;
+   self->itype = FloatEvent_itype;
+   self->refCount = 1;
    self->stime = 0;
    self->value = 0;
    return self;
@@ -3524,8 +3531,9 @@ void FloatEvent_incRef(FloatEvent *self)
 }
 void FloatEvent_decRef(FloatEvent *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
+       Mem_free(self);
    }
    return;
 }
@@ -3611,8 +3619,8 @@ void FloatEventAr_sort(FloatEventAr *arr);
 FloatSequence *FloatSequence_new()
 {
    FloatSequence *self = Mem_malloc(sizeof(FloatSequence));
-   self->itype       = FloatSequence_itype;
-   self->refCount    = 1;
+   self->itype = FloatSequence_itype;
+   self->refCount = 1;
    self->version = 0;
    self->startTime = 0;
    self->outletSpecifier = OutletSpecifier_new();
@@ -3632,11 +3640,12 @@ void FloatSequence_incRef(FloatSequence *self)
 }
 void FloatSequence_decRef(FloatSequence *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
        OutletSpecifier_decRef(self->outletSpecifier);        
        Outlet_decRef(self->outlet);        
        FloatEventAr_decRef(self->events);        
+       Mem_free(self);
    }
    return;
 }
@@ -3709,7 +3718,7 @@ FloatSequence *FloatSequence_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'FloatSequence' json object does not contain a json value for 'outletSpecifier'");
            goto FAIL;
        }
-       self->outletSpecifier = FloatSequence_fromJson(target, err);
+       self->outletSpecifier = OutletSpecifier_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    {   
@@ -3718,7 +3727,7 @@ FloatSequence *FloatSequence_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'FloatSequence' json object does not contain a json value for 'outlet'");
            goto FAIL;
        }
-       self->outlet = FloatSequence_fromJson(target, err);
+       self->outlet = Outlet_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    {   
@@ -3727,7 +3736,7 @@ FloatSequence *FloatSequence_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'FloatSequence' json object does not contain a json value for 'events'");
            goto FAIL;
        }
-       self->events = FloatSequence_fromJson(target, err);
+       self->events = FloatEventAr_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    return self;
@@ -3751,29 +3760,29 @@ FloatSequence *FloatSequence_clone(FloatSequence *self) {
    other->restoreValue = self->restoreValue;
    return self;
 }
-void FloatSequence_setOutletSpecifier(FloatSequence *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->outletSpecifier;
-                self->outletSpecifier = value;
-                OutletSpecifier_incRef(self->outletSpecifier);
-                OutletSpecifier_decRef(old);
-            }
-void FloatSequence_setOutlet(FloatSequence *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->outlet;
-                self->outlet = value;
-                Outlet_incRef(self->outlet);
-                Outlet_decRef(old);
-            }
-void FloatSequence_setEvents(FloatSequence *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->events;
-                self->events = value;
-                FloatEventAr_incRef(self->events);
-                FloatEventAr_decRef(old);
-            }
+void FloatSequence_setOutletSpecifier(FloatSequence *self, OutletSpecifier *value) {
+   OutletSpecifier *old = self->outletSpecifier;
+   self->outletSpecifier = value;
+   OutletSpecifier_incRef(self->outletSpecifier);
+   OutletSpecifier_decRef(old);
+}
+void FloatSequence_setOutlet(FloatSequence *self, Outlet *value) {
+   Outlet *old = self->outlet;
+   self->outlet = value;
+   Outlet_incRef(self->outlet);
+   Outlet_decRef(old);
+}
+void FloatSequence_setEvents(FloatSequence *self, FloatEventAr *value) {
+   FloatEventAr *old = self->events;
+   self->events = value;
+   FloatEventAr_incRef(self->events);
+   FloatEventAr_decRef(old);
+}
 Hub *Hub_new()
 {
    Hub *self = Mem_malloc(sizeof(Hub));
-   self->itype       = Hub_itype;
-   self->refCount    = 1;
+   self->itype = Hub_itype;
+   self->refCount = 1;
    self->padList = PadAr_new();
    self->trackList = TrackAr_new();
    self->currBankPort = Port_new();
@@ -3800,8 +3809,8 @@ void Hub_incRef(Hub *self)
 }
 void Hub_decRef(Hub *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
        PadAr_decRef(self->padList);        
        TrackAr_decRef(self->trackList);        
        Port_decRef(self->currBankPort);        
@@ -3815,6 +3824,7 @@ void Hub_decRef(Hub *self)
        DropDown_decRef(self->cgIndexMenu);        
        Arguments_decRef(self->arguments);        
        DispatchAr_decRef(self->dispatcher);        
+       Mem_free(self);
    }
    return;
 }
@@ -3987,7 +3997,7 @@ Hub *Hub_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'Hub' json object does not contain a json value for 'padList'");
            goto FAIL;
        }
-       self->padList = Hub_fromJson(target, err);
+       self->padList = PadAr_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    {   
@@ -3996,7 +4006,7 @@ Hub *Hub_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'Hub' json object does not contain a json value for 'trackList'");
            goto FAIL;
        }
-       self->trackList = Hub_fromJson(target, err);
+       self->trackList = TrackAr_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    {   
@@ -4005,7 +4015,7 @@ Hub *Hub_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'Hub' json object does not contain a json value for 'currBankPort'");
            goto FAIL;
        }
-       self->currBankPort = Hub_fromJson(target, err);
+       self->currBankPort = Port_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    {   
@@ -4014,7 +4024,7 @@ Hub *Hub_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'Hub' json object does not contain a json value for 'currFramePort'");
            goto FAIL;
        }
-       self->currFramePort = Hub_fromJson(target, err);
+       self->currFramePort = Port_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    {   
@@ -4023,7 +4033,7 @@ Hub *Hub_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'Hub' json object does not contain a json value for 'selBankPort'");
            goto FAIL;
        }
-       self->selBankPort = Hub_fromJson(target, err);
+       self->selBankPort = Port_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    {   
@@ -4032,7 +4042,7 @@ Hub *Hub_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'Hub' json object does not contain a json value for 'selFramePort'");
            goto FAIL;
        }
-       self->selFramePort = Hub_fromJson(target, err);
+       self->selFramePort = Port_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    {   
@@ -4041,7 +4051,7 @@ Hub *Hub_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'Hub' json object does not contain a json value for 'selPadPort'");
            goto FAIL;
        }
-       self->selPadPort = Hub_fromJson(target, err);
+       self->selPadPort = Port_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    {   
@@ -4050,7 +4060,7 @@ Hub *Hub_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'Hub' json object does not contain a json value for 'chokeGroupPort'");
            goto FAIL;
        }
-       self->chokeGroupPort = Hub_fromJson(target, err);
+       self->chokeGroupPort = Port_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    {   
@@ -4059,7 +4069,7 @@ Hub *Hub_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'Hub' json object does not contain a json value for 'cgLocalGlobalMenu'");
            goto FAIL;
        }
-       self->cgLocalGlobalMenu = Hub_fromJson(target, err);
+       self->cgLocalGlobalMenu = DropDown_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    {   
@@ -4068,7 +4078,7 @@ Hub *Hub_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'Hub' json object does not contain a json value for 'cgInstrumentMenu'");
            goto FAIL;
        }
-       self->cgInstrumentMenu = Hub_fromJson(target, err);
+       self->cgInstrumentMenu = DropDown_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    {   
@@ -4077,7 +4087,7 @@ Hub *Hub_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'Hub' json object does not contain a json value for 'cgIndexMenu'");
            goto FAIL;
        }
-       self->cgIndexMenu = Hub_fromJson(target, err);
+       self->cgIndexMenu = DropDown_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    {   
@@ -4086,7 +4096,7 @@ Hub *Hub_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'Hub' json object does not contain a json value for 'arguments'");
            goto FAIL;
        }
-       self->arguments = Hub_fromJson(target, err);
+       self->arguments = Arguments_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    {   
@@ -4095,7 +4105,7 @@ Hub *Hub_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'Hub' json object does not contain a json value for 'dispatcher'");
            goto FAIL;
        }
-       self->dispatcher = Hub_fromJson(target, err);
+       self->dispatcher = DispatchAr_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    return self;
@@ -4126,89 +4136,89 @@ Hub *Hub_clone(Hub *self) {
    other->masterClock = self->masterClock;
    return self;
 }
-void Hub_setPadList(Hub *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->padList;
-                self->padList = value;
-                PadAr_incRef(self->padList);
-                PadAr_decRef(old);
-            }
-void Hub_setTrackList(Hub *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->trackList;
-                self->trackList = value;
-                TrackAr_incRef(self->trackList);
-                TrackAr_decRef(old);
-            }
-void Hub_setCurrBankPort(Hub *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->currBankPort;
-                self->currBankPort = value;
-                Port_incRef(self->currBankPort);
-                Port_decRef(old);
-            }
-void Hub_setCurrFramePort(Hub *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->currFramePort;
-                self->currFramePort = value;
-                Port_incRef(self->currFramePort);
-                Port_decRef(old);
-            }
-void Hub_setSelBankPort(Hub *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->selBankPort;
-                self->selBankPort = value;
-                Port_incRef(self->selBankPort);
-                Port_decRef(old);
-            }
-void Hub_setSelFramePort(Hub *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->selFramePort;
-                self->selFramePort = value;
-                Port_incRef(self->selFramePort);
-                Port_decRef(old);
-            }
-void Hub_setSelPadPort(Hub *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->selPadPort;
-                self->selPadPort = value;
-                Port_incRef(self->selPadPort);
-                Port_decRef(old);
-            }
-void Hub_setChokeGroupPort(Hub *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->chokeGroupPort;
-                self->chokeGroupPort = value;
-                Port_incRef(self->chokeGroupPort);
-                Port_decRef(old);
-            }
-void Hub_setCgLocalGlobalMenu(Hub *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->cgLocalGlobalMenu;
-                self->cgLocalGlobalMenu = value;
-                DropDown_incRef(self->cgLocalGlobalMenu);
-                DropDown_decRef(old);
-            }
-void Hub_setCgInstrumentMenu(Hub *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->cgInstrumentMenu;
-                self->cgInstrumentMenu = value;
-                DropDown_incRef(self->cgInstrumentMenu);
-                DropDown_decRef(old);
-            }
-void Hub_setCgIndexMenu(Hub *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->cgIndexMenu;
-                self->cgIndexMenu = value;
-                DropDown_incRef(self->cgIndexMenu);
-                DropDown_decRef(old);
-            }
-void Hub_setArguments(Hub *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->arguments;
-                self->arguments = value;
-                Arguments_incRef(self->arguments);
-                Arguments_decRef(old);
-            }
-void Hub_setDispatcher(Hub *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->dispatcher;
-                self->dispatcher = value;
-                DispatchAr_incRef(self->dispatcher);
-                DispatchAr_decRef(old);
-            }
+void Hub_setPadList(Hub *self, PadAr *value) {
+   PadAr *old = self->padList;
+   self->padList = value;
+   PadAr_incRef(self->padList);
+   PadAr_decRef(old);
+}
+void Hub_setTrackList(Hub *self, TrackAr *value) {
+   TrackAr *old = self->trackList;
+   self->trackList = value;
+   TrackAr_incRef(self->trackList);
+   TrackAr_decRef(old);
+}
+void Hub_setCurrBankPort(Hub *self, Port *value) {
+   Port *old = self->currBankPort;
+   self->currBankPort = value;
+   Port_incRef(self->currBankPort);
+   Port_decRef(old);
+}
+void Hub_setCurrFramePort(Hub *self, Port *value) {
+   Port *old = self->currFramePort;
+   self->currFramePort = value;
+   Port_incRef(self->currFramePort);
+   Port_decRef(old);
+}
+void Hub_setSelBankPort(Hub *self, Port *value) {
+   Port *old = self->selBankPort;
+   self->selBankPort = value;
+   Port_incRef(self->selBankPort);
+   Port_decRef(old);
+}
+void Hub_setSelFramePort(Hub *self, Port *value) {
+   Port *old = self->selFramePort;
+   self->selFramePort = value;
+   Port_incRef(self->selFramePort);
+   Port_decRef(old);
+}
+void Hub_setSelPadPort(Hub *self, Port *value) {
+   Port *old = self->selPadPort;
+   self->selPadPort = value;
+   Port_incRef(self->selPadPort);
+   Port_decRef(old);
+}
+void Hub_setChokeGroupPort(Hub *self, Port *value) {
+   Port *old = self->chokeGroupPort;
+   self->chokeGroupPort = value;
+   Port_incRef(self->chokeGroupPort);
+   Port_decRef(old);
+}
+void Hub_setCgLocalGlobalMenu(Hub *self, DropDown *value) {
+   DropDown *old = self->cgLocalGlobalMenu;
+   self->cgLocalGlobalMenu = value;
+   DropDown_incRef(self->cgLocalGlobalMenu);
+   DropDown_decRef(old);
+}
+void Hub_setCgInstrumentMenu(Hub *self, DropDown *value) {
+   DropDown *old = self->cgInstrumentMenu;
+   self->cgInstrumentMenu = value;
+   DropDown_incRef(self->cgInstrumentMenu);
+   DropDown_decRef(old);
+}
+void Hub_setCgIndexMenu(Hub *self, DropDown *value) {
+   DropDown *old = self->cgIndexMenu;
+   self->cgIndexMenu = value;
+   DropDown_incRef(self->cgIndexMenu);
+   DropDown_decRef(old);
+}
+void Hub_setArguments(Hub *self, Arguments *value) {
+   Arguments *old = self->arguments;
+   self->arguments = value;
+   Arguments_incRef(self->arguments);
+   Arguments_decRef(old);
+}
+void Hub_setDispatcher(Hub *self, DispatchAr *value) {
+   DispatchAr *old = self->dispatcher;
+   self->dispatcher = value;
+   DispatchAr_incRef(self->dispatcher);
+   DispatchAr_decRef(old);
+}
 IncrementFrameDispatch *IncrementFrameDispatch_new()
 {
    IncrementFrameDispatch *self = Mem_malloc(sizeof(IncrementFrameDispatch));
-   self->itype       = IncrementFrameDispatch_itype;
-   self->refCount    = 1;
+   self->itype = IncrementFrameDispatch_itype;
+   self->refCount = 1;
    self->selector = 0;
    self->portId = 0;
    self->inlet = 0;
@@ -4221,8 +4231,9 @@ void IncrementFrameDispatch_incRef(IncrementFrameDispatch *self)
 }
 void IncrementFrameDispatch_decRef(IncrementFrameDispatch *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
+       Mem_free(self);
    }
    return;
 }
@@ -4276,8 +4287,8 @@ IncrementFrameDispatch *IncrementFrameDispatch_clone(IncrementFrameDispatch *sel
 Int *Int_new()
 {
    Int *self = Mem_malloc(sizeof(Int));
-   self->itype       = Int_itype;
-   self->refCount    = 1;
+   self->itype = Int_itype;
+   self->refCount = 1;
    self->i = 0;
    return self;
 }
@@ -4287,8 +4298,9 @@ void Int_incRef(Int *self)
 }
 void Int_decRef(Int *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
+       Mem_free(self);
    }
    return;
 }
@@ -4373,8 +4385,8 @@ void IntAr_sort(IntAr *arr);
 ManageChokeGroupsDispatch *ManageChokeGroupsDispatch_new()
 {
    ManageChokeGroupsDispatch *self = Mem_malloc(sizeof(ManageChokeGroupsDispatch));
-   self->itype       = ManageChokeGroupsDispatch_itype;
-   self->refCount    = 1;
+   self->itype = ManageChokeGroupsDispatch_itype;
+   self->refCount = 1;
    self->selector = 0;
    self->portId = 0;
    self->inlet = 0;
@@ -4387,8 +4399,9 @@ void ManageChokeGroupsDispatch_incRef(ManageChokeGroupsDispatch *self)
 }
 void ManageChokeGroupsDispatch_decRef(ManageChokeGroupsDispatch *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
+       Mem_free(self);
    }
    return;
 }
@@ -4441,10 +4454,10 @@ ManageChokeGroupsDispatch *ManageChokeGroupsDispatch_clone(ManageChokeGroupsDisp
 }
 int Marshal_nthIType(int n, int *itype);
 #define Marshal_foreachIType(itype) for (int __##itype = 0, itype = 0; Marshal_nthIType(__##itype, &itype); __##itype++)
-xvoid Marshal_process(Marshal *self, Arguments *a1, long a2, Atom * a3, Error * a4, Error *err, Error *err)
+void Marshal_process(Marshal *self, Arguments *a1, long a2, Atom * a3, Error * a4, Error *err, Error *err)
 {
    if (self == NULL) {
-       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_process");
+       Error_format0(err, "Undefined interface passed to Marshal_process");
        return 0;
    }
    switch(self->itype) {
@@ -4463,10 +4476,10 @@ xvoid Marshal_process(Marshal *self, Arguments *a1, long a2, Atom * a3, Error * 
     return;
 }
 
-xvoid Marshal_zeroArgs(Marshal *self, Arguments *a1, Error *err)
+void Marshal_zeroArgs(Marshal *self, Arguments *a1, Error *err)
 {
    if (self == NULL) {
-       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_zeroArgs");
+       Error_format0(err, "Undefined interface passed to Marshal_zeroArgs");
        return 0;
    }
    switch(self->itype) {
@@ -4488,8 +4501,8 @@ xvoid Marshal_zeroArgs(Marshal *self, Arguments *a1, Error *err)
 MarshalSi *MarshalSi_new()
 {
    MarshalSi *self = Mem_malloc(sizeof(MarshalSi));
-   self->itype       = MarshalSi_itype;
-   self->refCount    = 1;
+   self->itype = MarshalSi_itype;
+   self->refCount = 1;
    self->selector = 0;
    self->portId = 0;
    self->inlet = 0;
@@ -4501,8 +4514,9 @@ void MarshalSi_incRef(MarshalSi *self)
 }
 void MarshalSi_decRef(MarshalSi *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
+       Mem_free(self);
    }
    return;
 }
@@ -4555,8 +4569,8 @@ MarshalSi *MarshalSi_clone(MarshalSi *self) {
 MarshalSii *MarshalSii_new()
 {
    MarshalSii *self = Mem_malloc(sizeof(MarshalSii));
-   self->itype       = MarshalSii_itype;
-   self->refCount    = 1;
+   self->itype = MarshalSii_itype;
+   self->refCount = 1;
    self->selector = 0;
    self->portId = 0;
    self->inlet = 0;
@@ -4568,8 +4582,9 @@ void MarshalSii_incRef(MarshalSii *self)
 }
 void MarshalSii_decRef(MarshalSii *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
+       Mem_free(self);
    }
    return;
 }
@@ -4622,8 +4637,8 @@ MarshalSii *MarshalSii_clone(MarshalSii *self) {
 MarshalSs *MarshalSs_new()
 {
    MarshalSs *self = Mem_malloc(sizeof(MarshalSs));
-   self->itype       = MarshalSs_itype;
-   self->refCount    = 1;
+   self->itype = MarshalSs_itype;
+   self->refCount = 1;
    self->selector = 0;
    self->portId = 0;
    self->inlet = 0;
@@ -4635,8 +4650,9 @@ void MarshalSs_incRef(MarshalSs *self)
 }
 void MarshalSs_decRef(MarshalSs *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
+       Mem_free(self);
    }
    return;
 }
@@ -4689,8 +4705,8 @@ MarshalSs *MarshalSs_clone(MarshalSs *self) {
 MidiFileDropDispatch *MidiFileDropDispatch_new()
 {
    MidiFileDropDispatch *self = Mem_malloc(sizeof(MidiFileDropDispatch));
-   self->itype       = MidiFileDropDispatch_itype;
-   self->refCount    = 1;
+   self->itype = MidiFileDropDispatch_itype;
+   self->refCount = 1;
    self->selector = 0;
    self->portId = 0;
    self->inlet = 0;
@@ -4703,8 +4719,9 @@ void MidiFileDropDispatch_incRef(MidiFileDropDispatch *self)
 }
 void MidiFileDropDispatch_decRef(MidiFileDropDispatch *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
+       Mem_free(self);
    }
    return;
 }
@@ -4758,8 +4775,8 @@ MidiFileDropDispatch *MidiFileDropDispatch_clone(MidiFileDropDispatch *self) {
 MusicalContext *MusicalContext_new()
 {
    MusicalContext *self = Mem_malloc(sizeof(MusicalContext));
-   self->itype       = MusicalContext_itype;
-   self->refCount    = 1;
+   self->itype = MusicalContext_itype;
+   self->refCount = 1;
    self->ticksPerQuarterNote = 0;
    self->quarterNotesPerMeasure = 0;
    return self;
@@ -4770,8 +4787,9 @@ void MusicalContext_incRef(MusicalContext *self)
 }
 void MusicalContext_decRef(MusicalContext *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
+       Mem_free(self);
    }
    return;
 }
@@ -4820,11 +4838,20 @@ MusicalContext *MusicalContext_clone(MusicalContext *self) {
    other->quarterNotesPerMeasure = self->quarterNotesPerMeasure;
    return self;
 }
+Array NoteEvent_pool     = {-1, 1};
+int NoteEvent_poolSize   = 1000;
+int NoteEvent_poolMiss   = 0;
 NoteEvent *NoteEvent_new()
 {
-   NoteEvent *self = Mem_malloc(sizeof(NoteEvent));
-   self->itype       = NoteEvent_itype;
-   self->refCount    = 1;
+   NoteEvent *self = NULL;
+   if (Array_len(&NoteEvent_pool) > 0) {
+       Array_popN(&NoteEvent_pool, 1, &self, NULL, sizeof(void *));
+   } else {
+       self = Mem_malloc(sizeof(NoteEvent));
+       NoteEvent_poolMiss++;
+   }
+   self->itype = NoteEvent_itype;
+   self->refCount = 1;
    self->pitch = 0;
    self->velocity = 0;
    self->stime = 0;
@@ -4837,8 +4864,13 @@ void NoteEvent_incRef(NoteEvent *self)
 }
 void NoteEvent_decRef(NoteEvent *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
+   if (Array_len(&NoteEvent_pool) < NoteEvent_poolSize) {
+       memset(self, 0, sizeof(NoteEvent));
+       Array_pushN(&NoteEvent_pool, 1, &self, NULL, sizeof(void *));
+   } else {
+       Mem_free(self);
    }
    return;
 }
@@ -4926,8 +4958,8 @@ void NoteEventAr_sort(NoteEventAr *arr);
 NoteOutlet *NoteOutlet_new()
 {
    NoteOutlet *self = Mem_malloc(sizeof(NoteOutlet));
-   self->itype       = NoteOutlet_itype;
-   self->refCount    = 1;
+   self->itype = NoteOutlet_itype;
+   self->refCount = 1;
    self->atoms = AtomAr_new();
    self->port = Port_new();
    return self;
@@ -4938,10 +4970,11 @@ void NoteOutlet_incRef(NoteOutlet *self)
 }
 void NoteOutlet_decRef(NoteOutlet *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
        AtomAr_decRef(self->atoms);        
        Port_decRef(self->port);        
+       Mem_free(self);
    }
    return;
 }
@@ -5004,7 +5037,7 @@ NoteOutlet *NoteOutlet_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'NoteOutlet' json object does not contain a json value for 'atoms'");
            goto FAIL;
        }
-       self->atoms = NoteOutlet_fromJson(target, err);
+       self->atoms = AtomAr_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    {   
@@ -5013,7 +5046,7 @@ NoteOutlet *NoteOutlet_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'NoteOutlet' json object does not contain a json value for 'port'");
            goto FAIL;
        }
-       self->port = NoteOutlet_fromJson(target, err);
+       self->port = Port_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    return self;
@@ -5028,23 +5061,23 @@ NoteOutlet *NoteOutlet_clone(NoteOutlet *self) {
    other->port = Port_clone(self->port);
    return self;
 }
-void NoteOutlet_setAtoms(NoteOutlet *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->atoms;
-                self->atoms = value;
-                AtomAr_incRef(self->atoms);
-                AtomAr_decRef(old);
-            }
-void NoteOutlet_setPort(NoteOutlet *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->port;
-                self->port = value;
-                Port_incRef(self->port);
-                Port_decRef(old);
-            }
+void NoteOutlet_setAtoms(NoteOutlet *self, AtomAr *value) {
+   AtomAr *old = self->atoms;
+   self->atoms = value;
+   AtomAr_incRef(self->atoms);
+   AtomAr_decRef(old);
+}
+void NoteOutlet_setPort(NoteOutlet *self, Port *value) {
+   Port *old = self->port;
+   self->port = value;
+   Port_incRef(self->port);
+   Port_decRef(old);
+}
 NoteSequence *NoteSequence_new()
 {
    NoteSequence *self = Mem_malloc(sizeof(NoteSequence));
-   self->itype       = NoteSequence_itype;
-   self->refCount    = 1;
+   self->itype = NoteSequence_itype;
+   self->refCount = 1;
    self->version = 0;
    self->startTime = 0;
    self->outletSpecifier = OutletSpecifier_new();
@@ -5066,12 +5099,13 @@ void NoteSequence_incRef(NoteSequence *self)
 }
 void NoteSequence_decRef(NoteSequence *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
        OutletSpecifier_decRef(self->outletSpecifier);        
        Outlet_decRef(self->outlet);        
        TimedOffAr_decRef(self->offs);        
        NoteEventAr_decRef(self->events);        
+       Mem_free(self);
    }
    return;
 }
@@ -5154,7 +5188,7 @@ NoteSequence *NoteSequence_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'NoteSequence' json object does not contain a json value for 'outletSpecifier'");
            goto FAIL;
        }
-       self->outletSpecifier = NoteSequence_fromJson(target, err);
+       self->outletSpecifier = OutletSpecifier_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    {   
@@ -5163,7 +5197,7 @@ NoteSequence *NoteSequence_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'NoteSequence' json object does not contain a json value for 'outlet'");
            goto FAIL;
        }
-       self->outlet = NoteSequence_fromJson(target, err);
+       self->outlet = Outlet_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    {   
@@ -5172,7 +5206,7 @@ NoteSequence *NoteSequence_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'NoteSequence' json object does not contain a json value for 'offs'");
            goto FAIL;
        }
-       self->offs = NoteSequence_fromJson(target, err);
+       self->offs = TimedOffAr_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    {   
@@ -5181,7 +5215,7 @@ NoteSequence *NoteSequence_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'NoteSequence' json object does not contain a json value for 'events'");
            goto FAIL;
        }
-       self->events = NoteSequence_fromJson(target, err);
+       self->events = NoteEventAr_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    return self;
@@ -5207,35 +5241,35 @@ NoteSequence *NoteSequence_clone(NoteSequence *self) {
    other->events = NoteEventAr_clone(self->events);
    return self;
 }
-void NoteSequence_setOutletSpecifier(NoteSequence *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->outletSpecifier;
-                self->outletSpecifier = value;
-                OutletSpecifier_incRef(self->outletSpecifier);
-                OutletSpecifier_decRef(old);
-            }
-void NoteSequence_setOutlet(NoteSequence *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->outlet;
-                self->outlet = value;
-                Outlet_incRef(self->outlet);
-                Outlet_decRef(old);
-            }
-void NoteSequence_setOffs(NoteSequence *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->offs;
-                self->offs = value;
-                TimedOffAr_incRef(self->offs);
-                TimedOffAr_decRef(old);
-            }
-void NoteSequence_setEvents(NoteSequence *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->events;
-                self->events = value;
-                NoteEventAr_incRef(self->events);
-                NoteEventAr_decRef(old);
-            }
+void NoteSequence_setOutletSpecifier(NoteSequence *self, OutletSpecifier *value) {
+   OutletSpecifier *old = self->outletSpecifier;
+   self->outletSpecifier = value;
+   OutletSpecifier_incRef(self->outletSpecifier);
+   OutletSpecifier_decRef(old);
+}
+void NoteSequence_setOutlet(NoteSequence *self, Outlet *value) {
+   Outlet *old = self->outlet;
+   self->outlet = value;
+   Outlet_incRef(self->outlet);
+   Outlet_decRef(old);
+}
+void NoteSequence_setOffs(NoteSequence *self, TimedOffAr *value) {
+   TimedOffAr *old = self->offs;
+   self->offs = value;
+   TimedOffAr_incRef(self->offs);
+   TimedOffAr_decRef(old);
+}
+void NoteSequence_setEvents(NoteSequence *self, NoteEventAr *value) {
+   NoteEventAr *old = self->events;
+   self->events = value;
+   NoteEventAr_incRef(self->events);
+   NoteEventAr_decRef(old);
+}
 NullOutlet *NullOutlet_new()
 {
    NullOutlet *self = Mem_malloc(sizeof(NullOutlet));
-   self->itype       = NullOutlet_itype;
-   self->refCount    = 1;
+   self->itype = NullOutlet_itype;
+   self->refCount = 1;
    self->unused = 0;
    return self;
 }
@@ -5245,8 +5279,9 @@ void NullOutlet_incRef(NullOutlet *self)
 }
 void NullOutlet_decRef(NullOutlet *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
+       Mem_free(self);
    }
    return;
 }
@@ -5296,10 +5331,10 @@ NullOutlet *NullOutlet_clone(NullOutlet *self) {
 }
 int Outlet_nthIType(int n, int *itype);
 #define Outlet_foreachIType(itype) for (int __##itype = 0, itype = 0; Outlet_nthIType(__##itype, &itype); __##itype++)
-xvoid Outlet_sendNote(Outlet *self, uint8_t a1, uint8_t a2, Error *err)
+void Outlet_sendNote(Outlet *self, uint8_t a1, uint8_t a2, Error *err)
 {
    if (self == NULL) {
-       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_sendNote");
+       Error_format0(err, "Undefined interface passed to Outlet_sendNote");
        return 0;
    }
    switch(self->itype) {
@@ -5320,10 +5355,10 @@ xvoid Outlet_sendNote(Outlet *self, uint8_t a1, uint8_t a2, Error *err)
     return;
 }
 
-xvoid Outlet_sendFloat(Outlet *self, double a1, Error *err)
+void Outlet_sendFloat(Outlet *self, double a1, Error *err)
 {
    if (self == NULL) {
-       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_sendFloat");
+       Error_format0(err, "Undefined interface passed to Outlet_sendFloat");
        return 0;
    }
    switch(self->itype) {
@@ -5349,8 +5384,8 @@ xvoid Outlet_sendFloat(Outlet *self, double a1, Error *err)
 OutletSpecifier *OutletSpecifier_new()
 {
    OutletSpecifier *self = Mem_malloc(sizeof(OutletSpecifier));
-   self->itype       = OutletSpecifier_itype;
-   self->refCount    = 1;
+   self->itype = OutletSpecifier_itype;
+   self->refCount = 1;
    self->track = 0;
    self->pluginIndex = 0;
    self->parameter = 0;
@@ -5363,8 +5398,9 @@ void OutletSpecifier_incRef(OutletSpecifier *self)
 }
 void OutletSpecifier_decRef(OutletSpecifier *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
+       Mem_free(self);
    }
    return;
 }
@@ -5418,8 +5454,8 @@ OutletSpecifier *OutletSpecifier_clone(OutletSpecifier *self) {
 Pad *Pad_new()
 {
    Pad *self = Mem_malloc(sizeof(Pad));
-   self->itype       = Pad_itype;
-   self->refCount    = 1;
+   self->itype = Pad_itype;
+   self->refCount = 1;
    self->trackName = 0;
    self->padIndex = 0;
    self->SequenceAr = Sequence_new();
@@ -5439,10 +5475,11 @@ void Pad_incRef(Pad *self)
 }
 void Pad_decRef(Pad *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
        Sequence_decRef(self->SequenceAr);        
        Track_decRef(self->track);        
+       Mem_free(self);
    }
    return;
 }
@@ -5505,7 +5542,7 @@ Pad *Pad_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'Pad' json object does not contain a json value for 'SequenceAr'");
            goto FAIL;
        }
-       self->SequenceAr = Pad_fromJson(target, err);
+       self->SequenceAr = Sequence_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    {   
@@ -5514,7 +5551,7 @@ Pad *Pad_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'Pad' json object does not contain a json value for 'track'");
            goto FAIL;
        }
-       self->track = Pad_fromJson(target, err);
+       self->track = Track_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    return self;
@@ -5538,18 +5575,18 @@ Pad *Pad_clone(Pad *self) {
    other->useMasterClock = self->useMasterClock;
    return self;
 }
-void Pad_setSequenceAr(Pad *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->SequenceAr;
-                self->SequenceAr = value;
-                Sequence_incRef(self->SequenceAr);
-                Sequence_decRef(old);
-            }
-void Pad_setTrack(Pad *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->track;
-                self->track = value;
-                Track_incRef(self->track);
-                Track_decRef(old);
-            }
+void Pad_setSequenceAr(Pad *self, Sequence *value) {
+   Sequence *old = self->SequenceAr;
+   self->SequenceAr = value;
+   Sequence_incRef(self->SequenceAr);
+   Sequence_decRef(old);
+}
+void Pad_setTrack(Pad *self, Track *value) {
+   Track *old = self->track;
+   self->track = value;
+   Track_incRef(self->track);
+   Track_decRef(old);
+}
 #define PadAr_at(arr, index) ((arr)->data[index*sizeof(void*)])
 PadAr *PadAr_clone(PadAr *arr);
 void PadAr_decRef(PadAr *arr);
@@ -5575,23 +5612,23 @@ JSON_Value *PadAr_toJson(PadAr *self, Error *err);
 void PadAr_truncate(PadAr *arr, int newLen);
 bool PadArFIt_next(PadArFIt *iterator);
 bool PadArRIt_next(PadArRIt *iterator);
-void Port_setProxy(Port *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->proxy;
-                self->proxy = value;
-                PtrAr_incRef(self->proxy);
-                PtrAr_decRef(old);
-            }
-void Port_setOutlet(Port *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->outlet;
-                self->outlet = value;
-                PtrAr_incRef(self->outlet);
-                PtrAr_decRef(old);
-            }
+void Port_setProxy(Port *self, PtrAr *value) {
+   PtrAr *old = self->proxy;
+   self->proxy = value;
+   PtrAr_incRef(self->proxy);
+   PtrAr_decRef(old);
+}
+void Port_setOutlet(Port *self, PtrAr *value) {
+   PtrAr *old = self->outlet;
+   self->outlet = value;
+   PtrAr_incRef(self->outlet);
+   PtrAr_decRef(old);
+}
 PortFind *PortFind_new()
 {
    PortFind *self = Mem_malloc(sizeof(PortFind));
-   self->itype       = PortFind_itype;
-   self->refCount    = 1;
+   self->itype = PortFind_itype;
+   self->refCount = 1;
    self->objects = PortFindCellAr_new();
    self->hub = 0;
    self->anythingDispatch = 0;
@@ -5604,9 +5641,10 @@ void PortFind_incRef(PortFind *self)
 }
 void PortFind_decRef(PortFind *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
        PortFindCellAr_decRef(self->objects);        
+       Mem_free(self);
    }
    return;
 }
@@ -5659,7 +5697,7 @@ PortFind *PortFind_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'PortFind' json object does not contain a json value for 'objects'");
            goto FAIL;
        }
-       self->objects = PortFind_fromJson(target, err);
+       self->objects = PortFindCellAr_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    return self;
@@ -5676,17 +5714,17 @@ PortFind *PortFind_clone(PortFind *self) {
    other->intDispatch = self->intDispatch;
    return self;
 }
-void PortFind_setObjects(PortFind *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->objects;
-                self->objects = value;
-                PortFindCellAr_incRef(self->objects);
-                PortFindCellAr_decRef(old);
-            }
+void PortFind_setObjects(PortFind *self, PortFindCellAr *value) {
+   PortFindCellAr *old = self->objects;
+   self->objects = value;
+   PortFindCellAr_incRef(self->objects);
+   PortFindCellAr_decRef(old);
+}
 PortFindCell *PortFindCell_new()
 {
    PortFindCell *self = Mem_malloc(sizeof(PortFindCell));
-   self->itype       = PortFindCell_itype;
-   self->refCount    = 1;
+   self->itype = PortFindCell_itype;
+   self->refCount = 1;
    self->reciever = 0;
    self->varname = 0;
    return self;
@@ -5697,8 +5735,9 @@ void PortFindCell_incRef(PortFindCell *self)
 }
 void PortFindCell_decRef(PortFindCell *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
+       Mem_free(self);
    }
    return;
 }
@@ -5775,8 +5814,8 @@ bool PortFindCellArRIt_next(PortFindCellArRIt *iterator);
 PortRef *PortRef_new()
 {
    PortRef *self = Mem_malloc(sizeof(PortRef));
-   self->itype       = PortRef_itype;
-   self->refCount    = 1;
+   self->itype = PortRef_itype;
+   self->refCount = 1;
    self->port = 0;
    self->outlet = 0;
    return self;
@@ -5787,8 +5826,9 @@ void PortRef_incRef(PortRef *self)
 }
 void PortRef_decRef(PortRef *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
+       Mem_free(self);
    }
    return;
 }
@@ -5840,8 +5880,8 @@ PortRef *PortRef_clone(PortRef *self) {
 Ptr *Ptr_new()
 {
    Ptr *self = Mem_malloc(sizeof(Ptr));
-   self->itype       = Ptr_itype;
-   self->refCount    = 1;
+   self->itype = Ptr_itype;
+   self->refCount = 1;
    self->p = 0;
    return self;
 }
@@ -5851,8 +5891,9 @@ void Ptr_incRef(Ptr *self)
 }
 void Ptr_decRef(Ptr *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
+       Mem_free(self);
    }
    return;
 }
@@ -5928,8 +5969,8 @@ bool PtrArRIt_next(PtrArRIt *iterator);
 RecordBuffer *RecordBuffer_new()
 {
    RecordBuffer *self = Mem_malloc(sizeof(RecordBuffer));
-   self->itype       = RecordBuffer_itype;
-   self->refCount    = 1;
+   self->itype = RecordBuffer_itype;
+   self->refCount = 1;
    self->recordStart = 0;
    self->sequences = SequenceAr_new();
    return self;
@@ -5940,9 +5981,10 @@ void RecordBuffer_incRef(RecordBuffer *self)
 }
 void RecordBuffer_decRef(RecordBuffer *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
        SequenceAr_decRef(self->sequences);        
+       Mem_free(self);
    }
    return;
 }
@@ -5995,7 +6037,7 @@ RecordBuffer *RecordBuffer_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'RecordBuffer' json object does not contain a json value for 'sequences'");
            goto FAIL;
        }
-       self->sequences = RecordBuffer_fromJson(target, err);
+       self->sequences = SequenceAr_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    return self;
@@ -6010,17 +6052,17 @@ RecordBuffer *RecordBuffer_clone(RecordBuffer *self) {
    other->sequences = SequenceAr_clone(self->sequences);
    return self;
 }
-void RecordBuffer_setSequences(RecordBuffer *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->sequences;
-                self->sequences = value;
-                SequenceAr_incRef(self->sequences);
-                SequenceAr_decRef(old);
-            }
+void RecordBuffer_setSequences(RecordBuffer *self, SequenceAr *value) {
+   SequenceAr *old = self->sequences;
+   self->sequences = value;
+   SequenceAr_incRef(self->sequences);
+   SequenceAr_decRef(old);
+}
 SelectNextPushedPadDispatch *SelectNextPushedPadDispatch_new()
 {
    SelectNextPushedPadDispatch *self = Mem_malloc(sizeof(SelectNextPushedPadDispatch));
-   self->itype       = SelectNextPushedPadDispatch_itype;
-   self->refCount    = 1;
+   self->itype = SelectNextPushedPadDispatch_itype;
+   self->refCount = 1;
    self->selector = 0;
    self->portId = 0;
    self->inlet = 0;
@@ -6033,8 +6075,9 @@ void SelectNextPushedPadDispatch_incRef(SelectNextPushedPadDispatch *self)
 }
 void SelectNextPushedPadDispatch_decRef(SelectNextPushedPadDispatch *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
+       Mem_free(self);
    }
    return;
 }
@@ -6087,10 +6130,10 @@ SelectNextPushedPadDispatch *SelectNextPushedPadDispatch_clone(SelectNextPushedP
 }
 int Sequence_nthIType(int n, int *itype);
 #define Sequence_foreachIType(itype) for (int __##itype = 0, itype = 0; Sequence_nthIType(__##itype, &itype); __##itype++)
-xvoid Sequence_start(Sequence *self, Ticks a1, Ticks a2, TimedPq *a3, RecordBuffer *a4, Error * *a5, Error *err, Error *err)
+void Sequence_start(Sequence *self, Ticks a1, Ticks a2, TimedPq *a3, RecordBuffer *a4, Error * *a5, Error *err, Error *err)
 {
    if (self == NULL) {
-       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_start");
+       Error_format0(err, "Undefined interface passed to Sequence_start");
        return 0;
    }
    switch(self->itype) {
@@ -6106,10 +6149,10 @@ xvoid Sequence_start(Sequence *self, Ticks a1, Ticks a2, TimedPq *a3, RecordBuff
     return;
 }
 
-xvoid Sequence_drive(Sequence *self, Ticks a1, TimedPq *a2, Error * a3, Error *err, Error *err)
+void Sequence_drive(Sequence *self, Ticks a1, TimedPq *a2, Error * a3, Error *err, Error *err)
 {
    if (self == NULL) {
-       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_drive");
+       Error_format0(err, "Undefined interface passed to Sequence_drive");
        return 0;
    }
    switch(self->itype) {
@@ -6125,10 +6168,10 @@ xvoid Sequence_drive(Sequence *self, Ticks a1, TimedPq *a2, Error * a3, Error *e
     return;
 }
 
-xvoid Sequence_stop(Sequence *self, Ticks a1, Error * a2, Error *err, Error *err)
+void Sequence_stop(Sequence *self, Ticks a1, Error * a2, Error *err, Error *err)
 {
    if (self == NULL) {
-       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_stop");
+       Error_format0(err, "Undefined interface passed to Sequence_stop");
        return 0;
    }
    switch(self->itype) {
@@ -6144,10 +6187,10 @@ xvoid Sequence_stop(Sequence *self, Ticks a1, Error * a2, Error *err, Error *err
     return;
 }
 
-xvoid Sequence_padNoteOff(Sequence *self, Ticks a1, Error * a2, Error *err, Error *err)
+void Sequence_padNoteOff(Sequence *self, Ticks a1, Error * a2, Error *err, Error *err)
 {
    if (self == NULL) {
-       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_padNoteOff");
+       Error_format0(err, "Undefined interface passed to Sequence_padNoteOff");
        return 0;
    }
    switch(self->itype) {
@@ -6163,10 +6206,10 @@ xvoid Sequence_padNoteOff(Sequence *self, Ticks a1, Error * a2, Error *err, Erro
     return;
 }
 
-xvoid Sequence_setCycle(Sequence *self, bool a1, Error *err)
+void Sequence_setCycle(Sequence *self, bool a1, Error *err)
 {
    if (self == NULL) {
-       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_setCycle");
+       Error_format0(err, "Undefined interface passed to Sequence_setCycle");
        return 0;
    }
    switch(self->itype) {
@@ -6182,10 +6225,10 @@ xvoid Sequence_setCycle(Sequence *self, bool a1, Error *err)
     return;
 }
 
-xvoid Sequence_free(Sequence *self, Error *err)
+void Sequence_free(Sequence *self, Error *err)
 {
    if (self == NULL) {
-       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_free");
+       Error_format0(err, "Undefined interface passed to Sequence_free");
        return 0;
    }
    switch(self->itype) {
@@ -6201,10 +6244,10 @@ xvoid Sequence_free(Sequence *self, Error *err)
     return;
 }
 
-xSequence *Sequence_compactNew(Sequence *self, Ticks a1, Error *err)
+Sequence *Sequence_compactNew(Sequence *self, Ticks a1, Error *err)
 {
    if (self == NULL) {
-       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_compactNew");
+       Error_format0(err, "Undefined interface passed to Sequence_compactNew");
        return NULL;
    }
    switch(self->itype) {
@@ -6218,10 +6261,10 @@ xSequence *Sequence_compactNew(Sequence *self, Ticks a1, Error *err)
     return NULL;
 }
 
-xvoid Sequence_compactConcat(Sequence *self, Sequence *a1, Error * a2, Error *err, Error *err)
+void Sequence_compactConcat(Sequence *self, Sequence *a1, Error * a2, Error *err, Error *err)
 {
    if (self == NULL) {
-       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_compactConcat");
+       Error_format0(err, "Undefined interface passed to Sequence_compactConcat");
        return 0;
    }
    switch(self->itype) {
@@ -6237,10 +6280,10 @@ xvoid Sequence_compactConcat(Sequence *self, Sequence *a1, Error * a2, Error *er
     return;
 }
 
-xvoid Sequence_compactSortEvents(Sequence *self, Error *err)
+void Sequence_compactSortEvents(Sequence *self, Error *err)
 {
    if (self == NULL) {
-       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_compactSortEvents");
+       Error_format0(err, "Undefined interface passed to Sequence_compactSortEvents");
        return 0;
    }
    switch(self->itype) {
@@ -6256,10 +6299,10 @@ xvoid Sequence_compactSortEvents(Sequence *self, Error *err)
     return;
 }
 
-xTicks Sequence_compactComputeSequenceLength(Sequence *self, Error *err)
+Ticks Sequence_compactComputeSequenceLength(Sequence *self, Error *err)
 {
    if (self == NULL) {
-       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_compactComputeSequenceLength");
+       Error_format0(err, "Undefined interface passed to Sequence_compactComputeSequenceLength");
        return 0;
    }
    switch(self->itype) {
@@ -6273,10 +6316,10 @@ xTicks Sequence_compactComputeSequenceLength(Sequence *self, Error *err)
     return 0;
 }
 
-xvoid Sequence_compactFinish(Sequence *self, Ticks a1, Ticks a2, Error * a3, Error *err, Error *err)
+void Sequence_compactFinish(Sequence *self, Ticks a1, Ticks a2, Error * a3, Error *err, Error *err)
 {
    if (self == NULL) {
-       Error_format0(err, "Undefined interface passed to <EXPAND_FAIL>_compactFinish");
+       Error_format0(err, "Undefined interface passed to Sequence_compactFinish");
        return 0;
    }
    switch(self->itype) {
@@ -6431,8 +6474,8 @@ bool SymbolArRIt_next(SymbolArRIt *iterator);
 Timed *Timed_new()
 {
    Timed *self = Mem_malloc(sizeof(Timed));
-   self->itype       = Timed_itype;
-   self->refCount    = 1;
+   self->itype = Timed_itype;
+   self->refCount = 1;
    self->time = 0;
    self->version = 0;
    self->sequence = Sequence_new();
@@ -6444,9 +6487,10 @@ void Timed_incRef(Timed *self)
 }
 void Timed_decRef(Timed *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
        Sequence_decRef(self->sequence);        
+       Mem_free(self);
    }
    return;
 }
@@ -6499,7 +6543,7 @@ Timed *Timed_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'Timed' json object does not contain a json value for 'sequence'");
            goto FAIL;
        }
-       self->sequence = Timed_fromJson(target, err);
+       self->sequence = Sequence_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    return self;
@@ -6515,17 +6559,17 @@ Timed *Timed_clone(Timed *self) {
    other->sequence = Sequence_clone(self->sequence);
    return self;
 }
-void Timed_setSequence(Timed *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->sequence;
-                self->sequence = value;
-                Sequence_incRef(self->sequence);
-                Sequence_decRef(old);
-            }
+void Timed_setSequence(Timed *self, Sequence *value) {
+   Sequence *old = self->sequence;
+   self->sequence = value;
+   Sequence_incRef(self->sequence);
+   Sequence_decRef(old);
+}
 TimedOff *TimedOff_new()
 {
    TimedOff *self = Mem_malloc(sizeof(TimedOff));
-   self->itype       = TimedOff_itype;
-   self->refCount    = 1;
+   self->itype = TimedOff_itype;
+   self->refCount = 1;
    self->time = 0;
    self->pitch = 0;
    return self;
@@ -6536,8 +6580,9 @@ void TimedOff_incRef(TimedOff *self)
 }
 void TimedOff_decRef(TimedOff *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
+       Mem_free(self);
    }
    return;
 }
@@ -6657,8 +6702,8 @@ void TimedPq_sort(TimedPq *arr);
 Track *Track_new()
 {
    Track *self = Mem_malloc(sizeof(Track));
-   self->itype       = Track_itype;
-   self->refCount    = 1;
+   self->itype = Track_itype;
+   self->refCount = 1;
    self->name = 0;
    return self;
 }
@@ -6668,8 +6713,9 @@ void Track_incRef(Track *self)
 }
 void Track_decRef(Track *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
+       Mem_free(self);
    }
    return;
 }
@@ -6745,8 +6791,8 @@ bool TrackArRIt_next(TrackArRIt *iterator);
 VstOutlet *VstOutlet_new()
 {
    VstOutlet *self = Mem_malloc(sizeof(VstOutlet));
-   self->itype       = VstOutlet_itype;
-   self->refCount    = 1;
+   self->itype = VstOutlet_itype;
+   self->refCount = 1;
    self->atoms = AtomAr_new();
    self->port = Port_new();
    return self;
@@ -6757,10 +6803,11 @@ void VstOutlet_incRef(VstOutlet *self)
 }
 void VstOutlet_decRef(VstOutlet *self)
 {
-    self->refCount--;
-    if (self->refCount <= 0) {
+   self->refCount--;
+   if (self->refCount <= 0) {
        AtomAr_decRef(self->atoms);        
        Port_decRef(self->port);        
+       Mem_free(self);
    }
    return;
 }
@@ -6823,7 +6870,7 @@ VstOutlet *VstOutlet_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'VstOutlet' json object does not contain a json value for 'atoms'");
            goto FAIL;
        }
-       self->atoms = VstOutlet_fromJson(target, err);
+       self->atoms = AtomAr_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    {   
@@ -6832,7 +6879,7 @@ VstOutlet *VstOutlet_fromJson(JSON_Value *jval, Error *err) {
            Error_format0(err, "'VstOutlet' json object does not contain a json value for 'port'");
            goto FAIL;
        }
-       self->port = VstOutlet_fromJson(target, err);
+       self->port = Port_fromJson(target, err);
        Error_gotoLabelOnError(err, FAIL);
    }
    return self;
@@ -6847,18 +6894,18 @@ VstOutlet *VstOutlet_clone(VstOutlet *self) {
    other->port = Port_clone(self->port);
    return self;
 }
-void VstOutlet_setAtoms(VstOutlet *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->atoms;
-                self->atoms = value;
-                AtomAr_incRef(self->atoms);
-                AtomAr_decRef(old);
-            }
-void VstOutlet_setPort(VstOutlet *self, <EXPAND_FAIL> *value) {
-                <EXPAND_FAIL> *old = self->port;
-                self->port = value;
-                Port_incRef(self->port);
-                Port_decRef(old);
-            }
+void VstOutlet_setAtoms(VstOutlet *self, AtomAr *value) {
+   AtomAr *old = self->atoms;
+   self->atoms = value;
+   AtomAr_incRef(self->atoms);
+   AtomAr_decRef(old);
+}
+void VstOutlet_setPort(VstOutlet *self, Port *value) {
+   Port *old = self->port;
+   self->port = value;
+   Port_incRef(self->port);
+   Port_decRef(old);
+}
 #line 1 "src/dispatch.in.c"
 
 #line 15 "src/dispatch.in.c"
@@ -8188,11 +8235,21 @@ APIF void TimedPq_invalidateSequence(TimedPq *self, SequenceAr *removes)
 
 
 
-#line 413 "src/sequence.in.c"
+#line 414 "src/sequence.in.c"
 
 Ticks NoteSequence_cycleDuration   = -1;
 Ticks NoteSequence_endgDuration    = -2;
 Ticks NoteSequence_noteOffDuration = -3;
+
+APIF NoteEvent *NoteEvent_newValue(Ticks stime, int pitch, int velocity, Ticks duration)
+{
+    NoteEvent *self = NoteEvent_new();
+    self->stime = stime;
+    self->pitch = (uint8_t)pitch;
+    self->velocity = (uint8_t)velocity;
+    self->duration = duration;
+    return self;
+}
 
 APIF int NoteEvent_cmp(NoteEvent *left, NoteEvent *right)
 {
@@ -8225,7 +8282,7 @@ APIF int NoteEvent_cmp(NoteEvent *left, NoteEvent *right)
     return 0;
 }
 
-#line 511 "src/sequence.in.c"
+#line 522 "src/sequence.in.c"
 
 #define NoteSequence_isMarkerValue(v) (v < 0)
 #define Sequence_minSequenceLength 5
@@ -8247,20 +8304,20 @@ APIF NoteSequence *NoteSequence_newFromEvents(Symbol *track, PortFind *portFind,
     }
 
     NoteSequence *self = NoteSequence_newTrack(track, portFind);
-    NoteEventAr_truncate(&self->events);
+    NoteEventAr_truncate(self->events, 0);
     for (int i = 0; i < argc; i++) {
-        NoteEventAr_push(&self->events, argv[i]);
+        NoteEventAr_push(self->events, argv[i]);
     }
-    NoteEventAr_sort(&self->events);
+    NoteEventAr_sort(self->events);
 
-    NoteEvent last = NoteEventAr_get(&self->events, NoteEventAr_last(&self->events), err);
+    NoteEvent *last = NoteEventAr_get(self->events, NoteEventAr_len(self->events)-1, err);
     Error_returnNullOnError(err);
 
-    if (last.duration != NoteSequence_cycleDuration) {
+    if (last->duration != NoteSequence_cycleDuration) {
         Error_format0(err, "Called newFromEvents without proper cycle marker");
         goto END;
     }
-    self->sequenceLength = last.stime;
+    self->sequenceLength = last->stime;
     NoteSequence_makeConsistent(self, err);
 
   END:
@@ -8275,7 +8332,7 @@ COVER static inline void NoteSequence_playNoteOffs(NoteSequence *self, Ticks cur
 {
     self->nextOffEvent = Ticks_maxTime;
     int nremoves = 0;
-    TimedOffAr_foreach(it, &self->offs) {
+    TimedOffAr_foreach(it, self->offs) {
         if (it.var->time > current) {
             self->nextOffEvent = it.var->time;
             break;
@@ -8284,7 +8341,7 @@ COVER static inline void NoteSequence_playNoteOffs(NoteSequence *self, Ticks cur
         nremoves++;
     }
     if (nremoves > 0) {
-        TimedOffAr_removeN(&self->offs, 0, nremoves, err);
+        TimedOffAr_removeN(self->offs, 0, nremoves, err);
         Error_maypost(err);
     }
 }
@@ -8302,7 +8359,7 @@ COVER static inline void NoteSequence_playEvents(NoteSequence *self, Ticks curre
             if (!NoteSequence_isMarkerValue(ne->duration)) {
                 // Queue the note off
                 TimedOff off = {.time = self->startTime + ne->stime + ne->duration, .pitch = ne->pitch};
-                TimedOffAr_binInsertTime(&self->offs, off);
+                TimedOffAr_binInsertTime(self->offs, off);
                 if (self->nextOffEvent > off.time) {
                     self->nextOffEvent = off.time;
                 }
@@ -8404,13 +8461,13 @@ APIF void NoteSequence_start(NoteSequence *self, Ticks clockStart, Ticks current
 }
 
 APIF void NoteSequence_stop(NoteSequence *self, Ticks current, Error *err) {
-    self->cursor       = NoteEventAr_len(&self->events);
+    self->cursor       = NoteEventAr_len(self->events);
     self->version++;
 
     if (self->recordingSeq != NULL) {
         // In the recording sequence Adjust the duration of all the pending note-offs
-        TimedOffAr_foreach(offIt, &self->offs) {
-            NoteEventAr_rforeach(noteIt, &self->recordingSeq->events) {
+        TimedOffAr_foreach(offIt, self->offs) {
+            NoteEventAr_rforeach(noteIt, self->recordingSeq->events) {
                 if (noteIt.var->pitch == offIt.var->pitch) {
                     noteIt.var->duration = current - (self->startTime + noteIt.var->stime);
                     if (noteIt.var->duration <= 0) {
@@ -8446,22 +8503,22 @@ APIF void NoteSequence_padNoteOff(NoteSequence *self, Ticks current, Error *err)
 
 APIF void NoteSequence_makeConsistent(NoteSequence *self, Error *err)
 {
-    if (NoteEventAr_len(&self->events) < 1) {
+    if (NoteEventAr_len(self->events) < 1) {
         Error_format0(err, "Called makeConsistent on empty sequence");
         return;
     }
 
-    NoteEventAr_sort(&self->events);
+    NoteEventAr_sort(self->events);
 
-    NoteEvent last = NoteEventAr_get(&self->events, NoteEventAr_last(&self->events), err);
+    NoteEvent last = NoteEventAr_get(self->events, NoteEventAr_len(self->events)-1, err);
     Error_returnVoidOnError(err);
 
-    if (last.duration != NoteSequence_cycleDuration) {
+    if (last->duration != NoteSequence_cycleDuration) {
         Error_format0(err, "Called makeConsistent without proper cycle marker");
         return;
     }
 
-    if (last.stime != self->sequenceLength) {
+    if (last->stime != self->sequenceLength) {
         Error_format0(err, "Called cycle marker and sequenceLength are inconsistent");
         return;
     }
@@ -8470,7 +8527,7 @@ APIF void NoteSequence_makeConsistent(NoteSequence *self, Error *err)
     for (int i = 0; i < 128; i++) {
         timeNextNoteStart[i] = INT_MAX;
     }
-    NoteEventAr_rforeach(it, &self->events) {
+    NoteEventAr_rforeach(it, self->events) {
         if (it.var->stime + it.var->duration > timeNextNoteStart[it.var->pitch]) {
             it.var->duration = timeNextNoteStart[it.var->pitch] - it.var->stime;
             if (it.var->duration <= 0) {
@@ -8501,20 +8558,20 @@ APIF void NoteSequence_compactConcat(NoteSequence *self, Sequence *otherSeq, Err
         Error_format(err, "NoteSequence_compactConcat was passed a sequence of type %s", Interface_toString(Interface_itype(otherSeq)));
         return;
     }
-    NoteEventAr_foreach(it, &other->events) {
+    NoteEventAr_foreach(it, other->events) {
         NoteEvent e = *it.var;
         if (NoteSequence_isMarkerValue(e.duration)) {
             continue;
         }
         // Rememver in RecordBuffer_compact we're gauranteed that self->startTime < other->startTime
         e.stime += (other->startTime - self->startTime);
-        NoteEventAr_push(&self->events, e); 
+        NoteEventAr_push(self->events, e); 
     }
 }
 
 APIF void NoteSequence_compactSortEvents(NoteSequence *self)
 {
-    NoteEventAr_sort(&self->events);
+    NoteEventAr_sort(self->events);
 }
 
 // Return the time that endgroup should be inserted, or -1 if no endgroup applies.
@@ -8523,7 +8580,7 @@ APIF Ticks NoteSequence_computeEndgroupTime(NoteSequence *self)
 {
     // Endgroup is the 
     Ticks endgroupTime = -1;
-    NoteEventAr_rforeach(it, &self->events) {
+    NoteEventAr_rforeach(it, self->events) {
         if (NoteSequence_isMarkerValue(it.var->duration)) {
             continue;
         }
@@ -8536,7 +8593,7 @@ APIF Ticks NoteSequence_computeEndgroupTime(NoteSequence *self)
 APIF Ticks NoteSequence_compactComputeSequenceLength(NoteSequence *self)
 {
     Ticks lastTime = Sequence_minSequenceLength;
-    NoteEventAr_rforeach(it, &self->events) {
+    NoteEventAr_rforeach(it, self->events) {
         if (NoteSequence_isMarkerValue(it.var->duration)) {
             continue;
         }
@@ -8559,8 +8616,8 @@ APIF Ticks NoteSequence_compactComputeSequenceLength(NoteSequence *self)
 APIF void NoteSequence_compactFinish(NoteSequence *self, Ticks endgroupTime, Ticks sequenceLength, Error *err)
 {
     if (endgroupTime >= 0) {
-        int index = NoteEventAr_len(&self->events) > 0 ? 0 : -1;
-        NoteEventAr_rforeach(it, &self->events) {
+        int index = NoteEventAr_len(self->events) > 0 ? 0 : -1;
+        NoteEventAr_rforeach(it, self->events) {
             if (NoteSequence_isMarkerValue(it.var->duration)) {
                 continue;
             }
@@ -8571,7 +8628,7 @@ APIF void NoteSequence_compactFinish(NoteSequence *self, Ticks endgroupTime, Tic
         }
         if (index >= 0) {
             NoteEvent newEv = {.stime = endgroupTime, .duration = NoteSequence_endgDuration, .pitch = 0, .velocity = 0};
-            NoteEventAr_insert(&self->events, index, newEv, err);
+            NoteEventAr_insert(self->events, index, newEv, err);
             Error_returnVoidOnError(err);
         }
     }
@@ -8579,12 +8636,12 @@ APIF void NoteSequence_compactFinish(NoteSequence *self, Ticks endgroupTime, Tic
 
     self->sequenceLength = sequenceLength;
     NoteEvent newEv = {.stime = sequenceLength, .duration = NoteSequence_cycleDuration, .pitch = 0, .velocity = 0};
-    NoteEventAr_push(&self->events, newEv);
+    NoteEventAr_push(self->events, newEv);
     NoteSequence_makeConsistent(self, err);
     return;
 }
 
-#line 889 "src/sequence.in.c"
+#line 900 "src/sequence.in.c"
 
 APIF int FloatEvent_cmp(FloatEvent *left, FloatEvent *right)
 {
@@ -8596,7 +8653,7 @@ APIF int FloatEvent_cmp(FloatEvent *left, FloatEvent *right)
     return 0;
 }
 
-#line 953 "src/sequence.in.c"
+#line 964 "src/sequence.in.c"
 
 APIF FloatSequence *FloatSequence_newCc(Symbol *track, int cc, PortFind *portFind) 
 {
@@ -8622,9 +8679,9 @@ APIF FloatSequence *FloatSequence_newFromEvents(Symbol *track, int ccOrNegForBen
     } else {
         self = FloatSequence_newBend(track, portFind);
     }
-    FloatEventAr_truncate(&self->events);
+    FloatEventAr_truncate(self->events);
     for (int i = 0; i < argc; i++) {
-        FloatEventAr_push(&self->events, argv[i]);
+        FloatEventAr_push(self->events, argv[i]);
     }
     FloatSequence_makeConsistent(self);
     return self;
@@ -8636,7 +8693,7 @@ double FloatSequence_cycleMarker = -1.0e41;
 #define FloatSequence_isMarkerValue(v) (v < -1.0e10)
 
 APIF void FloatSequence_start(FloatSequence *self, Ticks clockStart, Ticks current, TimedPq *queue, RecordBuffer *recordBuffer, Error *err) {
-    int nevents = FloatEventAr_len(&self->events);
+    int nevents = FloatEventAr_len(self->events);
     if (nevents <= 0) {
         return;
     }
@@ -8653,7 +8710,7 @@ APIF void FloatSequence_start(FloatSequence *self, Ticks clockStart, Ticks curre
             self->startTime += self->sequenceLength;
         }
 
-        FloatEventAr_foreach(it, &self->events) {
+        FloatEventAr_foreach(it, self->events) {
             if (it.var->stime + self->startTime > current) {
                 nextEvent = it.var->stime + self->startTime;
                 break;
@@ -8666,7 +8723,7 @@ APIF void FloatSequence_start(FloatSequence *self, Ticks clockStart, Ticks curre
             self->cursor     = 0;
         }
     } else {
-        FloatEventAr_foreach(it, &self->events) {
+        FloatEventAr_foreach(it, self->events) {
             nextEvent = it.var->stime + self->startTime;
             break;
         }
@@ -8685,7 +8742,7 @@ APIF void FloatSequence_start(FloatSequence *self, Ticks clockStart, Ticks curre
 APIF void FloatSequence_drive(FloatSequence *self, Ticks current, TimedPq *queue, Error *err) {
     Ticks nextEvent = -1;
     for (;;) {
-        FloatEventAr_foreachOffset(it, &self->events, self->cursor) {
+        FloatEventAr_foreachOffset(it, self->events, self->cursor) {
             FloatEvent *fe = it.var;
             if (fe->stime + self->startTime > current) {
                 nextEvent = fe->stime + self->startTime;
@@ -8702,7 +8759,7 @@ APIF void FloatSequence_drive(FloatSequence *self, Ticks current, TimedPq *queue
             if (self->recordingSeq != NULL && !FloatSequence_isMarkerValue(fe->value)) {
                 FloatEvent e = *fe;
                 e.stime      = self->recordingSeq->startTime + fe->stime;
-                FloatEventAr_push(&self->recordingSeq->events, e);
+                FloatEventAr_push(self->recordingSeq->events, e);
             }
             self->cursor++;
         }
@@ -8723,7 +8780,7 @@ APIF void FloatSequence_drive(FloatSequence *self, Ticks current, TimedPq *queue
 }
 
 APIF void FloatSequence_stop(FloatSequence *self, Ticks current, Error *err) {
-    self->cursor       = FloatEventAr_len(&self->events);
+    self->cursor       = FloatEventAr_len(self->events);
     self->version++;
     self->recordingSeq = NULL;
     Outlet_sendFloat(self->outlet, self->restoreValue, err);
@@ -8737,9 +8794,9 @@ APIF void FloatSequence_padNoteOff(FloatSequence *self, Ticks current, Error *er
 
 APIF void FloatSequence_makeConsistent(FloatSequence *self)
 {
-    FloatEventAr_sort(&self->events);
+    FloatEventAr_sort(self->events);
     double seen = -1;
-    FloatEventAr_rforeach(it, &self->events) {
+    FloatEventAr_rforeach(it, self->events) {
         if (seen == it.var->stime) {
             FloatEventArRIt_remove(&it);
         }
@@ -8763,14 +8820,14 @@ APIF void FloatSequence_compactConcat(FloatSequence *self, Sequence *otherSeq, E
         Error_format(err, "FloatSequence_compactConcat was passed a sequence of type %s", Interface_toString(Interface_itype(otherSeq)));
         return;
     }
-    FloatEventAr_foreach(it, &other->events) {
+    FloatEventAr_foreach(it, other->events) {
         FloatEvent e = *it.var;
         if (FloatSequence_isMarkerValue(e.value)) {
             continue;
         }
         // Remember that self->startTime == recordStart
         e.stime += (other->startTime - self->startTime);
-        FloatEventAr_push(&self->events, e); 
+        FloatEventAr_push(self->events, e); 
     }
     return;
 }
@@ -8783,7 +8840,7 @@ APIF void FloatSequence_compactSortEvents(FloatSequence *self)
 APIF Ticks FloatSequence_compactComputeSequenceLength(FloatSequence *self)
 {
     Ticks lastTime = -1;
-    FloatEventAr_rforeach(it, &self->events) {
+    FloatEventAr_rforeach(it, self->events) {
         lastTime = it.var->stime;
         break;
     }
@@ -8800,8 +8857,8 @@ APIF Ticks FloatSequence_compactComputeSequenceLength(FloatSequence *self)
 APIF void FloatSequence_compactFinish(FloatSequence *self, Ticks endgroupTime, Ticks sequenceLength, Error *err)
 {
     if (endgroupTime >= 0) {
-        int index = FloatEventAr_len(&self->events) > 0 ? 0 : -1;
-        FloatEventAr_rforeach(it, &self->events) {
+        int index = FloatEventAr_len(self->events) > 0 ? 0 : -1;
+        FloatEventAr_rforeach(it, self->events) {
             if (FloatSequence_isMarkerValue(it.var->value)) {
                 continue;
             }
@@ -8812,19 +8869,19 @@ APIF void FloatSequence_compactFinish(FloatSequence *self, Ticks endgroupTime, T
         }
         if (index >= 0) {
             FloatEvent newEv = {.stime = endgroupTime, .value = FloatSequence_endgMarker};
-            FloatEventAr_insert(&self->events, index, newEv, err);
+            FloatEventAr_insert(self->events, index, newEv, err);
             Error_returnVoidOnError(err);
         }
     }
 
     self->sequenceLength = sequenceLength;
     FloatEvent newEv = {.stime = sequenceLength, .value = FloatSequence_cycleMarker};
-    FloatEventAr_push(&self->events, newEv);
+    FloatEventAr_push(self->events, newEv);
     FloatSequence_makeConsistent(self);
     return;
 }
 
-#line 1301 "src/sequence.in.c"
+#line 1312 "src/sequence.in.c"
 
 // APIF void SequenceAr_truncateNoClear(SequenceAr *self) {
 //     SequenceAr_foreach(it, self) {
@@ -8906,7 +8963,7 @@ APIF void Sequence_incVersion(Sequence *seq) {
     seq->version++;
 }
 
-#line 1404 "src/sequence.in.c"
+#line 1415 "src/sequence.in.c"
 APIF RecordBuffer *RecordBuffer_newStart(Ticks recordStart)
 {
     RecordBuffer *self = RecordBuffer_new();
@@ -9106,7 +9163,7 @@ APIF void Midi_fromfile(const char *midiFilePath, SequenceAr *output, Symbol *de
                 }
                 if (ev.arg2 == 0) {
                     bool found = false;
-                    NoteEventAr_rforeach(it, &noteSeq->events) {
+                    NoteEventAr_rforeach(it, noteSeq->events) {
                         if (it.var->pitch == ev.arg1) {
                             if (it.var->duration != NoteSequence_noteOffDuration) {
                                 Error_format(err, "Found unpaired note-off at %lld", ev.time);
@@ -9123,7 +9180,7 @@ APIF void Midi_fromfile(const char *midiFilePath, SequenceAr *output, Symbol *de
                     }
                 } else {
                     NoteEvent newEv = {.pitch = ev.arg1, .velocity = ev.arg2, .stime = ev.time, .duration = NoteSequence_noteOffDuration};
-                    NoteEventAr_push(&noteSeq->events, newEv);
+                    NoteEventAr_push(noteSeq->events, newEv);
                 }
                 break;
             }
@@ -9132,7 +9189,7 @@ APIF void Midi_fromfile(const char *midiFilePath, SequenceAr *output, Symbol *de
                     bendSeq = FloatSequence_newBend(defaultTrack, portFind);
                 }
                 FloatEvent newEv = {.stime = ev.time, .value = (double)ev.arg1};
-                FloatEventAr_push(&bendSeq->events, newEv);
+                FloatEventAr_push(bendSeq->events, newEv);
                 break;
             }
             case Midi_ccEventType: {
@@ -9140,7 +9197,7 @@ APIF void Midi_fromfile(const char *midiFilePath, SequenceAr *output, Symbol *de
                     ccSeqs[ev.arg1] = FloatSequence_newCc(defaultTrack, ev.arg1, portFind);
                 }
                 FloatEvent newEv = {.stime = ev.time, .value = (double)ev.arg2};
-                FloatEventAr_push(&(ccSeqs[ev.arg1])->events, newEv);
+                FloatEventAr_push((ccSeqs[ev.arg1])->events, newEv);
                 break;
             }
             case Midi_headerEventType: {
@@ -9294,6 +9351,12 @@ APIF void Frontend_stop(Hub *hub) {
 	}
 }
 */
+void PooledType_init() {
+   for (int i = 0; i < NoteEvent_poolSize; i++) {
+       NoteEvent *self = NoteEvent_new();
+       NoteEvent_decRef(self);
+   }
+}
 #line 1 "**coverage**" 
 void Coverage_initialize()
 {
