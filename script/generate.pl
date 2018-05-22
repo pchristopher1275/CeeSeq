@@ -986,6 +986,76 @@ ENDxxxxxxxxxx
     },
 
     {
+        key =>    'Interface:startITypeFromString',
+        symbol => '',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @int Interface_itypeFromString(const char *str, Error *err) {
+ENDxxxxxxxxxx
+    },
+    {
+        key =>    'Interface:caseITypeFromString',
+        symbol => '',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @   if (strcmp(str, "${TYPENAME}") == 0) {
+            @       return ${TYPENAME}_itype;
+            @   }
+ENDxxxxxxxxxx
+    },
+    {
+        key =>    'Interface:endITypeFromString',
+        symbol => '',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @   Error_format0("Interfae_itypeFromString passed unknown type string '%s'", str);
+            @   return -1;
+            @}
+ENDxxxxxxxxxx
+    },
+
+
+    {
+        key =>    'Interface:startFromJson',
+        symbol => '',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @${IFCNAME} *${IFCNAME}_fromJson(JSON_Value *jvalue, Error *err) {
+            @   JSON_Object *jobj = json_value_get_object(jvalue);
+            @   if (jobj == NULL) {
+            @       Error_format0(err, "${IFCNAME}_fromJson passed non-object");
+            @       return NULL;
+            @   }
+            @   const char *type = json_object_get_string(jobj, "*type");
+            @   if (s == NULL) {
+            @       Error_format0(err, "fromJson object does not contain *type on type ${IFCNAME}");
+            @       return NULL;
+            @   } 
+            @   int itype = Interface_itypeFromString(type, err);
+            @   if (Error_iserror(err)) {
+            @       return;
+            @   }
+            @   switch (itype) {
+ENDxxxxxxxxxx
+    },
+    {
+        key =>    'Interface:caseFromJson',
+        symbol => '',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @       case ${TYPENAME}_itype:
+            @           return (${IFCNAME}*)${TYPENAME}_fromJson(jvalue, err);
+ENDxxxxxxxxxx
+    },
+    {
+        key =>    'Interface:endFromJson',
+        symbol => '',
+        tmpl   => <<'ENDxxxxxxxxxx', 
+            @       default:
+            @           Error_format(err, "Failed to resolve interface call in ${IFCNAME}_fromJson: found type %s", Interface_toString(itype));
+            @   }
+            @   return NULL;
+            @}
+ENDxxxxxxxxxx
+    },
+
+
+    {
         key =>    'Interface:endFunctionVoid',
         symbol => '',
         tmpl   => <<'ENDxxxxxxxxxx', 
@@ -1045,7 +1115,7 @@ ENDxxxxxxxxxx
         symbol => '',
         tmpl   => <<'ENDxxxxxxxxxx', 
             @static inline ${TYPENAME} *${TYPENAME}_castFrom${IFCNAME}(${IFCNAME} *self) {
-            @   if (self->itype == ${TYPENAME}_itype) {
+            @   if (self != NULL && self->itype == ${TYPENAME}_itype) {
             @       return (${TYPENAME}*)self;
             @   }
             @   return NULL;
@@ -1075,14 +1145,14 @@ ENDxxxxxxxxxx
         key =>    'Lifecycle:newStartPooled',
         symbol => '',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @Array ${TYPENAME}_pool     = {-1, 1};
+            @Array *${TYPENAME}_pool    = NULL;
             @int ${TYPENAME}_poolSize   = ${POOLSIZE};
             @int ${TYPENAME}_poolMiss   = 0;
             @${TYPENAME} *${TYPENAME}_new()
             @{
             @   ${TYPENAME} *self = NULL;
-            @   if (Array_len(&${TYPENAME}_pool) > 0) {
-            @       Array_popN(&${TYPENAME}_pool, 1, &self, NULL, sizeof(void *));
+            @   if (Array_len(${TYPENAME}_pool) > 0) {
+            @       Array_popN(${TYPENAME}_pool, 1, &self, NULL, sizeof(void *));
             @   } else {
             @       self = Mem_malloc(sizeof(${TYPENAME}));
             @       ${TYPENAME}_poolMiss++;
@@ -1153,8 +1223,6 @@ ENDxxxxxxxxxx
 ENDxxxxxxxxxx
     },
 
-    
-
     {
         key =>    'Lifecycle:decRefFieldKnown',
         symbol => '',
@@ -1167,7 +1235,7 @@ ENDxxxxxxxxxx
         key =>    'Lifecycle:decRefEndPooled',
         symbol => '',
         tmpl   => <<'ENDxxxxxxxxxx', 
-            @   if (Array_len(&${TYPENAME}_pool) < ${TYPENAME}_poolSize) {
+            @   if (Array_len(${TYPENAME}_pool) < ${TYPENAME}_poolSize) {
             @       memset(self, 0, sizeof(${TYPENAME}));
             @       Array_pushN(&${TYPENAME}_pool, 1, &self, NULL, sizeof(void *));
             @   } else {
@@ -1472,6 +1540,8 @@ ENDxxxxxxxxxx
         key =>    'Lifecycle:initPooledType',
         symbol => '',
         tmpl   => <<'ENDxxxxxxxxxx', 
+            @   // NOTE: I'm passing itype == -1 to the pool array. Shouldn't matter b/c we don't call any interface methods.
+            @   ${TYPENAME}_pool = Array_new(-1);
             @   for (int i = 0; i < ${TYPENAME}_poolSize; i++) {
             @       ${TYPENAME} *self = ${TYPENAME}_new();
             @       ${TYPENAME}_decRef(self);
@@ -1853,10 +1923,9 @@ sub InterfaceArtifact_isa {
 }
 
 sub InterfaceArtifact_emitInterfaceMethod {
-    my ($self, $out, $methodIndex, $proto, $api) = @_;
+    my ($self, $out, $method, $proto, $api) = @_;
     die "Bad type expected Interface found $self->{itype}" unless $self->{itype} eq 'Interface';
     my $ifcName       = $self->{typeName};
-    my $method        = $self->{methods}[$methodIndex];
     my $classMethod   = $method->{classMethod};
     my $defMethod     = $method->{defMethod};
     my $refReturn     = $method->{refReturn};
@@ -1980,11 +2049,55 @@ sub InterfaceArtifact_emitStructs {
     Expand_emit($out, ["Struct:tail"], {});
 }
 
+sub InterfaceArtifact_lifecycleMethods {
+    my ($self) = @_;
+    my $typeName = $self->{typeName};
+    return (
+        {
+            "name" => "new",
+            "classMethod" => 1, 
+            "refReturn" => "$typeName",
+            "args" => [],
+        },
+        {
+            "name" => "incRef",
+            "valReturn" => "void",
+            "args" => [],
+        },
+        {
+            "name" => "decRef",
+            "valReturn" => "void",
+            "args" => [],
+        },
+
+           # @${TYPENAME} *${TYPENAME}_fromJson(JSON_Value *jvalue, Error *err);
+            # @JSON_Value *${TYPENAME}_toJson(${TYPENAME} *self, Error *err);
+            # @${TYPENAME} *${TYPENAME}_clone(${TYPENAME} *self);
+        # {
+        #     "name" => "fromJson",
+        #     "refReturn" => "$typeName",
+        #     "args" => [["val", "JSON_Value *"], ["val", "Error *"]],
+        # },  
+        {
+            "name" => "toJson",
+            "valReturn" => "JSON_Value *",
+            "args" => [["val", "Error *"]],
+        },
+        {
+            "name" => "clone",
+            "refReturn" => "$typeName",
+            "args" => [],
+        },  
+    );
+}
+
+
 sub InterfaceArtifact_emitPrototypes {
     my ($self, $out, $api) = @_;
-    InterfaceArtifact_emitForeachItype($self, $out, 1);
+    InterfaceArtifact_emitForeachItype($self, $out, 0);
     for (my $methodIndex = 0; $methodIndex < @{$self->{methods}}; $methodIndex++) {
-        InterfaceArtifact_emitInterfaceMethod($self, $out, $methodIndex, 1, $api);
+        my $method = $self->{methods}[$methodIndex];
+        InterfaceArtifact_emitInterfaceMethod($self, $out, $method, 1, $api);
     }
 }
 
@@ -1992,7 +2105,8 @@ sub InterfaceArtifact_emitFunctions {
     my ($self, $out, $api) = @_;
     InterfaceArtifact_emitForeachItype($self, $out, 1);
     for (my $methodIndex = 0; $methodIndex < @{$self->{methods}}; $methodIndex++) {
-        InterfaceArtifact_emitInterfaceMethod($self, $out, $methodIndex, 0, $api);
+        my $method = $self->{methods}[$methodIndex];
+        InterfaceArtifact_emitInterfaceMethod($self, $out, $method, 0, $api);
     }
 }
 
@@ -2469,6 +2583,14 @@ sub ArtifactList_emitInterfacePreamble {
         Expand_emit($out, ['Interface:caseToString'], {TYPENAME => $artifact->{typeName}});
     }
     Expand_emit($out, ['Interface:endFunctionToString'], {}); 
+
+    ## Write itypeFromString
+    Expand_emit($out, ['Interface:startITypeFromString'], {});
+    for my $artifact (@{$self->{artifacts}}) {
+        next unless ClassArtifact_isa($artifact);
+        Expand_emit($out, ['Interface:caseITypeFromString'], {TYPENAME => $artifact->{typeName}});
+    }
+    Expand_emit($out, ['Interface:endITypeFromString'], {});
 }
 
 sub ArtifactList_emitStructs {
@@ -2689,11 +2811,18 @@ sub Main_emitWarning {
     }
 }
 
-sub Main_emitArrayGuts {
+sub Main_emitConstantFiles {
     my ($out) = @_;
+    Util_copyFile("$gMasterSourceDir/parson.h", $out);
+    Util_copyFile("$gMasterSourceDir/parson.c", $out);
     Expand_emit($out, ['Predefined:struct'], {TYPENAME=>"Array"});
     Expand_emit($out, ['Array:struct'], {TYPENAME=>"Array", REFNAME=>"char"});
     Util_copyFile("$gMasterSourceDir/array.c", $out);
+}
+
+sub Main_copyParson {
+    my ($out) = @_;
+
 }
 
 sub Main_readIgnores {
@@ -2763,7 +2892,7 @@ sub Main_main {
     Coverage_writePreamble($coverage, $out);
 
     ## Write array support
-    Main_emitArrayGuts($out);
+    Main_emitConstantFiles($out);
 
     ## Structs
     ArtifactList_emitTypedefs($artifactList, $out);

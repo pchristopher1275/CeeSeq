@@ -13,29 +13,7 @@
 #include "../src/unit.c"
 #include "application.c"
 
-
-
-Unit_declare(testCompileNames) {
-	{
-		// All references have new/incRef/decRef
-		Bar *b = Bar_new();
-		chk(Bar_refCount(b) == 1);
-		Bar_incRef(b);
-		Bar_decRef(b);
-		Bar_decRef(b);
-	}
-
-	{
-		// All references have clone
-		Bar *b = Bar_new();
-		Bar *c = Bar_clone(b);
-		chk(Bar_refCount(c) == 1);
-		Bar_incRef(b);
-		Bar_decRef(c);
-	}
-}
-
-Unit_declare(testBasic) {
+Unit_declare(testTypeLifecycle) {
 	{
 		// New is called with refCount == 1
 		Bar *s = Bar_new();
@@ -133,8 +111,8 @@ Unit_declare(testArray) {
 		b = BarAr_get(sar, 0, err);
 		fatal(!Error_iserror(err));
 		chk(Bar_refCount(b) == 2);
-		BarAr_decRef(sar);
-		Bar_decRef(s);
+		BarAr_decRef(ba);
+		Bar_decRef(b);
 	}
 
 	{
@@ -145,7 +123,7 @@ Unit_declare(testArray) {
 		Bar *b2 = Bar_new();
 		BarAr_push(sar, b1);
 
-		BarAr_set(sar, 0, b2, err);
+		BarAr_set(ba, 0, b2, err);
 		fatal(!Error_iserror(err));
 		chk(Bar_refCount(b1) == 1);
 		chk(Bar_refCount(b2) == 2);
@@ -281,6 +259,37 @@ Unit_declare(testArray) {
 	}
 }
 
+Unit_declare(testClone) {
+	{
+		// All references have clone
+		Bar *b = Bar_new();
+		b->i = 1234;
+		Bar *c = Bar_clone(b);
+		chk(c != b);
+		chk(c->i == 1234);
+		chk(Bar_refCount(c) == 1);
+		Bar_decRef(b);
+		Bar_decRef(c);
+	}
+
+	{
+		// All arrays have clone
+		BarAr *ba = BarAr_new();
+		Bar *b = Bar_new();
+		b->i = 1234;
+		BarAr_push(ba, b);
+		BarAr *ca = BarAr_clone(ba);
+		chk(ba != ca);
+		fatal(BarAr_len(ca) == 1);
+		Bar *c = BarAr_at(ba, 0);
+		chk(c != b);
+		chk(c->i == 1234);
+		BarAr_decRef(ba);
+		BarAr_decRef(ca);
+		Bar_decRef(b);
+		Bar_decRef(c);
+	}
+}
 
 
 int main(int argc, char *argv[]) {
